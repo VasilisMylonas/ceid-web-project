@@ -1,48 +1,75 @@
-const express = require('express');
-const { Pool } = require('pg');
-const fs = require('fs');
-const path = require('path');
+const express = require('express'); // Express framework
+const jwt = require('jsonwebtoken'); // JSON Web Token (for authentication)
+const bcrypt = require('bcrypt'); // Password hashing
+const { StatusCodes } = require('http-status-codes'); // Standard HTTP status codes
+const db = require('./db'); // Database connection and models
 
-const app = express();
 const port = 3000;
-
+const jwt_secret = 'your_jwt_secret'; // TODO
+const app = express();
 app.use(express.json());
 
-// const pool = new Pool({
-//     user: 'thesis_user',
-//     host: 'localhost',
-//     database: 'thesis_management',
-//     password: 'thesis_password',
-//     port: 5432,
-// });
+db.setup();
 
-// async function resetDatabase() {
-//     console.log('Resetting database...');
+function authenticate(req, res, next) {
+    const authHeader = req.headers['authorization']; // The header is "Authorization: Bearer <token>"
+    const token = authHeader && authHeader.split(' ')[1];
 
-//     try {
-//         // Read schema file
-//         const schemaPath = path.join(__dirname, 'schema.sql');
-//         const schema = fs.readFileSync(schemaPath, 'utf8');
+    if (!token) {
+        return res.status(StatusCodes.UNAUTHORIZED);
+    }
 
-//         // Execute schema commands
-//         await pool.query(schema);
+    try {
+        req.auth = jwt.verify(token, jwt_secret); // Verify the token
+        next(); // Proceed to the next middleware or route handler
+    } catch (error) {
+        console.error('Authentication error:', error);
+        return res.status(StatusCodes.FORBIDDEN);
+    }
+};
 
-//         console.log('Database reset successful!');
-//     } catch (error) {
-//         console.error('Error resetting database:', error);
-//     }
-// }
+app.post("/api/login", async (req, res) => {
+    const { username, password } = req.body;
 
-// resetDatabase();
+    if (!username || !password) {
+        return res.status(StatusCodes.BAD_REQUEST).send('Username or password not provided');
+    }
 
-// Test database connection
-// pool.query('SELECT NOW()', (err, res) => {
-//     if (err) {
-//         console.error('Database connection error:', err);
-//     } else {
-//         console.log('Connected to PostgreSQL database at:', res.rows[0].now);
-//     }
-// });
+    try {
+        const user = await db.UserModel.findOne({ where: { "username": username } });
+
+        if (!user) {
+            return res.status(StatusCodes.UNAUTHORIZED).send();
+        }
+
+        // TODO
+        // const isPasswordValid = await bcrypt.compare(password, user.password);
+        const isPasswordValid = password === user.password; // For testing purposes, use plain text password
+
+        if (!isPasswordValid) {
+            return res.status(StatusCodes.UNAUTHORIZED).send();
+        }
+
+        const token = jwt.sign({ id: user.id }, jwt_secret, { expiresIn: '1h' });
+
+        res.status(StatusCodes.OK).json({ token });
+    } catch (error) {
+        console.error('Error during login:', error);
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send();
+    }
+});
+
+app.get("/api/user", authenticate, async (req, res) => {
+    console.log(req.auth);
+    res.status(StatusCodes.OK).json({ auth: req.auth });
+});
+
+app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+});
+
+
+
 
 
 
@@ -80,19 +107,4 @@ POST /api/invitations/:id/reject (reject invitation)
 5)
 GET /api/statistics (view statistics)
 
-
-
-
-
-
-
 */
-
-// Example route
-app.get('/', (req, res) => {
-    res.send('Hello from Node.js backend!');
-});
-
-app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
-});

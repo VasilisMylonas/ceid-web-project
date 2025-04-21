@@ -9,16 +9,9 @@ import { professorOnly } from "../middleware/roles.js";
 
 const router = express.Router();
 
-/*
-GET /api/topics (view all topics)
-POST /api/topics (create topic)
-GET /api/topics/:id (view topic)
-PUT /api/topics/:id (update topic)
-DELETE /api/topics/:id (delete topic)
-*/
-
-router.get("/", auth, professorOnly, getTopics);
+router.get("/", auth, getTopics);
 router.post("/", auth, professorOnly, createTopic);
-router.get("/:id", auth, professorOnly, getTopic);
+router.put("/:id", auth, professorOnly, createTopic);
+router.get("/:id", auth, getTopic);
 
 export default router;

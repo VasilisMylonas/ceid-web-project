@@ -3,6 +3,8 @@ import dotenv from "dotenv";
 import { sequelize } from "./config/db.js";
 import topicRoutes from "./routes/topicRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
+import YAML from "yamljs";
+import swaggerUi from "swagger-ui-express";
 
 import User from "./models/User.js";
 import Topic from "./models/Topic.js";
@@ -64,8 +66,8 @@ async function setupDatabase() {
   for (let i = 0; i < 20; i++) {
     dummyTopics.push({
       userId: faker.number.int({ min: 2, max: 11 }),
-      title: fakerEL.lorem.sentence(),
-      summary: fakerEL.lorem.paragraph(),
+      title: faker.lorem.sentence(),
+      summary: faker.lorem.paragraph(),
       createdAt: new Date(),
       updatedAt: new Date(),
     });
@@ -74,37 +76,14 @@ async function setupDatabase() {
   await Topic.bulkCreate(dummyTopics);
 }
 
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(YAML.load("./swagger.yaml"))
+);
+
 await setupDatabase();
 
 export const server = app.listen(process.env.PORT, () => {
   console.log(`Server is running on port ${process.env.PORT}`);
 });
-
-/*
-
-2) Topic assignment to student
-POST /api/topics/:id/assign (assign topic to student)
-POST /api/topics/:id/unassign (unassign topic from student)
-POST /api/topics/:id/finalize (finalize topic)
-
-3) Theses management
-GET /api/theses (view all thesis)
-GET /api/theses/:id  (view thesis)
-POST /api/theses (create thesis)
-PUT /api/theses/:id (update thesis)
-POST /api/theses/:id/notes (add notes)
-GET /api/theses/:id/notes (view notes)
-POST /api/theses/:id/submit (submit thesis)
-POST /api/theses/:id/cancel (cancel thesis)
-POST /api/theses/:id/approve (approve thesis)
-POST /api/theses/:id/reject (reject thesis)
-
-4)
-GET /api/invitations (view all invitations)
-POST /api/invitations/:id/accept (accept invitation)
-POST /api/invitations/:id/reject (reject invitation)
-
-5)
-GET /api/statistics (view statistics)
-
-*/

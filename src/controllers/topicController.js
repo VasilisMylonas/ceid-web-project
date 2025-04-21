@@ -22,12 +22,15 @@ export async function createTopic(req, res) {
 }
 
 export async function getTopics(req, res) {
-  const { owner } = req.query;
+  const { owner, limit } = req.query;
+
+  const options = {
+    limit: limit ? parseInt(limit, 10) : undefined,
+    where: owner ? { userId: owner } : undefined,
+  };
 
   try {
-    const topics = owner
-      ? await Topic.findAll({ where: { userId: owner } })
-      : await Topic.findAll();
+    const topics = await Topic.findAll(options);
 
     res.status(StatusCodes.OK).json(topics);
   } catch (error) {

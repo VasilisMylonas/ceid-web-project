@@ -2,15 +2,15 @@ import { StatusCodes } from "http-status-codes";
 import Topic from "../models/Topic.js";
 
 export async function createTopic(req, res) {
-  const { title, summary } = req.body;
-
-  if (!title || !summary) {
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .send("title or summary not provided");
-  }
-
   try {
+    const { title, summary } = req.body;
+
+    if (!title || !summary) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .send("title or summary not provided");
+    }
+
     const topic = await Topic.create({
       title,
       summary,
@@ -25,10 +25,36 @@ export async function createTopic(req, res) {
 
 export async function getTopics(req, res) {
   try {
-    const topics = await Topic.findAll({ where: { userId: req.auth.id } });
+    const { owner } = req.query;
+
+    const topics = owner
+      ? await Topic.findAll({ where: { userId: owner } })
+      : await Topic.findAll();
+
     res.status(StatusCodes.OK).json(topics);
   } catch (error) {
     console.error("Error fetching topics:", error);
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send();
+  }
+}
+
+export async function getTopic(req, res) {
+  const { id } = req.params;
+
+  if (!id) {
+    return res.status(StatusCodes.BAD_REQUEST).send("id not provided");
+  }
+
+  try {
+    const topic = await Topic.findByPk(id);
+
+    if (!topic) {
+      return res.status(StatusCodes.NOT_FOUND).send("Topic not found");
+    }
+
+    res.status(StatusCodes.OK).json(topic);
+  } catch (error) {
+    console.error("Error fetching topic:", error);
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send();
   }
 }

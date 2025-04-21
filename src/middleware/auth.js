@@ -5,20 +5,21 @@ import dotenv from "dotenv";
 dotenv.config();
 
 async function auth(req, res, next) {
-  const authHeader = req.headers["authorization"]; // The header is "Authorization: Bearer <token>"
-  const token = authHeader && authHeader.split(" ")[1];
+  // TODO: remove authentication for testing
+  req.auth = { id: 1 };
 
-  if (!token) {
-    return res.status(StatusCodes.UNAUTHORIZED).send();
-  }
-
-  try {
-    req.auth = jwt.verify(token, process.env.JWT_SECRET);
-    next();
-  } catch (error) {
-    console.error("Authentication error:", error);
-    return res.status(StatusCodes.FORBIDDEN).send();
-  }
+  // const authHeader = req.headers["authorization"]; // The header is "Authorization: Bearer <token>"
+  // const token = authHeader && authHeader.split(" ")[1];
+  // if (!token) {
+  //   return res.status(StatusCodes.UNAUTHORIZED).send();
+  // }
+  // try {
+  //   req.auth = jwt.verify(token, process.env.JWT_SECRET);
+  next();
+  // } catch (error) {
+  //   console.error("Authentication error:", error);
+  //   return res.status(StatusCodes.FORBIDDEN).send();
+  // }
 }
 
 export default auth;

@@ -5,7 +5,9 @@ import topicRoutes from "./routes/topicRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 
 import User from "./models/User.js";
+import Topic from "./models/Topic.js";
 import bcrypt from "bcrypt";
+import { faker, fakerEL } from "@faker-js/faker";
 
 dotenv.config();
 
@@ -33,13 +35,43 @@ async function setupDatabase() {
     process.exit(1);
   }
 
-  // TODO
+  // Create dummy admin user
   await User.create({
     username: "admin",
     password: await bcrypt.hash("admin", 10),
     role: "admin",
     email: "admin@example.com",
   });
+
+  const dummyUsers = [];
+
+  for (let i = 0; i < 10; i++) {
+    dummyUsers.push({
+      username: faker.internet.username(),
+      password: await bcrypt.hash("password", 10),
+      role: faker.helpers.arrayElement(["student", "professor"]),
+      email: faker.internet.email(),
+      name: fakerEL.person.fullName(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+  }
+
+  await User.bulkCreate(dummyUsers);
+
+  const dummyTopics = [];
+
+  for (let i = 0; i < 20; i++) {
+    dummyTopics.push({
+      userId: faker.number.int({ min: 2, max: 11 }),
+      title: fakerEL.lorem.sentence(),
+      summary: fakerEL.lorem.paragraph(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+  }
+
+  await Topic.bulkCreate(dummyTopics);
 }
 
 await setupDatabase();

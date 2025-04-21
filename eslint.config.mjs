@@ -5,10 +5,9 @@ import markdown from "@eslint/markdown";
 import css from "@eslint/css";
 import { defineConfig } from "eslint/config";
 
-
 export default defineConfig([
   { files: ["**/*.{js,mjs,cjs}"], plugins: { js }, extends: ["js/recommended"] },
-  { files: ["**/*.js"], languageOptions: { sourceType: "commonjs" } },
+  { files: ["**/*.js"], languageOptions: { sourceType: "module" } },
   { files: ["**/*.{js,mjs,cjs}"], languageOptions: { globals: globals.node } },
   { files: ["**/*.json"], plugins: { json }, language: "json/json", extends: ["json/recommended"] },
   { files: ["**/*.jsonc"], plugins: { json }, language: "json/jsonc", extends: ["json/recommended"] },

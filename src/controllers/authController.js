@@ -7,9 +7,7 @@ export async function login(req, res) {
   const { username, password } = req.body;
 
   if (!username || !password) {
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .send("username or password not provided");
+    return res.status(StatusCodes.BAD_REQUEST).send();
   }
 
   try {
@@ -19,9 +17,7 @@ export async function login(req, res) {
       return res.status(StatusCodes.UNAUTHORIZED).send();
     }
 
-    // TODO
-    // const isPasswordValid = await bcrypt.compare(password, user.password);
-    const isPasswordValid = password === user.password; // For testing purposes, use plain text password
+    const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
       return res.status(StatusCodes.UNAUTHORIZED).send();

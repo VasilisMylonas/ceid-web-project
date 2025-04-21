@@ -4,6 +4,9 @@ import { sequelize } from "./config/db.js";
 import topicRoutes from "./routes/topicRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 
+import User from "./models/User.js";
+import bcrypt from "bcrypt";
+
 dotenv.config();
 
 export const app = express();
@@ -29,6 +32,14 @@ async function setupDatabase() {
     console.error("Error synchronizing database:", error);
     process.exit(1);
   }
+
+  // TODO
+  await User.create({
+    username: "admin",
+    password: await bcrypt.hash("admin", 10),
+    role: "admin",
+    email: "admin@example.com",
+  });
 }
 
 await setupDatabase();

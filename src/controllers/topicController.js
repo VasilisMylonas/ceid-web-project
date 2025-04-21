@@ -2,15 +2,13 @@ import { StatusCodes } from "http-status-codes";
 import Topic from "../models/Topic.js";
 
 export async function createTopic(req, res) {
+  const { title, summary } = req.body;
+
+  if (!title || !summary) {
+    return res.status(StatusCodes.BAD_REQUEST).send();
+  }
+
   try {
-    const { title, summary } = req.body;
-
-    if (!title || !summary) {
-      return res
-        .status(StatusCodes.BAD_REQUEST)
-        .send("title or summary not provided");
-    }
-
     const topic = await Topic.create({
       title,
       summary,
@@ -24,9 +22,9 @@ export async function createTopic(req, res) {
 }
 
 export async function getTopics(req, res) {
-  try {
-    const { owner } = req.query;
+  const { owner } = req.query;
 
+  try {
     const topics = owner
       ? await Topic.findAll({ where: { userId: owner } })
       : await Topic.findAll();
@@ -42,14 +40,14 @@ export async function getTopic(req, res) {
   const { id } = req.params;
 
   if (!id) {
-    return res.status(StatusCodes.BAD_REQUEST).send("id not provided");
+    return res.status(StatusCodes.BAD_REQUEST).send();
   }
 
   try {
     const topic = await Topic.findByPk(id);
 
     if (!topic) {
-      return res.status(StatusCodes.NOT_FOUND).send("Topic not found");
+      return res.status(StatusCodes.NOT_FOUND).send();
     }
 
     res.status(StatusCodes.OK).json(topic);

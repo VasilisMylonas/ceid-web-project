@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "start": "node src/server.js",
-    "test": "jest"
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
   },
   "type": "module",
   "keywords": [],
@@ -36,6 +36,7 @@
     "eslint": "^9.25.0",
     "globals": "^16.0.0",
     "jest": "^29.7.0",
-    "sequelize-mock": "^0.10.2"
+    "sequelize-mock": "^0.10.2",
+    "supertest": "^7.1.0"
   }
 }

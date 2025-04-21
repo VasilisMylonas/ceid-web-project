@@ -3,12 +3,6 @@
         "target": "ESNext",
         "module": "ESNext",
         "baseUrl": "./",
-        "paths": {
-            "@models/*": ["src/models/*"],
-            "@controllers/*": ["src/controllers/*"],
-            "@routes/*": ["src/routes/*"],
-            "@middleware/*": ["src/middleware/*"]
-        },
         "typeRoots": ["node_modules/@types"],
         "strictNullChecks": true,
         "strictFunctionTypes": true

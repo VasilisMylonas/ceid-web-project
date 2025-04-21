@@ -1,7 +1,5 @@
 {
     "compilerOptions": {
-        "target": "ESNext",
-        "module": "ESNext",
         "baseUrl": "./",
         "typeRoots": ["node_modules/@types"],
         "strictNullChecks": true,

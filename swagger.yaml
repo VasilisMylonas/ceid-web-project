@@ -11,197 +11,46 @@ paths:
   /topics:
     get:
       summary: View all topics
-      description: Retrieve a list of all topics.
       responses:
         "200":
-          description: A list of topics
+          description: Query successful
           content:
             application/json:
               schema:
                 type: array
                 items:
                   type: object
-                  properties:
-                    id:
-                      type: integer
-                      example: 1
-                    title:
-                      type: string
-                      example: Sample Topic
-                    summary:
-                      type: string
-                      example: This is a sample topic summary
-        "401":
-          description: Unauthorized
     post:
       summary: Create a topic
-      description: Create a new topic.
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
-              properties:
-                title:
-                  type: string
-                  example: New Topic
-                summary:
-                  type: string
-                  example: This is a new topic summary
       responses:
         "201":
           description: Topic created successfully
         "400":
-          description: Bad request
-
+          description: Invalid request data
   /topics/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+        description: Topic ID
     get:
       summary: View a topic
-      description: Retrieve a specific topic by its ID.
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-            example: 1
       responses:
         "200":
-          description: A topic object
+          description: Query successful
           content:
             application/json:
               schema:
                 type: object
-                properties:
-                  id:
-                    type: integer
-                    example: 1
-                  title:
-                    type: string
-                    example: Sample Topic
-                  summary:
-                    type: string
-                    example: This is a sample topic summary
-        "404":
-          description: Topic not found
-    put:
-      summary: Update a topic
-      description: Update an existing topic by its ID.
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-            example: 1
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                title:
-                  type: string
-                  example: Updated Topic
-                summary:
-                  type: string
-                  example: This is an updated topic summary
-      responses:
-        "200":
-          description: Topic updated successfully
         "400":
-          description: Bad request
+          description: Invalid request data
         "404":
           description: Topic not found
-    delete:
-      summary: Delete a topic
-      description: Delete a specific topic by its ID.
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-            example: 1
-      responses:
-        "204":
-          description: Topic deleted successfully
-        "404":
-          description: Topic not found
-
-  /topics/{id}/assign:
-    post:
-      summary: Assign a topic to a student
-      description: Assign a specific topic to a student.
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-            example: 1
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                studentId:
-                  type: integer
-                  example: 2
-      responses:
-        "200":
-          description: Topic assigned successfully
-        "404":
-          description: Topic or student not found
-
-  /theses:
-    get:
-      summary: View all theses
-      description: Retrieve a list of all theses.
-      responses:
-        "200":
-          description: A list of theses
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    id:
-                      type: integer
-                      example: 1
-                    title:
-                      type: string
-                      example: Sample Thesis
-                    status:
-                      type: string
-                      example: Submitted
-        "401":
-          description: Unauthorized
-
-  /statistics:
-    get:
-      summary: View statistics
-      description: Retrieve system-wide statistics.
-      responses:
-        "200":
-          description: Statistics data
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  totalUsers:
-                    type: integer
-                    example: 100
-                  totalTopics:
-                    type: integer
-                    example: 50
-                  totalTheses:
-                    type: integer
-                    example: 20

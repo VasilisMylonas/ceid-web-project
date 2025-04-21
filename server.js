@@ -1,15 +1,15 @@
-const express = require('express'); // Express framework
-const jwt = require('jsonwebtoken'); // JSON Web Token (for authentication)
-const bcrypt = require('bcrypt'); // Password hashing
-const { StatusCodes } = require('http-status-codes'); // Standard HTTP status codes
-const db = require('./db'); // Database connection and models
+import express from 'express'; // Express framework
+import jwt from 'jsonwebtoken'; // JSON Web Token (for authentication)
+import bcrypt from 'bcrypt'; // Password hashing
+import { StatusCodes } from 'http-status-codes'; // Standard HTTP status codes
+import { setup, UserModel } from './db.js'; // Database connection and models
 
 const port = 3000;
 const jwt_secret = 'your_jwt_secret'; // TODO
 const app = express();
 app.use(express.json());
 
-db.setup();
+setup();
 
 function authenticate(req, res, next) {
     const authHeader = req.headers['authorization']; // The header is "Authorization: Bearer <token>"
@@ -20,8 +20,8 @@ function authenticate(req, res, next) {
     }
 
     try {
-        req.auth = jwt.verify(token, jwt_secret); // Verify the token
-        next(); // Proceed to the next middleware or route handler
+        req.auth = jwt.verify(token, jwt_secret);
+        next();
     } catch (error) {
         console.error('Authentication error:', error);
         return res.status(StatusCodes.FORBIDDEN);
@@ -36,7 +36,7 @@ app.post("/api/login", async (req, res) => {
     }
 
     try {
-        const user = await db.UserModel.findOne({ where: { "username": username } });
+        const user = await UserModel.findOne({ where: { "username": username } });
 
         if (!user) {
             return res.status(StatusCodes.UNAUTHORIZED).send();
@@ -61,17 +61,12 @@ app.post("/api/login", async (req, res) => {
 
 app.get("/api/user", authenticate, async (req, res) => {
     console.log(req.auth);
-    res.status(StatusCodes.OK).json({ auth: req.auth });
+    res.status(StatusCodes.OK).json({ "id": req.auth.id });
 });
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });
-
-
-
-
-
 
 /*
 

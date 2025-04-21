@@ -1,4 +1,5 @@
-const { Sequelize } = require('sequelize');
+import { Sequelize } from 'sequelize';
+import User from "./models/User.js";
 
 // Catalog=admin, User=admin, Password=admin
 const sequelize = new Sequelize('admin', 'admin', 'admin', {
@@ -7,9 +8,10 @@ const sequelize = new Sequelize('admin', 'admin', 'admin', {
     logging: false, // Disable logging
 });
 
-const UserModel = require('./models/User')(sequelize);
 
-async function setup() {
+export const UserModel = User(sequelize);
+
+export async function setup() {
     // Test database connection
     try {
         await sequelize.authenticate();
@@ -42,8 +44,3 @@ async function setup() {
         process.exit(1);
     }
 }
-
-module.exports = {
-    UserModel,
-    setup
-};

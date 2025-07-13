@@ -8,7 +8,7 @@ const Topic = sequelize.define("Topic", {
     primaryKey: true,
     autoIncrement: true,
   },
-  userId: {
+  professorId: {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
@@ -30,6 +30,6 @@ const Topic = sequelize.define("Topic", {
   },
 });
 
-Topic.belongsTo(User, { foreignKey: "userId" });
+Topic.belongsTo(User, { foreignKey: "professorId" });
 
 export default Topic;

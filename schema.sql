@@ -19,7 +19,8 @@ CREATE TABLE topics (
     id SERIAL PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     summary TEXT NOT NULL,
-    description_path VARCHAR(255) NOT NULL,
+    description_path VARCHAR(255),
+    -- NOT NULL on above
     professor_id INTEGER REFERENCES professors(id) ON DELETE CASCADE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

@@ -10,8 +10,9 @@ import { professorOnly } from "../middleware/roles.js";
 const router = express.Router();
 
 router.get("/", auth, getTopics);
+router.get("/:id", auth, getTopic);
+
 router.post("/", auth, professorOnly, createTopic);
 router.put("/:id", auth, professorOnly, createTopic);
-router.get("/:id", auth, getTopic);
 
 export default router;

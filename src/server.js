@@ -1,8 +1,11 @@
 import express from "express";
 import dotenv from "dotenv";
+
 import { sequelize } from "./config/db.js";
 import topicRoutes from "./routes/topicRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
+
 import YAML from "yamljs";
 import swaggerUi from "swagger-ui-express";
 
@@ -17,6 +20,7 @@ export const app = express();
 app.use(express.json());
 app.use("/api/auth", authRoutes); // Authentication
 app.use("/api/topics", topicRoutes); // Topic management
+app.use("/api/users", userRoutes); // User management
 
 async function setupDatabase() {
   // Test database connection
@@ -65,7 +69,7 @@ async function setupDatabase() {
 
   for (let i = 0; i < 20; i++) {
     dummyTopics.push({
-      userId: faker.number.int({ min: 2, max: 11 }),
+      professorId: faker.number.int({ min: 2, max: 11 }),
       title: faker.lorem.sentence(),
       summary: faker.lorem.paragraph(),
       createdAt: new Date(),

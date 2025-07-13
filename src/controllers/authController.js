@@ -33,3 +33,8 @@ export async function login(req, res) {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send();
   }
 }
+
+export async function logout(req, res) {
+  // TODO
+  res.status(StatusCodes.IM_A_TEAPOT).send("Logout not implemented");
+}

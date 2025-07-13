@@ -76,6 +76,7 @@ async function setupDatabase() {
   await Topic.bulkCreate(dummyTopics);
 }
 
+// Swagger setup, this is for API documentation and testing
 app.use(
   "/api-docs",
   swaggerUi.serve,

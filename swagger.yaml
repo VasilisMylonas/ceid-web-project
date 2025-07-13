@@ -8,6 +8,73 @@ servers:
     description: Development server
 
 paths:
+  /auth/login:
+    post:
+      summary: User login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+        "401":
+          description: Unauthorized - Invalid credentials
+  /auth/logout:
+    post:
+      summary: User logout
+      responses:
+        "200":
+          description: Logout successful
+        "401":
+          description: Unauthorized - Not logged in
+  /users/me:
+    get:
+      summary: Get current user information
+      responses:
+        "200":
+          description: User information retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+        "401":
+          description: Unauthorized - Not logged in
+  /users/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+        description: User ID
+    get:
+      summary: Get user information by ID
+      responses:
+        "200":
+          description: User information retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+        "404":
+          description: User not found
+        "403":
+          description: Forbidden - Access denied
   /topics:
     get:
       summary: View all topics

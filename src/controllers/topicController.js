@@ -26,7 +26,7 @@ export async function getTopics(req, res) {
 
   const options = {
     limit: limit ? parseInt(limit, 10) : undefined,
-    where: owner ? { userId: owner } : undefined,
+    where: owner ? { professorId: owner } : undefined,
   };
 
   try {

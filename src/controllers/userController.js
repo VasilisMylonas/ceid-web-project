@@ -15,3 +15,17 @@ export async function getUserInfo(req, res) {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send();
   }
 }
+
+export async function getProfessors(req, res) {
+  try {
+    const professors = await User.findAll({
+      where: { role: "professor" },
+      attributes: { include: ["id", "name", "email"] }, // Include only necessary fields
+    });
+
+    res.status(StatusCodes.OK).json(professors);
+  } catch (error) {
+    console.error("Error fetching professors:", error);
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send();
+  }
+}

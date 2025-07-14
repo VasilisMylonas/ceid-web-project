@@ -30,6 +30,7 @@ export async function setupDatabase() {
     password: await bcrypt.hash("admin", 10),
     role: "admin",
     email: "admin@example.com",
+    name: "Vasilis Mylonas",
   });
 
   const dummyUsers = [];
@@ -41,8 +42,6 @@ export async function setupDatabase() {
       role: faker.helpers.arrayElement(["student", "professor"]),
       email: faker.internet.email(),
       name: fakerEL.person.fullName(),
-      createdAt: new Date(),
-      updatedAt: new Date(),
     });
   }
 
@@ -55,8 +54,6 @@ export async function setupDatabase() {
       professorId: faker.number.int({ min: 2, max: 11 }),
       title: faker.lorem.sentence(),
       summary: faker.lorem.paragraph(),
-      createdAt: new Date(),
-      updatedAt: new Date(),
     });
   }
 

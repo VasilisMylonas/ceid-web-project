@@ -20,7 +20,7 @@ export async function getProfessors(req, res) {
   try {
     const professors = await User.findAll({
       where: { role: "professor" },
-      attributes: { include: ["id", "name", "email"] }, // Include only necessary fields
+      attributes: ["id", "name", "email"],
     });
 
     res.status(StatusCodes.OK).json(professors);

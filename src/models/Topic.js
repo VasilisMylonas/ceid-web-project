@@ -20,14 +20,6 @@ const Topic = sequelize.define("Topic", {
     type: DataTypes.TEXT,
     allowNull: false,
   },
-  createdAt: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW,
-  },
-  updatedAt: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW,
-  },
 });
 
 Topic.belongsTo(User, { foreignKey: "professorId" });

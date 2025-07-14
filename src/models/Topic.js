@@ -1,6 +1,5 @@
 import { sequelize } from "../config/db.js";
 import { DataTypes } from "sequelize";
-import User from "./User.js";
 
 const Topic = sequelize.define("Topic", {
   id: {
@@ -21,7 +20,5 @@ const Topic = sequelize.define("Topic", {
     allowNull: false,
   },
 });
-
-Topic.belongsTo(User, { foreignKey: "professorId" });
 
 export default Topic;

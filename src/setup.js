@@ -1,7 +1,6 @@
 import { sequelize } from "./config/db.js";
 
-import User from "./models/User.js";
-import Topic from "./models/Topic.js";
+import { User, Professor, Topic } from "./models";
 import bcrypt from "bcrypt";
 import { faker, fakerEL } from "@faker-js/faker";
 
@@ -24,38 +23,36 @@ export async function setupDatabase() {
     process.exit(1);
   }
 
-  // Create dummy admin user
   await User.create({
     username: "admin",
     password: await bcrypt.hash("admin", 10),
-    role: "admin",
     email: "admin@example.com",
     name: "Vasilis Mylonas",
   });
 
-  const dummyUsers = [];
+  // const dummyUsers = [];
 
-  for (let i = 0; i < 10; i++) {
-    dummyUsers.push({
-      username: faker.internet.username(),
-      password: await bcrypt.hash("password", 10),
-      role: faker.helpers.arrayElement(["student", "professor"]),
-      email: faker.internet.email(),
-      name: fakerEL.person.fullName(),
-    });
-  }
+  // for (let i = 0; i < 10; i++) {
+  //   dummyUsers.push({
+  //     username: faker.internet.username(),
+  //     password: await bcrypt.hash("password", 10),
+  //     role: faker.helpers.arrayElement(["student", "professor"]),
+  //     email: faker.internet.email(),
+  //     name: fakerEL.person.fullName(),
+  //   });
+  // }
 
-  await User.bulkCreate(dummyUsers);
+  // await User.bulkCreate(dummyUsers);
 
-  const dummyTopics = [];
+  // const dummyTopics = [];
 
-  for (let i = 0; i < 20; i++) {
-    dummyTopics.push({
-      professorId: faker.number.int({ min: 2, max: 11 }),
-      title: faker.lorem.sentence(),
-      summary: faker.lorem.paragraph(),
-    });
-  }
+  // for (let i = 0; i < 20; i++) {
+  //   dummyTopics.push({
+  //     professorId: faker.number.int({ min: 2, max: 11 }),
+  //     title: faker.lorem.sentence(),
+  //     summary: faker.lorem.paragraph(),
+  //   });
+  // }
 
-  await Topic.bulkCreate(dummyTopics);
+  // await Topic.bulkCreate(dummyTopics);
 }

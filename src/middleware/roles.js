@@ -1,5 +1,7 @@
 import { StatusCodes } from "http-status-codes";
-import User from "../models/User.js";
+// import User from "../models/User.js";
+
+// TODO
 
 export async function professorOnly(req, res, next) {
   const user = await User.findByPk(req.auth.id);

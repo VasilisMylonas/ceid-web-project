@@ -1,5 +1,5 @@
 import { StatusCodes } from "http-status-codes";
-import Topic from "../models/Topic.js";
+import { Topic } from "../models";
 
 export async function getTopics(req, res) {
   const { professor, limit } = req.query;

@@ -1,5 +1,5 @@
 import { StatusCodes } from "http-status-codes";
-import User from "../models/User.js";
+import { User } from "../models";
 
 export async function getUserInfo(req, res) {
   const userId = req.auth.id;

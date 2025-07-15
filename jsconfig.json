@@ -1,12 +1,9 @@
 {
-    "compilerOptions": {
-        "baseUrl": "./",
-        "typeRoots": ["node_modules/@types"],
-        "strictNullChecks": true,
-        "strictFunctionTypes": true
-    },
-    "exclude": [
-        "node_modules",
-        "**/node_modules/*"
-    ]
+  "compilerOptions": {
+    "baseUrl": "./",
+    "typeRoots": ["node_modules/@types"],
+    "strictNullChecks": true,
+    "strictFunctionTypes": true
+  },
+  "exclude": ["node_modules", "**/node_modules/*"]
 }

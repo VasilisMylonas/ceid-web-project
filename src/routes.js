@@ -2,7 +2,7 @@ import express from "express";
 
 import auth from "./middleware/auth.js";
 
-// import { getUserInfo, getProfessors } from "../old/userController.js";
+import { getUserInfo, queryUsers } from "./controllers/userController.js";
 import { login, logout } from "./controllers/authController.js";
 // import {
 //   createTopic,
@@ -17,9 +17,10 @@ const router = express.Router();
 router.post("/auth/login", login);
 router.post("/auth/logout", auth, logout);
 
-// // Users
-// router.get("/users/me", auth, getUserInfo);
-// router.get("/users/professors", auth, getProfessors);
+// Users
+router.get("/users", auth, queryUsers);
+router.get("/users/me", auth, getUserInfo);
+// router.get("/usersprofessors", auth, getProfessors);
 
 // // Topics
 // router.get("/topics/", auth, getTopics);

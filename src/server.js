@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 import routes from "./routes.js";
 import { sequelize } from "./config/db.js";
 
-import { User } from "./models/index.js";
+import { Professor, User } from "./models/index.js";
 import bcrypt from "bcrypt";
 import errorHandler from "./middleware/errorHandler.js";
 
@@ -38,6 +38,14 @@ async function createInitialData() {
     password: await bcrypt.hash("admin", 10),
     email: "admin@example.com",
     name: "Vasilis Mylonas",
+    role: "professor",
+  });
+
+  await Professor.create({
+    id: await User.findOne({ where: { username: "admin" } }).then(
+      (user) => user.id
+    ),
+    division: "Computer Science",
   });
 }
 

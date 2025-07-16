@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-async function auth(req, res, next) {
+export async function auth(req, res, next) {
   const authHeader = req.headers["authorization"]; // The header is "Authorization: Bearer <token>"
   const token = authHeader && authHeader.split(" ")[1];
   console.log("Token received:", token);
@@ -24,4 +24,16 @@ async function auth(req, res, next) {
   next();
 }
 
-export default auth;
+export async function errorHandler(err, req, res, next) {
+  if (err.isJoi) {
+    // Handle Joi validation errors
+    return res.status(StatusCodes.BAD_REQUEST).json({
+      message: err.details[0].message,
+    });
+  }
+
+  console.error(err);
+  res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+    message: "Internal Server Error",
+  });
+}

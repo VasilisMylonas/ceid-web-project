@@ -1,4 +1,4 @@
-import { sequelize } from "../config/db.js";
+import { sequelize } from "../config/database.js";
 import { DataTypes } from "sequelize";
 
 const User = sequelize.define("User", {
@@ -11,6 +11,13 @@ const User = sequelize.define("User", {
     type: DataTypes.STRING,
     allowNull: false,
     unique: true,
+  },
+  phone: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    validate: {
+      isNumeric: true,
+    },
   },
   email: {
     type: DataTypes.STRING,

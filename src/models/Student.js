@@ -1,4 +1,4 @@
-import { sequelize } from "../config/db.js";
+import { sequelize } from "../config/database.js";
 
 const Student = sequelize.define("Student", {});
 

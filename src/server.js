@@ -1,17 +1,18 @@
 import express from "express";
 import dotenv from "dotenv";
+import bcrypt from "bcrypt";
+import { expressJoiValidations } from "express-joi-validations";
 
 import routes from "./routes.js";
-import { sequelize } from "./config/db.js";
-
-import { Professor, User } from "./models/index.js";
-import bcrypt from "bcrypt";
-import errorHandler from "./middleware/errorHandler.js";
+import { sequelize } from "./config/database.js";
+import { Professor, User } from "./models.js";
+import { errorHandler } from "./middleware.js";
 
 dotenv.config(); // Load .env
 
 export const app = express();
 app.use(express.json()); // Use json middleware
+app.use(expressJoiValidations({ throwErrors: true }));
 app.use("/api", routes); // Use API routes
 app.use(errorHandler); // Use error handler middleware, after all routes
 

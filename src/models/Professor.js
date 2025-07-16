@@ -1,4 +1,4 @@
-import { sequelize } from "../config/db.js";
+import { sequelize } from "../config/database.js";
 import { DataTypes } from "sequelize";
 
 const Professor = sequelize.define("Professor", {

@@ -1,21 +1,20 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+
 import { StatusCodes } from "http-status-codes";
-import { User } from "../models/index.js";
+import { User } from "../models.js";
 
 export async function login(req, res) {
-  const { username, password } = req.body;
-
-  if (!username || !password) {
-    return res.status(StatusCodes.BAD_REQUEST).send();
-  }
-
-  const user = await User.findOne({ where: { username: username } });
+  const user = await User.findOne({ where: { username: req.body.username } });
   if (!user) {
     return res.status(StatusCodes.UNAUTHORIZED).send();
   }
 
-  const isPasswordValid = await bcrypt.compare(password, user.password);
+  const isPasswordValid = await bcrypt.compare(
+    req.body.password,
+    user.password
+  );
+
   if (!isPasswordValid) {
     return res.status(StatusCodes.UNAUTHORIZED).send();
   }

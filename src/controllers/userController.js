@@ -1,9 +1,23 @@
 import { StatusCodes } from "http-status-codes";
-import { Professor, User, Student, Secretary } from "../models/index.js";
-import Joi from "joi";
+import { Professor, User, Student, Secretary } from "../models.js";
 
-export async function getUserInfo(req, res) {
-  const user = await User.findByPk(req.userId, {
+export async function queryUsers(req, res) {
+  const users = await User.findAll({
+    attributes: ["id", "name", "username", "email", "role"],
+    where: {
+      role: req.query.role,
+    },
+    limit: req.query.limit,
+    offset: req.query.offset,
+  });
+
+  res.status(StatusCodes.OK).json(users);
+}
+
+export async function getUser(req, res) {
+  const userId = req.params.id;
+
+  const user = await User.findByPk(userId, {
     attributes: { exclude: ["password"] }, // Exclude password from response
     include: [
       {
@@ -19,44 +33,32 @@ export async function getUserInfo(req, res) {
   });
 
   if (!user) {
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send();
+    return res.status(StatusCodes.NOT_FOUND).send();
   }
 
   res.status(StatusCodes.OK).json(user);
 }
 
-export async function queryUsers(req, res) {
-  const querySchema = Joi.object({
-    role: Joi.string().valid("student", "professor", "secretary").optional(),
-    limit: Joi.number().integer().positive().optional(),
-  });
+export async function patchUser(req, res) {
+  const user = await User.findByPk(req.params.id);
 
-  const { error, value } = querySchema.validate(req.query);
-
-  if (error) {
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .json({ error: error.details[0].message });
+  if (!user) {
+    return res.status(StatusCodes.NOT_FOUND).send();
   }
 
-  const users = await User.findAll({
-    attributes: { exclude: ["password"] }, // Exclude password from response
-    include: [
-      {
-        model: Professor,
-      },
-      {
-        model: Student,
-      },
-      {
-        model: Secretary,
-      },
-    ],
-    where: {
-      role: value.role,
-    },
-    limit: value.limit,
-  });
+  await user.update(req.body);
 
-  res.status(StatusCodes.OK).json(users);
+  res.status(StatusCodes.OK).json(user);
+}
+
+export async function deleteUser(req, res) {
+  const user = await User.findByPk(req.params.id);
+
+  if (!user) {
+    return res.status(StatusCodes.NOT_FOUND).send();
+  }
+
+  await user.destroy();
+
+  res.status(StatusCodes.NO_CONTENT).send();
 }

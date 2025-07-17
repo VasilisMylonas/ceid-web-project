@@ -35,3 +35,12 @@ export const thesisTopicBodySchema = validator.object({
   title: validator.string().min(1).required(),
   summary: validator.string().min(1).required(),
 });
+
+export const thesisTopicParamsSchema = validator.object({
+  id: validator.number().integer().required(),
+});
+
+export const patchThesisTopicBodySchema = validator.object({
+  title: validator.string().min(1).optional(),
+  summary: validator.string().min(1).optional(),
+});

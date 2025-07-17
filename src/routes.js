@@ -12,6 +12,8 @@ import {
   patchUserBodySchema,
   thesisTopicQuerySchema,
   thesisTopicBodySchema,
+  thesisTopicParamsSchema,
+  patchThesisTopicBodySchema,
 } from "./schemas.js";
 import {
   queryUsers,
@@ -22,6 +24,7 @@ import {
 import {
   queryThesisTopics,
   postThesisTopic,
+  patchThesisTopic,
 } from "./controllers/thesisTopicController.js";
 import { login, logout } from "./controllers/authController.js";
 
@@ -74,6 +77,15 @@ router.post(
   validate({ body: thesisTopicBodySchema }),
   postThesisTopic
 );
+router.patch(
+  "/thesis-topics/:id",
+  checkAuth,
+  allowProfessorsOnly,
+  validate({
+    params: thesisTopicParamsSchema,
+    body: patchThesisTopicBodySchema,
+  }),
+  patchThesisTopic
+);
 
 export default router;
-``;

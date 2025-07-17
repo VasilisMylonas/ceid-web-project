@@ -24,8 +24,20 @@ export async function postThesisTopic(req, res) {
   const thesisTopic = await ThesisTopic.create({
     title,
     summary,
-    professorId: req.user.id, // Assuming the user is a professor
+    professorId: req.userId,
   });
+
+  res.status(StatusCodes.CREATED).json(thesisTopic);
+}
+
+export async function patchThesisTopic(req, res) {
+  const thesisTopic = await ThesisTopic.findByPk(req.params.id);
+
+  if (!thesisTopic) {
+    return res.status(StatusCodes.NOT_FOUND).send();
+  }
+
+  await thesisTopic.update(req.body);
 
   res.status(StatusCodes.CREATED).json(thesisTopic);
 }

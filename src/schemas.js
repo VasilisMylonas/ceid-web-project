@@ -1,9 +1,9 @@
 import { validator } from "./config/validation.js";
 
-export const loginBodySchema = {
+export const loginBodySchema = validator.object({
   username: validator.string().min(1).required(),
   password: validator.string().min(1).required(),
-};
+});
 
 export const userQuerySchema = validator.object({
   role: validator
@@ -18,9 +18,9 @@ export const userParamsSchema = validator.object({
   id: validator.number().integer().required(),
 });
 
-export const patchUserBodySchema = {
+export const patchUserBodySchema = validator.object({
   phone: validator.string().phoneNumber().optional(),
   email: validator.string().email().optional(),
   name: validator.string().min(1).optional(),
   password: validator.string().min(1).optional(),
-};
+});

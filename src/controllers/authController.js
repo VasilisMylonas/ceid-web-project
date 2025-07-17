@@ -6,6 +6,7 @@ import { User } from "../models.js";
 
 export async function login(req, res) {
   const user = await User.findOne({ where: { username: req.body.username } });
+
   if (!user) {
     return res.status(StatusCodes.UNAUTHORIZED).send();
   }

@@ -1,6 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import bcrypt from "bcrypt";
+import morgan from "morgan";
 import { expressJoiValidations } from "express-joi-validations";
 
 import routes from "./routes.js";
@@ -12,7 +13,8 @@ dotenv.config(); // Load .env
 
 export const app = express();
 app.use(express.json()); // Use json middleware
-app.use(expressJoiValidations({ throwErrors: true }));
+app.use(morgan("dev")); // Use morgan for logging
+app.use(expressJoiValidations({ throwErrors: true })); // Use express-joi-validations for request validation
 app.use("/api", routes); // Use API routes
 app.use(errorHandler); // Use error handler middleware, after all routes
 

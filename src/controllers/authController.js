@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
 import { StatusCodes } from "http-status-codes";
-import { User } from "../models.js";
+import { User } from "../models/index.js";
 
 export async function login(req, res) {
   const user = await User.findOne({ where: { username: req.body.username } });
@@ -20,9 +20,13 @@ export async function login(req, res) {
     return res.status(StatusCodes.UNAUTHORIZED).send();
   }
 
-  const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
-    expiresIn: "1h",
-  });
+  const token = jwt.sign(
+    { id: user.id, role: user.role },
+    process.env.JWT_SECRET,
+    {
+      expiresIn: "1h",
+    }
+  );
   res.status(StatusCodes.OK).json({ token });
 }
 

@@ -1,13 +1,12 @@
 import express from "express";
 import dotenv from "dotenv";
-import bcrypt from "bcrypt";
 import morgan from "morgan";
 import { expressJoiValidations } from "express-joi-validations";
 
 import routes from "./routes.js";
 import { sequelize } from "./config/database.js";
-import { Professor, User } from "./models.js";
-import { errorHandler } from "./middleware.js";
+import { errorHandler } from "./middleware/errorHandler.js";
+import { seedData } from "./seeders.js";
 
 dotenv.config(); // Load .env
 
@@ -21,10 +20,10 @@ app.use(errorHandler); // Use error handler middleware, after all routes
 try {
   await sequelize.authenticate();
   console.log("Database connected successfully");
-  await sequelize.sync({ force: true }); // TODO: Remove force in final version
-  console.log("Database synchronized successfully");
-  await createInitialData();
-  console.log("Initial data created successfully");
+  // await sequelize.sync({ force: true }); // TODO: Remove force in final version
+  // console.log("Database synchronized successfully");
+  // await seedData();
+  // console.log("Data seeded successfully");
 } catch (error) {
   console.error("Database error:", error);
   process.exit(1);
@@ -34,23 +33,6 @@ try {
 export const server = app.listen(process.env.PORT, () => {
   console.log(`Server is running on port ${process.env.PORT}`);
 });
-
-async function createInitialData() {
-  await User.create({
-    username: "admin",
-    password: await bcrypt.hash("admin", 10),
-    email: "admin@example.com",
-    name: "Vasilis Mylonas",
-    role: "professor",
-  });
-
-  await Professor.create({
-    id: await User.findOne({ where: { username: "admin" } }).then(
-      (user) => user.id
-    ),
-    division: "Computer Science",
-  });
-}
 
 // import { faker, fakerEL } from "@faker-js/faker";
 // const dummyUsers = [];

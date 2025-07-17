@@ -1,8 +1,8 @@
-import User from "./models/User.js";
-import ThesisTopic from "./models/ThesisTopic.js";
-import Professor from "./models/Professor.js";
-import Student from "./models/Student.js";
-import Secretary from "./models/Secretary.js";
+import User from "./user.js";
+import ThesisTopic from "./thesisTopic.js";
+import Professor from "./professor.js";
+import Student from "./student.js";
+import Secretary from "./secretary.js";
 
 Professor.belongsTo(User, { foreignKey: "id" }); // is-a
 User.hasOne(Professor, { foreignKey: "id" }); // may-be-a

@@ -26,7 +26,12 @@ export const patchUserBodySchema = validator.object({
 });
 
 export const thesisTopicQuerySchema = validator.object({
-  professor: validator.number().integer().optional(),
+  professorId: validator.number().integer().optional(),
   limit: validator.number().integer().min(0).optional(),
   offset: validator.number().integer().min(0).optional(),
+});
+
+export const thesisTopicBodySchema = validator.object({
+  title: validator.string().min(1).required(),
+  summary: validator.string().min(1).required(),
 });

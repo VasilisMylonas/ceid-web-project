@@ -1,5 +1,5 @@
 import { StatusCodes } from "http-status-codes";
-import { Professor, User, Student, Secretary } from "../models.js";
+import { Professor, User, Student, Secretary } from "../models/index.js";
 
 export async function queryUsers(req, res) {
   let query = {

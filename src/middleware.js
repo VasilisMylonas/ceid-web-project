@@ -24,6 +24,13 @@ export async function auth(req, res, next) {
   next();
 }
 
+export async function allowSameUser(req, res, next) {
+  if (req.userId != req.params.id) {
+    return res.status(StatusCodes.FORBIDDEN).send();
+  }
+  next();
+}
+
 export async function errorHandler(err, req, res, next) {
   if (err.isJoi) {
     // Handle Joi validation errors

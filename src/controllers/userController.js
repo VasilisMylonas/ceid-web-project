@@ -15,9 +15,11 @@ export async function queryUsers(req, res) {
 }
 
 export async function getUser(req, res) {
-  const userId = req.params.id;
+  if (req.userId != req.params.id) {
+    return res.status(StatusCodes.FORBIDDEN).send();
+  }
 
-  const user = await User.findByPk(userId, {
+  const user = await User.findByPk(req.params.id, {
     attributes: { exclude: ["password"] }, // Exclude password from response
     include: [
       {
@@ -40,6 +42,10 @@ export async function getUser(req, res) {
 }
 
 export async function patchUser(req, res) {
+  if (req.userId != req.params.id) {
+    return res.status(StatusCodes.FORBIDDEN).send();
+  }
+
   const user = await User.findByPk(req.params.id);
 
   if (!user) {
@@ -52,6 +58,10 @@ export async function patchUser(req, res) {
 }
 
 export async function deleteUser(req, res) {
+  if (req.userId != req.params.id) {
+    return res.status(StatusCodes.FORBIDDEN).send();
+  }
+
   const user = await User.findByPk(req.params.id);
 
   if (!user) {

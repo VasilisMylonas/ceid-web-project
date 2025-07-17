@@ -1,6 +1,6 @@
 import express from "express";
 import { validate } from "express-joi-validations";
-import { auth } from "./middleware.js";
+import { auth, allowSameUser } from "./middleware.js";
 import {
   loginBodySchema,
   userQuerySchema,
@@ -23,16 +23,24 @@ router.post("/auth/logout", auth, logout);
 
 // Users
 router.get("/users", auth, validate({ query: userQuerySchema }), queryUsers);
-router.get("/users/:id", auth, validate({ params: userParamsSchema }), getUser);
+router.get(
+  "/users/:id",
+  auth,
+  allowSameUser,
+  validate({ params: userParamsSchema }),
+  getUser
+);
 router.patch(
   "/users/:id",
   auth,
+  allowSameUser,
   validate({ params: userParamsSchema, body: patchUserBodySchema }),
   patchUser
 );
 router.delete(
   "/users/:id",
   auth,
+  allowSameUser,
   validate({ params: userParamsSchema }),
   deleteUser
 );

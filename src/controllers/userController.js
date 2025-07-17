@@ -2,14 +2,19 @@ import { StatusCodes } from "http-status-codes";
 import { Professor, User, Student, Secretary } from "../models.js";
 
 export async function queryUsers(req, res) {
-  const users = await User.findAll({
+  let query = {
     attributes: ["id", "name", "username", "email", "role"],
-    where: {
-      role: req.query.role,
-    },
     limit: req.query.limit,
     offset: req.query.offset,
-  });
+  };
+
+  if (req.query.role) {
+    query.where = {
+      role: req.query.role,
+    };
+  }
+
+  const users = await User.findAll(query);
 
   res.status(StatusCodes.OK).json(users);
 }

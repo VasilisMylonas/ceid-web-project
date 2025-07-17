@@ -6,6 +6,7 @@ import {
   userQuerySchema,
   userParamsSchema,
   patchUserBodySchema,
+  thesisTopicQuerySchema,
 } from "./schemas.js";
 import {
   queryUsers,
@@ -13,6 +14,7 @@ import {
   patchUser,
   deleteUser,
 } from "./controllers/userController.js";
+import { queryThesisTopics } from "./controllers/thesisTopicController.js";
 import { login, logout } from "./controllers/authController.js";
 
 const router = express.Router();
@@ -44,5 +46,14 @@ router.delete(
   validate({ params: userParamsSchema }),
   deleteUser
 );
+
+// Thesis topics
+router.get(
+  "/thesis-topics",
+  auth,
+  validate({ query: thesisTopicQuerySchema }),
+  queryThesisTopics
+);
+// Implement thesis topics
 
 export default router;

@@ -1,7 +1,7 @@
 import { sequelize } from "../config/database.js";
 import { DataTypes } from "sequelize";
 
-const ThesisTopic = sequelize.define("ThesisTopic", {
+const Topic = sequelize.define("Topic", {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
@@ -21,4 +21,4 @@ const ThesisTopic = sequelize.define("ThesisTopic", {
   },
 });
 
-export default ThesisTopic;
+export default Topic;

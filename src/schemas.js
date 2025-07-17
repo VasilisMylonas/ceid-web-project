@@ -25,22 +25,22 @@ export const patchUserBodySchema = validator.object({
   password: validator.string().min(1).optional(),
 });
 
-export const thesisTopicQuerySchema = validator.object({
+export const topicQuerySchema = validator.object({
   professorId: validator.number().integer().optional(),
   limit: validator.number().integer().min(0).optional(),
   offset: validator.number().integer().min(0).optional(),
 });
 
-export const thesisTopicBodySchema = validator.object({
+export const topicBodySchema = validator.object({
   title: validator.string().min(1).required(),
   summary: validator.string().min(1).required(),
 });
 
-export const thesisTopicParamsSchema = validator.object({
+export const topicParamsSchema = validator.object({
   id: validator.number().integer().required(),
 });
 
-export const patchThesisTopicBodySchema = validator.object({
+export const patchTopicBodySchema = validator.object({
   title: validator.string().min(1).optional(),
   summary: validator.string().min(1).optional(),
 });

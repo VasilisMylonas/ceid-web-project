@@ -1,11 +1,5 @@
 import { faker } from "@faker-js/faker";
-import {
-  Professor,
-  Student,
-  Secretary,
-  ThesisTopic,
-  User,
-} from "./models/index.js";
+import { Professor, Student, Secretary, Topic, User } from "./models/index.js";
 import bcrypt from "bcrypt";
 
 function getRandomDivision() {
@@ -80,10 +74,10 @@ export async function seedSecretaries(count) {
   return secretaries;
 }
 
-export async function seedThesisTopics(count, professors) {
+export async function seedTopics(count, professors) {
   const thesisTopics = [];
   for (let i = 0; i < count; i++) {
-    const topic = await ThesisTopic.create({
+    const topic = await Topic.create({
       professorId: professors[Math.floor(Math.random() * professors.length)].id,
       title: faker.lorem.sentence(),
       summary: faker.lorem.paragraph(),
@@ -110,6 +104,6 @@ export async function seedData() {
   const professors = await seedProfessors(20);
   const students = await seedStudents(50);
   const secretaries = await seedSecretaries(5);
-  const thesisTopics = await seedThesisTopics(10, professors);
+  const topics = await seedTopics(10, professors);
   console.log("Initial data created successfully");
 }

@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import morgan from "morgan";
 import { expressJoiValidations } from "express-joi-validations";
 
-import routes from "./routes.js";
+import routes from "./routes/index.js";
 import { sequelize } from "./config/database.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { seedData } from "./seeders.js";

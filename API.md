@@ -4,25 +4,19 @@
 
 ### POST /auth/login
 
-- body: { username, password }
-
 ### POST /auth/logout
 
 ## Users
 
 ### GET /users
 
-- query: { filter, limit, offset, sort_by }
-
 ### GET /users/:id
 
 ### PATCH /users/:id
 
-- body: { name?, email?, password? }
-
 ### DELETE /users/:id
 
-## Thesis Topics
+## Thesis topics
 
 ### GET /topics
 
@@ -32,40 +26,33 @@
 
 ### POST /topics
 
-TODO
-
 ### PATCH /topics/:id
-
-- body: { title?, summary? }
 
 ### DELETE /topics/:id
 
 ### POST /topics/:id/upload
 
-Upload file
-
 ## Theses
 
 ### GET /theses
-
-- filter
-- limit
-- offset
-- sort_by
 
 ### GET /theses/:id
 
 ### POST /theses
 
-- body: { studentId, topicId }
-
 ### PATCH /theses/:id
-
-TODO
 
 ### DELETE /theses/:id
 
 ### GET /theses/:id/invitations
+
+### GET /theses/:id/committee
+
+### GET /theses/:id/timeline
+
+### GET /theses/:id/notes
+
+### POST /theses/:id/notes
 
 ## Committee Invitations
 

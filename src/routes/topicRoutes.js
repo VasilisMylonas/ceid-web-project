@@ -15,6 +15,7 @@ import {
   postTopic,
   patchTopic,
   getTopic,
+  uploadTopicDescription,
 } from "../controllers/topicController.js";
 
 const router = express.Router();
@@ -42,6 +43,13 @@ router.patch(
     body: patchTopicBodySchema,
   }),
   patchTopic
+);
+router.post(
+  "/:id/upload",
+  checkAuth,
+  allowProfessorsOnly,
+  validate({ params: topicParamsSchema }),
+  uploadTopicDescription
 );
 
 export default router;

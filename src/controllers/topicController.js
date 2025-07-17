@@ -46,3 +46,5 @@ export async function patchTopic(req, res) {
 
   res.status(StatusCodes.CREATED).json(topic);
 }
+
+export async function uploadTopicDescription(req, res) {}

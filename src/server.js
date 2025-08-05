@@ -17,11 +17,14 @@ app.use(expressJoiValidations({ throwErrors: true })); // Use express-joi-valida
 app.use("/api", routes); // Use API routes
 app.use(errorHandler); // Use error handler middleware, after all routes
 
+// TODO handle auth
+app.use("/files", express.static("files"));
+
 try {
   await sequelize.authenticate();
   console.log("Database connected successfully");
-  // await sequelize.sync({ force: true }); // TODO: Remove force in final version
-  // console.log("Database synchronized successfully");
+  await sequelize.sync({ force: true }); // TODO: Remove force in final version
+  console.log("Database synchronized successfully");
   // await seedData();
   // console.log("Data seeded successfully");
 } catch (error) {

@@ -17,6 +17,8 @@ import {
   getTopic,
   uploadTopicDescription,
 } from "../controllers/topicController.js";
+import multer from "multer";
+import { topicDescriptionStorage } from "../config/fileStorage.js";
 
 const router = express.Router();
 
@@ -49,6 +51,7 @@ router.post(
   checkAuth,
   allowProfessorsOnly,
   validate({ params: topicParamsSchema }),
+  multer({ storage: topicDescriptionStorage }).single("file"),
   uploadTopicDescription
 );
 

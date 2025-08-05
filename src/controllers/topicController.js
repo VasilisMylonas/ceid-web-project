@@ -1,5 +1,8 @@
 import { StatusCodes } from "http-status-codes";
 import { Topic } from "../models/index.js";
+import fs from "fs";
+import path from "path";
+import { filePath } from "../config/fileStorage.js";
 
 export async function queryTopics(req, res) {
   let query = {
@@ -31,8 +34,15 @@ export async function postTopic(req, res) {
 }
 
 export async function getTopic(req, res) {
-  // TODO: Not implemented
-  res.status(StatusCodes.IM_A_TEAPOT).send();
+  const topic = await Topic.findByPk(req.params.id, {
+    attributes: ["id", "professorId", "title", "summary", "descriptionFile"],
+  });
+
+  if (!topic) {
+    return res.status(StatusCodes.NOT_FOUND).send();
+  }
+
+  res.status(StatusCodes.OK).json(topic);
 }
 
 export async function patchTopic(req, res) {
@@ -47,4 +57,28 @@ export async function patchTopic(req, res) {
   res.status(StatusCodes.CREATED).json(topic);
 }
 
-export async function uploadTopicDescription(req, res) {}
+export async function uploadTopicDescription(req, res) {
+  const topic = await Topic.findByPk(req.params.id);
+
+  if (!topic) {
+    return res.status(StatusCodes.NOT_FOUND).send();
+  }
+
+  if (!req.file) {
+    return res.status(StatusCodes.BAD_REQUEST).send();
+  }
+
+  if (topic.descriptionFile) {
+    // Delete file if it exists
+    const filePath = path.join(filePath, topic.descriptionFile);
+    if (fs.existsSync(filePath)) {
+      fs.unlink(filePath);
+    }
+  }
+
+  topic.descriptionFile = req.file.filename;
+  await topic.save();
+
+  console.log("File uploaded:", req.file);
+  res.status(StatusCodes.CREATED).send();
+}

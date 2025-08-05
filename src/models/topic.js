@@ -19,6 +19,10 @@ const Topic = sequelize.define("Topic", {
     type: DataTypes.TEXT,
     allowNull: false,
   },
+  descriptionFile: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  }
 });
 
 export default Topic;

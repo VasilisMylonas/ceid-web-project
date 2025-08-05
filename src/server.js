@@ -7,6 +7,8 @@ import routes from "./routes/index.js";
 import { sequelize } from "./config/database.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { seedData } from "./seeders.js";
+import { User } from "./models/index.js";
+import bcrypt from "bcrypt";
 
 dotenv.config(); // Load .env
 
@@ -25,6 +27,23 @@ try {
   console.log("Database connected successfully");
   await sequelize.sync({ force: true }); // TODO: Remove force in final version
   console.log("Database synchronized successfully");
+
+  // TODO: Create admin user if it doesn't exist
+  const adminExists = await User.findOne({ where: { username: "admin" } });
+  if (!adminExists) {
+    const hashedPassword = await bcrypt.hash("admin", 10);
+    await User.create({
+      username: "admin",
+      password: hashedPassword,
+      role: "admin",
+      email: "admin@example.com",
+      name: "Administrator"
+    });
+    console.log("Admin user created");
+  } else {
+    console.log("Admin user already exists");
+  }
+
   // await seedData();
   // console.log("Data seeded successfully");
 } catch (error) {
@@ -36,25 +55,3 @@ try {
 export const server = app.listen(process.env.PORT, () => {
   console.log(`Server is running on port ${process.env.PORT}`);
 });
-
-// import { faker, fakerEL } from "@faker-js/faker";
-// const dummyUsers = [];
-// for (let i = 0; i < 10; i++) {
-//   dummyUsers.push({
-//     username: faker.internet.username(),
-//     password: await bcrypt.hash("password", 10),
-//     role: faker.helpers.arrayElement(["student", "professor"]),
-//     email: faker.internet.email(),
-//     name: fakerEL.person.fullName(),
-//   });
-// }
-// await User.bulkCreate(dummyUsers);
-// const dummyTopics = [];
-// for (let i = 0; i < 20; i++) {
-//   dummyTopics.push({
-//     professorId: faker.number.int({ min: 2, max: 11 }),
-//     title: faker.lorem.sentence(),
-//     summary: faker.lorem.paragraph(),
-//   });
-// }
-// await Topic.bulkCreate(dummyTopics);

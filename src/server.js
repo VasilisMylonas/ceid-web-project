@@ -23,27 +23,11 @@ app.use(errorHandler); // Use error handler middleware, after all routes
 app.use("/files", express.static("files"));
 
 try {
+  // TODO
   await sequelize.authenticate();
   console.log("Database connected successfully");
-  await sequelize.sync({ force: true }); // TODO: Remove force in final version
-  console.log("Database synchronized successfully");
-
-  // TODO: Create admin user if it doesn't exist
-  const adminExists = await User.findOne({ where: { username: "admin" } });
-  if (!adminExists) {
-    const hashedPassword = await bcrypt.hash("admin", 10);
-    await User.create({
-      username: "admin",
-      password: hashedPassword,
-      role: "admin",
-      email: "admin@example.com",
-      name: "Administrator"
-    });
-    console.log("Admin user created");
-  } else {
-    console.log("Admin user already exists");
-  }
-
+  // await sequelize.sync({ force: true }); // TODO: Remove force in final version
+  // console.log("Database synchronized successfully");
   // await seedData();
   // console.log("Data seeded successfully");
 } catch (error) {

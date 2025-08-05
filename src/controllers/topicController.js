@@ -2,7 +2,7 @@ import { StatusCodes } from "http-status-codes";
 import { Topic } from "../models/index.js";
 import fs from "fs";
 import path from "path";
-import { filePath } from "../config/fileStorage.js";
+import { fileLocation } from "../config/fileStorage.js";
 
 export async function queryTopics(req, res) {
   let query = {
@@ -34,9 +34,7 @@ export async function postTopic(req, res) {
 }
 
 export async function getTopic(req, res) {
-  const topic = await Topic.findByPk(req.params.id, {
-    attributes: ["id", "professorId", "title", "summary", "descriptionFile"],
-  });
+  const topic = await Topic.findByPk(req.params.id);
 
   if (!topic) {
     return res.status(StatusCodes.NOT_FOUND).send();
@@ -70,15 +68,14 @@ export async function uploadTopicDescription(req, res) {
 
   if (topic.descriptionFile) {
     // Delete file if it exists
-    const filePath = path.join(filePath, topic.descriptionFile);
-    if (fs.existsSync(filePath)) {
-      fs.unlink(filePath);
+    const file = path.join(fileLocation, topic.descriptionFile);
+    if (fs.existsSync(file)) {
+      fs.unlinkSync(file);
     }
   }
 
   topic.descriptionFile = req.file.filename;
   await topic.save();
 
-  console.log("File uploaded:", req.file);
   res.status(StatusCodes.CREATED).send();
 }

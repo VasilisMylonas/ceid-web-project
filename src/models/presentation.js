@@ -1,28 +1,32 @@
 import { sequelize } from "../config/database.js";
 import { DataTypes } from "sequelize";
 
-const Thesis = sequelize.define("Thesis", {
+const Presentation = sequelize.define("Presentation", {
     id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
     },
-    professorId: {
-        type: DataTypes.INTEGER,
+    date: {
+        type: DataTypes.DATE,
         allowNull: false,
     },
-    title: {
-        type: DataTypes.STRING,
+    time: {
+        type: DataTypes.TIME,
         allowNull: false,
     },
-    summary: {
-        type: DataTypes.TEXT,
-        allowNull: false,
-    },
-    descriptionFile: {
+    link: {
         type: DataTypes.STRING,
         allowNull: true,
-    }
+    },
+    kind: {
+        type: DataTypes.ENUM("online", "in-person"),
+        allowNull: false,
+    },
+    hall: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
 });
 
-export default Topic;
+export default Presentation;

@@ -7,8 +7,6 @@ import routes from "./routes/index.js";
 import { sequelize } from "./config/database.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { seedData } from "./seeders.js";
-import { User } from "./models/index.js";
-import bcrypt from "bcrypt";
 
 dotenv.config(); // Load .env
 
@@ -26,10 +24,10 @@ try {
   // TODO
   await sequelize.authenticate();
   console.log("Database connected successfully");
-  // await sequelize.sync({ force: true }); // TODO: Remove force in final version
-  // console.log("Database synchronized successfully");
-  // await seedData();
-  // console.log("Data seeded successfully");
+  await sequelize.sync({ force: true }); // TODO: Remove force in final version
+  console.log("Database synchronized successfully");
+  await seedData();
+  console.log("Data seeded successfully");
 } catch (error) {
   console.error("Database error:", error);
   process.exit(1);

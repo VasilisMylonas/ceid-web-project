@@ -1,8 +1,8 @@
 import express from "express";
-import userRoutes from "./userRoutes.js";
-import authRoutes from "./authRoutes.js";
-import topicRoutes from "./topicRoutes.js";
-import thesisRoutes from "./thesisRoutes.js";
+import userRoutes from "./user.js";
+import authRoutes from "./auth.js";
+import topicRoutes from "./topic.js";
+import thesisRoutes from "./thesis.js";
 
 const router = express.Router();
 

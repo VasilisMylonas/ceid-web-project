@@ -16,9 +16,9 @@ import {
   patchTopic,
   getTopic,
   uploadTopicDescription,
-} from "../controllers/topicController.js";
+} from "../controllers/topic.js";
 import multer from "multer";
-import { topicDescriptionStorage } from "../config/fileStorage.js";
+import { topicDescriptionStorage } from "../config/file-storage.js";
 
 const router = express.Router();
 

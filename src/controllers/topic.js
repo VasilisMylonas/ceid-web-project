@@ -2,7 +2,7 @@ import { StatusCodes } from "http-status-codes";
 import { Topic } from "../models/index.js";
 import fs from "fs";
 import path from "path";
-import { fileLocation } from "../config/fileStorage.js";
+import { fileLocation } from "../config/file-storage.js";
 
 export async function queryTopics(req, res) {
   let query = {

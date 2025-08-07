@@ -13,7 +13,7 @@ const Grade = sequelize.define("Grade", {
     },
     transcriptFile: {
         type: DataTypes.STRING,
-        allowNull: true,
+        allowNull: false,
     },
 });
 

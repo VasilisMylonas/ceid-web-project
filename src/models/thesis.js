@@ -9,15 +9,15 @@ const Thesis = sequelize.define("Thesis", {
     },
     documentFile: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
     },
     nemertesLink: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
     },
     protocolNumber: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
     },
     startDate: {
         type: DataTypes.DATE,
@@ -25,9 +25,17 @@ const Thesis = sequelize.define("Thesis", {
     },
     endDate: {
         type: DataTypes.DATE,
-        allowNull: false,
+        allowNull: true,
     },
-    // TODO: status?
+    cancellationReason: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
+    status: {
+        type: DataTypes.ENUM("pending", "approved", "rejected", "completed", "cancelled", "under_examination"),
+        allowNull: false,
+        defaultValue: "pending",
+    }
 });
 
 export default Thesis;

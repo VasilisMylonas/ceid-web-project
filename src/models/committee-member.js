@@ -1,20 +1,20 @@
 import { sequelize } from "../config/database.js";
 import { DataTypes } from "sequelize";
 
-const Invitation = sequelize.define("Invitation", {
+const CommitteeMember = sequelize.define("CommitteeMember", {
     id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
     },
-    response: {
-        type: DataTypes.ENUM("accepted", "declined"),
-        allowNull: true,
+    startDate: {
+        type: DataTypes.DATE,
+        allowNull: false,
     },
-    responseDate: {
+    endDate: {
         type: DataTypes.DATE,
         allowNull: true,
     },
 });
 
-export default Invitation;
+export default CommitteeMember;

@@ -1,0 +1,38 @@
+version: "3.8"
+
+services:
+  app:
+    container_name: theseus_app
+    image: node:18
+    working_dir: /usr/src/app
+    volumes:
+      - ./:/usr/src/app:Z
+    command: npm start
+    environment:
+      - NODE_ENV=development
+      - DB_NAME=postgres
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_HOST=theseus_db
+      - DB_PORT=5432
+      - JWT_SECRET=your_jwt_secret
+      - PORT=3000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+
+  db:
+    container_name: theseus_db
+    image: postgres:15
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+volumes:
+  db_data:

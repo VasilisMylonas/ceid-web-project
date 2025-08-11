@@ -3,7 +3,10 @@ import dotenv from "dotenv";
 import morgan from "morgan";
 import { expressJoiValidations } from "express-joi-validations";
 
-import routes from "./routes/index.js";
+import userRoutes from "./routes/user.js";
+import authRoutes from "./routes/auth.js";
+import topicRoutes from "./routes/topic.js";
+import thesisRoutes from "./routes/thesis.js";
 import { sequelize } from "./config/database.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { seedData } from "./seeders.js";
@@ -11,10 +14,13 @@ import { seedData } from "./seeders.js";
 dotenv.config(); // Load .env
 
 export const app = express();
-app.use(express.json()); // Use json middleware
-app.use(morgan("dev")); // Use morgan for logging
-app.use(expressJoiValidations({ throwErrors: true })); // Use express-joi-validations for request validation
-app.use("/api", routes); // Use API routes
+app.use(express.json()); // JSON middleware
+app.use(morgan("dev")); // Logging middleware
+app.use(expressJoiValidations({ throwErrors: true })); // Request validation
+app.use("/api/users", userRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/topics", topicRoutes);
+app.use("/api/theses", thesisRoutes);
 app.use(errorHandler); // Use error handler middleware, after all routes
 
 // TODO handle auth

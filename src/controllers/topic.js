@@ -1,24 +1,40 @@
 import { StatusCodes } from "http-status-codes";
 import { Topic } from "../models/index.js";
-import fs from "fs";
-import path from "path";
-import {
-  deleteIfExists,
-  fileLocation,
-  getFilePath,
-} from "../config/file-storage.js";
+import { deleteIfExists, getFilePath } from "../config/file-storage.js";
+import { Op } from "sequelize";
 
 export async function queryTopics(req, res) {
   let query = {
     attributes: ["id", "professorId", "title", "summary"],
     limit: req.query.limit,
     offset: req.query.offset,
+    order: [["id", "ASC"]],
+    where: {
+      ...(req.query.professorId && { professorId: req.query.professorId }),
+    },
   };
 
-  if (req.query.professor) {
-    query.where = {
-      professorId: req.query.professor,
-    };
+  // Keyword searching
+  if (req.query.keywords) {
+    const keywords = req.query.keywords
+      .split(" ")
+      .filter(Boolean)
+      .map((k) => `%${k}%`);
+
+    if (keywords.length > 0) {
+      query.where[Op.or] = [
+        {
+          title: {
+            [Op.iLike]: { [Op.any]: keywords },
+          },
+        },
+        {
+          summary: {
+            [Op.iLike]: { [Op.any]: keywords },
+          },
+        },
+      ];
+    }
   }
 
   const topics = await Topic.findAll(query);

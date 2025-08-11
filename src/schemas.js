@@ -29,6 +29,7 @@ export const topicQuerySchema = validator.object({
   professorId: validator.number().integer().optional(),
   limit: validator.number().integer().min(0).optional(),
   offset: validator.number().integer().min(0).optional(),
+  keywords: validator.string().optional(),
 });
 
 export const topicBodySchema = validator.object({
@@ -46,7 +47,6 @@ export const patchTopicBodySchema = validator.object({
 });
 
 export const thesisQuerySchema = validator.object({
-  studentId: validator.number().integer().optional(),
   professorId: validator.number().integer().optional(),
   limit: validator.number().integer().min(0).optional(),
   offset: validator.number().integer().min(0).optional(),

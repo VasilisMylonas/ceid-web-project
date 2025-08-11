@@ -102,8 +102,8 @@ export async function seedData() {
   });
 
   const professors = await seedProfessors(20);
-  const students = await seedStudents(50);
-  const secretaries = await seedSecretaries(5);
-  const topics = await seedTopics(10, professors);
+  await seedStudents(50);
+  await seedSecretaries(5);
+  await seedTopics(10, professors);
   console.log("Initial data created successfully");
 }

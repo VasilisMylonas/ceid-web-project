@@ -6,13 +6,11 @@ export async function queryUsers(req, res) {
     attributes: ["id", "name", "username", "email", "role"],
     limit: req.query.limit,
     offset: req.query.offset,
+    order: [["id", "ASC"]],
+    where: {
+      ...(req.query.role && { role: req.query.role }),
+    },
   };
-
-  if (req.query.role) {
-    query.where = {
-      role: req.query.role,
-    };
-  }
 
   const users = await User.findAll(query);
 

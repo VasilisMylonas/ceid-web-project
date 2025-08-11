@@ -23,17 +23,14 @@ app.use("/api/topics", topicRoutes);
 app.use("/api/theses", thesisRoutes);
 app.use(errorHandler); // Use error handler middleware, after all routes
 
-// TODO handle auth
-app.use("/files", express.static("files"));
-
 try {
   // TODO
   await sequelize.authenticate();
   console.log("Database connected successfully");
-  await sequelize.sync({ force: true }); // TODO: Remove force in final version
-  console.log("Database synchronized successfully");
-  await seedData();
-  console.log("Data seeded successfully");
+  // await sequelize.sync({ force: true }); // TODO: Remove force in final version
+  // console.log("Database synchronized successfully");
+  // await seedData();
+  // console.log("Data seeded successfully");
 } catch (error) {
   console.error("Database error:", error);
   process.exit(1);

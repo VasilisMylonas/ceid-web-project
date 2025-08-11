@@ -16,6 +16,7 @@ import {
   patchTopic,
   getTopic,
   uploadTopicDescription,
+  getTopicDescription,
 } from "../controllers/topic.js";
 import multer from "multer";
 import { topicDescriptionStorage } from "../config/file-storage.js";
@@ -53,6 +54,12 @@ router.post(
   validate({ params: topicParamsSchema }),
   multer({ storage: topicDescriptionStorage }).single("file"),
   uploadTopicDescription
+);
+router.get(
+  "/:id/description",
+  checkAuth,
+  validate({ params: topicParamsSchema }),
+  getTopicDescription
 );
 
 export default router;

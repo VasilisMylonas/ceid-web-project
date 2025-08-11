@@ -2,7 +2,11 @@ import { StatusCodes } from "http-status-codes";
 import { Topic } from "../models/index.js";
 import fs from "fs";
 import path from "path";
-import { fileLocation } from "../config/file-storage.js";
+import {
+  deleteIfExists,
+  fileLocation,
+  getFilePath,
+} from "../config/file-storage.js";
 
 export async function queryTopics(req, res) {
   let query = {
@@ -34,7 +38,9 @@ export async function postTopic(req, res) {
 }
 
 export async function getTopic(req, res) {
-  const topic = await Topic.findByPk(req.params.id);
+  const topic = await Topic.findByPk(req.params.id, {
+    attributes: { exclude: ["descriptionFile"] },
+  });
 
   if (!topic) {
     return res.status(StatusCodes.NOT_FOUND).send();
@@ -66,16 +72,19 @@ export async function uploadTopicDescription(req, res) {
     return res.status(StatusCodes.BAD_REQUEST).send();
   }
 
-  if (topic.descriptionFile) {
-    // Delete file if it exists
-    const file = path.join(fileLocation, topic.descriptionFile);
-    if (fs.existsSync(file)) {
-      fs.unlinkSync(file);
-    }
-  }
-
+  deleteIfExists(topic.descriptionFile);
   topic.descriptionFile = req.file.filename;
   await topic.save();
 
   res.status(StatusCodes.CREATED).send();
+}
+
+export async function getTopicDescription(req, res) {
+  const topic = await Topic.findByPk(req.params.id);
+
+  if (!topic || !topic.descriptionFile) {
+    return res.status(StatusCodes.NOT_FOUND).send();
+  }
+
+  res.sendFile(getFilePath(topic.descriptionFile));
 }

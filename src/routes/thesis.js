@@ -1,7 +1,7 @@
 import express from "express";
 import {
   queryTheses,
-  //   getThesis,
+  getThesis,
   //   postThesis,
   //   patchThesis,
   //   deleteThesis,
@@ -11,11 +11,14 @@ import {
   //   getThesisNotes,
   //   postThesisNote,
 } from "../controllers/thesis.js";
+import { checkAuth } from "../middleware/authentication.js";
+import { validate } from "express-joi-validations";
+import { thesisQuerySchema } from "../schemas.js";
 
 const router = express.Router();
 
-router.get("/", queryTheses);
-// router.get("/:id", getThesis);
+router.get("/", checkAuth, validate({ query: thesisQuerySchema }), queryTheses);
+router.get("/:id", getThesis);
 // router.post("/", postThesis);
 // router.patch("/:id", patchThesis);
 // router.delete("/:id", deleteThesis);

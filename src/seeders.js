@@ -1,5 +1,12 @@
 import { faker } from "@faker-js/faker";
-import { Professor, Student, Secretary, Topic, User } from "./models/index.js";
+import {
+  Professor,
+  Student,
+  Secretary,
+  Topic,
+  User,
+  Thesis,
+} from "./models/index.js";
 import bcrypt from "bcrypt";
 
 function getRandomDivision() {
@@ -85,6 +92,21 @@ export async function seedTopics(count, professors) {
     thesisTopics.push(topic);
   }
   return thesisTopics;
+}
+
+export async function seedTheses() {
+  const theses = [];
+  const students = await Student.findAll();
+  const topics = await Topic.findAll();
+  for (let i = 0; i < 10; i++) {
+    const thesis = await Thesis.create({
+      title: faker.lorem.sentence(),
+      summary: faker.lorem.paragraph(),
+      studentId: students[Math.floor(Math.random() * students.length)].id,
+      topicId: topics[Math.floor(Math.random() * topics.length)].id,
+    });
+    theses.push(thesis);
+  }
 }
 
 export async function seedData() {

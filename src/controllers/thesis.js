@@ -1,7 +1,41 @@
+import { StatusCodes } from "http-status-codes";
+import { Thesis } from "../models/index.js";
+import { Op } from "sequelize";
+
 export async function queryTheses(req, res) {
   let query = {
-    attributes: ["id", "professorId", "title", "summary"],
+    // attributes: ["id", "title", "summary"],
     limit: req.query.limit,
     offset: req.query.offset,
+    order: [["id", "ASC"]],
+    where: {},
   };
+
+  // Keyword searching
+  if (req.query.keywords) {
+    const keywords = req.query.keywords
+      .split(" ")
+      .filter(Boolean)
+      .map((k) => `%${k}%`);
+
+    if (keywords.length > 0) {
+      query.where[Op.or] = [
+        {
+          title: {
+            [Op.iLike]: { [Op.any]: keywords },
+          },
+        },
+        {
+          summary: {
+            [Op.iLike]: { [Op.any]: keywords },
+          },
+        },
+      ];
+    }
+  }
+
+  const theses = await Thesis.findAll(query);
+  res.status(StatusCodes.OK).json(theses);
 }
+
+export async function getThesis(req, res) {}

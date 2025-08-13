@@ -1,9 +1,5 @@
 import { StatusCodes } from "http-status-codes";
 import jwt from "jsonwebtoken";
-import dotenv from "dotenv";
-import { Topic, Thesis } from "../models/index.js";
-
-dotenv.config();
 
 export async function authenticate(req, res, next) {
   const authHeader = req.headers["authorization"]; // The header is "Authorization: Bearer <token>"
@@ -29,13 +25,6 @@ export async function authenticate(req, res, next) {
   next();
 }
 
-export async function allowSameUserOnly(req, res, next) {
-  if (req.userId != req.params.id) {
-    return res.status(StatusCodes.FORBIDDEN).send();
-  }
-  next();
-}
-
 export function requireRole(role) {
   return async (req, res, next) => {
     if (req.userRole !== role) {
@@ -43,40 +32,4 @@ export function requireRole(role) {
     }
     next();
   };
-}
-
-export async function allowTopicOwnerOnly(req, res, next) {
-  const topicId = req.params.id;
-
-  const topic = await Topic.findByPk(topicId);
-
-  if (!topic) {
-    return res.status(StatusCodes.NOT_FOUND).send();
-  }
-
-  if (topic.professorId !== req.userId) {
-    return res.status(StatusCodes.FORBIDDEN).send();
-  }
-
-  next();
-}
-
-export async function allowThesisOwnerOnly(req, res, next) {
-  const thesisId = req.params.id;
-
-  const thesis = await Thesis.findByPk(thesisId);
-
-  if (!thesis) {
-    return res.status(StatusCodes.NOT_FOUND).send();
-  }
-
-  if (thesis.studentId !== req.userId) {
-    return res.status(StatusCodes.FORBIDDEN).send();
-  }
-
-  // const isOwner = await checkThesisOwnership(req.userId, thesisId);
-  // if (!isOwner) {
-  // return res.status(StatusCodes.FORBIDDEN).send();
-  // }
-  next();
 }

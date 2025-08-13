@@ -66,41 +66,28 @@ export async function getTopic(req, res) {
 }
 
 export async function patchTopic(req, res) {
-  const topic = await Topic.findByPk(req.params.id);
+  // TODO: Except for the descriptionFile, which is handled separately
+  await req.topic.update(req.body);
 
-  if (!topic) {
-    return res.status(StatusCodes.NOT_FOUND).send();
-  }
-
-  await topic.update(req.body);
-
-  res.status(StatusCodes.CREATED).json(topic);
+  res.status(StatusCodes.CREATED).json(req.topic);
 }
 
 export async function uploadTopicDescription(req, res) {
-  const topic = await Topic.findByPk(req.params.id);
-
-  if (!topic) {
-    return res.status(StatusCodes.NOT_FOUND).send();
-  }
-
   if (!req.file) {
     return res.status(StatusCodes.BAD_REQUEST).send();
   }
 
-  deleteIfExists(topic.descriptionFile);
-  topic.descriptionFile = req.file.filename;
-  await topic.save();
+  deleteIfExists(req.topic.descriptionFile);
+  req.topic.descriptionFile = req.file.filename;
+  await req.topic.save();
 
   res.status(StatusCodes.CREATED).send();
 }
 
 export async function getTopicDescription(req, res) {
-  const topic = await Topic.findByPk(req.params.id);
-
-  if (!topic || !topic.descriptionFile) {
+  if (!req.topic.descriptionFile) {
     return res.status(StatusCodes.NOT_FOUND).send();
   }
 
-  res.sendFile(getFilePath(topic.descriptionFile));
+  res.sendFile(getFilePath(req.topic.descriptionFile));
 }

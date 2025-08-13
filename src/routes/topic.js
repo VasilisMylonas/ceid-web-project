@@ -1,10 +1,7 @@
 import express from "express";
 import { validate } from "express-joi-validations";
-import {
-  requireRole,
-  allowTopicOwnerOnly,
-  authenticate,
-} from "../middleware/authentication.js";
+import { requireRole, authenticate } from "../middleware/authentication.js";
+import { manageTopic } from "../middleware/specific.js";
 import {
   topicQuerySchema,
   topicBodySchema,
@@ -30,11 +27,17 @@ router.get(
   validate({ query: topicQuerySchema }),
   queryTopics
 );
+router.get(
+  "/:id/description",
+  authenticate,
+  validate({ params: topicParamsSchema }),
+  getTopicDescription
+);
 router.post(
   "/",
   authenticate,
-  requireRole("professor"),
   validate({ body: topicBodySchema }),
+  requireRole("professor"),
   postTopic
 );
 router.get(
@@ -46,26 +49,20 @@ router.get(
 router.patch(
   "/:id",
   authenticate,
-  allowTopicOwnerOnly,
   validate({
     params: topicParamsSchema,
     body: patchTopicBodySchema,
   }),
+  manageTopic,
   patchTopic
 );
 router.post(
   "/:id/upload",
   authenticate,
-  allowTopicOwnerOnly,
   validate({ params: topicParamsSchema }),
+  manageTopic,
   multer({ storage: topicDescriptionStorage }).single("file"),
   uploadTopicDescription
-);
-router.get(
-  "/:id/description",
-  authenticate,
-  validate({ params: topicParamsSchema }),
-  getTopicDescription
 );
 
 export default router;

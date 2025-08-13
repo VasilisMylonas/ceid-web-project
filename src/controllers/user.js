@@ -45,33 +45,12 @@ export async function getUser(req, res) {
 }
 
 export async function patchUser(req, res) {
-  if (req.userId != req.params.id) {
-    return res.status(StatusCodes.FORBIDDEN).send();
-  }
-
-  const user = await User.findByPk(req.params.id);
-
-  if (!user) {
-    return res.status(StatusCodes.NOT_FOUND).send();
-  }
-
-  await user.update(req.body);
-
-  res.status(StatusCodes.OK).json(user);
+  // TODO: maybe some fields should not be allowed to be updated
+  await req.user.update(req.body);
+  res.status(StatusCodes.OK).json(req.user);
 }
 
 export async function deleteUser(req, res) {
-  if (req.userId != req.params.id) {
-    return res.status(StatusCodes.FORBIDDEN).send();
-  }
-
-  const user = await User.findByPk(req.params.id);
-
-  if (!user) {
-    return res.status(StatusCodes.NOT_FOUND).send();
-  }
-
-  await user.destroy();
-
+  await req.user.destroy();
   res.status(StatusCodes.NO_CONTENT).send();
 }

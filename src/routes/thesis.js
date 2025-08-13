@@ -4,19 +4,9 @@ import {
   getThesis,
   patchThesis,
   inviteProfessorToThesis,
-  //   postThesis,
-  //   patchThesis,
-  //   deleteThesis,
-  //   getThesisInvitations,
-  //   getThesisCommittee,
-  //   getThesisTimeline,
-  //   getThesisNotes,
-  //   postThesisNote,
 } from "../controllers/thesis.js";
-import {
-  allowThesisOwnerOnly,
-  authenticate,
-} from "../middleware/authentication.js";
+import { authenticate } from "../middleware/authentication.js";
+import { manageThesis } from "../middleware/specific.js";
 import { validate } from "express-joi-validations";
 import { thesisParamsSchema, thesisQuerySchema } from "../schemas.js";
 
@@ -37,18 +27,19 @@ router.get(
 router.patch(
   "/:id",
   authenticate,
-  allowThesisOwnerOnly,
   validate({ query: thesisParamsSchema }),
+  manageThesis,
   patchThesis
 );
 router.post(
   "/:id/invite",
   authenticate,
-  allowThesisOwnerOnly,
   validate({ params: thesisParamsSchema }),
+  manageThesis,
   inviteProfessorToThesis
 );
 
+// TODO
 // router.post("/", postThesis);
 // router.delete("/:id", deleteThesis);
 

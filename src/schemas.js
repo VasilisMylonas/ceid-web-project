@@ -51,3 +51,7 @@ export const thesisQuerySchema = validator.object({
   offset: validator.number().integer().min(0).optional(),
   keywords: validator.string().optional(),
 });
+
+export const thesisParamsSchema = validator.object({
+  id: validator.number().integer().required(),
+});

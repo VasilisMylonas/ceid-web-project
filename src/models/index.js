@@ -20,42 +20,55 @@ User.hasOne(Student, { foreignKey: "id" }); // may-be-a
 Secretary.belongsTo(User, { foreignKey: "id" }); // is-a
 User.hasOne(Secretary, { foreignKey: "id" }); // may-be-a
 
-Note.belongsTo(Thesis, { foreignKey: "thesis" });
-Thesis.hasMany(Note, { foreignKey: "thesis" });
+Note.belongsTo(Thesis, { foreignKey: "thesisId" });
+Thesis.hasMany(Note, { foreignKey: "thesisId" });
 
-Presentation.belongsTo(Thesis, { foreignKey: "thesis" });
-Thesis.hasMany(Presentation, { foreignKey: "thesis" });
+Presentation.belongsTo(Thesis, { foreignKey: "thesisId" });
+Thesis.hasMany(Presentation, { foreignKey: "thesisId" });
 
-Material.belongsTo(Thesis, { foreignKey: "thesis" });
-Thesis.hasMany(Material, { foreignKey: "thesis" });
+Material.belongsTo(Thesis, { foreignKey: "thesisId" });
+Thesis.hasMany(Material, { foreignKey: "thesisId" });
 
-Topic.belongsTo(Professor, { foreignKey: "professor" });
-Professor.hasMany(Topic, { foreignKey: "professor" });
+Topic.belongsTo(Professor, { foreignKey: "professorId" });
+Professor.hasMany(Topic, { foreignKey: "professorId" });
 
-Note.belongsTo(Professor, { foreignKey: "professor" });
-Professor.hasMany(Note, { foreignKey: "professor" });
+Note.belongsTo(Professor, { foreignKey: "professorId" });
+Professor.hasMany(Note, { foreignKey: "professorId" });
 
-Thesis.belongsTo(Topic, { foreignKey: "topic" });
-Topic.hasMany(Thesis, { foreignKey: "topic" });
+Thesis.belongsTo(Topic, { foreignKey: "topicId" });
+Topic.hasMany(Thesis, { foreignKey: "topicId" });
 
-Thesis.belongsTo(Student, { foreignKey: "student" });
-Student.hasMany(Thesis, { foreignKey: "student" });
+Thesis.belongsTo(Student, { foreignKey: "studentId" });
+Student.hasMany(Thesis, { foreignKey: "studentId" });
 
 // TODO: this needs no ID, professor and thesis are enough
-Grade.belongsTo(Professor, { foreignKey: "professor" });
-Professor.hasMany(Grade, { foreignKey: "professor" });
-Grade.belongsTo(Thesis, { foreignKey: "thesis" });
-Thesis.hasMany(Grade, { foreignKey: "thesis" });
+Grade.belongsTo(Professor, { foreignKey: "professorId" });
+Professor.hasMany(Grade, { foreignKey: "professorId" });
+Grade.belongsTo(Thesis, { foreignKey: "thesisId" });
+Thesis.hasMany(Grade, { foreignKey: "thesisId" });
 
-Invitation.belongsTo(Student, { foreignKey: "student" });
-Student.hasMany(Invitation, { foreignKey: "student" });
-Invitation.belongsTo(Professor, { foreignKey: "professor" });
-Professor.hasMany(Invitation, { foreignKey: "professor" });
+Invitation.belongsTo(Student, { foreignKey: "studentId" });
+Student.hasMany(Invitation, { foreignKey: "studentId" });
+Invitation.belongsTo(Professor, { foreignKey: "professorId" });
+Professor.hasMany(Invitation, { foreignKey: "professorId" });
 
 // TODO: This also needs no ID, professor and thesis are enough
-CommitteeMember.belongsTo(Thesis, { foreignKey: "thesis" });
-Thesis.hasMany(CommitteeMember, { foreignKey: "thesis" });
-CommitteeMember.belongsTo(Professor, { foreignKey: "professor" });
-Professor.hasMany(CommitteeMember, { foreignKey: "professor" });
+CommitteeMember.belongsTo(Thesis, { foreignKey: "thesisId" });
+Thesis.hasMany(CommitteeMember, { foreignKey: "thesisId" });
+CommitteeMember.belongsTo(Professor, { foreignKey: "professorId" });
+Professor.hasMany(CommitteeMember, { foreignKey: "professorId" });
 
-export { User, Topic, Professor, Student, Secretary, Note, Thesis, Presentation, Material, Grade, Invitation, CommitteeMember };
+export {
+  User,
+  Topic,
+  Professor,
+  Student,
+  Secretary,
+  Note,
+  Thesis,
+  Presentation,
+  Material,
+  Grade,
+  Invitation,
+  CommitteeMember,
+};

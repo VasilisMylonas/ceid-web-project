@@ -7,10 +7,6 @@ const Topic = sequelize.define("Topic", {
     primaryKey: true,
     autoIncrement: true,
   },
-  professorId: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-  },
   title: {
     type: DataTypes.STRING,
     allowNull: false,
@@ -22,7 +18,7 @@ const Topic = sequelize.define("Topic", {
   descriptionFile: {
     type: DataTypes.STRING,
     allowNull: true,
-  }
+  },
 });
 
 export default Topic;

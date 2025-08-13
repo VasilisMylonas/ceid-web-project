@@ -2,6 +2,7 @@ import express from "express";
 import { validate } from "express-joi-validations";
 import {
   allowProfessorsOnly,
+  allowTopicOwnerOnly,
   checkAuth,
 } from "../middleware/authentication.js";
 import {
@@ -40,7 +41,7 @@ router.get(
 router.patch(
   "/:id",
   checkAuth,
-  allowProfessorsOnly,
+  allowTopicOwnerOnly,
   validate({
     params: topicParamsSchema,
     body: patchTopicBodySchema,
@@ -50,7 +51,7 @@ router.patch(
 router.post(
   "/:id/upload",
   checkAuth,
-  allowProfessorsOnly,
+  allowTopicOwnerOnly,
   validate({ params: topicParamsSchema }),
   multer({ storage: topicDescriptionStorage }).single("file"),
   uploadTopicDescription

@@ -11,16 +11,39 @@ import {
   //   getThesisNotes,
   //   postThesisNote,
 } from "../controllers/thesis.js";
-import { checkAuth } from "../middleware/authentication.js";
+import {
+  allowThesisOwnerOnly,
+  checkAuth,
+} from "../middleware/authentication.js";
 import { validate } from "express-joi-validations";
-import { thesisQuerySchema } from "../schemas.js";
+import { thesisParamsSchema, thesisQuerySchema } from "../schemas.js";
 
 const router = express.Router();
 
 router.get("/", checkAuth, validate({ query: thesisQuerySchema }), queryTheses);
-router.get("/:id", getThesis);
+router.get(
+  "/:id",
+  checkAuth,
+  validate({ params: thesisParamsSchema }),
+  getThesis
+);
+// Edit thesis
+router.patch(
+  "/:id",
+  checkAuth,
+  allowThesisOwnerOnly,
+  validate({ query: thesisParamsSchema })
+  // patchThesis
+);
+router.post(
+  "/:id/invite",
+  checkAuth,
+  allowThesisOwnerOnly,
+  validate({ params: thesisParamsSchema })
+  // inviteProfessorToThesis
+);
+
 // router.post("/", postThesis);
-// router.patch("/:id", patchThesis);
 // router.delete("/:id", deleteThesis);
 
 // router.get("/:id/invitations", getThesisInvitations);

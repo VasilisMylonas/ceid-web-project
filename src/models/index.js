@@ -41,7 +41,6 @@ Topic.hasMany(Thesis, { foreignKey: "topicId" });
 Thesis.belongsTo(Student, { foreignKey: "studentId" });
 Student.hasMany(Thesis, { foreignKey: "studentId" });
 
-// TODO: this needs no ID, professor and thesis are enough
 Grade.belongsTo(Professor, { foreignKey: "professorId" });
 Professor.hasMany(Grade, { foreignKey: "professorId" });
 Grade.belongsTo(Thesis, { foreignKey: "thesisId" });
@@ -52,7 +51,6 @@ Student.hasMany(Invitation, { foreignKey: "studentId" });
 Invitation.belongsTo(Professor, { foreignKey: "professorId" });
 Professor.hasMany(Invitation, { foreignKey: "professorId" });
 
-// TODO: This also needs no ID, professor and thesis are enough
 CommitteeMember.belongsTo(Thesis, { foreignKey: "thesisId" });
 Thesis.hasMany(CommitteeMember, { foreignKey: "thesisId" });
 CommitteeMember.belongsTo(Professor, { foreignKey: "professorId" });

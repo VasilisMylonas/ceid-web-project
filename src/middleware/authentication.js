@@ -10,7 +10,6 @@ export async function authenticate(req, res, next) {
     return res.status(StatusCodes.UNAUTHORIZED).send();
   }
 
-  // TODO: improve authentication
   try {
     const id = jwt.verify(token, process.env.JWT_SECRET).id;
     if (!id) {
@@ -20,6 +19,7 @@ export async function authenticate(req, res, next) {
     if (!user) {
       return res.status(StatusCodes.UNAUTHORIZED).send();
     }
+    req.user = user;
     console.log(`Authenticated user ${req.user.id} (${req.user.role})`);
   } catch (error) {
     console.error("Authentication error:", error);
@@ -32,6 +32,7 @@ export async function authenticate(req, res, next) {
 export function requireRole(role) {
   return async (req, res, next) => {
     if (req.user.role !== role) {
+      console.log(`Role required: ${role}`);
       return res.status(StatusCodes.FORBIDDEN).send();
     }
     next();

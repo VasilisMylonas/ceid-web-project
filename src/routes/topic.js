@@ -28,6 +28,12 @@ router.get(
   queryTopics
 );
 router.get(
+  "/:id",
+  authenticate,
+  validate({ params: topicParamsSchema }),
+  getTopic
+);
+router.get(
   "/:id/description",
   authenticate,
   validate({ params: topicParamsSchema }),
@@ -39,12 +45,6 @@ router.post(
   validate({ body: topicBodySchema }),
   requireRole("professor"),
   postTopic
-);
-router.get(
-  "/:id",
-  authenticate,
-  validate({ params: topicParamsSchema }),
-  getTopic
 );
 router.patch(
   "/:id",

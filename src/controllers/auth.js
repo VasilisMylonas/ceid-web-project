@@ -20,6 +20,7 @@ export async function login(req, res) {
     return res.status(StatusCodes.UNAUTHORIZED).send();
   }
 
+  console.log(`User ${user.username} logged in successfully.`);
   const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
     expiresIn: "1h",
   });

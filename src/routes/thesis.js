@@ -39,7 +39,7 @@ router.post(
   inviteProfessorToThesis
 );
 
-// TODO
+// TODO: implement
 // router.post("/", postThesis);
 // router.delete("/:id", deleteThesis);
 

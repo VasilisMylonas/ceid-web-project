@@ -1,6 +1,9 @@
 import express from "express";
 import { validate } from "express-joi-validations";
-import { allowSameUserOnly, checkAuth } from "../middleware/authentication.js";
+import {
+  allowSameUserOnly,
+  authenticate,
+} from "../middleware/authentication.js";
 import {
   userQuerySchema,
   userParamsSchema,
@@ -15,24 +18,24 @@ import {
 
 const router = express.Router();
 
-router.get("/", checkAuth, validate({ query: userQuerySchema }), queryUsers);
+router.get("/", authenticate, validate({ query: userQuerySchema }), queryUsers);
 router.get(
   "/:id",
-  checkAuth,
+  authenticate,
   allowSameUserOnly,
   validate({ params: userParamsSchema }),
   getUser
 );
 router.patch(
   "/:id",
-  checkAuth,
+  authenticate,
   allowSameUserOnly,
   validate({ params: userParamsSchema, body: patchUserBodySchema }),
   patchUser
 );
 router.delete(
   "/:id",
-  checkAuth,
+  authenticate,
   allowSameUserOnly,
   validate({ params: userParamsSchema }),
   deleteUser

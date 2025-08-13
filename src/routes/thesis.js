@@ -2,6 +2,8 @@ import express from "express";
 import {
   queryTheses,
   getThesis,
+  patchThesis,
+  inviteProfessorToThesis,
   //   postThesis,
   //   patchThesis,
   //   deleteThesis,
@@ -13,34 +15,38 @@ import {
 } from "../controllers/thesis.js";
 import {
   allowThesisOwnerOnly,
-  checkAuth,
+  authenticate,
 } from "../middleware/authentication.js";
 import { validate } from "express-joi-validations";
 import { thesisParamsSchema, thesisQuerySchema } from "../schemas.js";
 
 const router = express.Router();
 
-router.get("/", checkAuth, validate({ query: thesisQuerySchema }), queryTheses);
+router.get(
+  "/",
+  authenticate,
+  validate({ query: thesisQuerySchema }),
+  queryTheses
+);
 router.get(
   "/:id",
-  checkAuth,
+  authenticate,
   validate({ params: thesisParamsSchema }),
   getThesis
 );
-// Edit thesis
 router.patch(
   "/:id",
-  checkAuth,
+  authenticate,
   allowThesisOwnerOnly,
-  validate({ query: thesisParamsSchema })
-  // patchThesis
+  validate({ query: thesisParamsSchema }),
+  patchThesis
 );
 router.post(
   "/:id/invite",
-  checkAuth,
+  authenticate,
   allowThesisOwnerOnly,
-  validate({ params: thesisParamsSchema })
-  // inviteProfessorToThesis
+  validate({ params: thesisParamsSchema }),
+  inviteProfessorToThesis
 );
 
 // router.post("/", postThesis);

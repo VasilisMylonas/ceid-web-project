@@ -38,4 +38,9 @@ export async function queryTheses(req, res) {
   res.status(StatusCodes.OK).json(theses);
 }
 
+// TODO: implement
 export async function getThesis(req, res) {}
+
+export async function patchThesis(req, res) {}
+
+export async function inviteProfessorToThesis(req, res) {}

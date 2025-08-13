@@ -1,9 +1,9 @@
 import express from "express";
 import { validate } from "express-joi-validations";
 import {
-  allowProfessorsOnly,
+  requireRole,
   allowTopicOwnerOnly,
-  checkAuth,
+  authenticate,
 } from "../middleware/authentication.js";
 import {
   topicQuerySchema,
@@ -24,23 +24,28 @@ import { topicDescriptionStorage } from "../config/file-storage.js";
 
 const router = express.Router();
 
-router.get("/", checkAuth, validate({ query: topicQuerySchema }), queryTopics);
+router.get(
+  "/",
+  authenticate,
+  validate({ query: topicQuerySchema }),
+  queryTopics
+);
 router.post(
   "/",
-  checkAuth,
-  allowProfessorsOnly,
+  authenticate,
+  requireRole("professor"),
   validate({ body: topicBodySchema }),
   postTopic
 );
 router.get(
   "/:id",
-  checkAuth,
+  authenticate,
   validate({ params: topicParamsSchema }),
   getTopic
 );
 router.patch(
   "/:id",
-  checkAuth,
+  authenticate,
   allowTopicOwnerOnly,
   validate({
     params: topicParamsSchema,
@@ -50,7 +55,7 @@ router.patch(
 );
 router.post(
   "/:id/upload",
-  checkAuth,
+  authenticate,
   allowTopicOwnerOnly,
   validate({ params: topicParamsSchema }),
   multer({ storage: topicDescriptionStorage }).single("file"),
@@ -58,7 +63,7 @@ router.post(
 );
 router.get(
   "/:id/description",
-  checkAuth,
+  authenticate,
   validate({ params: topicParamsSchema }),
   getTopicDescription
 );

@@ -5,7 +5,7 @@ import { Topic, Thesis } from "../models/index.js";
 
 dotenv.config();
 
-export async function checkAuth(req, res, next) {
+export async function authenticate(req, res, next) {
   const authHeader = req.headers["authorization"]; // The header is "Authorization: Bearer <token>"
   const token = authHeader && authHeader.split(" ")[1];
   console.log("Token received:", token);
@@ -13,7 +13,7 @@ export async function checkAuth(req, res, next) {
     return res.status(StatusCodes.UNAUTHORIZED).send();
   }
 
-  // TODO
+  // TODO: improve authentication
   try {
     req.userId = jwt.verify(token, process.env.JWT_SECRET).id;
     req.userRole = jwt.verify(token, process.env.JWT_SECRET).role;
@@ -36,11 +36,13 @@ export async function allowSameUserOnly(req, res, next) {
   next();
 }
 
-export async function allowProfessorsOnly(req, res, next) {
-  if (req.userRole !== "professor") {
-    return res.status(StatusCodes.FORBIDDEN).send();
-  }
-  next();
+export function requireRole(role) {
+  return async (req, res, next) => {
+    if (req.userRole !== role) {
+      return res.status(StatusCodes.FORBIDDEN).send();
+    }
+    next();
+  };
 }
 
 export async function allowTopicOwnerOnly(req, res, next) {

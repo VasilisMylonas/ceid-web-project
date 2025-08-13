@@ -4,9 +4,9 @@
 
 ### Prerequisites
 
-- Node.js (v20 or later)
+- node.js
 - npm
-- A running PostgreSQL database (for example, via Docker)
+- Docker or Podman
 
 ### Installation
 
@@ -28,12 +28,16 @@
 To start the development server:
 
 ```bash
-npm start
+docker compose up
+```
+
+or
+
+```bash
+podman compose up
 ```
 
 The application should now be running at `http://localhost:3000` (or another port if specified).
-
-Check out the API documentation at `http://localhost:3000/api-docs` for available endpoints.
 
 ## Project Structure
 

@@ -18,7 +18,7 @@ export async function queryUsers(req, res) {
 }
 
 export async function getUser(req, res) {
-  if (req.userId != req.params.id) {
+  if (req.user.id != req.params.id) {
     return res.status(StatusCodes.FORBIDDEN).send();
   }
 

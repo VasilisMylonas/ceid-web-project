@@ -47,7 +47,7 @@ export async function postTopic(req, res) {
   const thesisTopic = await Topic.create({
     title,
     summary,
-    professorId: req.userId,
+    professorId: req.user.id,
   });
 
   res.status(StatusCodes.CREATED).json(thesisTopic);

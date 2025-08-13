@@ -54,14 +54,9 @@ export async function postTopic(req, res) {
 }
 
 export async function getTopic(req, res) {
-  const topic = await Topic.findByPk(req.params.id, {
+  const topic = await Topic.findByPk(req.topic.id, {
     attributes: { exclude: ["descriptionFile"] },
   });
-
-  if (!topic) {
-    return res.status(StatusCodes.NOT_FOUND).send();
-  }
-
   res.status(StatusCodes.OK).json(topic);
 }
 

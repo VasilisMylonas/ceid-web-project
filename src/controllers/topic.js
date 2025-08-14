@@ -77,9 +77,7 @@ export async function getTopicDescription(req, res) {
 }
 
 export async function patchTopic(req, res) {
-  // TODO: Except for the descriptionFile, which is handled separately
   await req.topic.update(req.body);
-
   res.status(StatusCodes.CREATED).json(req.topic);
 }
 

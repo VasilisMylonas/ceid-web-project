@@ -35,7 +35,6 @@ export async function getUser(req, res) {
 }
 
 export async function patchUser(req, res) {
-  // TODO: maybe some fields should not be allowed to be updated
   await req.user.update(req.body);
   res.status(StatusCodes.OK).json(req.user);
 }

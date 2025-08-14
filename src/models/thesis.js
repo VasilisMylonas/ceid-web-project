@@ -27,7 +27,7 @@ const Thesis = sequelize.define("Thesis", {
     type: DataTypes.DATE,
     allowNull: true,
   },
-  cancellationReason: {
+  statusReason: {
     type: DataTypes.STRING,
     allowNull: true,
   },

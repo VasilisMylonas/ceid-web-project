@@ -20,6 +20,18 @@ function getRandomDivision() {
   return divisions[Math.floor(Math.random() * divisions.length)];
 }
 
+function getRandomStatus() {
+  const statuses = [
+    "pending",
+    "approved",
+    "rejected",
+    "completed",
+    "cancelled",
+    "under_examination",
+  ];
+  return statuses[Math.floor(Math.random() * statuses.length)];
+}
+
 export async function seedProfessors(count) {
   const professors = [];
   for (let i = 0; i < count; i++) {
@@ -94,16 +106,25 @@ export async function seedTopics(count, professors) {
   return thesisTopics;
 }
 
-export async function seedTheses() {
+// TODO: seeder
+export async function seedTheses(count) {
   const theses = [];
   const students = await Student.findAll();
   const topics = await Topic.findAll();
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < count; i++) {
+    const protocolNumber = `PN-${faker.string.numeric(6)}`;
+    const status = getRandomStatus();
+
+    // if (status === "cancelled") {
+
     const thesis = await Thesis.create({
       title: faker.lorem.sentence(),
       summary: faker.lorem.paragraph(),
       studentId: students[Math.floor(Math.random() * students.length)].id,
       topicId: topics[Math.floor(Math.random() * topics.length)].id,
+      status: status,
+      startDate: faker.date.past(),
+      endDate: status === "under_examination" ? faker.date.future() : null,
     });
     theses.push(thesis);
   }
@@ -123,9 +144,10 @@ export async function seedData() {
     division: "Hardware Engineering",
   });
 
-  const professors = await seedProfessors(20);
-  await seedStudents(50);
+  const professors = await seedProfessors(30);
+  await seedStudents(300);
   await seedSecretaries(5);
-  await seedTopics(10, professors);
+  await seedTopics(50, professors);
+  await seedTheses(50);
   console.log("Initial data created successfully");
 }

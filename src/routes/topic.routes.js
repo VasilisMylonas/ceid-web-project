@@ -2,12 +2,12 @@ import express from "express";
 import { validate } from "../config/validation.js";
 import { requireRole, authenticate } from "../middleware/authentication.js";
 import { manageTopic } from "../middleware/specific.js";
-import { uploadTopicDescriptionSchema } from "../validators/topic.validators.js";
-import { patchTopicSchema } from "../validators/topic.validators.js";
-import { postTopicSchema } from "../validators/topic.validators.js";
-import { getTopicDescriptionSchema } from "../validators/topic.validators.js";
-import { queryTopicsSchema } from "../validators/topic.validators.js";
-import { getTopicSchema } from "../validators/topic.validators.js";
+import { uploadTopicDescriptionValidator } from "../validators/topic.validators.js";
+import { patchTopicValidator } from "../validators/topic.validators.js";
+import { postTopicValidator } from "../validators/topic.validators.js";
+import { getTopicDescriptionValidator } from "../validators/topic.validators.js";
+import { queryTopicsValidator } from "../validators/topic.validators.js";
+import { getTopicValidator } from "../validators/topic.validators.js";
 import {
   queryTopics,
   postTopic,
@@ -21,32 +21,32 @@ import { topicDescriptionStorage } from "../config/file-storage.js";
 
 const router = express.Router();
 
-router.get("/", authenticate, validate(queryTopicsSchema), queryTopics);
-router.get("/:id", authenticate, validate(getTopicSchema), getTopic);
+router.get("/", authenticate, validate(queryTopicsValidator), queryTopics);
+router.get("/:id", authenticate, validate(getTopicValidator), getTopic);
 router.get(
   "/:id/description",
   authenticate,
-  validate(getTopicDescriptionSchema),
+  validate(getTopicDescriptionValidator),
   getTopicDescription
 );
 router.post(
   "/",
   authenticate,
-  validate(postTopicSchema),
+  validate(postTopicValidator),
   requireRole("professor"),
   postTopic
 );
 router.patch(
   "/:id",
   authenticate,
-  validate(patchTopicSchema),
+  validate(patchTopicValidator),
   manageTopic,
   patchTopic
 );
 router.post(
   "/:id/upload",
   authenticate,
-  validate(uploadTopicDescriptionSchema),
+  validate(uploadTopicDescriptionValidator),
   manageTopic,
   multer({ storage: topicDescriptionStorage }).single("file"),
   uploadTopicDescription

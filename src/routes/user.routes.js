@@ -2,10 +2,10 @@ import express from "express";
 import { validate } from "../config/validation.js";
 import { authenticate } from "../middleware/authentication.js";
 import {
-  getUserSchema,
-  queryUsersSchema,
-  patchUserSchema,
-  deleteUserSchema,
+  getUserValidator,
+  queryUsersValidator,
+  patchUserValidator,
+  deleteUserValidator,
 } from "../validators/user.validators.js";
 import {
   queryUsers,
@@ -17,19 +17,25 @@ import { manageUser } from "../middleware/specific.js";
 
 const router = express.Router();
 
-router.get("/", authenticate, validate(queryUsersSchema), queryUsers);
-router.get("/:id", authenticate, validate(getUserSchema), manageUser, getUser);
+router.get("/", authenticate, validate(queryUsersValidator), queryUsers);
+router.get(
+  "/:id",
+  authenticate,
+  validate(getUserValidator),
+  manageUser,
+  getUser
+);
 router.patch(
   "/:id",
   authenticate,
-  validate(patchUserSchema),
+  validate(patchUserValidator),
   manageUser,
   patchUser
 );
 router.delete(
   "/:id",
   authenticate,
-  validate(deleteUserSchema),
+  validate(deleteUserValidator),
   manageUser,
   deleteUser
 );

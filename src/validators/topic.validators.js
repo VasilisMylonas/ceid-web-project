@@ -1,11 +1,11 @@
 import { validator } from "../config/validation.js";
 
-export const getTopicSchema = {
+export const getTopicValidator = {
   params: {
     id: validator.number().integer().required(),
   },
 };
-export const queryTopicsSchema = {
+export const queryTopicsValidator = {
   query: {
     professorId: validator.number().integer().optional(),
     limit: validator.number().integer().min(0).optional(),
@@ -13,18 +13,18 @@ export const queryTopicsSchema = {
     keywords: validator.string().optional(),
   },
 };
-export const getTopicDescriptionSchema = {
+export const getTopicDescriptionValidator = {
   params: {
     id: validator.number().integer().required(),
   },
 };
-export const postTopicSchema = {
+export const postTopicValidator = {
   body: {
     title: validator.string().min(1).required(),
     summary: validator.string().min(1).required(),
   },
 };
-export const patchTopicSchema = {
+export const patchTopicValidator = {
   params: {
     id: validator.number().integer().required(),
   },
@@ -33,7 +33,7 @@ export const patchTopicSchema = {
     summary: validator.string().min(1).optional(),
   },
 };
-export const uploadTopicDescriptionSchema = {
+export const uploadTopicDescriptionValidator = {
   params: {
     id: validator.number().integer().required(),
   },

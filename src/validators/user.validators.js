@@ -1,6 +1,6 @@
 import { validator } from "../config/validation.js";
 
-export const queryUsersSchema = {
+export const queryUsersValidator = {
   query: {
     role: validator
       .string()
@@ -11,13 +11,13 @@ export const queryUsersSchema = {
   },
 };
 
-export const getUserSchema = {
+export const getUserValidator = {
   params: {
     id: validator.number().integer().required(),
   },
 };
 
-export const patchUserSchema = {
+export const patchUserValidator = {
   params: {
     id: validator.number().integer().required(),
   },
@@ -29,7 +29,7 @@ export const patchUserSchema = {
   },
 };
 
-export const deleteUserSchema = {
+export const deleteUserValidator = {
   params: {
     id: validator.number().integer().required(),
   },

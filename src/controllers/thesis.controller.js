@@ -39,34 +39,21 @@ export async function queryTheses(req, res) {
 }
 
 export async function getThesis(req, res) {
-  try {
-    const thesis = await Thesis.findByPk(req.params.id);
-    if (!thesis) {
-      return res
-        .status(StatusCodes.NOT_FOUND)
-        .json({ error: "Thesis not found" });
-    }
-    res.status(StatusCodes.OK).json(thesis);
-  } catch (err) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: err.message });
+  const thesis = await Thesis.findByPk(req.params.id, {
+    attributes: { exclude: ["documentFile"] }, // Exclude documentFile for security
+  });
+  if (!thesis) {
+    return res.status(StatusCodes.NOT_FOUND).send();
   }
+  res.status(StatusCodes.OK).json(thesis);
 }
 
 export async function patchThesis(req, res) {
-  try {
-    const thesis = await Thesis.findByPk(req.params.id);
-    if (!thesis) {
-      return res
-        .status(StatusCodes.NOT_FOUND)
-        .json({ error: "Thesis not found" });
-    }
-    await thesis.update(req.body);
-    res.status(StatusCodes.OK).json(thesis);
-  } catch (err) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: err.message });
-  }
+  await req.thesis.update(req.body);
+  res.status(StatusCodes.OK).json(req.thesis);
 }
 
+// TODO: implement
 export async function inviteProfessorToThesis(req, res) {
   // Example: Add logic to invite a professor to a thesis
   // This will depend on your data model (e.g., linking professor to thesis)
@@ -74,16 +61,11 @@ export async function inviteProfessorToThesis(req, res) {
 }
 
 export async function deleteThesis(req, res) {
-  try {
-    const thesis = await Thesis.findByPk(req.params.id);
-    if (!thesis) {
-      return res
-        .status(StatusCodes.NOT_FOUND)
-        .json({ error: "Thesis not found" });
-    }
-    await thesis.destroy();
-    res.status(StatusCodes.NO_CONTENT).send();
-  } catch (err) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: err.message });
-  }
+  await req.thesis.destroy();
+  res.status(StatusCodes.NO_CONTENT).send();
 }
+
+// TODO: implement
+export async function uploadThesisDocument(req, res) {}
+
+export async function getThesisDocument(req, res) {}

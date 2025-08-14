@@ -54,7 +54,6 @@ export async function postTopic(req, res) {
 }
 
 export async function getTopic(req, res) {
-  // This does not have the manageTopic middleware, so we need to fetch the topic directly
   const topic = await Topic.findByPk(req.params.id, {
     attributes: { exclude: ["descriptionFile"] },
   });
@@ -65,7 +64,6 @@ export async function getTopic(req, res) {
 }
 
 export async function getTopicDescription(req, res) {
-  // This does not have the manageTopic middleware, so we need to fetch the topic directly
   const topic = await Topic.findByPk(req.params.id);
   if (!topic) {
     return res.status(StatusCodes.NOT_FOUND).send();
@@ -78,7 +76,13 @@ export async function getTopicDescription(req, res) {
 
 export async function patchTopic(req, res) {
   await req.topic.update(req.body);
-  res.status(StatusCodes.CREATED).json(req.topic);
+  res.status(StatusCodes.OK).json(req.topic);
+}
+
+export async function deleteTopic(req, res) {
+  // TODO: check if topic is linked to any theses
+  await req.topic.destroy();
+  res.status(StatusCodes.NO_CONTENT).send();
 }
 
 export async function uploadTopicDescription(req, res) {

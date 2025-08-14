@@ -38,3 +38,8 @@ export const uploadTopicDescriptionValidator = {
     id: validator.number().integer().required(),
   },
 };
+export const deleteTopicValidator = {
+  params: {
+    id: validator.number().integer().required(),
+  },
+};

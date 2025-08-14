@@ -2,17 +2,21 @@ import express from "express";
 import { validate } from "../config/validation.js";
 import { requireRole, authenticate } from "../middleware/authentication.js";
 import { manageTopic } from "../middleware/specific.js";
-import { uploadTopicDescriptionValidator } from "../validators/topic.validators.js";
-import { patchTopicValidator } from "../validators/topic.validators.js";
-import { postTopicValidator } from "../validators/topic.validators.js";
-import { getTopicDescriptionValidator } from "../validators/topic.validators.js";
-import { queryTopicsValidator } from "../validators/topic.validators.js";
-import { getTopicValidator } from "../validators/topic.validators.js";
+import {
+  uploadTopicDescriptionValidator,
+  getTopicDescriptionValidator,
+  queryTopicsValidator,
+  getTopicValidator,
+  postTopicValidator,
+  patchTopicValidator,
+  deleteTopicValidator,
+} from "../validators/topic.validators.js";
 import {
   queryTopics,
   postTopic,
   patchTopic,
   getTopic,
+  deleteTopic,
   uploadTopicDescription,
   getTopicDescription,
 } from "../controllers/topic.controller.js";
@@ -42,6 +46,13 @@ router.patch(
   validate(patchTopicValidator),
   manageTopic,
   patchTopic
+);
+router.delete(
+  "/:id",
+  authenticate,
+  validate(deleteTopicValidator),
+  manageTopic,
+  deleteTopic
 );
 router.post(
   "/:id/upload",

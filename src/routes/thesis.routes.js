@@ -5,6 +5,8 @@ import {
   patchThesis,
   inviteProfessorToThesis,
   deleteThesis,
+  uploadThesisDocument,
+  getThesisDocument,
 } from "../controllers/thesis.controller.js";
 import { authenticate } from "../middleware/authentication.js";
 import { manageThesis } from "../middleware/specific.js";
@@ -15,6 +17,8 @@ import {
   patchThesisValidator,
   inviteProfessorToThesisValidator,
   deleteThesisValidator,
+  uploadThesisDocumentValidator,
+  getThesisDocumentValidator,
 } from "../validators/thesis.validators.js";
 
 const router = express.Router();
@@ -41,6 +45,19 @@ router.delete(
   validate(deleteThesisValidator),
   manageThesis,
   deleteThesis
+);
+router.post(
+  "/:id/upload",
+  authenticate,
+  validate(uploadThesisDocumentValidator),
+  manageThesis,
+  uploadThesisDocument
+);
+router.get(
+  "/:id/document",
+  authenticate,
+  validate(getThesisDocumentValidator),
+  getThesisDocument
 );
 
 export default router;

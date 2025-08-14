@@ -6,13 +6,13 @@ import {
   queryUsersSchema,
   patchUserSchema,
   deleteUserSchema,
-} from "../schemas.js";
+} from "../validators/user.validators.js";
 import {
   queryUsers,
   getUser,
   patchUser,
   deleteUser,
-} from "../controllers/user.js";
+} from "../controllers/user.controller.js";
 import { manageUser } from "../middleware/specific.js";
 
 const router = express.Router();

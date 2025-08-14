@@ -5,7 +5,7 @@ import {
   patchThesis,
   inviteProfessorToThesis,
   deleteThesis,
-} from "../controllers/thesis.js";
+} from "../controllers/thesis.controller.js";
 import { authenticate } from "../middleware/authentication.js";
 import { manageThesis } from "../middleware/specific.js";
 import { validate } from "../config/validation.js";

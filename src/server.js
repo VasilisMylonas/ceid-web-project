@@ -3,10 +3,10 @@ import dotenv from "dotenv";
 import morgan from "morgan";
 import { expressJoiValidations } from "express-joi-validations";
 
-import userRoutes from "./routes/user.js";
-import authRoutes from "./routes/auth.js";
-import topicRoutes from "./routes/topic.js";
-import thesisRoutes from "./routes/thesis.js";
+import userRoutes from "./routes/user.routes.js";
+import authRoutes from "./routes/auth.routes.js";
+import topicRoutes from "./routes/topic.routes.js";
+import thesisRoutes from "./routes/thesis.routes.js";
 import { sequelize } from "./config/database.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { seedData } from "./seeders.js";

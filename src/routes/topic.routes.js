@@ -2,14 +2,12 @@ import express from "express";
 import { validate } from "../config/validation.js";
 import { requireRole, authenticate } from "../middleware/authentication.js";
 import { manageTopic } from "../middleware/specific.js";
-import {
-  queryTopicsSchema,
-  getTopicSchema,
-  getTopicDescriptionSchema,
-  postTopicSchema,
-  uploadTopicDescriptionSchema,
-  patchTopicSchema,
-} from "../schemas.js";
+import { uploadTopicDescriptionSchema } from "../validators/topic.validators.js";
+import { patchTopicSchema } from "../validators/topic.validators.js";
+import { postTopicSchema } from "../validators/topic.validators.js";
+import { getTopicDescriptionSchema } from "../validators/topic.validators.js";
+import { queryTopicsSchema } from "../validators/topic.validators.js";
+import { getTopicSchema } from "../validators/topic.validators.js";
 import {
   queryTopics,
   postTopic,
@@ -17,7 +15,7 @@ import {
   getTopic,
   uploadTopicDescription,
   getTopicDescription,
-} from "../controllers/topic.js";
+} from "../controllers/topic.controller.js";
 import multer from "multer";
 import { topicDescriptionStorage } from "../config/file-storage.js";
 

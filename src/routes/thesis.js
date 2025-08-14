@@ -8,41 +8,36 @@ import {
 } from "../controllers/thesis.js";
 import { authenticate } from "../middleware/authentication.js";
 import { manageThesis } from "../middleware/specific.js";
-import { validate } from "express-joi-validations";
-import { thesisParamsSchema, thesisQuerySchema } from "../schemas.js";
+import { validate } from "../config/validation.js";
+import { queryThesesSchema } from "../schemas.js";
 
 const router = express.Router();
 
-router.get(
-  "/",
-  authenticate,
-  validate({ query: thesisQuerySchema }),
-  queryTheses
-);
+router.get("/", authenticate, validate(queryThesesSchema), queryTheses);
 router.get(
   "/:id",
   authenticate,
-  validate({ params: thesisParamsSchema }),
+  // TODO: schema
   getThesis
 );
 router.patch(
   "/:id",
   authenticate,
-  validate({ query: thesisParamsSchema }),
+  // TODO: schema
   manageThesis,
   patchThesis
 );
 router.post(
   "/:id/invite",
   authenticate,
-  validate({ params: thesisParamsSchema }),
+  // TODO: schema
   manageThesis,
   inviteProfessorToThesis
 );
 router.delete(
   "/:id",
   authenticate,
-  validate({ params: thesisParamsSchema }),
+  // TODO: schema
   manageThesis,
   deleteThesis
 );

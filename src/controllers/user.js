@@ -35,6 +35,7 @@ export async function getUser(req, res) {
 }
 
 export async function patchUser(req, res) {
+  console.log(req.body);
   await req.user.update(req.body);
   res.status(StatusCodes.OK).json(req.user);
 }

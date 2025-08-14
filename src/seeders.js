@@ -93,7 +93,8 @@ export async function seedSecretaries(count) {
   return secretaries;
 }
 
-export async function seedTopics(count, professors) {
+export async function seedTopics(count) {
+  const professors = await Professor.findAll();
   const thesisTopics = [];
   for (let i = 0; i < count; i++) {
     const topic = await Topic.create({
@@ -144,10 +145,12 @@ export async function seedData() {
     division: "Hardware Engineering",
   });
 
-  const professors = await seedProfessors(30);
-  await seedStudents(300);
-  await seedSecretaries(5);
-  await seedTopics(50, professors);
+  await Promise.all([
+    seedProfessors(30),
+    seedStudents(300),
+    seedSecretaries(5),
+  ]);
+
+  await seedTopics(50);
   await seedTheses(50);
-  console.log("Initial data created successfully");
 }

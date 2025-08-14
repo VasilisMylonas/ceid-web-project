@@ -1,11 +1,11 @@
 import express from "express";
-import { validate } from "express-joi-validations";
+import { validate } from "../config/validation.js";
 import { authenticate } from "../middleware/authentication.js";
 import {
-  userParamsSchema,
-  patchUserBodySchema,
+  getUserSchema,
   queryUsersSchema,
   patchUserSchema,
+  deleteUserSchema,
 } from "../schemas.js";
 import {
   queryUsers,
@@ -18,25 +18,18 @@ import { manageUser } from "../middleware/specific.js";
 const router = express.Router();
 
 router.get("/", authenticate, validate(queryUsersSchema), queryUsers);
-router.get(
-  "/:id",
-  authenticate,
-  validate({ params: userParamsSchema }),
-  manageUser,
-  getUser
-);
+router.get("/:id", authenticate, validate(getUserSchema), manageUser, getUser);
 router.patch(
   "/:id",
   authenticate,
   validate(patchUserSchema),
-  // validate({ params: userParamsSchema, body: patchUserBodySchema }),
   manageUser,
   patchUser
 );
 router.delete(
   "/:id",
   authenticate,
-  validate({ params: userParamsSchema }),
+  validate(deleteUserSchema),
   manageUser,
   deleteUser
 );

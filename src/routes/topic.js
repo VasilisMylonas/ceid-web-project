@@ -1,12 +1,14 @@
 import express from "express";
-import { validate } from "express-joi-validations";
+import { validate } from "../config/validation.js";
 import { requireRole, authenticate } from "../middleware/authentication.js";
 import { manageTopic } from "../middleware/specific.js";
 import {
-  topicQuerySchema,
-  topicBodySchema,
-  topicParamsSchema,
-  patchTopicBodySchema,
+  queryTopicsSchema,
+  getTopicSchema,
+  getTopicDescriptionSchema,
+  postTopicSchema,
+  uploadTopicDescriptionSchema,
+  patchTopicSchema,
 } from "../schemas.js";
 import {
   queryTopics,
@@ -21,45 +23,32 @@ import { topicDescriptionStorage } from "../config/file-storage.js";
 
 const router = express.Router();
 
-router.get(
-  "/",
-  authenticate,
-  validate({ query: topicQuerySchema }),
-  queryTopics
-);
-router.get(
-  "/:id",
-  authenticate,
-  validate({ params: topicParamsSchema }),
-  getTopic
-);
+router.get("/", authenticate, validate(queryTopicsSchema), queryTopics);
+router.get("/:id", authenticate, validate(getTopicSchema), getTopic);
 router.get(
   "/:id/description",
   authenticate,
-  validate({ params: topicParamsSchema }),
+  validate(getTopicDescriptionSchema),
   getTopicDescription
 );
 router.post(
   "/",
   authenticate,
-  validate({ body: topicBodySchema }),
+  validate(postTopicSchema),
   requireRole("professor"),
   postTopic
 );
 router.patch(
   "/:id",
   authenticate,
-  validate({
-    params: topicParamsSchema,
-    body: patchTopicBodySchema,
-  }),
+  validate(patchTopicSchema),
   manageTopic,
   patchTopic
 );
 router.post(
   "/:id/upload",
   authenticate,
-  validate({ params: topicParamsSchema }),
+  validate(uploadTopicDescriptionSchema),
   manageTopic,
   multer({ storage: topicDescriptionStorage }).single("file"),
   uploadTopicDescription

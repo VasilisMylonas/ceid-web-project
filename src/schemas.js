@@ -1,81 +1,95 @@
 import { validator } from "./config/validation.js";
 
 export const queryUsersSchema = {
-  params: validator.object({}),
-  query: validator.object({
+  query: {
     role: validator
       .string()
       .valid("student", "professor", "secretary")
       .optional(),
     offset: validator.number().integer().min(0).optional(),
     limit: validator.number().integer().min(0).optional(),
-  }),
-  body: validator.object({}),
+  },
+};
+
+export const getUserSchema = {
+  params: {
+    id: validator.number().integer().required(),
+  },
 };
 
 export const patchUserSchema = {
-  params: validator.object({
+  params: {
     id: validator.number().integer().required(),
-  }),
-  body: validator.object({
+  },
+  body: {
     phone: validator.string().phoneNumber().optional(),
     email: validator.string().email().optional(),
     name: validator.string().min(1).optional(),
     password: validator.string().min(1).optional(),
-  }),
-  query: validator.object({}),
+  },
+};
+
+export const deleteUserSchema = {
+  params: {
+    id: validator.number().integer().required(),
+  },
 };
 
 export const loginSchema = {
-  body: validator.object({
+  body: {
     username: validator.string().min(1).required(),
     password: validator.string().min(1).required(),
-  }),
+  },
 };
 
-export const loginBodySchema = validator.object({
-  username: validator.string().min(1).required(),
-  password: validator.string().min(1).required(),
-});
+export const queryTopicsSchema = {
+  query: {
+    professorId: validator.number().integer().optional(),
+    limit: validator.number().integer().min(0).optional(),
+    offset: validator.number().integer().min(0).optional(),
+    keywords: validator.string().optional(),
+  },
+};
 
-export const userParamsSchema = validator.object({
-  id: validator.number().integer().required(),
-});
+export const getTopicSchema = {
+  params: {
+    id: validator.number().integer().required(),
+  },
+};
 
-export const patchUserBodySchema = validator.object({
-  phone: validator.string().phoneNumber().optional(),
-  email: validator.string().email().optional(),
-  name: validator.string().min(1).optional(),
-  password: validator.string().min(1).optional(),
-});
+export const getTopicDescriptionSchema = {
+  params: {
+    id: validator.number().integer().required(),
+  },
+};
 
-export const topicQuerySchema = validator.object({
-  professorId: validator.number().integer().optional(),
-  limit: validator.number().integer().min(0).optional(),
-  offset: validator.number().integer().min(0).optional(),
-  keywords: validator.string().optional(),
-});
+export const postTopicSchema = {
+  body: {
+    title: validator.string().min(1).required(),
+    summary: validator.string().min(1).required(),
+  },
+};
 
-export const topicBodySchema = validator.object({
-  title: validator.string().min(1).required(),
-  summary: validator.string().min(1).required(),
-});
+export const patchTopicSchema = {
+  params: {
+    id: validator.number().integer().required(),
+  },
+  body: {
+    title: validator.string().min(1).optional(),
+    summary: validator.string().min(1).optional(),
+  },
+};
 
-export const topicParamsSchema = validator.object({
-  id: validator.number().integer().required(),
-});
+export const uploadTopicDescriptionSchema = {
+  params: {
+    id: validator.number().integer().required(),
+  },
+};
 
-export const patchTopicBodySchema = validator.object({
-  title: validator.string().min(1).optional(),
-  summary: validator.string().min(1).optional(),
-});
-
-export const thesisQuerySchema = validator.object({
-  limit: validator.number().integer().min(0).optional(),
-  offset: validator.number().integer().min(0).optional(),
-  keywords: validator.string().optional(),
-});
-
-export const thesisParamsSchema = validator.object({
-  id: validator.number().integer().required(),
-});
+export const queryThesesSchema = {
+  query: {
+    limit: validator.number().integer().min(0).optional(),
+    offset: validator.number().integer().min(0).optional(),
+    keywords: validator.string().optional(),
+  },
+};

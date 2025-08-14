@@ -33,7 +33,6 @@ function getRandomStatus() {
 }
 
 export async function seedProfessors(count) {
-  const professors = [];
   for (let i = 0; i < count; i++) {
     const user = await User.create({
       username: faker.internet.username(),
@@ -43,18 +42,14 @@ export async function seedProfessors(count) {
       role: "professor",
     });
 
-    const professor = await Professor.create({
+    await Professor.create({
       id: user.id,
       division: getRandomDivision(),
     });
-
-    professors.push(professor);
   }
-  return professors;
 }
 
 export async function seedStudents(count) {
-  const students = [];
   for (let i = 0; i < count; i++) {
     const user = await User.create({
       username: faker.internet.username(),
@@ -64,17 +59,13 @@ export async function seedStudents(count) {
       role: "student",
     });
 
-    const student = await Student.create({
+    await Student.create({
       id: user.id,
     });
-
-    students.push(student);
   }
-  return students;
 }
 
 export async function seedSecretaries(count) {
-  const secretaries = [];
   for (let i = 0; i < count; i++) {
     const user = await User.create({
       username: faker.internet.username(),
@@ -84,50 +75,57 @@ export async function seedSecretaries(count) {
       role: "secretary",
     });
 
-    const secretary = await Secretary.create({
+    await Secretary.create({
       id: user.id,
     });
-
-    secretaries.push(secretary);
   }
-  return secretaries;
 }
 
 export async function seedTopics(count) {
   const professors = await Professor.findAll();
-  const thesisTopics = [];
   for (let i = 0; i < count; i++) {
-    const topic = await Topic.create({
+    await Topic.create({
       professorId: professors[Math.floor(Math.random() * professors.length)].id,
       title: faker.lorem.sentence(),
       summary: faker.lorem.paragraph(),
     });
-    thesisTopics.push(topic);
   }
-  return thesisTopics;
 }
 
-// TODO: seeder
 export async function seedTheses(count) {
-  const theses = [];
   const students = await Student.findAll();
   const topics = await Topic.findAll();
   for (let i = 0; i < count; i++) {
     const protocolNumber = `PN-${faker.string.numeric(6)}`;
     const status = getRandomStatus();
 
-    // if (status === "cancelled") {
+    let endDate = faker.date.future();
+    let statusReason = null;
+    if (status === "rejected") {
+      statusReason = "APO GRAMMATEIA";
+      endDate = faker.date.past();
+    }
 
-    const thesis = await Thesis.create({
+    if (status === "cancelled") {
+      statusReason = "Cancelled by student";
+      faker.date.past();
+    }
+
+    if (status == "pending") {
+      endDate = null;
+    }
+
+    await Thesis.create({
       title: faker.lorem.sentence(),
       summary: faker.lorem.paragraph(),
       studentId: students[Math.floor(Math.random() * students.length)].id,
       topicId: topics[Math.floor(Math.random() * topics.length)].id,
       status: status,
+      statusReason: statusReason,
+      protocolNumber: protocolNumber,
       startDate: faker.date.past(),
-      endDate: status === "under_examination" ? faker.date.future() : null,
+      endDate: endDate,
     });
-    theses.push(thesis);
   }
 }
 

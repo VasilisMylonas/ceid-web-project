@@ -6,7 +6,7 @@ import Secretary from "./secretary.js";
 import Note from "./note.js";
 import Thesis from "./thesis.js";
 import Presentation from "./presentation.js";
-import Material from "./material.js";
+import Resource from "./resource.js";
 import Grade from "./grade.js";
 import Invitation from "./invitation.js";
 import CommitteeMember from "./committee-member.js";
@@ -26,8 +26,8 @@ Thesis.hasMany(Note, { foreignKey: "thesisId" });
 Presentation.belongsTo(Thesis, { foreignKey: "thesisId" });
 Thesis.hasMany(Presentation, { foreignKey: "thesisId" });
 
-Material.belongsTo(Thesis, { foreignKey: "thesisId" });
-Thesis.hasMany(Material, { foreignKey: "thesisId" });
+Resource.belongsTo(Thesis, { foreignKey: "thesisId" });
+Thesis.hasMany(Resource, { foreignKey: "thesisId" });
 
 Topic.belongsTo(Professor, { foreignKey: "professorId" });
 Professor.hasMany(Topic, { foreignKey: "professorId" });
@@ -65,7 +65,7 @@ export {
   Note,
   Thesis,
   Presentation,
-  Material,
+  Resource,
   Grade,
   Invitation,
   CommitteeMember,

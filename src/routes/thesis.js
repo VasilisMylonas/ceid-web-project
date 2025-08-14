@@ -4,6 +4,7 @@ import {
   getThesis,
   patchThesis,
   inviteProfessorToThesis,
+  deleteThesis,
 } from "../controllers/thesis.js";
 import { authenticate } from "../middleware/authentication.js";
 import { manageThesis } from "../middleware/specific.js";
@@ -38,15 +39,12 @@ router.post(
   manageThesis,
   inviteProfessorToThesis
 );
-
-// TODO: implement
-// router.post("/", postThesis);
-// router.delete("/:id", deleteThesis);
-
-// router.get("/:id/invitations", getThesisInvitations);
-// router.get("/:id/committee", getThesisCommittee);
-// router.get("/:id/timeline", getThesisTimeline);
-// router.get("/:id/notes", getThesisNotes);
-// router.post("/:id/notes", postThesisNote);
+router.delete(
+  "/:id",
+  authenticate,
+  validate({ params: thesisParamsSchema }),
+  manageThesis,
+  deleteThesis
+);
 
 export default router;

@@ -44,3 +44,5 @@ export async function getThesis(req, res) {}
 export async function patchThesis(req, res) {}
 
 export async function inviteProfessorToThesis(req, res) {}
+
+export async function deleteThesis(req, res) {}

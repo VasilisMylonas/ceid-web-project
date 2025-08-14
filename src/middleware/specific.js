@@ -2,7 +2,7 @@ import { StatusCodes } from "http-status-codes";
 import { Topic, Thesis } from "../models/index.js";
 
 export async function manageUser(req, res, next) {
-  if (req.user.id !== req.params.id) {
+  if (req.user.id != req.params.id) {
     return res.status(StatusCodes.FORBIDDEN).send();
   }
   // User already attached from authentication middleware
@@ -14,7 +14,7 @@ export async function manageTopic(req, res, next) {
   if (!topic) {
     return res.status(StatusCodes.NOT_FOUND).send();
   }
-  if (topic.professorId !== req.user.id) {
+  if (topic.professorId != req.user.id) {
     return res.status(StatusCodes.FORBIDDEN).send();
   }
   req.topic = topic;
@@ -26,7 +26,7 @@ export async function manageThesis(req, res, next) {
   if (!thesis) {
     return res.status(StatusCodes.NOT_FOUND).send();
   }
-  if (thesis.studentId !== req.user.id) {
+  if (thesis.studentId != req.user.id) {
     return res.status(StatusCodes.FORBIDDEN).send();
   }
   req.thesis = thesis;

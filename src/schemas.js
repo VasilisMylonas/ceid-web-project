@@ -1,17 +1,41 @@
 import { validator } from "./config/validation.js";
 
+export const queryUsersSchema = {
+  params: validator.object({}),
+  query: validator.object({
+    role: validator
+      .string()
+      .valid("student", "professor", "secretary")
+      .optional(),
+    offset: validator.number().integer().min(0).optional(),
+    limit: validator.number().integer().min(0).optional(),
+  }),
+  body: validator.object({}),
+};
+
+export const patchUserSchema = {
+  params: validator.object({
+    id: validator.number().integer().required(),
+  }),
+  body: validator.object({
+    phone: validator.string().phoneNumber().optional(),
+    email: validator.string().email().optional(),
+    name: validator.string().min(1).optional(),
+    password: validator.string().min(1).optional(),
+  }),
+  query: validator.object({}),
+};
+
+export const loginSchema = {
+  body: validator.object({
+    username: validator.string().min(1).required(),
+    password: validator.string().min(1).required(),
+  }),
+};
+
 export const loginBodySchema = validator.object({
   username: validator.string().min(1).required(),
   password: validator.string().min(1).required(),
-});
-
-export const userQuerySchema = validator.object({
-  role: validator
-    .string()
-    .valid("student", "professor", "secretary")
-    .optional(),
-  offset: validator.number().integer().min(0).optional(),
-  limit: validator.number().integer().min(0).optional(),
 });
 
 export const userParamsSchema = validator.object({

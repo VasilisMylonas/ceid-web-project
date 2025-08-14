@@ -2,9 +2,10 @@ import express from "express";
 import { validate } from "express-joi-validations";
 import { authenticate } from "../middleware/authentication.js";
 import {
-  userQuerySchema,
   userParamsSchema,
   patchUserBodySchema,
+  queryUsersSchema,
+  patchUserSchema,
 } from "../schemas.js";
 import {
   queryUsers,
@@ -16,7 +17,7 @@ import { manageUser } from "../middleware/specific.js";
 
 const router = express.Router();
 
-router.get("/", authenticate, validate({ query: userQuerySchema }), queryUsers);
+router.get("/", authenticate, validate(queryUsersSchema), queryUsers);
 router.get(
   "/:id",
   authenticate,
@@ -27,7 +28,8 @@ router.get(
 router.patch(
   "/:id",
   authenticate,
-  validate({ params: userParamsSchema, body: patchUserBodySchema }),
+  validate(patchUserSchema),
+  // validate({ params: userParamsSchema, body: patchUserBodySchema }),
   manageUser,
   patchUser
 );

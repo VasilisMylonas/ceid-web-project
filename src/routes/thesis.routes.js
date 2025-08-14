@@ -9,35 +9,36 @@ import {
 import { authenticate } from "../middleware/authentication.js";
 import { manageThesis } from "../middleware/specific.js";
 import { validate } from "../config/validation.js";
-import { queryThesesSchema } from "../schemas.js";
+import {
+  queryThesesValidator,
+  getThesisValidator,
+  patchThesisValidator,
+  inviteProfessorToThesisValidator,
+  deleteThesisValidator,
+} from "../validators/thesis.validators.js";
 
 const router = express.Router();
 
-router.get("/", authenticate, validate(queryThesesSchema), queryTheses);
-router.get(
-  "/:id",
-  authenticate,
-  // TODO: schema
-  getThesis
-);
+router.get("/", authenticate, validate(queryThesesValidator), queryTheses);
+router.get("/:id", authenticate, validate(getThesisValidator), getThesis);
 router.patch(
   "/:id",
   authenticate,
-  // TODO: schema
+  validate(patchThesisValidator),
   manageThesis,
   patchThesis
 );
 router.post(
   "/:id/invite",
   authenticate,
-  // TODO: schema
+  validate(inviteProfessorToThesisValidator),
   manageThesis,
   inviteProfessorToThesis
 );
 router.delete(
   "/:id",
   authenticate,
-  // TODO: schema
+  validate(deleteThesisValidator),
   manageThesis,
   deleteThesis
 );

@@ -38,11 +38,52 @@ export async function queryTheses(req, res) {
   res.status(StatusCodes.OK).json(theses);
 }
 
-// TODO: implement
-export async function getThesis(req, res) {}
+export async function getThesis(req, res) {
+  try {
+    const thesis = await Thesis.findByPk(req.params.id);
+    if (!thesis) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ error: "Thesis not found" });
+    }
+    res.status(StatusCodes.OK).json(thesis);
+  } catch (err) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: err.message });
+  }
+}
 
-export async function patchThesis(req, res) {}
+export async function patchThesis(req, res) {
+  try {
+    const thesis = await Thesis.findByPk(req.params.id);
+    if (!thesis) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ error: "Thesis not found" });
+    }
+    await thesis.update(req.body);
+    res.status(StatusCodes.OK).json(thesis);
+  } catch (err) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: err.message });
+  }
+}
 
-export async function inviteProfessorToThesis(req, res) {}
+export async function inviteProfessorToThesis(req, res) {
+  // Example: Add logic to invite a professor to a thesis
+  // This will depend on your data model (e.g., linking professor to thesis)
+  res.status(StatusCodes.NOT_IMPLEMENTED).json({ error: "Not implemented" });
+}
 
-export async function deleteThesis(req, res) {}
+export async function deleteThesis(req, res) {
+  try {
+    const thesis = await Thesis.findByPk(req.params.id);
+    if (!thesis) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ error: "Thesis not found" });
+    }
+    await thesis.destroy();
+    res.status(StatusCodes.NO_CONTENT).send();
+  } catch (err) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: err.message });
+  }
+}

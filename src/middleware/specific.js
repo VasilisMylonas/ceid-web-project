@@ -1,5 +1,4 @@
 import { StatusCodes } from "http-status-codes";
-import { Op } from "sequelize";
 import {
   Topic,
   Thesis,
@@ -7,6 +6,7 @@ import {
   Resource,
   Presentation,
   CommitteeMember,
+  Invitation,
 } from "../models/index.js";
 
 export async function manageUser(req, res, next) {
@@ -42,22 +42,22 @@ export function manageThesis(...roles) {
         thesisId: thesis.id,
         professorId: req.user.id,
         role: "supervisor",
-        endDate: { [Op.not]: null },
+        endDate: null,
       },
     });
 
     if (
-      ("student" in roles && isStudent) ||
-      ("supervisor" in roles && isSupervisor) ||
-      roles.length == 0
+      !(roles.includes("student") && isStudent) &&
+      !(roles.includes("supervisor") && isSupervisor) &&
+      roles.length != 0
     ) {
-      req.isStudent = isStudent;
-      req.isSupervisor = isSupervisor;
-      req.thesis = thesis;
-      next();
+      return res.status(StatusCodes.FORBIDDEN).send();
     }
 
-    return res.status(StatusCodes.FORBIDDEN).send();
+    req.isStudent = !!isStudent;
+    req.isSupervisor = !!isSupervisor;
+    req.thesis = thesis;
+    next();
   };
 }
 
@@ -94,5 +94,20 @@ export async function manageResource(req, res, next) {
     return res.status(StatusCodes.FORBIDDEN).send();
   }
   req.resource = resource;
+  next();
+}
+
+export async function manageInvitation(req, res, next) {
+  const invitation = await Invitation.findByPk(req.params.id);
+  if (!invitation) {
+    return res.status(StatusCodes.NOT_FOUND).send();
+  }
+  if (
+    invitation.studentId != req.user.id &&
+    invitation.professorId != req.user.id
+  ) {
+    return res.status(StatusCodes.FORBIDDEN).send();
+  }
+  req.invitation = invitation;
   next();
 }

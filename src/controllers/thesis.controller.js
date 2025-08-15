@@ -1,5 +1,11 @@
 import { StatusCodes } from "http-status-codes";
-import { CommitteeMember, Thesis } from "../models/index.js";
+import {
+  CommitteeMember,
+  Note,
+  Thesis,
+  Resource,
+  Presentation,
+} from "../models/index.js";
 import { getFilePath, deleteIfExists } from "../config/file-storage.js";
 
 export async function queryTheses(req, res) {
@@ -72,15 +78,25 @@ export async function getThesisTimeline(req, res) {
 }
 
 export async function getThesisNotes(req, res) {
-  // TODO
+  const notes = await Note.findAll({
+    where: { thesisId: req.thesis.id },
+    order: [["id", "ASC"]],
+  });
+  res.status(StatusCodes.OK).json(notes);
 }
 
 export async function getThesisResources(req, res) {
-  // TODO
+  const resources = await Resource.findAll({
+    order: [["id", "ASC"]],
+  });
+  res.status(StatusCodes.OK).json(resources);
 }
 
 export async function getThesisPresentations(req, res) {
-  // TODO
+  const presentations = await Presentation.findAll({
+    order: [["id", "ASC"]],
+  });
+  res.status(StatusCodes.OK).json(presentations);
 }
 
 export async function getThesisInvitations(req, res) {

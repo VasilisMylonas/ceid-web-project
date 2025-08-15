@@ -33,12 +33,8 @@ export async function queryTheses(req, res) {
 }
 
 export async function getThesis(req, res) {
-  const thesis = await Thesis.findByPk(req.params.id, {
-    attributes: { exclude: ["documentFile"] },
-  });
-  if (!thesis) {
-    return res.status(StatusCodes.NOT_FOUND).send();
-  }
+  const thesis = req.thesis.toJSON();
+  delete thesis.documentFile;
   res.status(StatusCodes.OK).json(thesis);
 }
 
@@ -72,5 +68,37 @@ export async function getThesisDocument(req, res) {
 }
 
 export async function getThesisTimeline(req, res) {
+  // TODO
+}
+
+export async function getThesisNotes(req, res) {
+  // TODO
+}
+
+export async function getThesisResources(req, res) {
+  // TODO
+}
+
+export async function getThesisPresentations(req, res) {
+  // TODO
+}
+
+export async function getThesisInvitations(req, res) {
+  // TODO
+}
+
+export async function postThesisNotes(req, res) {
+  // TODO
+}
+
+export async function postThesisResources(req, res) {
+  // TODO
+}
+
+export async function postThesisPresentations(req, res) {
+  // TODO
+}
+
+export async function postThesisInvitations(req, res) {
   // TODO
 }

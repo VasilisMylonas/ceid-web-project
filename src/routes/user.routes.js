@@ -16,28 +16,11 @@ import {
 import { manageUser } from "../middleware/specific.js";
 
 const router = express.Router();
+router.use(authenticate);
 
-router.get("/", authenticate, validate(queryUsersValidator), queryUsers);
-router.get(
-  "/:id",
-  authenticate,
-  validate(getUserValidator),
-  manageUser,
-  getUser
-);
-router.patch(
-  "/:id",
-  authenticate,
-  validate(patchUserValidator),
-  manageUser,
-  patchUser
-);
-router.delete(
-  "/:id",
-  authenticate,
-  validate(deleteUserValidator),
-  manageUser,
-  deleteUser
-);
+router.get("/", validate(queryUsersValidator), queryUsers);
+router.get("/:id", validate(getUserValidator), manageUser, getUser);
+router.patch("/:id", validate(patchUserValidator), manageUser, patchUser);
+router.delete("/:id", validate(deleteUserValidator), manageUser, deleteUser);
 
 export default router;

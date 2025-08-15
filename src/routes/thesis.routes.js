@@ -7,9 +7,16 @@ import {
   putThesisDocument,
   getThesisDocument,
   getThesisTimeline,
+  getThesisNotes,
+  getThesisResources,
+  getThesisPresentations,
+  getThesisInvitations,
+  postThesisInvitations,
+  postThesisNotes,
+  postThesisResources,
+  postThesisPresentations,
 } from "../controllers/thesis.controller.js";
 import { authenticate } from "../middleware/authentication.js";
-import { manageThesis } from "../middleware/specific.js";
 import { validate } from "../config/validation.js";
 import {
   queryThesesValidator,
@@ -22,55 +29,61 @@ import {
 } from "../validators/thesis.validators.js";
 import multer from "multer";
 import { fileStorage } from "../config/file-storage.js";
+import { manageThesis } from "../middleware/specific.js";
 
 const router = express.Router();
+router.use(authenticate);
 
-router.get("/", authenticate, validate(queryThesesValidator), queryTheses);
-router.get("/:id", authenticate, validate(getThesisValidator), getThesis);
+router.get("/", validate(queryThesesValidator), queryTheses);
+router.get("/:id", validate(getThesisValidator), manageThesis(), getThesis);
+
 router.patch(
   "/:id",
-  authenticate,
   validate(patchThesisValidator),
-  manageThesis,
+  manageThesis("supervisor", "student"),
   patchThesis
 );
 router.delete(
   "/:id",
-  authenticate,
   validate(deleteThesisValidator),
-  manageThesis,
+  manageThesis("supervisor", "student"),
   deleteThesis
 );
 router.put(
   "/:id/document",
-  authenticate,
   validate(putThesisDocumentValidator),
-  manageThesis,
+  manageThesis("student"),
   putThesisDocument
 );
+
 router.get(
   "/:id/document",
-  authenticate,
   validate(getThesisDocumentValidator),
-  manageThesis,
   multer({ storage: fileStorage }).single("file"),
+  manageThesis(),
   getThesisDocument
 );
 router.get(
   "/:id/timeline",
-  authenticate,
   validate(getThesisTimelineValidator),
-  manageThesis,
+  manageThesis(),
   getThesisTimeline
 );
-// TODO
-// router.get("/:id/notes");
-// router.get("/:id/resources");
-// router.get("/:id/presentations");
-// router.get("/:id/invitations");
-// router.post("/:id/notes");
-// router.post("/:id/resources");
-// router.post("/:id/presentations");
-// router.post("/:id/invitations");
+
+router.get("/:id/notes", manageThesis("supervisor"), getThesisNotes);
+router.post("/:id/notes", manageThesis("supervisor"), postThesisNotes);
+
+router.get("/:id/resources", manageThesis(), getThesisResources);
+router.post("/:id/resources", manageThesis("student"), postThesisResources);
+
+router.get("/:id/presentations", manageThesis(), getThesisPresentations);
+router.post(
+  "/:id/presentations",
+  manageThesis("student"),
+  postThesisPresentations
+);
+
+router.get("/:id/invitations", getThesisInvitations);
+router.post("/:id/invitations", manageThesis("student"), postThesisInvitations);
 
 export default router;

@@ -14,24 +14,22 @@ import {
 } from "../controllers/presentation.controller.js";
 
 const router = express.Router();
+router.use(authenticate);
 
 router.get(
   "/:id",
-  authenticate,
   validate(getPresentationValidator),
   managePresentation,
   getPresentation
 );
 router.patch(
   "/:id",
-  authenticate,
   validate(patchPresentationValidator),
   managePresentation,
   patchPresentation
 );
 router.delete(
   "/:id",
-  authenticate,
   validate(deletePresentationValidator),
   managePresentation,
   deletePresentation

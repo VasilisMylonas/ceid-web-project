@@ -14,24 +14,17 @@ import {
 } from "../controllers/resource.controller.js";
 
 const router = express.Router();
+router.use(authenticate);
 
-router.get(
-  "/:id",
-  authenticate,
-  validate(getResourceValidator),
-  manageResource,
-  getResource
-);
+router.get("/:id", validate(getResourceValidator), manageResource, getResource);
 router.patch(
   "/:id",
-  authenticate,
   validate(patchResourceValidator),
   manageResource,
   patchResource
 );
 router.delete(
   "/:id",
-  authenticate,
   validate(deleteResourceValidator),
   manageResource,
   deleteResource

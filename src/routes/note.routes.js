@@ -14,27 +14,10 @@ import {
 } from "../controllers/note.controller.js";
 
 const router = express.Router();
+router.use(authenticate);
 
-router.get(
-  "/:id",
-  authenticate,
-  validate(getNoteValidator),
-  manageNote,
-  getNote
-);
-router.patch(
-  "/:id",
-  authenticate,
-  validate(patchNoteValidator),
-  manageNote,
-  patchNote
-);
-router.delete(
-  "/:id",
-  authenticate,
-  validate(deleteNoteValidator),
-  manageNote,
-  deleteNote
-);
+router.get("/:id", validate(getNoteValidator), manageNote, getNote);
+router.patch("/:id", validate(patchNoteValidator), manageNote, patchNote);
+router.delete("/:id", validate(deleteNoteValidator), manageNote, deleteNote);
 
 export default router;

@@ -24,39 +24,25 @@ import multer from "multer";
 import { fileStorage } from "../config/file-storage.js";
 
 const router = express.Router();
+router.use(authenticate);
 
-router.get("/", authenticate, validate(queryTopicsValidator), queryTopics);
-router.get("/:id", authenticate, validate(getTopicValidator), getTopic);
+router.get("/", validate(queryTopicsValidator), queryTopics);
+router.get("/:id", validate(getTopicValidator), getTopic);
 router.get(
   "/:id/description",
-  authenticate,
   validate(getTopicDescriptionValidator),
   getTopicDescription
 );
 router.post(
   "/",
-  authenticate,
   validate(postTopicValidator),
   requireRole("professor"),
   postTopic
 );
-router.patch(
-  "/:id",
-  authenticate,
-  validate(patchTopicValidator),
-  manageTopic,
-  patchTopic
-);
-router.delete(
-  "/:id",
-  authenticate,
-  validate(deleteTopicValidator),
-  manageTopic,
-  deleteTopic
-);
+router.patch("/:id", validate(patchTopicValidator), manageTopic, patchTopic);
+router.delete("/:id", validate(deleteTopicValidator), manageTopic, deleteTopic);
 router.put(
   "/:id/description",
-  authenticate,
   validate(putTopicDescriptionValidator),
   manageTopic,
   multer({ storage: fileStorage }).single("file"),

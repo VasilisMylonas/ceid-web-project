@@ -21,7 +21,7 @@ import {
   getTopicDescription,
 } from "../controllers/topic.controller.js";
 import multer from "multer";
-import { topicDescriptionStorage } from "../config/file-storage.js";
+import { fileStorage } from "../config/file-storage.js";
 
 const router = express.Router();
 
@@ -59,7 +59,7 @@ router.put(
   authenticate,
   validate(putTopicDescriptionValidator),
   manageTopic,
-  multer({ storage: topicDescriptionStorage }).single("file"),
+  multer({ storage: fileStorage }).single("file"),
   putTopicDescription
 );
 

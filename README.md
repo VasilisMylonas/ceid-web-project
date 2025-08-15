@@ -53,6 +53,26 @@ ceid-web-project/
 |-- tests/
 ```
 
+## Targets
+
+### Professors
+
+- View, Create, Modify Topics OK via /topics
+- Assign Topic to Student and possible cancel TODO via POST /theses
+- Get theses with filters (supervisor, student, committee member, status) via /theses professorId= status=
+- View thesis details OK via /theses/:id
+- View theses state changes (timeline) TODO via /theses/:id/timeline
+- View final grade and grade document
+- Export CSV/JSON
+- View invitations and answer
+- TODO: more
+
+### Students
+
+- View topic and thesis status
+- Manage profile
+-
+
 ## API Structure
 
 POST /auth/login
@@ -77,6 +97,12 @@ DELETE /resources/:id
 GET /presentations/:id
 PATCH /presentations/:id
 DELETE /presentations/:id
+
+GET /invitations/:id
+PATCH /invitations/:id
+DELETE /invitations/:id
+POST /invitations/:id/accept
+POST /invitations/:id/decline
 
 GET /topics
 POST /topics

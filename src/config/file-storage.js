@@ -19,7 +19,7 @@ export function deleteIfExists(fileName) {
   }
 }
 
-export const topicDescriptionStorage = multer.diskStorage({
+export const fileStorage = multer.diskStorage({
   destination: (req, file, cb) => {
     if (!fs.existsSync(fileLocation)) {
       fs.mkdirSync(fileLocation);

@@ -94,18 +94,3 @@ export const getThesisTimelineValidator = {
     })
     .unknown(false),
 };
-
-export const exportThesesValidator = {
-  query: validator
-    .object({
-      format: validator
-        .string()
-        .valid("csv", "json", "xml")
-        .optional()
-        .default("json"),
-      limit: validator.number().integer().min(0).optional(),
-      offset: validator.number().integer().min(0).optional(),
-      keywords: validator.string().optional(),
-    })
-    .unknown(false),
-};

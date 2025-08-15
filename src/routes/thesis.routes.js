@@ -7,7 +7,6 @@ import {
   putThesisDocument,
   getThesisDocument,
   getThesisTimeline,
-  exportTheses,
 } from "../controllers/thesis.controller.js";
 import { authenticate } from "../middleware/authentication.js";
 import { manageThesis } from "../middleware/specific.js";
@@ -20,7 +19,6 @@ import {
   putThesisDocumentValidator,
   getThesisDocumentValidator,
   getThesisTimelineValidator,
-  exportThesesValidator,
 } from "../validators/thesis.validators.js";
 import multer from "multer";
 import { fileStorage } from "../config/file-storage.js";
@@ -64,12 +62,6 @@ router.get(
   validate(getThesisTimelineValidator),
   manageThesis,
   getThesisTimeline
-);
-router.get(
-  "/export",
-  authenticate,
-  validate(exportThesesValidator),
-  exportTheses
 );
 // TODO
 // router.get("/:id/notes");

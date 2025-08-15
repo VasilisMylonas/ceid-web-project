@@ -59,7 +59,7 @@ ceid-web-project/
 
 - View, Create, Modify Topics OK via /topics
 - Assign Topic to Student and possible cancel TODO via POST /theses
-- Get theses with filters (supervisor, student, committee member, status) via /theses professorId= status=
+- Get theses with filters (supervisor, student, committee member, status) OK via /theses professorId= status= role=
 - View thesis details OK via /theses/:id
 - View theses state changes (timeline) TODO via /theses/:id/timeline
 - View final grade and grade document

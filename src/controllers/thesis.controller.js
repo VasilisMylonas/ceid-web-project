@@ -74,5 +74,3 @@ export async function getThesisDocument(req, res) {
 export async function getThesisTimeline(req, res) {
   // TODO
 }
-
-export async function exportTheses(req, res) {}

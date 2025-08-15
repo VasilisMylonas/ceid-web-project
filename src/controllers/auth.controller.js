@@ -35,5 +35,8 @@ export async function logout(req, res) {
 }
 
 export async function refresh(req, res) {
-  // TODO
+  // TODO: Implement refresh token logic
+  res.status(StatusCodes.NOT_IMPLEMENTED).json({
+    message: "Refresh token not implemented yet.",
+  });
 }

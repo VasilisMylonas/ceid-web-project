@@ -20,6 +20,11 @@ const CommitteeMember = sequelize.define("CommitteeMember", {
     type: DataTypes.DATE,
     allowNull: true,
   },
+  role: {
+    type: DataTypes.ENUM("supervisor", "committee_member"),
+    allowNull: false,
+    defaultValue: "committee_member",
+  },
 });
 
 export default CommitteeMember;

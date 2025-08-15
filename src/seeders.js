@@ -6,8 +6,10 @@ import {
   Topic,
   User,
   Thesis,
+  CommitteeMember,
 } from "./models/index.js";
 import bcrypt from "bcrypt";
+import { Op } from "sequelize";
 
 function getRandomDivision() {
   const divisions = [
@@ -92,6 +94,34 @@ export async function seedTopics(count) {
   }
 }
 
+export async function seedCommitteeMembers() {
+  const professors = await Professor.findAll();
+  const theses = await Thesis.findAll({
+    where: {
+      status: {
+        [Op.notIn]: ["rejected", "pending"],
+      },
+    },
+  });
+
+  for (const thesis of theses) {
+    const memberCount = Math.floor(Math.random() * 3) + 1;
+    const shuffledProfessors = professors
+      .map((prof) => prof.id)
+      .sort(() => 0.5 - Math.random())
+      .slice(0, memberCount);
+
+    for (const professorId of shuffledProfessors) {
+      await CommitteeMember.create({
+        thesisId: thesis.id,
+        professorId: professorId,
+        role: "committee_member",
+        startDate: faker.date.past(),
+      });
+    }
+  }
+}
+
 export async function seedTheses(count) {
   const students = await Student.findAll();
   const topics = await Topic.findAll();
@@ -151,4 +181,6 @@ export async function seedData() {
 
   await seedTopics(50);
   await seedTheses(50);
+
+  await seedCommitteeMembers();
 }

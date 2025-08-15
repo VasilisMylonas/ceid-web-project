@@ -52,22 +52,15 @@ export async function manageNote(req, res, next) {
 }
 
 export async function managePresentation(req, res, next) {
-  // TODO
-  // const presentation = await Presentation.findByPk(req.params.id);
-  // if (!presentation) {
-  //   return res.status(StatusCodes.NOT_FOUND).send();
-  // }
-  // if (presentation.thesisId && presentation.thesis.studentId != req.user.id) {
-  //   return res.status(StatusCodes.FORBIDDEN).send();
-  // }
-  // if (
-  //   presentation.thesisId &&
-  //   presentation.thesis.topic.professorId != req.user.id
-  // ) {
-  //   return res.status(StatusCodes.FORBIDDEN).send();
-  // }
-  // req.presentation = presentation;
-  // next();
+  const presentation = await Presentation.findByPk(req.params.id);
+  if (!presentation) {
+    return res.status(StatusCodes.NOT_FOUND).send();
+  }
+  if (presentation.thesis.studentId != req.user.id) {
+    return res.status(StatusCodes.FORBIDDEN).send();
+  }
+  req.presentation = presentation;
+  next();
 }
 
 export async function manageResource(req, res, next) {

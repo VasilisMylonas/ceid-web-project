@@ -1,36 +1,46 @@
 import { validator } from "../config/validation.js";
 
 export const queryUsersValidator = {
-  query: {
-    role: validator
-      .string()
-      .valid("student", "professor", "secretary")
-      .optional(),
-    offset: validator.number().integer().min(0).optional(),
-    limit: validator.number().integer().min(0).optional(),
-  },
+  query: validator
+    .object({
+      role: validator
+        .string()
+        .valid("student", "professor", "secretary")
+        .optional(),
+      offset: validator.number().integer().min(0).optional(),
+      limit: validator.number().integer().min(0).optional(),
+    })
+    .unknown(false),
 };
 
 export const getUserValidator = {
-  params: {
-    id: validator.number().integer().required(),
-  },
+  params: validator
+    .object({
+      id: validator.number().integer().required(),
+    })
+    .unknown(false),
 };
 
 export const patchUserValidator = {
-  params: {
-    id: validator.number().integer().required(),
-  },
-  body: {
-    phone: validator.string().phoneNumber().optional(),
-    email: validator.string().email().optional(),
-    name: validator.string().min(1).optional(),
-    password: validator.string().min(1).optional(),
-  },
+  params: validator
+    .object({
+      id: validator.number().integer().required(),
+    })
+    .unknown(false),
+  body: validator
+    .object({
+      phone: validator.string().phoneNumber().optional(),
+      email: validator.string().email().optional(),
+      name: validator.string().min(1).optional(),
+      password: validator.string().min(1).optional(),
+    })
+    .unknown(false),
 };
 
 export const deleteUserValidator = {
-  params: {
-    id: validator.number().integer().required(),
-  },
+  params: validator
+    .object({
+      id: validator.number().integer().required(),
+    })
+    .unknown(false),
 };

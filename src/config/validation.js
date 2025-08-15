@@ -6,9 +6,9 @@ export const validator = Joi.extend(JoiPhoneNumber);
 
 export function validate(schema) {
   return joiValidate({
-    params: validator.object(schema.params || {}).unknown(false),
-    body: validator.object(schema.body || {}).unknown(false),
-    query: validator.object(schema.query || {}).unknown(false),
-    headers: validator.object(schema.headers || {}).unknown(true),
+    params: schema.params || validator.object({}).unknown(false),
+    body: schema.body || validator.object({}).unknown(false),
+    query: schema.query || validator.object({}).unknown(false),
+    headers: schema.headers || validator.object({}).unknown(true),
   });
 }

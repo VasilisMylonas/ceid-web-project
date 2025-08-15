@@ -1,51 +1,111 @@
 import { validator } from "../config/validation.js";
 
 export const queryThesesValidator = {
-  query: {
-    limit: validator.number().integer().min(0).optional(),
-    offset: validator.number().integer().min(0).optional(),
-    keywords: validator.string().optional(),
-  },
+  query: validator
+    .object({
+      limit: validator.number().integer().min(0).optional(),
+      offset: validator.number().integer().min(0).optional(),
+      role: validator
+        .string()
+        .valid("supervisor", "committee_member")
+        .optional(),
+      studentId: validator.number().integer().min(1).optional(),
+      professorId: validator.number().integer().min(1).optional(),
+      topicId: validator.number().integer().min(1).optional(),
+      status: validator
+        .string()
+        .valid(
+          "under_assignment",
+          "pending",
+          "approved",
+          "rejected",
+          "completed",
+          "cancelled",
+          "under_examination"
+        )
+        .optional(),
+    })
+    .unknown(false)
+    .and("professorId", "role"),
 };
 
 export const getThesisValidator = {
-  params: {
-    id: validator.number().integer().min(1),
-  },
+  params: validator
+    .object({
+      id: validator.number().integer().min(1),
+    })
+    .unknown(false),
 };
 
 export const patchThesisValidator = {
-  params: {
-    id: validator.number().integer().min(1),
-  },
-  body: {
-    nemertesLink: validator.string().optional(),
-  },
+  params: validator
+    .object({
+      id: validator.number().integer().min(1),
+    })
+    .unknown(false),
+  body: validator
+    .object({
+      nemertesLink: validator.string().optional(),
+    })
+    .unknown(false),
 };
 
 export const inviteProfessorToThesisValidator = {
-  params: {
-    id: validator.number().integer().min(1),
-  },
-  body: {
-    professorId: validator.number().integer().min(1),
-  },
+  params: validator
+    .object({
+      id: validator.number().integer().min(1),
+    })
+    .unknown(false),
+  body: validator
+    .object({
+      professorId: validator.number().integer().min(1),
+    })
+    .unknown(false),
 };
 
 export const deleteThesisValidator = {
-  params: {
-    id: validator.number().integer().min(1),
-  },
+  params: validator
+    .object({
+      id: validator.number().integer().min(1),
+    })
+    .unknown(false),
 };
 
 export const putThesisDocumentValidator = {
-  params: {
-    id: validator.number().integer().min(1),
-  },
+  params: validator
+    .object({
+      id: validator.number().integer().min(1),
+    })
+    .unknown(false),
 };
 
 export const getThesisDocumentValidator = {
-  params: {
-    id: validator.number().integer().min(1),
-  },
+  params: validator
+    .object({
+      id: validator.number().integer().min(1),
+    })
+    .unknown(false),
+};
+
+export const getThesisTimelineValidator = {
+  params: validator
+    .object({
+      id: validator.number().integer().min(1),
+    })
+    .unknown(false),
+};
+
+export const exportThesesValidator = {
+  query: validator
+    .object({
+      format: validator
+        .string()
+        .valid("csv", "json", "xml")
+        .optional()
+        .default("json"),
+      limit: validator.number().integer().min(0).optional(),
+      offset: validator.number().integer().min(0).optional(),
+      keywords: validator.string().optional(),
+    })
+    .unknown(false),
 };

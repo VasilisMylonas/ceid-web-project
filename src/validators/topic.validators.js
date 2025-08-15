@@ -3,14 +3,14 @@ import { validator } from "../config/validation.js";
 export const getTopicValidator = {
   params: validator
     .object({
-      id: validator.number().integer().required(),
+      id: validator.number().integer().min(1).required(),
     })
     .unknown(false),
 };
 export const queryTopicsValidator = {
   query: validator
     .object({
-      professorId: validator.number().integer().optional(),
+      professorId: validator.number().integer().min(1).optional(),
       limit: validator.number().integer().min(0).optional(),
       offset: validator.number().integer().min(0).optional(),
       keywords: validator.string().optional(),
@@ -20,7 +20,7 @@ export const queryTopicsValidator = {
 export const getTopicDescriptionValidator = {
   params: validator
     .object({
-      id: validator.number().integer().required(),
+      id: validator.number().integer().min(1).required(),
     })
     .unknown(false),
 };
@@ -35,7 +35,7 @@ export const postTopicValidator = {
 export const patchTopicValidator = {
   params: validator
     .object({
-      id: validator.number().integer().required(),
+      id: validator.number().integer().min(1).required(),
     })
     .unknown(false),
   body: validator
@@ -48,14 +48,14 @@ export const patchTopicValidator = {
 export const putTopicDescriptionValidator = {
   params: validator
     .object({
-      id: validator.number().integer().required(),
+      id: validator.number().integer().min(1).required(),
     })
     .unknown(false),
 };
 export const deleteTopicValidator = {
   params: validator
     .object({
-      id: validator.number().integer().required(),
+      id: validator.number().integer().min(1).required(),
     })
     .unknown(false),
 };

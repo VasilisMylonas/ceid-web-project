@@ -32,7 +32,7 @@ export const queryThesesValidator = {
 export const getThesisValidator = {
   params: validator
     .object({
-      id: validator.number().integer().min(1),
+      id: validator.number().integer().min(1).required(),
     })
     .unknown(false),
 };
@@ -40,7 +40,7 @@ export const getThesisValidator = {
 export const patchThesisValidator = {
   params: validator
     .object({
-      id: validator.number().integer().min(1),
+      id: validator.number().integer().min(1).required(),
     })
     .unknown(false),
   body: validator
@@ -50,23 +50,10 @@ export const patchThesisValidator = {
     .unknown(false),
 };
 
-export const inviteProfessorToThesisValidator = {
-  params: validator
-    .object({
-      id: validator.number().integer().min(1),
-    })
-    .unknown(false),
-  body: validator
-    .object({
-      professorId: validator.number().integer().min(1),
-    })
-    .unknown(false),
-};
-
 export const deleteThesisValidator = {
   params: validator
     .object({
-      id: validator.number().integer().min(1),
+      id: validator.number().integer().min(1).required(),
     })
     .unknown(false),
 };
@@ -74,7 +61,7 @@ export const deleteThesisValidator = {
 export const putThesisDocumentValidator = {
   params: validator
     .object({
-      id: validator.number().integer().min(1),
+      id: validator.number().integer().min(1).required(),
     })
     .unknown(false),
 };
@@ -82,7 +69,7 @@ export const putThesisDocumentValidator = {
 export const getThesisDocumentValidator = {
   params: validator
     .object({
-      id: validator.number().integer().min(1),
+      id: validator.number().integer().min(1).required(),
     })
     .unknown(false),
 };
@@ -90,7 +77,7 @@ export const getThesisDocumentValidator = {
 export const getThesisTimelineValidator = {
   params: validator
     .object({
-      id: validator.number().integer().min(1),
+      id: validator.number().integer().min(1).required(),
     })
     .unknown(false),
 };

@@ -16,7 +16,7 @@ export const queryUsersValidator = {
 export const getUserValidator = {
   params: validator
     .object({
-      id: validator.number().integer().required(),
+      id: validator.number().integer().min(1).required(),
     })
     .unknown(false),
 };
@@ -24,7 +24,7 @@ export const getUserValidator = {
 export const patchUserValidator = {
   params: validator
     .object({
-      id: validator.number().integer().required(),
+      id: validator.number().integer().min(1).required(),
     })
     .unknown(false),
   body: validator
@@ -40,7 +40,7 @@ export const patchUserValidator = {
 export const deleteUserValidator = {
   params: validator
     .object({
-      id: validator.number().integer().required(),
+      id: validator.number().integer().min(1).required(),
     })
     .unknown(false),
 };

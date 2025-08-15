@@ -33,6 +33,7 @@ const Thesis = sequelize.define("Thesis", {
   },
   status: {
     type: DataTypes.ENUM(
+      "under_assignment",
       "pending",
       "approved",
       "rejected",

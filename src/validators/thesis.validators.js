@@ -26,7 +26,7 @@ export const queryThesesValidator = {
         .optional(),
     })
     .unknown(false)
-    .and("professorId", "role"),
+    .with("role", "professorId"), // If role is provided, professorId must also be provided
 };
 
 export const getThesisValidator = {

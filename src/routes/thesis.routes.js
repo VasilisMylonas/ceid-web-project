@@ -6,6 +6,8 @@ import {
   deleteThesis,
   putThesisDocument,
   getThesisDocument,
+  getThesisTimeline,
+  exportTheses,
 } from "../controllers/thesis.controller.js";
 import { authenticate } from "../middleware/authentication.js";
 import { manageThesis } from "../middleware/specific.js";
@@ -17,10 +19,13 @@ import {
   deleteThesisValidator,
   putThesisDocumentValidator,
   getThesisDocumentValidator,
+  getThesisTimelineValidator,
+  exportThesesValidator,
 } from "../validators/thesis.validators.js";
+import multer from "multer";
+import { fileStorage } from "../config/file-storage.js";
 
 const router = express.Router();
-router.use(authenticate);
 
 router.get("/", authenticate, validate(queryThesesValidator), queryTheses);
 router.get("/:id", authenticate, validate(getThesisValidator), getThesis);
@@ -50,7 +55,21 @@ router.get(
   authenticate,
   validate(getThesisDocumentValidator),
   manageThesis,
+  multer({ storage: fileStorage }).single("file"),
   getThesisDocument
+);
+router.get(
+  "/:id/timeline",
+  authenticate,
+  validate(getThesisTimelineValidator),
+  manageThesis,
+  getThesisTimeline
+);
+router.get(
+  "/export",
+  authenticate,
+  validate(exportThesesValidator),
+  exportTheses
 );
 // TODO
 // router.get("/:id/notes");

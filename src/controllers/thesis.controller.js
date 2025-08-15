@@ -1,38 +1,31 @@
 import { StatusCodes } from "http-status-codes";
-import { Thesis } from "../models/index.js";
-import { Op } from "sequelize";
-import { getFilePath } from "../config/file-storage.js";
+import { CommitteeMember, Thesis } from "../models/index.js";
+import { getFilePath, deleteIfExists } from "../config/file-storage.js";
 
 export async function queryTheses(req, res) {
   let query = {
-    // attributes: ["id", "title", "summary"],
+    attributes: ["id", "status", "topicId", "studentId"],
     limit: req.query.limit,
     offset: req.query.offset,
     order: [["id", "ASC"]],
-    where: {},
+    where: {
+      ...(req.query.studentId && { studentId: req.query.studentId }),
+      ...(req.query.status && { status: req.query.status }),
+      ...(req.query.topicId && { topicId: req.query.topicId }),
+    },
   };
 
-  // Keyword searching
-  if (req.query.keywords) {
-    const keywords = req.query.keywords
-      .split(" ")
-      .filter(Boolean)
-      .map((k) => `%${k}%`);
-
-    if (keywords.length > 0) {
-      query.where[Op.or] = [
-        {
-          title: {
-            [Op.iLike]: { [Op.any]: keywords },
-          },
+  if (req.query.professorId) {
+    query.include = [
+      {
+        model: CommitteeMember,
+        attributes: [],
+        where: {
+          professorId: req.query.professorId,
+          ...(req.query.role && { role: req.query.role }),
         },
-        {
-          summary: {
-            [Op.iLike]: { [Op.any]: keywords },
-          },
-        },
-      ];
-    }
+      },
+    ];
   }
 
   const theses = await Thesis.findAll(query);
@@ -41,7 +34,7 @@ export async function queryTheses(req, res) {
 
 export async function getThesis(req, res) {
   const thesis = await Thesis.findByPk(req.params.id, {
-    attributes: { exclude: ["documentFile"] }, // Exclude documentFile for security
+    attributes: { exclude: ["documentFile"] },
   });
   if (!thesis) {
     return res.status(StatusCodes.NOT_FOUND).send();
@@ -59,8 +52,17 @@ export async function deleteThesis(req, res) {
   res.status(StatusCodes.NO_CONTENT).send();
 }
 
-// TODO: implement
-export async function putThesisDocument(req, res) {}
+export async function putThesisDocument(req, res) {
+  if (!req.file) {
+    return res.status(StatusCodes.BAD_REQUEST).send();
+  }
+
+  deleteIfExists(req.thesis.documentFile);
+  req.thesis.documentFile = req.file.filename;
+  await req.thesis.save();
+
+  res.status(StatusCodes.CREATED).send();
+}
 
 export async function getThesisDocument(req, res) {
   if (!req.thesis.documentFile) {
@@ -68,3 +70,9 @@ export async function getThesisDocument(req, res) {
   }
   res.sendFile(getFilePath(req.thesis.documentFile));
 }
+
+export async function getThesisTimeline(req, res) {
+  // TODO
+}
+
+export async function exportTheses(req, res) {}

@@ -21,15 +21,14 @@ export const app = express();
 app.use(express.json()); // JSON middleware
 app.use(morgan("dev")); // Logging middleware
 app.use(expressJoiValidations({ throwErrors: true })); // Request validation
-// TODO: we could also add versioning: /api/v1/users etc...
-app.use("/api/users", userRoutes);
-app.use("/api/auth", authRoutes);
-app.use("/api/topics", topicRoutes);
-app.use("/api/theses", thesisRoutes);
-app.use("/api/notes", noteRoutes);
-app.use("/api/resources", resourceRoutes);
-app.use("/api/presentations", presentationRoutes);
-app.use("/api/invitations", invitationRoutes);
+app.use("/api/v1/users", userRoutes);
+app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1/topics", topicRoutes);
+app.use("/api/v1/theses", thesisRoutes);
+app.use("/api/v1/notes", noteRoutes);
+app.use("/api/v1/resources", resourceRoutes);
+app.use("/api/v1/presentations", presentationRoutes);
+app.use("/api/v1/invitations", invitationRoutes);
 app.use(errorHandler); // Use error handler middleware, after all routes
 
 try {

@@ -10,5 +10,6 @@ export async function deletePresentation(req, res) {
 }
 
 export async function patchPresentation(req, res) {
-  // TODO
+  await req.presentation.update(req.body);
+  res.status(StatusCodes.OK).json(req.presentation);
 }

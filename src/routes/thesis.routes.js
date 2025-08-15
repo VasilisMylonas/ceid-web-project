@@ -4,7 +4,7 @@ import {
   getThesis,
   patchThesis,
   deleteThesis,
-  postThesisDocument,
+  putThesisDocument,
   getThesisDocument,
 } from "../controllers/thesis.controller.js";
 import { authenticate } from "../middleware/authentication.js";
@@ -15,7 +15,7 @@ import {
   getThesisValidator,
   patchThesisValidator,
   deleteThesisValidator,
-  postThesisDocumentValidator,
+  putThesisDocumentValidator,
   getThesisDocumentValidator,
 } from "../validators/thesis.validators.js";
 
@@ -38,12 +38,12 @@ router.delete(
   manageThesis,
   deleteThesis
 );
-router.post(
+router.put(
   "/:id/document",
   authenticate,
-  validate(postThesisDocumentValidator),
+  validate(putThesisDocumentValidator),
   manageThesis,
-  postThesisDocument
+  putThesisDocument
 );
 router.get(
   "/:id/document",

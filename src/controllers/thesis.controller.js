@@ -60,7 +60,7 @@ export async function deleteThesis(req, res) {
 }
 
 // TODO: implement
-export async function postThesisDocument(req, res) {}
+export async function putThesisDocument(req, res) {}
 
 export async function getThesisDocument(req, res) {
   if (!req.thesis.documentFile) {

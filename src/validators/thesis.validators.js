@@ -38,7 +38,7 @@ export const deleteThesisValidator = {
   },
 };
 
-export const postThesisDocumentValidator = {
+export const putThesisDocumentValidator = {
   params: {
     id: validator.number().integer().min(1),
   },

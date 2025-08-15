@@ -85,7 +85,7 @@ export async function deleteTopic(req, res) {
   res.status(StatusCodes.NO_CONTENT).send();
 }
 
-export async function postTopicDescription(req, res) {
+export async function putTopicDescription(req, res) {
   if (!req.file) {
     return res.status(StatusCodes.BAD_REQUEST).send();
   }

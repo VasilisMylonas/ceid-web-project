@@ -84,7 +84,7 @@ GET /topics/:id
 PATCH /topics/:id
 DELETE /topics/:id
 GET /topics/:id/description
-POST /topics/:id/description
+PUT /topics/:id/description
 
 GET /theses
 POST /theses
@@ -92,7 +92,7 @@ GET /theses/:id
 PATCH /theses/:id
 DELETE /theses/:id
 GET /theses/:id/document
-POST /theses/:id/document
+PUT /theses/:id/document
 GET /theses/:id/notes
 POST /theses/:id/notes
 GET /theses/:id/resources

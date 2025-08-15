@@ -3,7 +3,7 @@ import { validate } from "../config/validation.js";
 import { requireRole, authenticate } from "../middleware/authentication.js";
 import { manageTopic } from "../middleware/specific.js";
 import {
-  postTopicDescriptionValidator,
+  putTopicDescriptionValidator,
   getTopicDescriptionValidator,
   queryTopicsValidator,
   getTopicValidator,
@@ -17,7 +17,7 @@ import {
   patchTopic,
   getTopic,
   deleteTopic,
-  postTopicDescription,
+  putTopicDescription,
   getTopicDescription,
 } from "../controllers/topic.controller.js";
 import multer from "multer";
@@ -54,13 +54,13 @@ router.delete(
   manageTopic,
   deleteTopic
 );
-router.post(
+router.put(
   "/:id/description",
   authenticate,
-  validate(postTopicDescriptionValidator),
+  validate(putTopicDescriptionValidator),
   manageTopic,
   multer({ storage: topicDescriptionStorage }).single("file"),
-  postTopicDescription
+  putTopicDescription
 );
 
 export default router;

@@ -33,7 +33,7 @@ export const patchTopicValidator = {
     summary: validator.string().min(1).optional(),
   },
 };
-export const postTopicDescriptionValidator = {
+export const putTopicDescriptionValidator = {
   params: {
     id: validator.number().integer().required(),
   },

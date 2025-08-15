@@ -7,6 +7,10 @@ import userRoutes from "./routes/user.routes.js";
 import authRoutes from "./routes/auth.routes.js";
 import topicRoutes from "./routes/topic.routes.js";
 import thesisRoutes from "./routes/thesis.routes.js";
+import noteRoutes from "./routes/note.routes.js";
+import resourceRoutes from "./routes/resource.routes.js";
+import presentationRoutes from "./routes/presentation.routes.js";
+import invitationRoutes from "./routes/invitation.routes.js";
 import { sequelize } from "./config/database.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { seedData } from "./seeders.js";
@@ -17,10 +21,15 @@ export const app = express();
 app.use(express.json()); // JSON middleware
 app.use(morgan("dev")); // Logging middleware
 app.use(expressJoiValidations({ throwErrors: true })); // Request validation
+// TODO: we could also add versioning: /api/v1/users etc...
 app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/topics", topicRoutes);
 app.use("/api/theses", thesisRoutes);
+app.use("/api/notes", noteRoutes);
+app.use("/api/resources", resourceRoutes);
+app.use("/api/presentations", presentationRoutes);
+app.use("/api/invitations", invitationRoutes);
 app.use(errorHandler); // Use error handler middleware, after all routes
 
 try {

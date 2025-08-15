@@ -33,3 +33,7 @@ export async function logout(req, res) {
       "Logout not implemented, please clear the token on the client side. See https://jwt.io/ for more information.",
   });
 }
+
+export async function refresh(req, res) {
+  // TODO
+}

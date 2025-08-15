@@ -52,3 +52,62 @@ ceid-web-project/
 |   |-- routes/
 |-- tests/
 ```
+
+## API Structure
+
+POST /auth/login
+POST /auth/logout
+POST /auth/refresh
+
+GET /users
+POST /users
+
+GET /users/:id
+PATCH /users/:id
+DELETE /users/:id
+
+GET /notes/:id
+PATCH /notes/:id
+DELETE /notes/:id
+
+GET /resources/:id
+PATCH /resources/:id
+DELETE /resources/:id
+
+GET /presentations/:id
+PATCH /presentations/:id
+DELETE /presentations/:id
+
+GET /topics
+POST /topics
+GET /topics/:id
+PATCH /topics/:id
+DELETE /topics/:id
+GET /topics/:id/description
+POST /topics/:id/description
+
+GET /theses
+POST /theses
+GET /theses/:id
+PATCH /theses/:id
+DELETE /theses/:id
+GET /theses/:id/document
+POST /theses/:id/document
+GET /theses/:id/notes
+POST /theses/:id/notes
+GET /theses/:id/resources
+POST /theses/:id/resources
+GET /theses/:id/presentations
+POST /theses/:id/presentations
+GET /theses/:id/invitations
+POST /theses/:id/invitations
+
+TODO
+
+GET /professors
+GET /students
+GET /secretaries
+
+GET /professors/:id/topics
+POST /professors/:id/topics
+GET /professors/:id/theses

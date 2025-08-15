@@ -3,9 +3,8 @@ import {
   queryTheses,
   getThesis,
   patchThesis,
-  inviteProfessorToThesis,
   deleteThesis,
-  uploadThesisDocument,
+  postThesisDocument,
   getThesisDocument,
 } from "../controllers/thesis.controller.js";
 import { authenticate } from "../middleware/authentication.js";
@@ -15,13 +14,13 @@ import {
   queryThesesValidator,
   getThesisValidator,
   patchThesisValidator,
-  inviteProfessorToThesisValidator,
   deleteThesisValidator,
-  uploadThesisDocumentValidator,
+  postThesisDocumentValidator,
   getThesisDocumentValidator,
 } from "../validators/thesis.validators.js";
 
 const router = express.Router();
+router.use(authenticate);
 
 router.get("/", authenticate, validate(queryThesesValidator), queryTheses);
 router.get("/:id", authenticate, validate(getThesisValidator), getThesis);
@@ -32,13 +31,6 @@ router.patch(
   manageThesis,
   patchThesis
 );
-router.post(
-  "/:id/invite",
-  authenticate,
-  validate(inviteProfessorToThesisValidator),
-  manageThesis,
-  inviteProfessorToThesis
-);
 router.delete(
   "/:id",
   authenticate,
@@ -47,17 +39,27 @@ router.delete(
   deleteThesis
 );
 router.post(
-  "/:id/upload",
+  "/:id/document",
   authenticate,
-  validate(uploadThesisDocumentValidator),
+  validate(postThesisDocumentValidator),
   manageThesis,
-  uploadThesisDocument
+  postThesisDocument
 );
 router.get(
   "/:id/document",
   authenticate,
   validate(getThesisDocumentValidator),
+  manageThesis,
   getThesisDocument
 );
+// TODO
+// router.get("/:id/notes");
+// router.get("/:id/resources");
+// router.get("/:id/presentations");
+// router.get("/:id/invitations");
+// router.post("/:id/notes");
+// router.post("/:id/resources");
+// router.post("/:id/presentations");
+// router.post("/:id/invitations");
 
 export default router;

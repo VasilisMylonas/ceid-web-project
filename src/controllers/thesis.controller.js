@@ -1,6 +1,7 @@
 import { StatusCodes } from "http-status-codes";
 import { Thesis } from "../models/index.js";
 import { Op } from "sequelize";
+import { getFilePath } from "../config/file-storage.js";
 
 export async function queryTheses(req, res) {
   let query = {
@@ -53,19 +54,17 @@ export async function patchThesis(req, res) {
   res.status(StatusCodes.OK).json(req.thesis);
 }
 
-// TODO: implement
-export async function inviteProfessorToThesis(req, res) {
-  // Example: Add logic to invite a professor to a thesis
-  // This will depend on your data model (e.g., linking professor to thesis)
-  res.status(StatusCodes.NOT_IMPLEMENTED).json({ error: "Not implemented" });
-}
-
 export async function deleteThesis(req, res) {
   await req.thesis.destroy();
   res.status(StatusCodes.NO_CONTENT).send();
 }
 
 // TODO: implement
-export async function uploadThesisDocument(req, res) {}
+export async function postThesisDocument(req, res) {}
 
-export async function getThesisDocument(req, res) {}
+export async function getThesisDocument(req, res) {
+  if (!req.thesis.documentFile) {
+    return res.status(StatusCodes.NOT_FOUND).send();
+  }
+  res.sendFile(getFilePath(req.thesis.documentFile));
+}

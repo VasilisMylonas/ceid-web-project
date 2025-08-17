@@ -27,6 +27,7 @@ app.use("/api/v1/presentations", presentationRoutes);
 app.use("/api/v1/invitations", invitationRoutes);
 app.use(errorHandler); // Use error handler middleware, after all routes
 
+// TODO: maybe this should be in server.js
 try {
   await sequelize.authenticate();
   console.log("Database connected successfully");

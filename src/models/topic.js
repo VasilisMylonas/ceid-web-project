@@ -1,10 +1,21 @@
+import { Op } from "sequelize";
 import { sequelize } from "../config/database.js";
 import { DataTypes, Model } from "sequelize";
 
 class Topic extends Model {
   async isAssigned() {
     const theses = await this.getTheses({
-      where: { endDate: null },
+      where: {
+        status: {
+          [Op.in]: [
+            "under_assignment",
+            "pending",
+            "approved",
+            "completed",
+            "under_examination",
+          ],
+        },
+      },
     });
 
     return theses.length > 0;

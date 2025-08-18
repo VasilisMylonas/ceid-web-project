@@ -1,5 +1,5 @@
 import { StatusCodes } from "http-status-codes";
-import { Topic } from "../models/index.js";
+import { Topic, Thesis } from "../models/index.js";
 import { deleteIfExists, getFilePath } from "../config/file-storage.js";
 import { Op } from "sequelize";
 
@@ -13,6 +13,43 @@ export async function queryTopics(req, res) {
       ...(req.query.professorId && { professorId: req.query.professorId }),
     },
   };
+
+  // Filter by status
+
+  if (req.query.status === "assigned") {
+    query.include = [
+      {
+        model: Thesis,
+        attributes: [],
+        where: {
+          status: {
+            [Op.in]: [
+              "under_assignment",
+              "pending",
+              "approved",
+              "completed",
+              "under_examination",
+            ],
+          },
+        },
+      },
+    ];
+  }
+
+  if (req.query.status === "unassigned") {
+    query.include = [
+      {
+        model: Thesis,
+        attributes: [],
+        required: true,
+        where: {
+          status: {
+            [Op.in]: ["rejected", "cancelled"],
+          },
+        },
+      },
+    ];
+  }
 
   // Keyword searching
   if (req.query.keywords) {

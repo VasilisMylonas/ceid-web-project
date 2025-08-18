@@ -14,6 +14,7 @@ export const queryTopicsValidator = {
       limit: validator.number().integer().min(0).optional(),
       offset: validator.number().integer().min(0).optional(),
       keywords: validator.string().optional(),
+      status: validator.string().valid("assigned", "unassigned").optional(),
     })
     .unknown(false),
 };

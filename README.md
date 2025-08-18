@@ -142,3 +142,7 @@ GET /secretaries
 GET /professors/:id/topics
 POST /professors/:id/topics
 GET /professors/:id/theses
+
+## TODO
+
+Remove magic strings. Use constants or enums for status values, roles, etc.

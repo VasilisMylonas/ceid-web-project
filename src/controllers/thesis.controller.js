@@ -71,6 +71,16 @@ export async function patchThesis(req, res) {
 }
 
 export async function deleteThesis(req, res) {
+  if (!(await req.thesis.canBeDeleted())) {
+    return res.status(StatusCodes.BAD_REQUEST).json({
+      error: "Thesis cannot be deleted at this stage.",
+    });
+  }
+
+  CommitteeMember.destroy({
+    where: { thesisId: req.thesis.id },
+  });
+
   await req.thesis.destroy();
   res.status(StatusCodes.NO_CONTENT).send();
 }

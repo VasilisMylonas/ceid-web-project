@@ -13,6 +13,7 @@ let agent;
 let professorId;
 let studentId;
 let topicId;
+let thesisId;
 
 beforeAll(async () => {
   await sequelize.sync({ force: true });
@@ -94,16 +95,14 @@ describe("View and create topics", () => {
   });
 
   it("marks the topic as unassigned", async () => {
-    const response = await agent
+    let response = await agent
       .get("/api/v1/topics")
       .query({ professorId: professorId, status: "unassigned" });
     expect(response.statusCode).toBe(StatusCodes.OK);
     expect(Array.isArray(response.body)).toBe(true);
     expect(response.body[0].id).toBe(topicId);
-  });
 
-  it("does not mark the topic as assigned", async () => {
-    const response = await agent
+    response = await agent
       .get("/api/v1/topics")
       .query({ professorId: professorId, status: "assigned" });
     expect(response.statusCode).toBe(StatusCodes.OK);
@@ -120,10 +119,19 @@ describe("View and create topics", () => {
     expect(response.body).toHaveProperty("id");
     expect(response.body.topicId).toBe(topicId);
     expect(response.body.studentId).toBe(studentId);
+
+    thesisId = response.body.id;
   });
 
-  it("does not mark the topic as unassigned", async () => {
-    const response = await agent
+  it("marks the topic as assigned", async () => {
+    let response = await agent
+      .get("/api/v1/topics")
+      .query({ professorId: professorId, status: "assigned" });
+    expect(response.statusCode).toBe(StatusCodes.OK);
+    expect(Array.isArray(response.body)).toBe(true);
+    expect(response.body[0].id).toBe(topicId);
+
+    response = await agent
       .get("/api/v1/topics")
       .query({ professorId: professorId, status: "unassigned" });
     expect(response.statusCode).toBe(StatusCodes.OK);
@@ -131,12 +139,11 @@ describe("View and create topics", () => {
     expect(response.body.length).toBe(0);
   });
 
-  it("marks the topic as assigned", async () => {
-    const response = await agent
-      .get("/api/v1/topics")
-      .query({ professorId: professorId, status: "assigned" });
-    expect(response.statusCode).toBe(StatusCodes.OK);
-    expect(Array.isArray(response.body)).toBe(true);
-    expect(response.body[0].id).toBe(topicId);
+  it("un-assigns the topic", async () => {
+    let response = await agent.delete(`/api/v1/theses/${thesisId}`).send();
+    expect(response.statusCode).toBe(StatusCodes.NO_CONTENT);
+
+    response = await agent.get(`/api/v1/theses/${thesisId}`).send();
+    expect(response.statusCode).toBe(StatusCodes.NOT_FOUND);
   });
 });

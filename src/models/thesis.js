@@ -30,6 +30,12 @@ class Thesis extends Model {
 
     return thesis;
   }
+
+  async canBeDeleted() {
+    if (this.status === "under_assignment") {
+      return true;
+    }
+  }
 }
 
 Thesis.init(

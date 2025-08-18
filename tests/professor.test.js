@@ -10,6 +10,8 @@ import { sequelize } from "../src/config/database.js";
 import User from "../src/models/user.js";
 import Professor from "../src/models/professor.js";
 
+let agent;
+
 beforeAll(async () => {
   await sequelize.sync({ force: true });
   const user = await User.create({
@@ -22,6 +24,8 @@ beforeAll(async () => {
     userId: user.id,
     division: "Computer Science",
   });
+
+  agent = request.agent(app);
 });
 
 afterAll(async () => {
@@ -29,10 +33,8 @@ afterAll(async () => {
 });
 
 describe("View and create topics", () => {
-  let token;
-
   it("logins as professor", async () => {
-    const response = await request(app)
+    const response = await agent
       .post("/api/v1/auth/login")
       .send({
         username: "admin",
@@ -41,39 +43,31 @@ describe("View and create topics", () => {
       .set("Accept", "application/json");
     expect(response.statusCode).toBe(StatusCodes.OK);
     expect(response.body).toHaveProperty("token");
-    token = response.body.token;
+
+    agent.set("Authorization", `Bearer ${response.body.token}`);
+    agent.set("Accept", "application/json");
   });
 
   it("has no topics", async () => {
-    const response = await request(app)
-      .get("/api/v1/topics")
-      .set("Accept", "application/json")
-      .set("Authorization", `Bearer ${token}`);
+    const response = await agent.get("/api/v1/topics");
     expect(response.statusCode).toBe(StatusCodes.OK);
     expect(Array.isArray(response.body)).toBe(true);
   });
 
   it("creates a topic", async () => {
-    const response = await request(app)
-      .post("/api/v1/topics")
-      .set("Accept", "application/json")
-      .set("Authorization", `Bearer ${token}`)
-      .send({
-        title: "New Topic",
-        summary: "This is a new topic",
-      });
+    const response = await agent.post("/api/v1/topics").send({
+      title: "New Topic",
+      summary: "This is a new topic",
+    });
     expect(response.statusCode).toBe(StatusCodes.CREATED);
     expect(response.body).toHaveProperty("id");
     expect(response.body.title).toBe("New Topic");
     expect(response.body.summary).toBe("This is a new topic");
   });
 
-  //   it("Should view all topics", async () => {
-  //     const response = await request(app)
-  //       .get("/api/v1/topics")
-  //       .set("Accept", "application/json")
-  //       .set("Authorization", `Bearer ${token}`);
-  //     expect(response.statusCode).toBe(StatusCodes.OK);
-  //     expect(Array.isArray(response.body)).toBe(true);
-  //   });
+  it("lists all topics", async () => {
+    const response = await agent.get("/api/v1/topics");
+    expect(response.statusCode).toBe(StatusCodes.OK);
+    expect(Array.isArray(response.body)).toBe(true);
+  });
 });

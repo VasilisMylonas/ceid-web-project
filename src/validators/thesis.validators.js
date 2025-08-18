@@ -1,4 +1,5 @@
 import { validator } from "../config/validation.js";
+import { ThesisRole, ThesisStatus } from "../constants.js";
 
 export const queryThesesValidator = {
   query: validator
@@ -7,22 +8,14 @@ export const queryThesesValidator = {
       offset: validator.number().integer().min(0).optional(),
       role: validator
         .string()
-        .valid("supervisor", "committee_member")
+        .valid(ThesisRole.SUPERVISOR, ThesisRole.COMMITTEE_MEMBER)
         .optional(),
       studentId: validator.number().integer().min(1).optional(),
       professorId: validator.number().integer().min(1).optional(),
       topicId: validator.number().integer().min(1).optional(),
       status: validator
         .string()
-        .valid(
-          "under_assignment",
-          "pending",
-          "approved",
-          "rejected",
-          "completed",
-          "cancelled",
-          "under_examination"
-        )
+        .valid(...Object.values(ThesisStatus))
         .optional(),
     })
     .unknown(false)

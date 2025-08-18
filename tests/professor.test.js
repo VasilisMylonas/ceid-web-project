@@ -8,6 +8,7 @@ import bcrypt from "bcrypt";
 import app from "../src/app.js";
 import { sequelize } from "../src/config/database.js";
 import { User, Professor, Student } from "../src/models/index.js";
+import { UserRole } from "../src/constants.js";
 
 let agent;
 let professorId;
@@ -20,14 +21,14 @@ beforeAll(async () => {
   const professor = await User.create({
     username: "professor",
     password: await bcrypt.hash("professor", 10),
-    role: "professor",
+    role: UserRole.PROFESSOR,
     email: "professor@upatras.gr",
   });
 
   const student = await User.create({
     username: "student",
     password: await bcrypt.hash("student", 10),
-    role: "student",
+    role: UserRole.STUDENT,
     email: "student@upatras.gr",
   });
 

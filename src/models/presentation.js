@@ -1,3 +1,4 @@
+import { PresentationKind } from "../constants.js";
 import { sequelize } from "../config/database.js";
 import { DataTypes } from "sequelize";
 
@@ -16,7 +17,7 @@ const Presentation = sequelize.define("Presentation", {
     allowNull: true,
   },
   kind: {
-    type: DataTypes.ENUM("online", "in-person"),
+    type: DataTypes.ENUM(...Object.values(PresentationKind)),
     allowNull: false,
   },
   hall: {

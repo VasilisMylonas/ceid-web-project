@@ -10,6 +10,7 @@ import {
 } from "./models/index.js";
 import bcrypt from "bcrypt";
 import { Op } from "sequelize";
+import { ThesisRole, ThesisStatus, UserRole } from "./constants.js";
 
 function getRandomDivision() {
   const divisions = [
@@ -23,14 +24,7 @@ function getRandomDivision() {
 }
 
 function getRandomStatus() {
-  const statuses = [
-    "pending",
-    "approved",
-    "rejected",
-    "completed",
-    "cancelled",
-    "under_examination",
-  ];
+  const statuses = Object.values(ThesisStatus);
   return statuses[Math.floor(Math.random() * statuses.length)];
 }
 
@@ -41,7 +35,7 @@ export async function seedProfessors(count) {
       password: await bcrypt.hash("password", 10),
       email: faker.internet.email(),
       name: faker.person.fullName(),
-      role: "professor",
+      role: UserRole.PROFESSOR,
     });
 
     await Professor.create({
@@ -58,7 +52,7 @@ export async function seedStudents(count) {
       password: await bcrypt.hash("password", 10),
       email: faker.internet.email(),
       name: faker.person.fullName(),
-      role: "student",
+      role: UserRole.STUDENT,
     });
 
     await Student.create({
@@ -74,7 +68,7 @@ export async function seedSecretaries(count) {
       password: await bcrypt.hash("password", 10),
       email: faker.internet.email(),
       name: faker.person.fullName(),
-      role: "secretary",
+      role: UserRole.SECRETARY,
     });
 
     await Secretary.create({
@@ -99,7 +93,7 @@ export async function seedCommitteeMembers() {
   const theses = await Thesis.findAll({
     where: {
       status: {
-        [Op.notIn]: ["rejected", "pending"],
+        [Op.notIn]: [ThesisStatus.REJECTED, ThesisStatus.PENDING],
       },
     },
   });
@@ -115,7 +109,7 @@ export async function seedCommitteeMembers() {
       await CommitteeMember.create({
         thesisId: thesis.id,
         professorId: professorId,
-        role: "committee_member",
+        role: ThesisRole.COMMITTEE_MEMBER,
         startDate: faker.date.past(),
       });
     }
@@ -131,17 +125,17 @@ export async function seedTheses(count) {
 
     let endDate = faker.date.future();
     let statusReason = null;
-    if (status === "rejected") {
+    if (status === ThesisStatus.REJECTED) {
       statusReason = "APO GRAMMATEIA";
       endDate = faker.date.past();
     }
 
-    if (status === "cancelled") {
+    if (status === ThesisStatus.CANCELLED) {
       statusReason = "Cancelled by student";
       faker.date.past();
     }
 
-    if (status == "pending") {
+    if (status == ThesisStatus.PENDING) {
       endDate = null;
     }
 
@@ -165,7 +159,7 @@ export async function seedData() {
     password: await bcrypt.hash("admin", 10),
     email: "example@email.com",
     name: "Vasilis Mylonas",
-    role: "professor",
+    role: UserRole.PROFESSOR,
   });
 
   await Professor.create({

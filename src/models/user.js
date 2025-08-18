@@ -1,3 +1,4 @@
+import { UserRole } from "../constants.js";
 import { sequelize } from "../config/database.js";
 import { DataTypes } from "sequelize";
 
@@ -36,7 +37,7 @@ const User = sequelize.define("User", {
     allowNull: true,
   },
   role: {
-    type: DataTypes.ENUM("student", "professor", "secretary", "admin"),
+    type: DataTypes.ENUM(...Object.values(UserRole)),
     allowNull: false,
   },
 });

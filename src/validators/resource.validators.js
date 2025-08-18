@@ -1,3 +1,4 @@
+import { ResourceKind } from "../constants.js";
 import { validator } from "../config/validation.js";
 
 export const getResourceValidator = {
@@ -27,7 +28,7 @@ export const patchResourceValidator = {
       link: validator.string().uri().optional(),
       kind: validator
         .string()
-        .valid("pdf", "video", "audio", "image", "other")
+        .valid(...Object.values(ResourceKind))
         .optional(),
     })
     .unknown(false),

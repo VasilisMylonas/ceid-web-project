@@ -8,6 +8,7 @@ import {
   CommitteeMember,
   Invitation,
 } from "../models/index.js";
+import { ThesisRole } from "../constants.js";
 
 export async function manageUser(req, res, next) {
   if (req.user.id != req.params.id) {
@@ -41,14 +42,14 @@ export function manageThesis(...roles) {
       where: {
         thesisId: thesis.id,
         professorId: req.user.id,
-        role: "supervisor",
+        role: ThesisRole.SUPERVISOR,
         endDate: null,
       },
     });
 
     if (
-      !(roles.includes("student") && isStudent) &&
-      !(roles.includes("supervisor") && isSupervisor) &&
+      !(roles.includes(ThesisRole.STUDENT) && isStudent) &&
+      !(roles.includes(ThesisRole.SUPERVISOR) && isSupervisor) &&
       roles.length != 0
     ) {
       return res.status(StatusCodes.FORBIDDEN).send();

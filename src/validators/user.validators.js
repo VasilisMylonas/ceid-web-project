@@ -1,3 +1,4 @@
+import { UserRole } from "../constants.js";
 import { validator } from "../config/validation.js";
 
 export const queryUsersValidator = {
@@ -5,7 +6,7 @@ export const queryUsersValidator = {
     .object({
       role: validator
         .string()
-        .valid("student", "professor", "secretary")
+        .valid(...Object.values(UserRole))
         .optional(),
       offset: validator.number().integer().min(0).optional(),
       limit: validator.number().integer().min(0).optional(),

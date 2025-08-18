@@ -2,6 +2,7 @@ import { StatusCodes } from "http-status-codes";
 import { Topic, Thesis } from "../models/index.js";
 import { deleteIfExists, getFilePath } from "../config/file-storage.js";
 import { Op } from "sequelize";
+import { ThesisStatus } from "../constants.js";
 
 export async function queryTopics(req, res) {
   let query = {
@@ -28,11 +29,11 @@ export async function queryTopics(req, res) {
       {
         "$Theses.status$": {
           [Op.in]: [
-            "under_assignment",
-            "pending",
-            "approved",
-            "completed",
-            "under_examination",
+            ThesisStatus.UNDER_ASSIGNMENT,
+            ThesisStatus.PENDING,
+            ThesisStatus.APPROVED,
+            ThesisStatus.COMPLETED,
+            ThesisStatus.UNDER_EXAMINATION,
           ],
         },
       },
@@ -49,7 +50,11 @@ export async function queryTopics(req, res) {
 
     query.where[Op.or] = [
       { "$Theses.id$": null },
-      { "$Theses.status$": { [Op.in]: ["rejected", "cancelled"] } },
+      {
+        "$Theses.status$": {
+          [Op.in]: [ThesisStatus.REJECTED, ThesisStatus.CANCELLED],
+        },
+      },
     ];
   }
 

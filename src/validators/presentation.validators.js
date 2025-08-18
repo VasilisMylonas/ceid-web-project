@@ -1,4 +1,5 @@
 import { validator } from "../config/validation.js";
+import { PresentationKind } from "../constants.js";
 
 export const getPresentationValidator = {
   params: validator
@@ -26,7 +27,10 @@ export const patchPresentationValidator = {
     .object({
       date: validator.date().min("now").optional(),
       hall: validator.string().min(1).optional(),
-      kind: validator.string().valid("online", "in-person").optional(),
+      kind: validator
+        .string()
+        .valid(...Object.values(PresentationKind))
+        .optional(),
       link: validator.string().uri().optional(),
     })
     .unknown(false),

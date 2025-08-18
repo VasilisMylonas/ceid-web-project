@@ -22,6 +22,7 @@ import {
 } from "../controllers/topic.controller.js";
 import multer from "multer";
 import { fileStorage } from "../config/file-storage.js";
+import { UserRole } from "../constants.js";
 
 const router = express.Router();
 router.use(authenticate);
@@ -36,7 +37,7 @@ router.get(
 router.post(
   "/",
   validate(postTopicValidator),
-  requireRole("professor"),
+  requireRole(UserRole.PROFESSOR),
   postTopic
 );
 router.patch("/:id", validate(patchTopicValidator), manageTopic, patchTopic);

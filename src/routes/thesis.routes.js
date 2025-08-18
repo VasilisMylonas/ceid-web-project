@@ -32,6 +32,7 @@ import {
 import multer from "multer";
 import { fileStorage } from "../config/file-storage.js";
 import { manageThesis } from "../middleware/specific.js";
+import { UserRole, ThesisRole } from "../constants.js";
 
 const router = express.Router();
 router.use(authenticate);
@@ -40,7 +41,7 @@ router.get("/", validate(queryThesesValidator), queryTheses);
 router.post(
   "/",
   validate(postThesisValidator),
-  requireRole("professor"),
+  requireRole(UserRole.PROFESSOR),
   postThesis
 );
 router.get("/:id", validate(getThesisValidator), manageThesis(), getThesis);
@@ -48,19 +49,19 @@ router.get("/:id", validate(getThesisValidator), manageThesis(), getThesis);
 router.patch(
   "/:id",
   validate(patchThesisValidator),
-  manageThesis("supervisor", "student"),
+  manageThesis(ThesisRole.SUPERVISOR, ThesisRole.STUDENT),
   patchThesis
 );
 router.delete(
   "/:id",
   validate(deleteThesisValidator),
-  manageThesis("supervisor", "student"),
+  manageThesis(ThesisRole.SUPERVISOR, ThesisRole.STUDENT),
   deleteThesis
 );
 router.put(
   "/:id/document",
   validate(putThesisDocumentValidator),
-  manageThesis("student"),
+  manageThesis(ThesisRole.STUDENT),
   putThesisDocument
 );
 
@@ -78,20 +79,28 @@ router.get(
   getThesisTimeline
 );
 
-router.get("/:id/notes", manageThesis("supervisor"), getThesisNotes);
-router.post("/:id/notes", manageThesis("supervisor"), postThesisNotes);
+router.get("/:id/notes", manageThesis(ThesisRole.SUPERVISOR), getThesisNotes);
+router.post("/:id/notes", manageThesis(ThesisRole.SUPERVISOR), postThesisNotes);
 
 router.get("/:id/resources", manageThesis(), getThesisResources);
-router.post("/:id/resources", manageThesis("student"), postThesisResources);
+router.post(
+  "/:id/resources",
+  manageThesis(ThesisRole.STUDENT),
+  postThesisResources
+);
 
 router.get("/:id/presentations", manageThesis(), getThesisPresentations);
 router.post(
   "/:id/presentations",
-  manageThesis("student"),
+  manageThesis(ThesisRole.STUDENT),
   postThesisPresentations
 );
 
 router.get("/:id/invitations", getThesisInvitations);
-router.post("/:id/invitations", manageThesis("student"), postThesisInvitations);
+router.post(
+  "/:id/invitations",
+  manageThesis(ThesisRole.STUDENT),
+  postThesisInvitations
+);
 
 export default router;

@@ -1,3 +1,4 @@
+import { ThesisRole } from "../constants.js";
 import { sequelize } from "../config/database.js";
 import { DataTypes } from "sequelize";
 
@@ -22,9 +23,9 @@ const CommitteeMember = sequelize.define("CommitteeMember", {
     allowNull: true,
   },
   role: {
-    type: DataTypes.ENUM("supervisor", "committee_member"),
+    type: DataTypes.ENUM(ThesisRole.COMMITTEE_MEMBER, ThesisRole.SUPERVISOR),
     allowNull: false,
-    defaultValue: "committee_member",
+    defaultValue: ThesisRole.COMMITTEE_MEMBER,
   },
 });
 

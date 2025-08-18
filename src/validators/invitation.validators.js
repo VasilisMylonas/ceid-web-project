@@ -1,5 +1,5 @@
-// invitation.validators.js
 import Joi from "joi";
+import { InvitationStatus } from "../constants";
 
 export const getInvitationValidator = {
   params: Joi.object({
@@ -12,7 +12,9 @@ export const patchInvitationValidator = {
     id: Joi.number().integer().min(1).required(),
   }).unknown(false),
   body: Joi.object({
-    status: Joi.string().valid("pending", "accepted", "declined").optional(),
+    status: Joi.string()
+      .valid(...Object.values(InvitationStatus))
+      .optional(),
   }).unknown(false),
 };
 

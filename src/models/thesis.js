@@ -1,6 +1,7 @@
 import { sequelize } from "../config/database.js";
 import { DataTypes, Model } from "sequelize";
 import CommitteeMember from "./committee-member.js";
+import { ThesisRole, ThesisStatus } from "../constants.js";
 
 class Thesis extends Model {
   static async createFrom(params) {
@@ -18,21 +19,21 @@ class Thesis extends Model {
       topicId: topic.id,
       studentId: student.id,
       startDate: new Date(),
-      status: "under_assignment",
+      status: ThesisStatus.UNDER_ASSIGNMENT,
     });
 
     // Automatically assign the professor as a supervisor
     await CommitteeMember.create({
       thesisId: thesis.id,
       professorId: topic.professorId,
-      role: "supervisor",
+      role: ThesisRole.SUPERVISOR,
     });
 
     return thesis;
   }
 
   async canBeDeleted() {
-    if (this.status === "under_assignment") {
+    if (this.status === ThesisStatus.UNDER_ASSIGNMENT) {
       return true;
     }
   }
@@ -70,17 +71,9 @@ Thesis.init(
       allowNull: true,
     },
     status: {
-      type: DataTypes.ENUM(
-        "under_assignment",
-        "pending",
-        "approved",
-        "rejected",
-        "completed",
-        "cancelled",
-        "under_examination"
-      ),
+      type: DataTypes.ENUM(...Object.values(ThesisStatus)),
       allowNull: false,
-      defaultValue: "under_assignment",
+      defaultValue: ThesisStatus.UNDER_ASSIGNMENT,
     },
   },
   { sequelize, modelName: "Thesis" }

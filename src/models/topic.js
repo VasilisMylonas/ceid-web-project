@@ -1,6 +1,7 @@
 import { Op } from "sequelize";
 import { sequelize } from "../config/database.js";
 import { DataTypes, Model } from "sequelize";
+import { ThesisStatus } from "../constants.js";
 
 class Topic extends Model {
   async isAssigned() {
@@ -8,11 +9,11 @@ class Topic extends Model {
       where: {
         status: {
           [Op.in]: [
-            "under_assignment",
-            "pending",
-            "approved",
-            "completed",
-            "under_examination",
+            ThesisStatus.UNDER_ASSIGNMENT,
+            ThesisStatus.PENDING,
+            ThesisStatus.APPROVED,
+            ThesisStatus.COMPLETED,
+            ThesisStatus.UNDER_EXAMINATION,
           ],
         },
       },

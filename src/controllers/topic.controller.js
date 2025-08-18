@@ -21,16 +21,19 @@ export async function queryTopics(req, res) {
       {
         model: Thesis,
         attributes: [],
-        where: {
-          status: {
-            [Op.in]: [
-              "under_assignment",
-              "pending",
-              "approved",
-              "completed",
-              "under_examination",
-            ],
-          },
+      },
+    ];
+
+    query.where[Op.or] = [
+      {
+        "$Theses.status$": {
+          [Op.in]: [
+            "under_assignment",
+            "pending",
+            "approved",
+            "completed",
+            "under_examination",
+          ],
         },
       },
     ];
@@ -41,13 +44,12 @@ export async function queryTopics(req, res) {
       {
         model: Thesis,
         attributes: [],
-        required: true,
-        where: {
-          status: {
-            [Op.in]: ["rejected", "cancelled"],
-          },
-        },
       },
+    ];
+
+    query.where[Op.or] = [
+      { "$Theses.id$": null },
+      { "$Theses.status$": { [Op.in]: ["rejected", "cancelled"] } },
     ];
   }
 

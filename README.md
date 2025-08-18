@@ -57,7 +57,12 @@ ceid-web-project/
 
 ### Professors
 
-- View, Create, Modify Topics OK via /topics
+#### View, Create, Modify Topics
+
+- via /topics
+- should topics be immutable after assignment? TODO
+
+
 - Assign Topic to Student and possible cancel TODO via POST /theses
 - Get theses with filters (supervisor, student, committee member, status) OK via /theses professorId= status= role=
 - View thesis details OK via /theses/:id

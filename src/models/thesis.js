@@ -15,8 +15,8 @@ class Thesis extends Model {
     }
 
     const thesis = await Thesis.create({
-      topicId: topicId,
-      studentId: studentId,
+      topicId: topic.id,
+      studentId: student.id,
       startDate: new Date(),
       status: "under_assignment",
     });

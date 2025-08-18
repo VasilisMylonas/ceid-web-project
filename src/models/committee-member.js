@@ -15,6 +15,7 @@ const CommitteeMember = sequelize.define("CommitteeMember", {
   startDate: {
     type: DataTypes.DATE,
     allowNull: false,
+    defaultValue: DataTypes.NOW,
   },
   endDate: {
     type: DataTypes.DATE,

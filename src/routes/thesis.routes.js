@@ -27,7 +27,7 @@ import {
   putThesisDocumentValidator,
   getThesisDocumentValidator,
   getThesisTimelineValidator,
-  postThesisvalidator,
+  postThesisValidator,
 } from "../validators/thesis.validators.js";
 import multer from "multer";
 import { fileStorage } from "../config/file-storage.js";
@@ -39,7 +39,7 @@ router.use(authenticate);
 router.get("/", validate(queryThesesValidator), queryTheses);
 router.post(
   "/",
-  validate(postThesisvalidator),
+  validate(postThesisValidator),
   requireRole("professor"),
   postThesis
 );

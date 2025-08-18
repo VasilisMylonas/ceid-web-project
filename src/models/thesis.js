@@ -1,6 +1,5 @@
 import { sequelize } from "../config/database.js";
 import { DataTypes, Model } from "sequelize";
-import CommitteeMember from "./committee-member.js";
 import { ThesisRole, ThesisStatus } from "../constants.js";
 
 class Thesis extends Model {
@@ -22,6 +21,8 @@ class Thesis extends Model {
       status: ThesisStatus.UNDER_ASSIGNMENT,
     });
 
+    const { CommitteeMember } = sequelize.models;
+
     // Automatically assign the professor as a supervisor
     await CommitteeMember.create({
       thesisId: thesis.id,
@@ -33,9 +34,7 @@ class Thesis extends Model {
   }
 
   async canBeDeleted() {
-    if (this.status === ThesisStatus.UNDER_ASSIGNMENT) {
-      return true;
-    }
+    return this.status === ThesisStatus.UNDER_ASSIGNMENT;
   }
 }
 

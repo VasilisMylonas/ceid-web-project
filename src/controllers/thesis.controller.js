@@ -5,6 +5,8 @@ import {
   Thesis,
   Resource,
   Presentation,
+  Topic,
+  Student,
 } from "../models/index.js";
 import { getFilePath, deleteIfExists } from "../config/file-storage.js";
 
@@ -42,6 +44,25 @@ export async function getThesis(req, res) {
   const thesis = req.thesis.toJSON();
   delete thesis.documentFile;
   res.status(StatusCodes.OK).json(thesis);
+}
+
+export async function postThesis(req, res) {
+  const topic = await Topic.findByPk(req.body.topicId);
+  const student = await Student.findByPk(req.body.studentId);
+
+  if (!topic || !student) {
+    return res.status(StatusCodes.NOT_FOUND).send();
+  }
+
+  try {
+    const thesis = await Thesis.createFrom({
+      topic: topic,
+      student: student,
+    });
+    res.status(StatusCodes.CREATED).json(thesis);
+  } catch (error) {
+    res.status(StatusCodes.BAD_REQUEST).json({ error: error.message });
+  }
 }
 
 export async function patchThesis(req, res) {

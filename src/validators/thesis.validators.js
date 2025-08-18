@@ -37,6 +37,15 @@ export const getThesisValidator = {
     .unknown(false),
 };
 
+export const postThesisValidator = {
+  body: validator
+    .object({
+      topicId: validator.number().integer().min(1).required(),
+      studentId: validator.number().integer().min(1).required(),
+    })
+    .unknown(false),
+};
+
 export const patchThesisValidator = {
   params: validator
     .object({

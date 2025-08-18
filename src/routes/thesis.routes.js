@@ -2,6 +2,7 @@ import express from "express";
 import {
   queryTheses,
   getThesis,
+  postThesis,
   patchThesis,
   deleteThesis,
   putThesisDocument,
@@ -16,7 +17,7 @@ import {
   postThesisResources,
   postThesisPresentations,
 } from "../controllers/thesis.controller.js";
-import { authenticate } from "../middleware/authentication.js";
+import { authenticate, requireRole } from "../middleware/authentication.js";
 import { validate } from "../config/validation.js";
 import {
   queryThesesValidator,
@@ -26,6 +27,7 @@ import {
   putThesisDocumentValidator,
   getThesisDocumentValidator,
   getThesisTimelineValidator,
+  postThesisvalidator,
 } from "../validators/thesis.validators.js";
 import multer from "multer";
 import { fileStorage } from "../config/file-storage.js";
@@ -35,6 +37,12 @@ const router = express.Router();
 router.use(authenticate);
 
 router.get("/", validate(queryThesesValidator), queryTheses);
+router.post(
+  "/",
+  validate(postThesisvalidator),
+  requireRole("professor"),
+  postThesis
+);
 router.get("/:id", validate(getThesisValidator), manageThesis(), getThesis);
 
 router.patch(

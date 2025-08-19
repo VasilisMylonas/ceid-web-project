@@ -10,8 +10,8 @@ import noteRoutes from "./routes/note.routes.js";
 import resourceRoutes from "./routes/resource.routes.js";
 import presentationRoutes from "./routes/presentation.routes.js";
 import invitationRoutes from "./routes/invitation.routes.js";
+import studentRoutes from "./routes/student.routes.js";
 import { errorHandler } from "./middleware/errorHandler.js";
-import { sequelize } from "./config/database.js";
 
 const app = express();
 app.use(express.json()); // JSON middleware
@@ -25,15 +25,7 @@ app.use("/api/v1/notes", noteRoutes);
 app.use("/api/v1/resources", resourceRoutes);
 app.use("/api/v1/presentations", presentationRoutes);
 app.use("/api/v1/invitations", invitationRoutes);
+app.use("/api/v1/students", studentRoutes);
 app.use(errorHandler); // Use error handler middleware, after all routes
-
-// TODO: maybe this should be in server.js
-try {
-  await sequelize.authenticate();
-  console.log("Database connected successfully");
-} catch (error) {
-  console.error("Database error:", error);
-  process.exit(1);
-}
 
 export default app;

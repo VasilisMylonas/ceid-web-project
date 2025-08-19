@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { InvitationStatus } from "../constants";
+import { InvitationStatus } from "../constants.js";
 
 export const getInvitationValidator = {
   params: Joi.object({

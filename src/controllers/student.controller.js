@@ -1,11 +1,16 @@
-import { Op } from "sequelize";
+import { Op, Sequelize } from "sequelize";
 import { Student, User } from "../models/index.js";
 
 export async function queryStudents(req, res) {
   const students = await Student.findAll({
     limit: req.query.limit,
     offset: req.query.offset,
-    attributes: ["id", "am"],
+    attributes: [
+      "id",
+      "am",
+      [Sequelize.col("User.name"), "name"],
+      [Sequelize.col("User.email"), "email"],
+    ],
     where: {
       [Op.or]: [
         {
@@ -22,9 +27,8 @@ export async function queryStudents(req, res) {
     },
     include: [
       {
-        attributes: ["name", "email"],
+        attributes: [],
         model: User,
-        required: true,
       },
     ],
   });

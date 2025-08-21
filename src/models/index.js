@@ -3,7 +3,7 @@ import path from "path";
 import { Sequelize } from "sequelize";
 import { fileURLToPath } from "url";
 import process from "process";
-import configs from "../config/sequelize.cjs";
+import configs from "../config/database.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

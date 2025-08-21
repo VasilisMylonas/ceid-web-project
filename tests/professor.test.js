@@ -86,7 +86,7 @@ describe("View and create topics", () => {
     topicId = response.body.id;
   });
 
-  it("lists all topics", async () => {
+  it("lists the topic", async () => {
     const response = await agent.get("/api/v1/topics");
     expect(response.statusCode).toBe(StatusCodes.OK);
     expect(Array.isArray(response.body)).toBe(true);
@@ -110,7 +110,9 @@ describe("View and create topics", () => {
     expect(Array.isArray(response.body)).toBe(true);
     expect(response.body.length).toBe(0);
   });
+});
 
+describe("Initial topic assignment", () => {
   it("searches students by name or AM", async () => {
     let response = await agent
       .get("/api/v1/students")
@@ -163,4 +165,58 @@ describe("View and create topics", () => {
     response = await agent.get(`/api/v1/theses/${thesisId}`).send();
     expect(response.statusCode).toBe(StatusCodes.NOT_FOUND);
   });
+
+  it("marks the topic as unassigned", async () => {
+    let response = await agent
+      .get("/api/v1/topics")
+      .query({ professorId: professorId, status: "unassigned" });
+    expect(response.statusCode).toBe(StatusCodes.OK);
+    expect(Array.isArray(response.body)).toBe(true);
+    expect(response.body[0].id).toBe(topicId);
+
+    response = await agent
+      .get("/api/v1/topics")
+      .query({ professorId: professorId, status: "assigned" });
+    expect(response.statusCode).toBe(StatusCodes.OK);
+    expect(Array.isArray(response.body)).toBe(true);
+    expect(response.body.length).toBe(0);
+  });
+});
+
+describe("View theses", () => {
+  it("lists the professor's theses", async () => {
+    let response = await agent
+      .get("/api/v1/theses")
+      .query({ professorId: professorId });
+    expect(response.statusCode).toBe(StatusCodes.OK);
+    expect(Array.isArray(response.body)).toBe(true);
+    expect(response.body.length).toBe(0);
+
+    response = await agent.post("/api/v1/theses").send({
+      topicId: topicId,
+      studentId: studentId,
+    });
+    expect(response.statusCode).toBe(StatusCodes.CREATED);
+    thesisId = response.body.id;
+
+    response = await agent
+      .get("/api/v1/theses")
+      .query({ professorId: professorId });
+    expect(response.statusCode).toBe(StatusCodes.OK);
+    expect(Array.isArray(response.body)).toBe(true);
+    expect(response.body.length).toBe(1);
+    expect(response.body[0].id).toBe(thesisId);
+  });
+
+  // it("assigns a topic to a student", async () => {
+  //   const response = await agent.post("/api/v1/theses").send({
+  //     topicId: topicId,
+  //     studentId: studentId,
+  //   });
+  //   expect(response.statusCode).toBe(StatusCodes.CREATED);
+  //   expect(response.body).toHaveProperty("id");
+  //   expect(response.body.topicId).toBe(topicId);
+  //   expect(response.body.studentId).toBe(studentId);
+  //   thesisId = response.body.id;
+  // });
 });

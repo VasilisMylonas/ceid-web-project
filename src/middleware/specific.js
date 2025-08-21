@@ -62,42 +62,6 @@ export function manageThesis(...roles) {
   };
 }
 
-export async function manageNote(req, res, next) {
-  const note = await Note.findByPk(req.params.id);
-  if (!note) {
-    return res.status(StatusCodes.NOT_FOUND).send();
-  }
-  if (note.professorId != req.user.id) {
-    return res.status(StatusCodes.FORBIDDEN).send();
-  }
-  req.note = note;
-  next();
-}
-
-export async function managePresentation(req, res, next) {
-  const presentation = await Presentation.findByPk(req.params.id);
-  if (!presentation) {
-    return res.status(StatusCodes.NOT_FOUND).send();
-  }
-  if (presentation.thesis.studentId != req.user.id) {
-    return res.status(StatusCodes.FORBIDDEN).send();
-  }
-  req.presentation = presentation;
-  next();
-}
-
-export async function manageResource(req, res, next) {
-  const resource = await Resource.findByPk(req.params.id);
-  if (!resource) {
-    return res.status(StatusCodes.NOT_FOUND).send();
-  }
-  if (resource.thesis.studentId != req.user.id) {
-    return res.status(StatusCodes.FORBIDDEN).send();
-  }
-  req.resource = resource;
-  next();
-}
-
 export async function manageInvitation(req, res, next) {
   const invitation = await Invitation.findByPk(req.params.id);
   if (!invitation) {

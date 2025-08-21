@@ -48,3 +48,21 @@ export function owner(ownerField) {
     next();
   };
 }
+
+export function thesis(...roles) {
+  return async (req, res, next) => {
+    const thesis = await req.model.thesis;
+
+    const isStudent = thesis.studentId === req.user.id;
+    // const isSupervisor = await thesis.hasSupervisor(req.user.id);
+
+    // if (!isStudent && !isSupervisor) {
+    // return res.status(StatusCodes.FORBIDDEN).send();
+    // }
+
+    // req.isStudent = isStudent;
+    // req.isSupervisor = isSupervisor;
+
+    next();
+  };
+}

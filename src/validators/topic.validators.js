@@ -26,8 +26,8 @@ export default {
       .unknown(false),
     body: validator
       .object({
-        title: validator.string().min(1).optional(),
-        summary: validator.string().min(1).optional(),
+        title: validator.string().min(1).required(),
+        summary: validator.string().min(1).required(),
       })
       .unknown(false),
   },

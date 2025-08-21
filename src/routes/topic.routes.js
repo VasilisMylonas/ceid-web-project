@@ -1,7 +1,7 @@
 import express from "express";
 import multer from "multer";
 import TopicController from "../controllers/topic.controller.js";
-import TopicValidators from "../validators/topic.validators.js";
+import topicValidators from "../validators/topic.validators.js";
 import { validate } from "../config/validation.js";
 import { owner, authenticate, role } from "../middleware/authentication.js";
 import { fileStorage } from "../config/file-storage.js";
@@ -12,43 +12,43 @@ import { UserRole } from "../constants.js";
 const router = express.Router();
 router.use(authenticate);
 
-router.get("/", validate(TopicValidators.query), TopicController.query);
+router.get("/", validate(topicValidators.query), TopicController.query);
 router.post(
   "/",
-  validate(TopicValidators.post),
+  validate(topicValidators.post),
   role(UserRole.PROFESSOR),
   TopicController.post
 );
 
 router.get(
   "/:id",
-  validate(TopicValidators.get),
+  validate(topicValidators.get),
   model(Topic, "topic"),
   TopicController.get
 );
 router.put(
   "/:id",
-  validate(TopicValidators.put),
+  validate(topicValidators.put),
   model(Topic, "topic"),
   owner("professorId"),
   TopicController.put
 );
 router.delete(
   "/:id",
-  validate(TopicValidators.delete),
+  validate(topicValidators.delete),
   model(Topic, "topic"),
   owner("professorId"),
   TopicController.delete
 );
 router.get(
   "/:id/description",
-  validate(TopicValidators.getDescription),
+  validate(topicValidators.getDescription),
   model(Topic, "topic"),
   TopicController.getDescription
 );
 router.put(
   "/:id/description",
-  validate(TopicValidators.putDescription),
+  validate(topicValidators.putDescription),
   multer({ storage: fileStorage }).single("file"),
   model(Topic, "topic"),
   owner("professorId"),

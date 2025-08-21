@@ -3,8 +3,8 @@ import db from "../models/index.js";
 import { UserRole } from "../constants.js";
 
 export async function up() {
-  const count = 10;
-  const professors = [];
+  const count = 4;
+  const secretaries = [];
 
   for (let i = 0; i < count; i++) {
     const name = faker.person.fullName();
@@ -16,31 +16,22 @@ export async function up() {
     const username = email.split("@")[0];
     const phone = faker.phone.number();
 
-    const division = faker.helpers.arrayElement([
-      "Software Engineering",
-      "Telecommunication Engineering",
-      "Hardware Engineering",
-      "Algorithms and Data Structures",
-      "Information Engineering",
-    ]);
-
-    professors.push({
-      id: i + 20001,
+    secretaries.push({
+      id: i + 10001,
       username,
       name,
       email,
-      division,
       phone,
       password: "xxx",
-      role: UserRole.PROFESSOR,
+      role: UserRole.SECRETARY,
     });
   }
 
-  await db.User.bulkCreate(professors, {
+  await db.User.bulkCreate(secretaries, {
     fields: ["id", "username", "name", "email", "password", "phone", "role"],
   });
 
-  await db.Professor.bulkCreate(professors, {
-    fields: ["id", "division"],
+  await db.Secretary.bulkCreate(secretaries, {
+    fields: ["id"],
   });
 }

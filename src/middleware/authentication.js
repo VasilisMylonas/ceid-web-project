@@ -1,6 +1,6 @@
 import { StatusCodes } from "http-status-codes";
 import jwt from "jsonwebtoken";
-import { User, CommitteeMember } from "../models/index.js";
+import { User, CommitteeMember, Thesis } from "../models/index.js";
 import { ThesisRole } from "../constants.js";
 
 export async function requireAuth(req, res, next) {
@@ -52,7 +52,8 @@ export function requireOwner() {
 
 export function requireThesisRole(...roles) {
   return async (req, res, next) => {
-    const thesis = await req.model.getThesis();
+    const thesis =
+      req.thesis instanceof Thesis ? req.model : await req.model.getThesis();
 
     const isStudent = thesis.studentId == req.user.id;
     const isSupervisor = await CommitteeMember.findOne({

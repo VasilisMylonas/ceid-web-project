@@ -29,12 +29,22 @@ export async function authenticate(req, res, next) {
   next();
 }
 
-export function requireRole(role) {
+export function role(role) {
   return async (req, res, next) => {
     if (req.user.role !== role) {
       console.log(`Role required: ${role}`);
       return res.status(StatusCodes.FORBIDDEN).send();
     }
+    next();
+  };
+}
+
+export function owner(ownerField) {
+  return async (req, res, next) => {
+    if (req.model[ownerField] !== req.user.id) {
+      return res.status(StatusCodes.FORBIDDEN).send();
+    }
+
     next();
   };
 }

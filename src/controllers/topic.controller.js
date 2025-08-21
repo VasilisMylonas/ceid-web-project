@@ -45,6 +45,7 @@ export async function queryTopics(req, res) {
       {
         model: Thesis,
         attributes: [],
+        required: false,
       },
     ];
 

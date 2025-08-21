@@ -1,22 +1,44 @@
+import { DataTypes, Model } from "sequelize";
 import { InvitationStatus } from "../constants.js";
-import { sequelize } from "../config/database.js";
-import { DataTypes } from "sequelize";
 
-const Invitation = sequelize.define("Invitation", {
-  id: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true,
-  },
-  response: {
-    type: DataTypes.ENUM(...Object.values(InvitationStatus)),
-    allowNull: false,
-    defaultValue: InvitationStatus.PENDING,
-  },
-  responseDate: {
-    type: DataTypes.DATE,
-    allowNull: true,
-  },
-});
+export default (sequelize) => {
+  class Invitation extends Model {
+    static associate(models) {
+      Invitation.belongsTo(models.Student, { foreignKey: "studentId" });
+      Invitation.belongsTo(models.Professor, { foreignKey: "professorId" });
+    }
+  }
 
-export default Invitation;
+  Invitation.init(
+    {
+      id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+      },
+      response: {
+        type: DataTypes.ENUM(...Object.values(InvitationStatus)),
+        allowNull: false,
+        defaultValue: InvitationStatus.PENDING,
+      },
+      responseDate: {
+        type: DataTypes.DATE,
+        allowNull: true,
+      },
+      studentId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+      professorId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+    },
+    {
+      sequelize,
+      modelName: "Invitation",
+    }
+  );
+
+  return Invitation;
+};

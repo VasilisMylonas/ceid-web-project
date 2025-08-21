@@ -1,29 +1,46 @@
+import { DataTypes, Model } from "sequelize";
 import { PresentationKind } from "../constants.js";
-import { sequelize } from "../config/database.js";
-import { DataTypes } from "sequelize";
 
-const Presentation = sequelize.define("Presentation", {
-  id: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true,
-  },
-  date: {
-    type: DataTypes.DATE,
-    allowNull: false,
-  },
-  link: {
-    type: DataTypes.STRING,
-    allowNull: true,
-  },
-  kind: {
-    type: DataTypes.ENUM(...Object.values(PresentationKind)),
-    allowNull: false,
-  },
-  hall: {
-    type: DataTypes.STRING,
-    allowNull: true,
-  },
-});
+export default (sequelize) => {
+  class Presentation extends Model {
+    static associate(models) {
+      Presentation.belongsTo(models.Thesis, { foreignKey: "thesisId" });
+    }
+  }
 
-export default Presentation;
+  Presentation.init(
+    {
+      id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+      },
+      date: {
+        type: DataTypes.DATE,
+        allowNull: false,
+      },
+      link: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      kind: {
+        type: DataTypes.ENUM(...Object.values(PresentationKind)),
+        allowNull: false,
+      },
+      hall: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      thesisId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+    },
+    {
+      sequelize,
+      modelName: "Presentation",
+    }
+  );
+
+  return Presentation;
+};

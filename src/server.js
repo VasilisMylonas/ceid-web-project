@@ -1,16 +1,16 @@
 import app from "./app.js";
-import { sequelize } from "./config/database.js";
+import db from "./models/index.js";
 
 try {
-  await sequelize.authenticate();
+  await db.sequelize.authenticate();
   console.log("Database connected successfully");
 } catch (error) {
   console.error("Database error:", error);
   process.exit(1);
 }
 
-await sequelize.sync({ alter: true });
-// await sequelize.sync({ force: true }); // TODO: Remove in final version
+await db.sequelize.sync({ alter: true });
+// await db.sequelize.sync({ force: true }); // TODO: Remove in final version
 console.log("Database synchronized successfully");
 
 // await seedData();

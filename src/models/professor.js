@@ -1,11 +1,33 @@
-import { sequelize } from "../config/database.js";
-import { DataTypes } from "sequelize";
+import { DataTypes, Model } from "sequelize";
 
-const Professor = sequelize.define("Professor", {
-  division: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-});
+export default (sequelize) => {
+  class Professor extends Model {
+    static associate(models) {
+      Professor.belongsTo(models.User, { foreignKey: "id" });
+      Professor.hasMany(models.Topic, { foreignKey: "professorId" });
+      Professor.hasMany(models.Note, { foreignKey: "professorId" });
+      Professor.hasMany(models.Grade, { foreignKey: "professorId" });
+      Professor.hasMany(models.Invitation, { foreignKey: "professorId" });
+      Professor.hasMany(models.CommitteeMember, { foreignKey: "professorId" });
+    }
+  }
 
-export default Professor;
+  Professor.init(
+    {
+      id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+      },
+      division: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+    },
+    {
+      sequelize,
+      modelName: "Professor",
+    }
+  );
+
+  return Professor;
+};

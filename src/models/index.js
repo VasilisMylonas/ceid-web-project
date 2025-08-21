@@ -1,62 +1,57 @@
-import User from "./user.js";
-import Topic from "./topic.js";
-import Professor from "./professor.js";
-import Student from "./student.js";
-import Secretary from "./secretary.js";
-import Note from "./note.js";
-import Thesis from "./thesis.js";
-import Presentation from "./presentation.js";
-import Resource from "./resource.js";
-import Grade from "./grade.js";
-import Invitation from "./invitation.js";
-import CommitteeMember from "./committee-member.js";
+import fs from "fs";
+import path from "path";
+import { Sequelize } from "sequelize";
+import { fileURLToPath } from "url";
+import process from "process";
+import configs from "../config/sequelize.cjs";
 
-Professor.belongsTo(User, { foreignKey: "id" }); // is-a
-User.hasOne(Professor, { foreignKey: "id" }); // may-be-a
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const basename = path.basename(__filename);
+const config = configs[process.env.NODE_ENV];
+const db = {};
 
-Student.belongsTo(User, { foreignKey: "id" }); // is-a
-User.hasOne(Student, { foreignKey: "id" }); // may-be-a
+let sequelize;
 
-Secretary.belongsTo(User, { foreignKey: "id" }); // is-a
-User.hasOne(Secretary, { foreignKey: "id" }); // may-be-a
+if (config.use_env_variable) {
+  sequelize = new Sequelize(process.env[config.use_env_variable], config);
+} else {
+  sequelize = new Sequelize(
+    config.database,
+    config.username,
+    config.password,
+    config
+  );
+}
 
-Note.belongsTo(Thesis, { foreignKey: "thesisId" });
-Thesis.hasMany(Note, { foreignKey: "thesisId" });
+const files = fs.readdirSync(__dirname).filter((file) => {
+  return (
+    file.indexOf(".") !== 0 &&
+    file !== basename &&
+    file.slice(-3) === ".js" &&
+    file.indexOf(".test.js") === -1
+  );
+});
 
-Presentation.belongsTo(Thesis, { foreignKey: "thesisId" });
-Thesis.hasMany(Presentation, { foreignKey: "thesisId" });
+for (const file of files) {
+  const { default: modelDefiner } = await import(path.join(__dirname, file));
+  const model = modelDefiner(sequelize, Sequelize.DataTypes);
+  db[model.name] = model;
+}
 
-Resource.belongsTo(Thesis, { foreignKey: "thesisId" });
-Thesis.hasMany(Resource, { foreignKey: "thesisId" });
+Object.keys(db).forEach((modelName) => {
+  if (db[modelName].associate) {
+    db[modelName].associate(db);
+  }
+});
 
-Topic.belongsTo(Professor, { foreignKey: "professorId" });
-Professor.hasMany(Topic, { foreignKey: "professorId" });
+db.sequelize = sequelize;
+db.Sequelize = Sequelize;
 
-Note.belongsTo(Professor, { foreignKey: "professorId" });
-Professor.hasMany(Note, { foreignKey: "professorId" });
+export default db;
 
-Thesis.belongsTo(Topic, { foreignKey: "topicId" });
-Topic.hasMany(Thesis, { foreignKey: "topicId" });
-
-Thesis.belongsTo(Student, { foreignKey: "studentId" });
-Student.hasMany(Thesis, { foreignKey: "studentId" });
-
-Grade.belongsTo(Professor, { foreignKey: "professorId" });
-Professor.hasMany(Grade, { foreignKey: "professorId" });
-Grade.belongsTo(Thesis, { foreignKey: "thesisId" });
-Thesis.hasMany(Grade, { foreignKey: "thesisId" });
-
-Invitation.belongsTo(Student, { foreignKey: "studentId" });
-Student.hasMany(Invitation, { foreignKey: "studentId" });
-Invitation.belongsTo(Professor, { foreignKey: "professorId" });
-Professor.hasMany(Invitation, { foreignKey: "professorId" });
-
-CommitteeMember.belongsTo(Thesis, { foreignKey: "thesisId" });
-Thesis.hasMany(CommitteeMember, { foreignKey: "thesisId" });
-CommitteeMember.belongsTo(Professor, { foreignKey: "professorId" });
-Professor.hasMany(CommitteeMember, { foreignKey: "professorId" });
-
-export {
+// TODO: maybe this should be removed
+export const {
   User,
   Topic,
   Professor,
@@ -69,4 +64,4 @@ export {
   Grade,
   Invitation,
   CommitteeMember,
-};
+} = db;

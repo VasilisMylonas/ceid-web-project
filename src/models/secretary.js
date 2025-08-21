@@ -1,5 +1,24 @@
-import { sequelize } from "../config/database.js";
+import { DataTypes, Model } from "sequelize";
 
-const Secretary = sequelize.define("Secretary", {});
+export default (sequelize) => {
+  class Secretary extends Model {
+    static associate(models) {
+      Secretary.belongsTo(models.User, { foreignKey: "id" });
+    }
+  }
 
-export default Secretary;
+  Secretary.init(
+    {
+      id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+      },
+    },
+    {
+      sequelize,
+      modelName: "Secretary",
+    }
+  );
+
+  return Secretary;
+};

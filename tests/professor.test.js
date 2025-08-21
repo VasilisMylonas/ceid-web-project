@@ -3,8 +3,7 @@ import request from "supertest";
 import bcrypt from "bcrypt";
 
 import app from "../src/app.js";
-import { sequelize } from "../src/config/database.js";
-import { User, Professor, Student } from "../src/models/index.js";
+import db, { User, Professor, Student } from "../src/models/index.js";
 import { UserRole } from "../src/constants.js";
 
 let agent;
@@ -14,7 +13,7 @@ let topicId;
 let thesisId;
 
 beforeAll(async () => {
-  await sequelize.sync({ force: true });
+  await db.sequelize.sync({ force: true });
   const professor = await User.create({
     username: "professor",
     password: await bcrypt.hash("professor", 10),
@@ -44,7 +43,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await sequelize.close();
+  await db.sequelize.close();
 });
 
 describe("View and create topics", () => {

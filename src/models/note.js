@@ -1,16 +1,38 @@
-import { sequelize } from "../config/database.js";
-import { DataTypes } from "sequelize";
+import { DataTypes, Model } from "sequelize";
 
-const Note = sequelize.define("Note", {
-    id: {
+export default (sequelize) => {
+  class Note extends Model {
+    static associate(models) {
+      Note.belongsTo(models.Thesis, { foreignKey: "thesisId" });
+      Note.belongsTo(models.Professor, { foreignKey: "professorId" });
+    }
+  }
+
+  Note.init(
+    {
+      id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
-    },
-    content: {
+      },
+      content: {
         type: DataTypes.STRING,
         allowNull: false,
+      },
+      thesisId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+      professorId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
     },
-});
+    {
+      sequelize,
+      modelName: "Note",
+    }
+  );
 
-export default Note;
+  return Note;
+};

@@ -17,7 +17,7 @@ import {
   postThesisResources,
   postThesisPresentations,
 } from "../controllers/thesis.controller.js";
-import { authenticate, requireRole } from "../middleware/authentication.js";
+import { authenticate, role } from "../middleware/authentication.js";
 import { validate } from "../config/validation.js";
 import {
   queryThesesValidator,
@@ -41,7 +41,7 @@ router.get("/", validate(queryThesesValidator), queryTheses);
 router.post(
   "/",
   validate(postThesisValidator),
-  requireRole(UserRole.PROFESSOR),
+  role(UserRole.PROFESSOR),
   postThesis
 );
 router.get("/:id", validate(getThesisValidator), manageThesis(), getThesis);

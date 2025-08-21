@@ -1,7 +1,6 @@
 import { StatusCodes } from "http-status-codes";
 import jwt from "jsonwebtoken";
-import { User, CommitteeMember, Thesis } from "../models/index.js";
-import { ThesisRole } from "../constants.js";
+import { User } from "../models/index.js";
 
 export async function requireAuth(req, res, next) {
   const authHeader = req.headers["authorization"]; // The header is "Authorization: Bearer <token>"
@@ -46,36 +45,6 @@ export function requireOwner() {
       return res.status(StatusCodes.FORBIDDEN).send();
     }
 
-    next();
-  };
-}
-
-export function requireThesisRole(...roles) {
-  return async (req, res, next) => {
-    const thesis =
-      req.thesis instanceof Thesis ? req.model : await req.model.getThesis();
-
-    const isStudent = thesis.studentId == req.user.id;
-    const isSupervisor = await CommitteeMember.findOne({
-      where: {
-        thesisId: thesis.id,
-        professorId: req.user.id,
-        role: ThesisRole.SUPERVISOR,
-        endDate: null,
-      },
-    });
-
-    if (
-      !(roles.includes(ThesisRole.STUDENT) && isStudent) &&
-      !(roles.includes(ThesisRole.SUPERVISOR) && isSupervisor) &&
-      roles.length != 0
-    ) {
-      return res.status(StatusCodes.FORBIDDEN).send();
-    }
-
-    req.isStudent = !!isStudent;
-    req.isSupervisor = !!isSupervisor;
-    req.thesis = thesis;
     next();
   };
 }

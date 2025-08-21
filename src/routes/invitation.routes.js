@@ -1,6 +1,5 @@
 import express from "express";
 import { requireAuth } from "../middleware/authentication.js";
-import { manageInvitation } from "../middleware/specific.js";
 import { validate } from "../config/validation.js";
 import {
   getInvitationValidator,
@@ -19,30 +18,30 @@ import {
 const router = express.Router();
 router.use(requireAuth);
 
-router.get(
-  "/:id",
-  validate(getInvitationValidator),
-  manageInvitation,
-  getInvitation
-);
-router.patch(
-  "/:id",
-  validate(patchInvitationValidator),
-  manageInvitation,
-  patchInvitation
-);
-router.delete("/:id", manageInvitation, deleteInvitation);
-router.post(
-  "/:id/accept",
-  validate(acceptInvitationValidator),
-  manageInvitation,
-  acceptInvitation
-);
-router.post(
-  "/:id/decline",
-  validate(declineInvitationValidator),
-  manageInvitation,
-  declineInvitation
-);
+// router.get(
+//   "/:id",
+//   validate(getInvitationValidator),
+//   manageInvitation,
+//   getInvitation
+// );
+// router.patch(
+//   "/:id",
+//   validate(patchInvitationValidator),
+//   manageInvitation,
+//   patchInvitation
+// );
+// router.delete("/:id", manageInvitation, deleteInvitation);
+// router.post(
+//   "/:id/accept",
+//   validate(acceptInvitationValidator),
+//   manageInvitation,
+//   acceptInvitation
+// );
+// router.post(
+//   "/:id/decline",
+//   validate(declineInvitationValidator),
+//   manageInvitation,
+//   declineInvitation
+// );
 
 export default router;

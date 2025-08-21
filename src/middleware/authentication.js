@@ -54,10 +54,6 @@ export function requireThesisRole(...roles) {
   return async (req, res, next) => {
     const thesis = await req.model.getThesis();
 
-    if (!thesis) {
-      return res.status(StatusCodes.NOT_FOUND).send();
-    }
-
     const isStudent = thesis.studentId == req.user.id;
     const isSupervisor = await CommitteeMember.findOne({
       where: {

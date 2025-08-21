@@ -19,13 +19,16 @@ beforeAll(async () => {
     password: await bcrypt.hash("professor", 10),
     role: UserRole.PROFESSOR,
     email: "professor@upatras.gr",
+    phone: "000",
   });
 
   const student = await User.create({
     username: "student",
+    name: "Makis",
     password: await bcrypt.hash("student", 10),
     role: UserRole.STUDENT,
     email: "student@upatras.gr",
+    phone: "000",
   });
 
   await Professor.create({
@@ -35,6 +38,7 @@ beforeAll(async () => {
 
   await Student.create({
     id: student.id,
+    am: "110110",
   });
 
   professorId = professor.id;
@@ -105,6 +109,22 @@ describe("View and create topics", () => {
     expect(response.statusCode).toBe(StatusCodes.OK);
     expect(Array.isArray(response.body)).toBe(true);
     expect(response.body.length).toBe(0);
+  });
+
+  it("searches students by name or AM", async () => {
+    let response = await agent
+      .get("/api/v1/students")
+      .query({ search: "makis" });
+    expect(response.statusCode).toBe(StatusCodes.OK);
+    expect(Array.isArray(response.body)).toBe(true);
+    expect(response.body.length).toBe(1);
+    expect(response.body[0].id).toBe(studentId);
+
+    response = await agent.get("/api/v1/students").query({ search: "110110" });
+    expect(response.statusCode).toBe(StatusCodes.OK);
+    expect(Array.isArray(response.body)).toBe(true);
+    expect(response.body.length).toBe(1);
+    expect(response.body[0].id).toBe(studentId);
   });
 
   it("assigns a topic to a student", async () => {

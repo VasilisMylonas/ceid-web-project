@@ -1,7 +1,7 @@
 import { StatusCodes } from "http-status-codes";
 import { Topic, Thesis } from "../models/index.js";
 import { deleteIfExists, getFilePath } from "../config/file-storage.js";
-import { Op } from "sequelize";
+import { Op, Sequelize } from "sequelize";
 import { ThesisStatus } from "../constants.js";
 
 export async function queryTopics(req, res) {
@@ -26,17 +26,15 @@ export async function queryTopics(req, res) {
     ];
 
     query.where[Op.or] = [
-      {
-        "$Theses.status$": {
-          [Op.in]: [
-            ThesisStatus.UNDER_ASSIGNMENT,
-            ThesisStatus.PENDING,
-            ThesisStatus.APPROVED,
-            ThesisStatus.COMPLETED,
-            ThesisStatus.UNDER_EXAMINATION,
-          ],
-        },
-      },
+      Sequelize.where(Sequelize.col("Theses.status"), {
+        [Op.in]: [
+          ThesisStatus.UNDER_ASSIGNMENT,
+          ThesisStatus.PENDING,
+          ThesisStatus.APPROVED,
+          ThesisStatus.COMPLETED,
+          ThesisStatus.UNDER_EXAMINATION,
+        ],
+      }),
     ];
   }
 
@@ -50,12 +48,12 @@ export async function queryTopics(req, res) {
     ];
 
     query.where[Op.or] = [
-      { "$Theses.id$": null },
-      {
-        "$Theses.status$": {
-          [Op.in]: [ThesisStatus.REJECTED, ThesisStatus.CANCELLED],
-        },
-      },
+      Sequelize.where(Sequelize.col("Theses.status"), {
+        [Op.in]: [ThesisStatus.CANCELLED, ThesisStatus.REJECTED],
+      }),
+      Sequelize.where(Sequelize.col("Theses.id"), {
+        [Op.is]: null,
+      }),
     ];
   }
 

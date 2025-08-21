@@ -1,5 +1,6 @@
 import { Op, Sequelize } from "sequelize";
 import { Student, User } from "../models/index.js";
+import { StatusCodes } from "http-status-codes";
 
 export async function queryStudents(req, res) {
   const students = await Student.findAll({
@@ -13,16 +14,12 @@ export async function queryStudents(req, res) {
     ],
     where: {
       [Op.or]: [
-        {
-          am: {
-            [Op.iLike]: `%${req.query.search}%`,
-          },
-        },
-        {
-          "$User.name$": {
-            [Op.iLike]: `%${req.query.search}%`,
-          },
-        },
+        Sequelize.where(Sequelize.fn("lower", Sequelize.col("am")), {
+          [Op.like]: `%${req.query.search.toLowerCase()}%`,
+        }),
+        Sequelize.where(Sequelize.fn("lower", Sequelize.col("User.name")), {
+          [Op.like]: `%${req.query.search.toLowerCase()}%`,
+        }),
       ],
     },
     include: [
@@ -33,5 +30,5 @@ export async function queryStudents(req, res) {
     ],
   });
 
-  res.status(200).json(students);
+  res.status(StatusCodes.OK).json(students);
 }

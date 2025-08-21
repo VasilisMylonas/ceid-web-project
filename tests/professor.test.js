@@ -1,6 +1,3 @@
-import dotenv from "dotenv";
-dotenv.config({ path: ".env.test" });
-
 import { StatusCodes } from "http-status-codes";
 import request from "supertest";
 import bcrypt from "bcrypt";

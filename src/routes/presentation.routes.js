@@ -1,12 +1,11 @@
 import express from "express";
 import { authenticate, thesis } from "../middleware/authentication.js";
-import { managePresentation } from "../middleware/specific.js";
 import { validate } from "../config/validation.js";
 import presentationValidator from "../validators/presentation.validators.js";
 import PresentationController from "../controllers/presentation.controller.js";
-import { model } from "src/middleware/model.js";
-import { Presentation } from "src/models/index.js";
-import { ThesisRole } from "src/constants.js";
+import { model } from "../middleware/model.js";
+import { Presentation } from "../models/index.js";
+import { ThesisRole } from "../constants.js";
 
 const router = express.Router();
 router.use(authenticate);
@@ -27,7 +26,7 @@ router.put(
   validate(presentationValidator.put),
   model(Presentation, "presentation"),
   thesis(ThesisRole.STUDENT, ThesisRole.SUPERVISOR),
-  PresentationController.patch
+  PresentationController.put
 );
 router.delete(
   "/:id",

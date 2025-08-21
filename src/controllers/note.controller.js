@@ -1,16 +1,16 @@
 import { StatusCodes } from "http-status-codes";
 
 export default class NoteController {
-  static async getNote(req, res) {
+  static async get(req, res) {
     res.status(StatusCodes.OK).json(req.note);
   }
 
-  static async deleteNote(req, res) {
+  static async delete(req, res) {
     await req.note.destroy();
     res.status(StatusCodes.NO_CONTENT).send();
   }
 
-  static async patchNote(req, res) {
+  static async put(req, res) {
     const { content } = req.body;
     if (content) {
       req.note.content = content;

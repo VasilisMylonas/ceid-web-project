@@ -27,7 +27,7 @@ router.delete(
   "/:id",
   validate(noteValidators.delete),
   model(Note, "note"),
-  owner,
+  owner("professorId"),
   NoteController.delete
 );
 

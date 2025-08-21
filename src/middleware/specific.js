@@ -18,18 +18,6 @@ export async function manageUser(req, res, next) {
   next();
 }
 
-export async function manageTopic(req, res, next) {
-  const topic = await Topic.findByPk(req.params.id);
-  if (!topic) {
-    return res.status(StatusCodes.NOT_FOUND).send();
-  }
-  if (topic.professorId != req.user.id) {
-    return res.status(StatusCodes.FORBIDDEN).send();
-  }
-  req.topic = topic;
-  next();
-}
-
 export function manageThesis(...roles) {
   return async (req, res, next) => {
     const thesis = await Thesis.findByPk(req.params.id);

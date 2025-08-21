@@ -1,6 +1,7 @@
 import { StatusCodes } from "http-status-codes";
 import jwt from "jsonwebtoken";
-import { User } from "../models/index.js";
+import { User, CommitteeMember } from "../models/index.js";
+import { ThesisRole } from "../constants.js";
 
 export async function requireAuth(req, res, next) {
   const authHeader = req.headers["authorization"]; // The header is "Authorization: Bearer <token>"
@@ -49,22 +50,35 @@ export function requireOwner() {
   };
 }
 
-// TODO
-export function requireThesis(...roles) {
+export function requireThesisRole(...roles) {
   return async (req, res, next) => {
     const thesis = await req.model.getThesis();
 
-    const isStudent = thesis.studentId === req.user.id;
+    if (!thesis) {
+      return res.status(StatusCodes.NOT_FOUND).send();
+    }
 
-    // const isSupervisor = await thesis.hasSupervisor(req.user.id);
+    const isStudent = thesis.studentId == req.user.id;
+    const isSupervisor = await CommitteeMember.findOne({
+      where: {
+        thesisId: thesis.id,
+        professorId: req.user.id,
+        role: ThesisRole.SUPERVISOR,
+        endDate: null,
+      },
+    });
 
-    // if (!isStudent && !isSupervisor) {
-    // return res.status(StatusCodes.FORBIDDEN).send();
-    // }
+    if (
+      !(roles.includes(ThesisRole.STUDENT) && isStudent) &&
+      !(roles.includes(ThesisRole.SUPERVISOR) && isSupervisor) &&
+      roles.length != 0
+    ) {
+      return res.status(StatusCodes.FORBIDDEN).send();
+    }
 
-    // req.isStudent = isStudent;
-    // req.isSupervisor = isSupervisor;
-
+    req.isStudent = !!isStudent;
+    req.isSupervisor = !!isSupervisor;
+    req.thesis = thesis;
     next();
   };
 }

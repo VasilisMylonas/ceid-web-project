@@ -1,5 +1,8 @@
 import express from "express";
-import { requireAuth, requireThesis } from "../middleware/authentication.js";
+import {
+  requireAuth,
+  requireThesisRole,
+} from "../middleware/authentication.js";
 import { validate } from "../config/validation.js";
 import resourceValidators from "../validators/resource.validators.js";
 import ResourceController from "../controllers/resource.controller.js";
@@ -14,7 +17,7 @@ router.get(
   "/:id",
   validate(resourceValidators.get),
   model(Resource, "resource"),
-  requireThesis(
+  requireThesisRole(
     ThesisRole.STUDENT,
     ThesisRole.SUPERVISOR,
     ThesisRole.COMMITTEE_MEMBER
@@ -25,14 +28,14 @@ router.put(
   "/:id",
   validate(resourceValidators.put),
   model(Resource, "resource"),
-  requireThesis(ThesisRole.STUDENT, ThesisRole.SUPERVISOR),
+  requireThesisRole(ThesisRole.STUDENT, ThesisRole.SUPERVISOR),
   ResourceController.put
 );
 router.delete(
   "/:id",
   validate(resourceValidators.delete),
   model(Resource, "resource"),
-  requireThesis(ThesisRole.STUDENT, ThesisRole.SUPERVISOR),
+  requireThesisRole(ThesisRole.STUDENT, ThesisRole.SUPERVISOR),
   ResourceController.delete
 );
 

@@ -1,5 +1,8 @@
 import express from "express";
-import { requireAuth, requireThesis } from "../middleware/authentication.js";
+import {
+  requireAuth,
+  requireThesisRole,
+} from "../middleware/authentication.js";
 import { validate } from "../config/validation.js";
 import presentationValidator from "../validators/presentation.validators.js";
 import PresentationController from "../controllers/presentation.controller.js";
@@ -14,7 +17,7 @@ router.get(
   "/:id",
   validate(presentationValidator.get),
   model(Presentation, "presentation"),
-  requireThesis(
+  requireThesisRole(
     ThesisRole.STUDENT,
     ThesisRole.SUPERVISOR,
     ThesisRole.COMMITTEE_MEMBER
@@ -25,14 +28,14 @@ router.put(
   "/:id",
   validate(presentationValidator.put),
   model(Presentation, "presentation"),
-  requireThesis(ThesisRole.STUDENT, ThesisRole.SUPERVISOR),
+  requireThesisRole(ThesisRole.STUDENT, ThesisRole.SUPERVISOR),
   PresentationController.put
 );
 router.delete(
   "/:id",
   validate(presentationValidator.delete),
   model(Presentation, "presentation"),
-  requireThesis(ThesisRole.STUDENT, ThesisRole.SUPERVISOR),
+  requireThesisRole(ThesisRole.STUDENT, ThesisRole.SUPERVISOR),
   PresentationController.delete
 );
 

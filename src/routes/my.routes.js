@@ -30,4 +30,7 @@ router.get(
   MyController.getInvitations
 );
 
+// router.get("/thesis")
+// router.get("/profile")
+
 export default router;

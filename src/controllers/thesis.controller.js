@@ -71,7 +71,11 @@ export default class ThesisController {
     res.status(StatusCodes.OK).json(req.thesis);
   }
 
-  static async delete(req, res) {
+  static async deleteAsStudent(req, res) {
+    // TODO
+  }
+
+  static async deleteAsSupervisor(req, res) {
     if (!(await req.thesis.canBeDeleted())) {
       return res.status(StatusCodes.BAD_REQUEST).json({
         error: "Thesis cannot be deleted at this stage.",
@@ -86,7 +90,16 @@ export default class ThesisController {
     res.status(StatusCodes.NO_CONTENT).send();
   }
 
-  static async putDocument(req, res) {
+  static async delete(req, res) {
+    if (req.isSupervisor) {
+      return await ThesisController.deleteAsSupervisor(req, res);
+    }
+
+    // student
+    return await ThesisController.deleteAsStudent(req, res);
+  }
+
+  static async putDraft(req, res) {
     if (!req.file) {
       return res.status(StatusCodes.BAD_REQUEST).send();
     }
@@ -98,11 +111,23 @@ export default class ThesisController {
     res.status(StatusCodes.CREATED).send();
   }
 
-  static async getDocument(req, res) {
+  static async getDraft(req, res) {
     if (!req.thesis.documentFile) {
       return res.status(StatusCodes.NOT_FOUND).send();
     }
     res.sendFile(getFilePath(req.thesis.documentFile));
+  }
+
+  static async getCommittee(req, res) {
+    // TODO
+  }
+
+  static async getAnnouncement(req, res) {
+    // TODO
+  }
+
+  static async getDocument(req, res) {
+    // TODO
   }
 
   static async getTimeline(req, res) {
@@ -132,6 +157,14 @@ export default class ThesisController {
   }
 
   static async getInvitations(req, res) {
+    // TODO
+  }
+
+  static async getGrades(req, res) {
+    // TODO
+  }
+
+  static async postGrades(req, res) {
     // TODO
   }
 

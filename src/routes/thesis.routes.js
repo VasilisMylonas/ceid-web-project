@@ -31,6 +31,8 @@ router.get(
   model(Thesis, "thesis"),
   ThesisController.get
 );
+
+// TODO: weird
 router.patch(
   "/:id",
   validate(thesisValidator.patch),
@@ -38,6 +40,10 @@ router.patch(
   requireThesisRole(ThesisRole.STUDENT, ThesisRole.SUPERVISOR),
   ThesisController.patch
 );
+// TODO: change status
+// router.patch(
+// "/:id/status",
+// )
 router.delete(
   "/:id",
   validate(thesisValidator.delete),
@@ -45,68 +51,111 @@ router.delete(
   requireThesisRole(ThesisRole.STUDENT, ThesisRole.SUPERVISOR),
   ThesisController.delete
 );
-router.put(
+router.get(
   "/:id/document",
-  validate(thesisValidator.putDocument),
+  validate(thesisValidator.getDraft),
+  model(Thesis, "thesis"),
+  ThesisController.getDocument
+);
+router.put(
+  "/:id/draft",
+  validate(thesisValidator.putDraft),
   multer({ storage: fileStorage }).single("file"),
   model(Thesis, "thesis"),
   requireThesisRole(ThesisRole.STUDENT),
-  ThesisController.putDocument
+  ThesisController.putDraft
 );
-
-// TODO
 router.get(
-  "/:id/document",
-  validate(thesisValidator.getDocument),
+  "/:id/draft",
+  validate(thesisValidator.getDraft),
   model(Thesis, "thesis"),
-  ThesisController.getDocument
+  requireThesisRole(ThesisRole.STUDENT, ThesisRole.SUPERVISOR),
+  ThesisController.getDraft
 );
 router.get(
   "/:id/timeline",
   validate(thesisValidator.getTimeline),
   model(Thesis, "thesis"),
+  requireThesisRole(ThesisRole.STUDENT, ThesisRole.SUPERVISOR),
   ThesisController.getTimeline
+);
+router.get(
+  "/:id/announcement",
+  validate(thesisValidator.getAnnouncement),
+  model(Thesis, "thesis"),
+  requireThesisRole(ThesisRole.SUPERVISOR),
+  ThesisController.getAnnouncement
+);
+router.get(
+  "/:id/committee",
+  validate(thesisValidator.getCommittee),
+  model(Thesis, "thesis"),
+  ThesisController.getCommittee
 );
 
 router.get(
-  ":id/notes",
+  "/:id/grades",
+  validate(thesisValidator.getGrades),
+  model(Thesis, "thesis"),
+  ThesisController.getGrades
+);
+router.get(
+  "/:id/notes",
+  validate(thesisValidator.getNotes),
   model(Thesis, "thesis"),
   requireThesisRole(ThesisRole.SUPERVISOR),
   ThesisController.getNotes
 );
 router.get(
-  ":id/resources",
+  "/:id/resources",
+  validate(thesisValidator.getResources),
   model(Thesis, "thesis"),
   ThesisController.getResources
 );
 router.get(
-  ":id/presentations",
+  "/:id/presentations",
+  validate(thesisValidator.getPresentations),
   model(Thesis, "thesis"),
   ThesisController.getPresentations
 );
-// TODO
-// router.get(":id/invitations", ThesisController.getInvitations);
+router.get(
+  ":id/invitations",
+  validate(thesisValidator.getInvitations),
+  model(Thesis, "thesis"),
+  ThesisController.getInvitations
+);
 
 router.post(
-  ":id/notes",
+  "/:id/grades",
+  validate(thesisValidator.postGrades),
+  model(Thesis, "thesis"),
+  requireThesisRole(ThesisRole.COMMITTEE_MEMBER, ThesisRole.SUPERVISOR),
+  ThesisController.postGrades
+);
+router.post(
+  "/:id/notes",
+  validate(thesisValidator.postNotes),
   model(Thesis, "thesis"),
   requireThesisRole(ThesisRole.SUPERVISOR),
   ThesisController.postNotes
 );
 router.post(
-  ":id/resources",
+  "/:id/resources",
+  validate(thesisValidator.postResources),
   model(Thesis, "thesis"),
   requireThesisRole(ThesisRole.STUDENT),
   ThesisController.postResources
 );
 router.post(
-  ":id/presentations",
+  "/:id/presentations",
+  validate(thesisValidator.postPresentations),
   model(Thesis, "thesis"),
   requireThesisRole(ThesisRole.STUDENT),
   ThesisController.postPresentations
 );
 router.post(
-  ":id/invitations",
+  "/:id/invitations",
+  validate(thesisValidator.postInvitations),
   model(Thesis, "thesis"),
   requireThesisRole(ThesisRole.STUDENT),
   ThesisController.postInvitations

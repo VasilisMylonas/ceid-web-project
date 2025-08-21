@@ -56,7 +56,14 @@ export default {
       })
       .unknown(false),
   },
-  putDocument: {
+  putDraft: {
+    params: validator
+      .object({
+        id: validator.number().integer().min(1).required(),
+      })
+      .unknown(false),
+  },
+  getDraft: {
     params: validator
       .object({
         id: validator.number().integer().min(1).required(),
@@ -76,5 +83,41 @@ export default {
         id: validator.number().integer().min(1).required(),
       })
       .unknown(false),
+  },
+  getAnnouncement: {
+    // TODO
+  },
+  getCommittee: {
+    // TODO
+  },
+  getGrades: {
+    // TODO
+  },
+  postGrades: {
+    // TODO
+  },
+  postPresentations: {
+    // TODO
+  },
+  getPresentations: {
+    // TODO
+  },
+  getNotes: {
+    // TODO
+  },
+  postNotes: {
+    // TODO
+  },
+  getResources: {
+    // TODO
+  },
+  postResources: {
+    // TODO
+  },
+  getInvitations: {
+    // TODO
+  },
+  postInvitations: {
+    // TODO
   },
 };

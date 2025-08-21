@@ -1,5 +1,5 @@
 import express from "express";
-import { authenticate } from "../middleware/authentication.js";
+import { requireAuth } from "../middleware/authentication.js";
 import { manageInvitation } from "../middleware/specific.js";
 import { validate } from "../config/validation.js";
 import {
@@ -17,7 +17,7 @@ import {
 } from "../controllers/invitation.controller.js";
 
 const router = express.Router();
-router.use(authenticate);
+router.use(requireAuth);
 
 router.get(
   "/:id",

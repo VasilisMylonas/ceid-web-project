@@ -1,6 +1,6 @@
 import express from "express";
 import { validate } from "../config/validation.js";
-import { authenticate } from "../middleware/authentication.js";
+import { requireAuth } from "../middleware/authentication.js";
 import {
   getUserValidator,
   queryUsersValidator,
@@ -16,7 +16,7 @@ import {
 import { manageUser } from "../middleware/specific.js";
 
 const router = express.Router();
-router.use(authenticate);
+router.use(requireAuth);
 
 router.get("/", validate(queryUsersValidator), queryUsers);
 router.get("/:id", validate(getUserValidator), manageUser, getUser);

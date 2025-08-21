@@ -2,7 +2,7 @@ import { StatusCodes } from "http-status-codes";
 import jwt from "jsonwebtoken";
 import { User } from "../models/index.js";
 
-export async function authenticate(req, res, next) {
+export async function requireAuth(req, res, next) {
   const authHeader = req.headers["authorization"]; // The header is "Authorization: Bearer <token>"
   const token = authHeader && authHeader.split(" ")[1];
   console.log("Token received:", token);
@@ -29,19 +29,19 @@ export async function authenticate(req, res, next) {
   next();
 }
 
-export function role(role) {
+export function requireRole(...roles) {
   return async (req, res, next) => {
-    if (req.user.role !== role) {
-      console.log(`Role required: ${role}`);
+    if (!roles.includes(req.user.role)) {
       return res.status(StatusCodes.FORBIDDEN).send();
     }
     next();
   };
 }
 
-export function owner(ownerField) {
+export function requireOwner() {
   return async (req, res, next) => {
-    if (req.model[ownerField] !== req.user.id) {
+    const owner = await req.model.getUser();
+    if (owner.id !== req.user.id) {
       return res.status(StatusCodes.FORBIDDEN).send();
     }
 
@@ -49,11 +49,13 @@ export function owner(ownerField) {
   };
 }
 
-export function thesis(...roles) {
+// TODO
+export function requireThesis(...roles) {
   return async (req, res, next) => {
-    const thesis = await req.model.thesis;
+    const thesis = await req.model.getThesis();
 
     const isStudent = thesis.studentId === req.user.id;
+
     // const isSupervisor = await thesis.hasSupervisor(req.user.id);
 
     // if (!isStudent && !isSupervisor) {

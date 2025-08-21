@@ -3,20 +3,24 @@ import multer from "multer";
 import TopicController from "../controllers/topic.controller.js";
 import topicValidators from "../validators/topic.validators.js";
 import { validate } from "../config/validation.js";
-import { owner, authenticate, role } from "../middleware/authentication.js";
+import {
+  requireOwner,
+  requireAuth,
+  requireRole,
+} from "../middleware/authentication.js";
 import { fileStorage } from "../config/file-storage.js";
 import { Topic } from "../models/index.js";
 import { model } from "../middleware/model.js";
 import { UserRole } from "../constants.js";
 
 const router = express.Router();
-router.use(authenticate);
+router.use(requireAuth);
 
 router.get("/", validate(topicValidators.query), TopicController.query);
 router.post(
   "/",
   validate(topicValidators.post),
-  role(UserRole.PROFESSOR),
+  requireRole(UserRole.PROFESSOR),
   TopicController.post
 );
 
@@ -30,14 +34,14 @@ router.put(
   "/:id",
   validate(topicValidators.put),
   model(Topic, "topic"),
-  owner("professorId"),
+  requireOwner(),
   TopicController.put
 );
 router.delete(
   "/:id",
   validate(topicValidators.delete),
   model(Topic, "topic"),
-  owner("professorId"),
+  requireOwner(),
   TopicController.delete
 );
 router.get(
@@ -51,7 +55,7 @@ router.put(
   validate(topicValidators.putDescription),
   multer({ storage: fileStorage }).single("file"),
   model(Topic, "topic"),
-  owner("professorId"),
+  requireOwner(),
   TopicController.putDescription
 );
 

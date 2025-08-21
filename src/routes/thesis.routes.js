@@ -17,7 +17,7 @@ import {
   postThesisResources,
   postThesisPresentations,
 } from "../controllers/thesis.controller.js";
-import { authenticate, role } from "../middleware/authentication.js";
+import { requireAuth, requireRole } from "../middleware/authentication.js";
 import { validate } from "../config/validation.js";
 import {
   queryThesesValidator,
@@ -35,13 +35,13 @@ import { manageThesis } from "../middleware/specific.js";
 import { UserRole, ThesisRole } from "../constants.js";
 
 const router = express.Router();
-router.use(authenticate);
+router.use(requireAuth);
 
 router.get("/", validate(queryThesesValidator), queryTheses);
 router.post(
   "/",
   validate(postThesisValidator),
-  role(UserRole.PROFESSOR),
+  requireRole(UserRole.PROFESSOR),
   postThesis
 );
 router.get("/:id", validate(getThesisValidator), manageThesis(), getThesis);

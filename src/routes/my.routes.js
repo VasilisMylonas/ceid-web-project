@@ -1,12 +1,12 @@
 import express from "express";
-import { authenticate, role } from "../middleware/authentication.js";
+import { requireAuth, requireRole } from "../middleware/authentication.js";
 import { UserRole } from "../constants.js";
 import MyController from "../controllers/my.controller.js";
 
 const router = express.Router();
-router.use(authenticate);
+router.use(requireAuth);
 
-router.get("/topics", role(UserRole.PROFESSOR), MyController.getTopics);
+router.get("/topics", requireRole(UserRole.PROFESSOR), MyController.getTopics);
 // router.get("/theses", requireRole(UserRole.PROFESSOR), getProfessorTheses);
 // router.get(
 //   "/invitations",

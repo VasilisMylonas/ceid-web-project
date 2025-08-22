@@ -43,4 +43,44 @@ export default {
       })
       .unknown(false),
   },
+  post: {
+    body: validator
+      .object({
+        username: validator.string().min(1).required(),
+        name: validator.string().min(1).required(),
+        email: validator.string().email().required(),
+        password: validator.string().min(1).required(),
+        role: validator
+          .string()
+          .valid(...Object.values(UserRole))
+          .required(),
+        phone: validator.string().phoneNumber().required(),
+        am: validator.number().integer().min(1).when("role", {
+          is: UserRole.STUDENT,
+          then: validator.required(),
+          otherwise: validator.forbidden(),
+        }),
+      })
+      .unknown(false),
+  },
+  putAll: {
+    body: validator.array().items(
+      validator.object({
+        username: validator.string().min(1).required(),
+        name: validator.string().min(1).required(),
+        email: validator.string().email().required(),
+        password: validator.string().min(1).required(),
+        role: validator
+          .string()
+          .valid(...Object.values(UserRole))
+          .required(),
+        phone: validator.string().phoneNumber().required(),
+        am: validator.number().integer().min(1).when("role", {
+          is: UserRole.STUDENT,
+          then: validator.required(),
+          otherwise: validator.forbidden(),
+        }),
+      })
+    ),
+  },
 };

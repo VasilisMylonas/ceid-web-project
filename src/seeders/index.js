@@ -7,7 +7,6 @@ import seedSecretaries from "./secretaries.js";
 import seedTopics from "./topics.js";
 import seedTheses from "./theses.js";
 
-// Main seeding logic
 await db.sequelize.sync({ force: true });
 await Promise.all([seedProfessors(10), seedStudents(50), seedSecretaries(4)]);
 

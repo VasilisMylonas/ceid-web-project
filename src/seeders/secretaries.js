@@ -2,8 +2,7 @@ import { faker } from "@faker-js/faker";
 import db from "../models/index.js";
 import { UserRole } from "../constants.js";
 
-export async function up() {
-  const count = 4;
+export default async function seedSecretaries(count) {
   const secretaries = [];
 
   for (let i = 0; i < count; i++) {

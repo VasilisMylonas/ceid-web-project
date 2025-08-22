@@ -1,8 +1,7 @@
 import app from "./app.js";
 import db from "./models/index.js";
 
-import * as x from "./seeders/index.js";
-console.log("Data seeded successfully");
+import "./seeders/index.js";
 
 try {
   await db.sequelize.authenticate();

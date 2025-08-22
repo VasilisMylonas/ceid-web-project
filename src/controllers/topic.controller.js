@@ -3,6 +3,7 @@ import { Topic, Thesis } from "../models/index.js";
 import { deleteIfExists, getFilePath } from "../config/file-storage.js";
 import { Op, Sequelize } from "sequelize";
 import { ThesisStatus } from "../constants.js";
+import { omit } from "../util.js";
 
 export default class TopicController {
   static async query(req, res) {
@@ -98,8 +99,7 @@ export default class TopicController {
   }
 
   static async get(req, res) {
-    const { descriptionFile, ...topic } = req.topic.toJSON();
-    res.status(StatusCodes.OK).json(topic);
+    res.status(StatusCodes.OK).json(omit(req.topic.get(), "descriptionFile"));
   }
 
   static async getDescription(req, res) {
@@ -112,6 +112,10 @@ export default class TopicController {
 
   static async putDescription(req, res) {
     if (!req.file) {
+      return res.status(StatusCodes.BAD_REQUEST).send();
+    }
+
+    if (req.topic.isAssigned()) {
       return res.status(StatusCodes.BAD_REQUEST).send();
     }
 

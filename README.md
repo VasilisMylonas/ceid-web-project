@@ -53,31 +53,6 @@ ceid-web-project/
 |-- tests/
 ```
 
-## Targets
-
-### Professors
-
-#### View, Create, Modify Topics
-
-- via /topics
-- should topics be immutable after assignment? TODO
-
-
-- Assign Topic to Student and possible cancel TODO via POST /theses
-- Get theses with filters (supervisor, student, committee member, status) OK via /theses professorId= status= role=
-- View thesis details OK via /theses/:id
-- View theses state changes (timeline) TODO via /theses/:id/timeline
-- View final grade and grade document
-- Export CSV/JSON
-- View invitations and answer
-- TODO: more
-
-### Students
-
-- View topic and thesis status
-- Manage profile
--
-
 ## API Structure
 
 POST /auth/login

@@ -107,7 +107,7 @@ export default class TopicController {
       return res.status(StatusCodes.NOT_FOUND).send();
     }
 
-    res.sendFile(getFilePath(req.topic.descriptionFile));
+    res.status(StatusCodes.OK).sendFile(getFilePath(req.topic.descriptionFile));
   }
 
   static async putDescription(req, res) {
@@ -119,7 +119,7 @@ export default class TopicController {
     req.topic.descriptionFile = req.file.filename;
     await req.topic.save();
 
-    res.status(StatusCodes.CREATED).send();
+    res.status(StatusCodes.NO_CONTENT).send();
   }
 
   static async put(req, res) {

@@ -108,7 +108,7 @@ export default class ThesisController {
     req.thesis.documentFile = req.file.filename;
     await req.thesis.save();
 
-    res.status(StatusCodes.CREATED).send();
+    res.status(StatusCodes.NO_CONTENT).send();
   }
 
   static async getDraft(req, res) {

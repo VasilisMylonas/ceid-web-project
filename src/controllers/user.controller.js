@@ -1,6 +1,8 @@
 import { StatusCodes } from "http-status-codes";
 import db, { Professor, User, Student, Secretary } from "../models/index.js";
 import { UserRole } from "../constants.js";
+import bcrypt from "bcrypt";
+import { omit } from "../util.js";
 
 export default class UserController {
   static async query(req, res) {
@@ -17,34 +19,32 @@ export default class UserController {
     res.status(StatusCodes.OK).json(users);
   }
 
+  static async _add(user, transaction) {
+    user.password = bcrypt.hash(user.password, 10);
+
+    const created = await User.create(user, { transaction });
+
+    switch (user.role) {
+      case UserRole.PROFESSOR:
+        await Professor.create({ id: created.id }, { transaction });
+        break;
+      case UserRole.SECRETARY:
+        await Secretary.create({ id: created.id }, { transaction });
+        break;
+      case UserRole.STUDENT:
+        await Student.create({ id: created.id, am: user.am }, { transaction });
+        break;
+    }
+
+    return created;
+  }
+
   static async putAll(req, res) {
     const transaction = await db.sequelize.transaction();
 
     try {
       for (const user of req.body) {
-        switch (user.role) {
-          case UserRole.PROFESSOR:
-            {
-              const obj = await User.create(user, { transaction });
-              await Professor.create({ id: obj.id }, { transaction });
-            }
-            break;
-          case UserRole.SECRETARY:
-            {
-              const obj = await User.create(user, { transaction });
-              await Secretary.create({ id: obj.id }, { transaction });
-            }
-            break;
-          case UserRole.STUDENT:
-            {
-              const obj = await User.create(user, { transaction });
-              await Student.create(
-                { id: obj.id, am: user.am },
-                { transaction }
-              );
-            }
-            break;
-        }
+        this._add(user, transaction);
       }
       transaction.commit();
       res.status(StatusCodes.NO_CONTENT).send();
@@ -55,19 +55,41 @@ export default class UserController {
   }
 
   static async post(req, res) {
-    // TODO
+    const transaction = await db.sequelize.transaction();
+
+    try {
+      const created = this._add(req.body, transaction);
+      transaction.commit();
+      res.status(StatusCodes.CREATED).json(omit(created.get(), "password"));
+    } catch (error) {
+      transaction.rollback();
+      throw error;
+    }
   }
 
   static async get(req, res) {
-    const user = await User.findByPk(req.user.id, {
-      attributes: { exclude: ["password"] },
-      include: [{ model: Professor }, { model: Student }, { model: Secretary }],
-    });
-    res.status(StatusCodes.OK).json(user);
+    let extra = {};
+
+    switch (req.user.role) {
+      case UserRole.SECRETARY:
+        extra = await Secretary.findByPk(req.user.id);
+        break;
+      case UserRole.PROFESSOR:
+        extra = await Professor.findByPk(req.user.id);
+        break;
+      case UserRole.STUDENT:
+        extra = await Student.findByPk(req.user.id);
+        break;
+    }
+
+    const data = omit(
+      { ...req.user.get(), ...(extra ? extra.get() : {}) },
+      "password"
+    );
+    res.status(StatusCodes.OK).json(data);
   }
 
   static async patch(req, res) {
-    console.log(req.body);
     await req.user.update(req.body);
     res.status(StatusCodes.OK).json(req.user);
   }

@@ -23,6 +23,7 @@ router.put(
   UserController.putAll
 );
 
+// TODO: conflict with model(User) and requireAuth user
 router.get(
   "/:id",
   validate(userValidator.get),

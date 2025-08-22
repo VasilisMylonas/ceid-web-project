@@ -11,6 +11,7 @@ export default (sequelize) => {
       Thesis.hasMany(models.Resource, { foreignKey: "thesisId" });
       Thesis.hasMany(models.Grade, { foreignKey: "thesisId" });
       Thesis.hasMany(models.CommitteeMember, { foreignKey: "thesisId" });
+      Thesis.hasMany(models.Invitation, { foreignKey: "thesisId" });
     }
 
     static async createFrom(params) {

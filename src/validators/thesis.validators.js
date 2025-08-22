@@ -174,9 +174,22 @@ export default {
     }),
   },
   getInvitations: {
-    // TODO
+    params: validator
+      .object({
+        id: validator.number().integer().min(1).required(),
+      })
+      .unknown(false),
   },
   postInvitation: {
-    // TODO
+    params: validator
+      .object({
+        id: validator.number().integer().min(1).required(),
+      })
+      .unknown(false),
+    body: validator
+      .object({
+        professorId: validator.number().integer().min(1).required(),
+      })
+      .unknown(false),
   },
 };

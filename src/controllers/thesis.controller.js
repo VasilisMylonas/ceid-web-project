@@ -7,6 +7,7 @@ import {
   Presentation,
   Topic,
   Student,
+  Invitation,
 } from "../models/index.js";
 import { getFilePath, deleteIfExists } from "../config/file-storage.js";
 
@@ -157,11 +158,33 @@ export default class ThesisController {
   }
 
   static async getInvitations(req, res) {
-    // TODO
+    const invitations = await req.thesis.getInvitations({
+      order: [["id", "ASC"]],
+    });
+    res.status(StatusCodes.OK).json(invitations);
   }
 
   static async postInvitation(req, res) {
-    // TODO
+    const invitations = await Invitation.findAll({
+      where: {
+        thesisId: req.thesis.id,
+        professorId: req.body.professorId,
+        studentId: req.body.studentId,
+      },
+    });
+
+    if (invitations.length > 0) {
+      return res.status(StatusCodes.CONFLICT).json({
+        message: "An identical invitation already exists.",
+      });
+    }
+
+    const invitation = await Invitation.create({
+      thesisId: req.thesis.id,
+      professorId: req.body.professorId,
+      studentId: req.body.studentId,
+    });
+    res.status(StatusCodes.CREATED).json(invitation);
   }
 
   static async getGrades(req, res) {

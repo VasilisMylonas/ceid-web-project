@@ -107,17 +107,3 @@ GET /theses/:id/presentations
 POST /theses/:id/presentations
 GET /theses/:id/invitations
 POST /theses/:id/invitations
-
-TODO
-
-GET /professors
-GET /students
-GET /secretaries
-
-GET /professors/:id/topics
-POST /professors/:id/topics
-GET /professors/:id/theses
-
-## TODO
-
-Remove magic strings. Use constants or enums for status values, roles, etc.

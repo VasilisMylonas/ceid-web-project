@@ -130,31 +130,31 @@ router.post(
 );
 router.post(
   "/:id/notes",
-  validate(thesisValidator.postNotes),
+  validate(thesisValidator.postNote),
   model(Thesis, "thesis"),
   requireThesisRole(ThesisRole.SUPERVISOR),
-  ThesisController.postNotes
+  ThesisController.postNote
 );
 router.post(
   "/:id/resources",
-  validate(thesisValidator.postResources),
+  validate(thesisValidator.postResource),
   model(Thesis, "thesis"),
   requireThesisRole(ThesisRole.STUDENT),
-  ThesisController.postResources
+  ThesisController.postResource
 );
 router.post(
   "/:id/presentations",
-  validate(thesisValidator.postPresentations),
+  validate(thesisValidator.postPresentation),
   model(Thesis, "thesis"),
   requireThesisRole(ThesisRole.STUDENT),
-  ThesisController.postPresentations
+  ThesisController.postPresentation
 );
 router.post(
   "/:id/invitations",
-  validate(thesisValidator.postInvitations),
+  validate(thesisValidator.postInvitation),
   model(Thesis, "thesis"),
   requireThesisRole(ThesisRole.STUDENT),
-  ThesisController.postInvitations
+  ThesisController.postInvitation
 );
 
 export default router;

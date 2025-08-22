@@ -135,28 +135,32 @@ export default class ThesisController {
   }
 
   static async getNotes(req, res) {
-    const notes = await Note.findAll({
-      where: { thesisId: req.thesis.id },
+    const notes = await req.thesis.getNotes({
+      where: { professorId: req.user.id },
       order: [["id", "ASC"]],
     });
     res.status(StatusCodes.OK).json(notes);
   }
 
   static async getResources(req, res) {
-    const resources = await Resource.findAll({
+    const resources = await req.thesis.getResources({
       order: [["id", "ASC"]],
     });
     res.status(StatusCodes.OK).json(resources);
   }
 
   static async getPresentations(req, res) {
-    const presentations = await Presentation.findAll({
+    const presentations = await req.thesis.getPresentations({
       order: [["id", "ASC"]],
     });
     res.status(StatusCodes.OK).json(presentations);
   }
 
   static async getInvitations(req, res) {
+    // TODO
+  }
+
+  static async postInvitation(req, res) {
     // TODO
   }
 
@@ -168,19 +172,38 @@ export default class ThesisController {
     // TODO
   }
 
-  static async postNotes(req, res) {
-    // TODO
+  static async postNote(req, res) {
+    const note = await Note.create({
+      thesisId: req.thesis.id,
+      professorId: req.user.id,
+      content: req.body.content,
+    });
+    res.status(StatusCodes.CREATED).json(note);
   }
 
-  static async postResources(req, res) {
-    // TODO
+  static async postResource(req, res) {
+    if (!req.file) {
+      return res.status(StatusCodes.BAD_REQUEST).send();
+    }
+
+    const resource = await Resource.create({
+      thesisId: req.thesis.id,
+      link: req.body.link,
+      type: req.body.type,
+    });
+
+    res.status(StatusCodes.CREATED).json(resource);
   }
 
-  static async postPresentations(req, res) {
-    // TODO
-  }
+  static async postPresentation(req, res) {
+    const presentation = await Presentation.create({
+      thesisId: req.thesis.id,
+      date: req.body.date,
+      kind: req.body.kind,
+      hall: req.body.hall,
+      link: req.body.link,
+    });
 
-  static async postInvitations(req, res) {
-    // TODO
+    res.status(StatusCodes.CREATED).json(presentation);
   }
 }

@@ -1,5 +1,10 @@
 import { validator } from "../config/validation.js";
-import { ThesisRole, ThesisStatus } from "../constants.js";
+import {
+  ThesisRole,
+  ThesisStatus,
+  ResourceKind,
+  PresentationKind,
+} from "../constants.js";
 
 export default {
   query: {
@@ -96,28 +101,82 @@ export default {
   postGrades: {
     // TODO
   },
-  postPresentations: {
-    // TODO
-  },
   getPresentations: {
-    // TODO
+    params: validator
+      .object({
+        id: validator.number().integer().min(1).required(),
+      })
+      .unknown(false),
+  },
+  postPresentation: {
+    params: validator
+      .object({
+        id: validator.number().integer().min(1).required(),
+      })
+      .unknown(false),
+    body: validator
+      .object({
+        date: validator.date().min("now").required(),
+        kind: validator
+          .string()
+          .valid(...Object.values(PresentationKind))
+          .required(),
+      })
+      .unknown(false)
+      .when("kind", {
+        is: PresentationKind.ONLINE,
+        then: validator.object({
+          link: validator.string().uri().required(),
+        }),
+        otherwise: validator.object({
+          hall: validator.string().min(1).required(),
+        }),
+      }),
   },
   getNotes: {
-    // TODO
+    params: validator
+      .object({
+        id: validator.number().integer().min(1).required(),
+      })
+      .unknown(false),
   },
-  postNotes: {
-    // TODO
+  postNote: {
+    params: validator
+      .object({
+        id: validator.number().integer().min(1).required(),
+      })
+      .unknown(false),
+    body: validator
+      .object({
+        content: validator.string().min(1).required(),
+      })
+      .unknown(false),
   },
   getResources: {
-    // TODO
+    params: validator
+      .object({
+        id: validator.number().integer().min(1).required(),
+      })
+      .unknown(false),
   },
-  postResources: {
-    // TODO
+  postResource: {
+    params: validator
+      .object({
+        id: validator.number().integer().min(1).required(),
+      })
+      .unknown(false),
+    body: validator.object({
+      link: validator.string().uri().required(),
+      kind: validator
+        .string()
+        .valid(...Object.values(ResourceKind))
+        .required(),
+    }),
   },
   getInvitations: {
     // TODO
   },
-  postInvitations: {
+  postInvitation: {
     // TODO
   },
 };

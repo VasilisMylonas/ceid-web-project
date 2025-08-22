@@ -24,9 +24,9 @@ app.use("/api/v1/notes", noteRoutes);
 app.use("/api/v1/resources", resourceRoutes);
 app.use("/api/v1/presentations", presentationRoutes);
 app.use("/api/v1/theses", thesisRoutes);
+app.use("/api/v1/users", userRoutes);
 
 // app.use("/api/v1/my", myRoutes);
-// app.use("/api/v1/users", userRoutes);
 // app.use("/api/v1/invitations", invitationRoutes);
 // app.use("/api/v1/students", studentRoutes);
 app.use(errorHandler); // Use error handler middleware, after all routes

@@ -28,7 +28,7 @@ app.use("/api/v1/users", userRoutes);
 
 // app.use("/api/v1/my", myRoutes);
 // app.use("/api/v1/invitations", invitationRoutes);
-// app.use("/api/v1/students", studentRoutes);
+app.use("/api/v1/students", studentRoutes);
 app.use(errorHandler); // Use error handler middleware, after all routes
 
 export default app;

@@ -6,7 +6,6 @@ export default (sequelize) => {
     static associate(models) {
       Student.belongsTo(models.User, { foreignKey: "id" });
       Student.hasMany(models.Thesis, { foreignKey: "studentId" });
-      Student.hasMany(models.Invitation, { foreignKey: "studentId" });
     }
 
     async isAssigned() {

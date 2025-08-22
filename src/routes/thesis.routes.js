@@ -115,7 +115,7 @@ router.get(
   ThesisController.getPresentations
 );
 router.get(
-  ":id/invitations",
+  "/:id/invitations",
   validate(thesisValidator.getInvitations),
   model(Thesis, "thesis"),
   requireThesisRole(ThesisRole.SUPERVISOR, ThesisRole.STUDENT),

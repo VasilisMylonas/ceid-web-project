@@ -169,7 +169,6 @@ export default class ThesisController {
       where: {
         thesisId: req.thesis.id,
         professorId: req.body.professorId,
-        studentId: req.body.studentId,
       },
     });
 
@@ -182,7 +181,6 @@ export default class ThesisController {
     const invitation = await Invitation.create({
       thesisId: req.thesis.id,
       professorId: req.body.professorId,
-      studentId: req.body.studentId,
     });
     res.status(StatusCodes.CREATED).json(invitation);
   }

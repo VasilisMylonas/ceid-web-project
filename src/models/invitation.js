@@ -4,7 +4,6 @@ import { InvitationStatus } from "../constants.js";
 export default (sequelize) => {
   class Invitation extends Model {
     static associate(models) {
-      Invitation.belongsTo(models.Student, { foreignKey: "studentId" });
       Invitation.belongsTo(models.Professor, { foreignKey: "professorId" });
       Invitation.belongsTo(models.Thesis, { foreignKey: "thesisId" });
     }
@@ -25,10 +24,6 @@ export default (sequelize) => {
       responseDate: {
         type: DataTypes.DATE,
         allowNull: true,
-      },
-      studentId: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
       },
       professorId: {
         type: DataTypes.INTEGER,

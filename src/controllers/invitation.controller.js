@@ -1,6 +1,6 @@
 import { StatusCodes } from "http-status-codes";
-import { InvitationResponse } from "src/constants";
-import { CommitteeMember } from "src/models";
+import { InvitationResponse } from "../constants.js";
+import { CommitteeMember } from "../models/index.js";
 
 export default class InvitationController {
   static async patchResponse(req, res) {

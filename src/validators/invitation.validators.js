@@ -1,4 +1,4 @@
-import { InvitationResponse } from "src/constants.js";
+import { InvitationResponse } from "../constants.js";
 import { validator } from "../config/validation.js";
 
 export default {

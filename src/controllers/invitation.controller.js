@@ -1,5 +1,5 @@
 import { StatusCodes } from "http-status-codes";
-import { InvitationResponse } from "../constants.js";
+import { InvitationResponse, ThesisStatus } from "../constants.js";
 import { CommitteeMember } from "../models/index.js";
 
 export default class InvitationController {
@@ -25,6 +25,20 @@ export default class InvitationController {
         professorId: req.user.id,
         thesisId: req.invitation.thesisId,
       });
+    }
+
+    // If there are at least 3 committee members and the thesis is still under assignment, set it to pending (awaiting approval from secretary)
+    const thesis = await req.invitation.getThesis();
+    const committeeMembers = await thesis.getCommitteeMembers({
+      where: { professorId: req.user.id },
+    });
+
+    if (
+      committeeMembers.length >= 3 &&
+      thesis.status === ThesisStatus.UNDER_ASSIGNMENT
+    ) {
+      thesis.status = ThesisStatus.PENDING;
+      await thesis.save();
     }
 
     res.status(StatusCodes.OK).json(req.invitation);

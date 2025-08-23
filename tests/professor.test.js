@@ -235,6 +235,10 @@ describe("View theses", () => {
   });
 });
 
+describe("View thesis list", () => {
+  // TODO
+});
+
 describe("Student interaction", () => {
   let professorAId;
   let professorBId;

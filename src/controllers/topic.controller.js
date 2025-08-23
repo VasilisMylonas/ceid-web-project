@@ -32,7 +32,7 @@ export default class TopicController {
           [Op.in]: [
             ThesisStatus.UNDER_ASSIGNMENT,
             ThesisStatus.PENDING,
-            ThesisStatus.APPROVED,
+            ThesisStatus.ACTIVE,
             ThesisStatus.COMPLETED,
             ThesisStatus.UNDER_EXAMINATION,
           ],

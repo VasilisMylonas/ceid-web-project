@@ -1,7 +1,7 @@
 export const ThesisStatus = Object.freeze({
   UNDER_ASSIGNMENT: "under_assignment",
   PENDING: "pending",
-  APPROVED: "approved",
+  ACTIVE: "active",
   REJECTED: "rejected",
   COMPLETED: "completed",
   CANCELLED: "cancelled",

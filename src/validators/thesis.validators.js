@@ -33,7 +33,10 @@ export default {
         id: validator.number().integer().min(1).required(),
       })
       .unknown(false),
-    // TODO: assembly year and number
+    body: validator.object({
+      assemblyYear: validator.number().integer().min(2000).required(),
+      assemblyNumber: validator.number().integer().min(1).required(),
+    }),
   },
   patchStatus: {
     params: validator

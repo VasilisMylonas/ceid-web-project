@@ -27,6 +27,14 @@ router.delete(
   ThesisController.delete
 );
 
+router.get(
+  "/:id/invitations",
+  validate(thesisValidator.getInvitations),
+  model(Thesis, "thesis"),
+  requireThesisRole(ThesisRole.SUPERVISOR, ThesisRole.STUDENT),
+  ThesisController.getInvitations
+);
+
 // TODO
 router.get("/", validate(thesisValidator.query), ThesisController.query);
 
@@ -40,6 +48,27 @@ router.get(
     ThesisRole.COMMITTEE_MEMBER
   ),
   ThesisController.get
+);
+router.post(
+  "/:id/notes",
+  validate(thesisValidator.postNote),
+  model(Thesis, "thesis"),
+  requireThesisRole(ThesisRole.COMMITTEE_MEMBER, ThesisRole.SUPERVISOR),
+  ThesisController.postNote
+);
+router.get(
+  "/:id/notes",
+  validate(thesisValidator.getNotes),
+  model(Thesis, "thesis"),
+  requireThesisRole(ThesisRole.SUPERVISOR),
+  ThesisController.getNotes
+);
+router.post(
+  "/:id/cancel",
+  validate(thesisValidator.cancel),
+  model(Thesis, "thesis"),
+  requireRole(UserRole.PROFESSOR),
+  ThesisController.cancel
 );
 
 // TODO: weird
@@ -56,13 +85,6 @@ router.patch(
   model(Thesis, "thesis"),
   requireRole(UserRole.PROFESSOR),
   ThesisController.patchStatus
-);
-router.patch(
-  "/:id/cancel",
-  validate(thesisValidator.cancel),
-  model(Thesis, "thesis"),
-  requireRole(UserRole.PROFESSOR),
-  ThesisController.cancel
 );
 router.get(
   "/:id/document",
@@ -112,13 +134,7 @@ router.get(
   model(Thesis, "thesis"),
   ThesisController.getGrades
 );
-router.get(
-  "/:id/notes",
-  validate(thesisValidator.getNotes),
-  model(Thesis, "thesis"),
-  requireThesisRole(ThesisRole.SUPERVISOR),
-  ThesisController.getNotes
-);
+
 router.get(
   "/:id/resources",
   validate(thesisValidator.getResources),
@@ -131,13 +147,6 @@ router.get(
   model(Thesis, "thesis"),
   ThesisController.getPresentations
 );
-router.get(
-  "/:id/invitations",
-  validate(thesisValidator.getInvitations),
-  model(Thesis, "thesis"),
-  requireThesisRole(ThesisRole.SUPERVISOR, ThesisRole.STUDENT),
-  ThesisController.getInvitations
-);
 
 router.post(
   "/:id/grades",
@@ -146,13 +155,7 @@ router.post(
   requireThesisRole(ThesisRole.COMMITTEE_MEMBER, ThesisRole.SUPERVISOR),
   ThesisController.postGrades
 );
-router.post(
-  "/:id/notes",
-  validate(thesisValidator.postNote),
-  model(Thesis, "thesis"),
-  requireThesisRole(ThesisRole.COMMITTEE_MEMBER, ThesisRole.SUPERVISOR),
-  ThesisController.postNote
-);
+
 router.post(
   "/:id/resources",
   validate(thesisValidator.postResource),

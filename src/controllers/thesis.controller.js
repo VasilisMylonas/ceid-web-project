@@ -194,6 +194,11 @@ export default class ThesisController {
   }
 
   static async postNote(req, res) {
+    if (req.body.content.length > 300) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: "Note exceeds 300 characters." });
+    }
     const note = await Note.create({
       thesisId: req.thesis.id,
       professorId: req.user.id,

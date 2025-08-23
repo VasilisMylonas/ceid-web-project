@@ -11,10 +11,12 @@ export default class NoteController {
   }
 
   static async put(req, res) {
-    const { content } = req.body;
-    if (content) {
-      req.note.content = content;
+    if (req.body.content.length > 300) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: "Note exceeds 300 characters." });
     }
+    req.note.content = req.body.content;
     await req.note.save();
     res.status(StatusCodes.OK).json(req.note);
   }

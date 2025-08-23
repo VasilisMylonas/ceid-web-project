@@ -16,20 +16,24 @@ import { UserRole } from "../constants.js";
 const router = express.Router();
 router.use(requireAuth);
 
+// TODO
 router.get("/", validate(topicValidators.query), TopicController.query);
+
+// TODO
 router.post(
   "/",
   validate(topicValidators.post),
   requireRole(UserRole.PROFESSOR),
   TopicController.post
 );
-
+// TODO
 router.get(
   "/:id",
   validate(topicValidators.get),
   model(Topic, "topic"),
   TopicController.get
 );
+
 router.put(
   "/:id",
   validate(topicValidators.put),

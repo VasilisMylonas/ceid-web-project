@@ -55,6 +55,16 @@ ceid-web-project/
 
 ## API Structure
 
+- POST /theses
+   Create a new thesis (assign topic to a student)
+- GET /theses/:id (TODO)
+   Get thesis details
+- PATCH /invitations/:id/response
+   Accept or decline an invitation
+- DELETE /invitations/:id
+   Delete an invitation (invitation was sent by mistake)
+
+
 POST /auth/login
 POST /auth/logout
 POST /auth/refresh

@@ -19,6 +19,17 @@ router.post(
   requireRole(UserRole.PROFESSOR),
   ThesisController.post
 );
+router.delete(
+  "/:id",
+  validate(thesisValidator.delete),
+  model(Thesis, "thesis"),
+  requireThesisRole(ThesisRole.STUDENT, ThesisRole.SUPERVISOR),
+  ThesisController.delete
+);
+
+// TODO
+router.get("/", validate(thesisValidator.query), ThesisController.query);
+
 router.get(
   "/:id",
   validate(thesisValidator.get),
@@ -30,15 +41,6 @@ router.get(
   ),
   ThesisController.get
 );
-router.delete(
-  "/:id",
-  validate(thesisValidator.delete),
-  model(Thesis, "thesis"),
-  requireThesisRole(ThesisRole.STUDENT, ThesisRole.SUPERVISOR),
-  ThesisController.delete
-);
-
-router.get("/", validate(thesisValidator.query), ThesisController.query);
 
 // TODO: weird
 router.patch(

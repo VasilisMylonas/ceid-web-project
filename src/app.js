@@ -19,16 +19,16 @@ app.use(express.json()); // JSON middleware
 app.use(morgan("dev")); // Logging middleware
 app.use(expressJoiValidations({ throwErrors: true })); // Request validation
 app.use("/api/v1/auth", authRoutes);
-// app.use("/api/v1/topics", topicRoutes);
+app.use("/api/v1/topics", topicRoutes);
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/theses", thesisRoutes);
 app.use("/api/v1/invitations", invitationRoutes);
+app.use("/api/v1/my", myRoutes);
 
 // app.use("/api/v1/notes", noteRoutes);
 // app.use("/api/v1/resources", resourceRoutes);
-// app.use("/api/v1/presentations", presentationRoutes);
 
-// app.use("/api/v1/my", myRoutes);
+// app.use("/api/v1/presentations", presentationRoutes);
 // app.use("/api/v1/students", studentRoutes);
 app.use(errorHandler); // Use error handler middleware, after all routes
 

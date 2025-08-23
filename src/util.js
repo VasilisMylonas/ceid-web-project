@@ -5,3 +5,14 @@ export function omit(obj, ...props) {
   });
   return result;
 }
+
+// Hack because req.query is a getter
+export function patchQuery(req, query) {
+  return {
+    ...req,
+    query: {
+      ...req.query,
+      ...query,
+    },
+  };
+}

@@ -2,35 +2,29 @@ import express from "express";
 import { requireAuth, requireRole } from "../middleware/authentication.js";
 import { UserRole } from "../constants.js";
 import MyController from "../controllers/my.controller.js";
+import { validate } from "../config/validation.js";
+import myValidators from "../validators/my.validators.js";
 
 const router = express.Router();
 router.use(requireAuth);
 
-// TODO
-
-// status=assigned|unassigned
-router.get("/topics", requireRole(UserRole.PROFESSOR), MyController.getTopics);
-// status=? role=?
-router.get("/theses", requireRole(UserRole.PROFESSOR), MyController.getTheses);
-// format=csv|json|xml
 router.get(
-  "/theses/export",
+  "/topics",
+  validate(myValidators.getTopics),
   requireRole(UserRole.PROFESSOR),
-  MyController.exportTheses
+  MyController.getTopics
 );
 router.get(
-  "/theses/statistics",
+  "/theses",
+  validate(myValidators.getTheses),
   requireRole(UserRole.PROFESSOR),
-  MyController.getThesisStatistics
+  MyController.getTheses
 );
-
 router.get(
   "/invitations",
+  validate(myValidators.getInvitations),
   requireRole(UserRole.PROFESSOR),
   MyController.getInvitations
 );
-
-// router.get("/thesis")
-// router.get("/profile")
 
 export default router;

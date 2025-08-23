@@ -7,26 +7,6 @@ import {
 } from "../constants.js";
 
 export default {
-  query: {
-    query: validator
-      .object({
-        limit: validator.number().integer().min(0).optional(),
-        offset: validator.number().integer().min(0).optional(),
-        role: validator
-          .string()
-          .valid(ThesisRole.SUPERVISOR, ThesisRole.COMMITTEE_MEMBER)
-          .optional(),
-        studentId: validator.number().integer().min(1).optional(),
-        professorId: validator.number().integer().min(1).optional(),
-        topicId: validator.number().integer().min(1).optional(),
-        status: validator
-          .string()
-          .valid(...Object.values(ThesisStatus))
-          .optional(),
-      })
-      .unknown(false)
-      .with("role", "professorId"),
-  },
   cancel: {
     params: validator
       .object({
@@ -44,41 +24,12 @@ export default {
         id: validator.number().integer().min(1).required(),
       })
       .unknown(false),
-    body: validator
-      .object({
-        status: validator
-          .string()
-          .valid(...Object.values(ThesisStatus))
-          .required(),
-      })
-      .unknown(false),
-  },
-  get: {
-    params: validator
-      .object({
-        id: validator.number().integer().min(1).required(),
-      })
-      .unknown(false),
-  },
-  post: {
-    body: validator
-      .object({
-        topicId: validator.number().integer().min(1).required(),
-        studentId: validator.number().integer().min(1).required(),
-      })
-      .unknown(false),
-  },
-  patch: {
-    params: validator
-      .object({
-        id: validator.number().integer().min(1).required(),
-      })
-      .unknown(false),
-    body: validator
-      .object({
-        nemertesLink: validator.string().optional(),
-      })
-      .unknown(false),
+    body: validator.object({
+      status: validator
+        .string()
+        .valid(ThesisStatus.UNDER_EXAMINATION, ThesisStatus.COMPLETED)
+        .required(),
+    }),
   },
   delete: {
     params: validator
@@ -101,31 +52,81 @@ export default {
       })
       .unknown(false),
   },
-  getDocument: {
+  post: {
+    body: validator
+      .object({
+        topicId: validator.number().integer().min(1).required(),
+        studentId: validator.number().integer().min(1).required(),
+      })
+      .unknown(false),
+  },
+  getNotes: {
     params: validator
       .object({
         id: validator.number().integer().min(1).required(),
       })
       .unknown(false),
   },
-  getTimeline: {
+  postNote: {
+    params: validator
+      .object({
+        id: validator.number().integer().min(1).required(),
+      })
+      .unknown(false),
+    body: validator
+      .object({
+        content: validator.string().min(1).required(),
+      })
+      .unknown(false),
+  },
+  getInvitations: {
     params: validator
       .object({
         id: validator.number().integer().min(1).required(),
       })
       .unknown(false),
   },
-  getAnnouncement: {
-    // TODO
+  postInvitation: {
+    params: validator
+      .object({
+        id: validator.number().integer().min(1).required(),
+      })
+      .unknown(false),
+    body: validator
+      .object({
+        professorId: validator.number().integer().min(1).required(),
+      })
+      .unknown(false),
   },
-  getCommittee: {
-    // TODO
+
+  // TODO
+  get: {
+    params: validator
+      .object({
+        id: validator.number().integer().min(1).required(),
+      })
+      .unknown(false),
   },
-  getGrades: {
-    // TODO
-  },
-  postGrades: {
-    // TODO
+  // TODO
+  query: {
+    query: validator
+      .object({
+        limit: validator.number().integer().min(0).optional(),
+        offset: validator.number().integer().min(0).optional(),
+        role: validator
+          .string()
+          .valid(ThesisRole.SUPERVISOR, ThesisRole.COMMITTEE_MEMBER)
+          .optional(),
+        studentId: validator.number().integer().min(1).optional(),
+        professorId: validator.number().integer().min(1).optional(),
+        topicId: validator.number().integer().min(1).optional(),
+        status: validator
+          .string()
+          .valid(...Object.values(ThesisStatus))
+          .optional(),
+      })
+      .unknown(false)
+      .with("role", "professorId"),
   },
   getPresentations: {
     params: validator
@@ -159,25 +160,6 @@ export default {
         }),
       }),
   },
-  getNotes: {
-    params: validator
-      .object({
-        id: validator.number().integer().min(1).required(),
-      })
-      .unknown(false),
-  },
-  postNote: {
-    params: validator
-      .object({
-        id: validator.number().integer().min(1).required(),
-      })
-      .unknown(false),
-    body: validator
-      .object({
-        content: validator.string().min(1).required(),
-      })
-      .unknown(false),
-  },
   getResources: {
     params: validator
       .object({
@@ -198,24 +180,5 @@ export default {
         .valid(...Object.values(ResourceKind))
         .required(),
     }),
-  },
-  getInvitations: {
-    params: validator
-      .object({
-        id: validator.number().integer().min(1).required(),
-      })
-      .unknown(false),
-  },
-  postInvitation: {
-    params: validator
-      .object({
-        id: validator.number().integer().min(1).required(),
-      })
-      .unknown(false),
-    body: validator
-      .object({
-        professorId: validator.number().integer().min(1).required(),
-      })
-      .unknown(false),
   },
 };

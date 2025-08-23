@@ -11,6 +11,7 @@ import {
 } from "../models/index.js";
 import { getFilePath, deleteIfExists } from "../config/file-storage.js";
 import { ThesisStatus } from "../constants.js";
+import { SourceCode } from "eslint";
 
 export default class ThesisController {
   static async post(req, res) {
@@ -118,12 +119,6 @@ export default class ThesisController {
   static async cancel(req, res) {
     const thesis = req.thesis;
 
-    if (!thesis) {
-      return res
-        .status(StatusCodes.NOT_FOUND)
-        .json({ message: "Thesis not found." });
-    }
-
     if (thesis.status !== ThesisStatus.ACTIVE) {
       return res
         .status(StatusCodes.BAD_REQUEST)
@@ -145,11 +140,62 @@ export default class ThesisController {
 
     await thesis.save();
 
-    return res
-      .status(StatusCodes.OK)
-      .json({ message: "Thesis cancelled successfully." });
+    return res.status(StatusCodes.OK).send(req.thesis);
   }
 
+  static async patchStatus(req, res) {
+    if (req.body.status === ThesisStatus.UNDER_EXAMINATION) {
+      if (req.thesis.status !== ThesisStatus.ACTIVE) {
+        return res
+          .status(StatusCodes.BAD_REQUEST)
+          .json({ message: "Thesis is not active." });
+      }
+
+      req.thesis.status = ThesisStatus.UNDER_EXAMINATION;
+      await req.thesis.save();
+
+      return res.status(StatusCodes.OK).send(req.thesis);
+    }
+
+    if (req.body.status === ThesisStatus.COMPLETED) {
+      if (req.thesis.status !== ThesisStatus.UNDER_EXAMINATION) {
+        return res.status(StatusCodes.BAD_REQUEST).json({
+          message: "Thesis is not under examination.",
+        });
+      }
+
+      req.thesis.status = ThesisStatus.COMPLETED;
+      req.thesis.endDate = new Date();
+      await req.thesis.save();
+
+      return res.status(StatusCodes.OK).send(req.thesis);
+    }
+
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send();
+  }
+
+  static async getDraft(req, res) {
+    if (!req.thesis.documentFile) {
+      return res.status(StatusCodes.NOT_FOUND).send();
+    }
+    res.status(SourceCode.OK).sendFile(getFilePath(req.thesis.documentFile));
+  }
+
+  static async putDraft(req, res) {
+    if (!req.file) {
+      return res.status(StatusCodes.BAD_REQUEST).send();
+    }
+
+    // TODO: check if in correct state
+
+    deleteIfExists(req.thesis.documentFile);
+    req.thesis.documentFile = req.file.filename;
+    await req.thesis.save();
+
+    res.status(StatusCodes.NO_CONTENT).send();
+  }
+
+  // TODO
   static async query(req, res) {
     let query = {
       attributes: ["id", "status", "topicId", "studentId"],
@@ -180,55 +226,11 @@ export default class ThesisController {
     res.status(StatusCodes.OK).json(theses);
   }
 
+  // TODO
   static async get(req, res) {
-    // TODO
     const thesis = req.thesis.toJSON();
     delete thesis.documentFile;
     res.status(StatusCodes.OK).json(thesis);
-  }
-
-  static async patch(req, res) {
-    await req.thesis.update(req.body);
-    res.status(StatusCodes.OK).json(req.thesis);
-  }
-
-  static async putDraft(req, res) {
-    if (!req.file) {
-      return res.status(StatusCodes.BAD_REQUEST).send();
-    }
-
-    deleteIfExists(req.thesis.documentFile);
-    req.thesis.documentFile = req.file.filename;
-    await req.thesis.save();
-
-    res.status(StatusCodes.NO_CONTENT).send();
-  }
-
-  static async getDraft(req, res) {
-    if (!req.thesis.documentFile) {
-      return res.status(StatusCodes.NOT_FOUND).send();
-    }
-    res.sendFile(getFilePath(req.thesis.documentFile));
-  }
-
-  static async getCommittee(req, res) {
-    // TODO
-  }
-
-  static async getAnnouncement(req, res) {
-    // TODO
-  }
-
-  static async getDocument(req, res) {
-    // TODO
-  }
-
-  static async getTimeline(req, res) {
-    // TODO
-  }
-
-  static async patchStatus(req, res) {
-    // TODO
   }
 
   static async getResources(req, res) {
@@ -243,14 +245,6 @@ export default class ThesisController {
       order: [["id", "ASC"]],
     });
     res.status(StatusCodes.OK).json(presentations);
-  }
-
-  static async getGrades(req, res) {
-    // TODO
-  }
-
-  static async postGrades(req, res) {
-    // TODO
   }
 
   static async postResource(req, res) {

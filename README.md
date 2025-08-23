@@ -97,6 +97,10 @@ ceid-web-project/
    Get current professor thesis notes
 - POST /theses/:id/cancel
    Professor cancels the thesis
+- PATCH /theses/:id/status
+   Update thesis status
+- GET /theses/:id/draft
+   Download thesis draft
 
 GET /topics (TODO/NOT REQUIRED)
 GET /topics/:id (TODO/ NOT REQUIRED)
@@ -131,10 +135,7 @@ POST /invitations/:id/decline
 
 
 GET /theses
-POST /theses
 GET /theses/:id
-PATCH /theses/:id
-DELETE /theses/:id
 GET /theses/:id/document
 PUT /theses/:id/document
 GET /theses/:id/notes
@@ -142,5 +143,3 @@ GET /theses/:id/resources
 POST /theses/:id/resources
 GET /theses/:id/presentations
 POST /theses/:id/presentations
-
-POST /theses/:id/invitations

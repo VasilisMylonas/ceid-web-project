@@ -1,31 +1,27 @@
-import Joi from "joi";
-import { InvitationStatus } from "../constants.js";
+import { InvitationResponse } from "src/constants.js";
+import { validator } from "../config/validation.js";
 
-export const getInvitationValidator = {
-  params: Joi.object({
-    id: Joi.number().integer().min(1).required(),
-  }).unknown(false),
-};
-
-export const patchInvitationValidator = {
-  params: Joi.object({
-    id: Joi.number().integer().min(1).required(),
-  }).unknown(false),
-  body: Joi.object({
-    status: Joi.string()
-      .valid(...Object.values(InvitationStatus))
-      .optional(),
-  }).unknown(false),
-};
-
-export const acceptInvitationValidator = {
-  params: Joi.object({
-    id: Joi.number().integer().min(1).required(),
-  }).unknown(false),
-};
-
-export const declineInvitationValidator = {
-  params: Joi.object({
-    id: Joi.number().integer().min(1).required(),
-  }).unknown(false),
+export default {
+  patchResponse: {
+    params: validator
+      .object({
+        id: validator.number().integer().min(1).required(),
+      })
+      .unknown(false),
+    body: validator
+      .object({
+        response: validator
+          .string()
+          .valid(InvitationResponse.ACCEPTED, InvitationResponse.DECLINED)
+          .required(),
+      })
+      .unknown(false),
+  },
+  delete: {
+    params: validator
+      .object({
+        id: validator.number().integer().min(1).required(),
+      })
+      .unknown(false),
+  },
 };

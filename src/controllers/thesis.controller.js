@@ -43,6 +43,7 @@ export default class ThesisController {
   }
 
   static async get(req, res) {
+    // TODO
     const thesis = req.thesis.toJSON();
     delete thesis.documentFile;
     res.status(StatusCodes.OK).json(thesis);
@@ -52,8 +53,16 @@ export default class ThesisController {
     const topic = await Topic.findByPk(req.body.topicId);
     const student = await Student.findByPk(req.body.studentId);
 
-    if (!topic || !student) {
-      return res.status(StatusCodes.NOT_FOUND).send();
+    if (!topic) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .send({ message: "No such topic." });
+    }
+
+    if (!student) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .send({ message: "No such student." });
     }
 
     try {
@@ -63,7 +72,7 @@ export default class ThesisController {
       });
       res.status(StatusCodes.CREATED).json(thesis);
     } catch (error) {
-      res.status(StatusCodes.BAD_REQUEST).json({ error: error.message });
+      res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
     }
   }
 
@@ -72,14 +81,17 @@ export default class ThesisController {
     res.status(StatusCodes.OK).json(req.thesis);
   }
 
-  static async deleteAsStudent(req, res) {
-    // TODO
-  }
+  static async delete(req, res) {
+    if (!req.isSupervisor) {
+      // TODO
+      return res.status(StatusCodes.FORBIDDEN).json({
+        message: "Only the supervisor can delete the thesis.",
+      });
+    }
 
-  static async deleteAsSupervisor(req, res) {
     if (!(await req.thesis.canBeDeleted())) {
       return res.status(StatusCodes.BAD_REQUEST).json({
-        error: "Thesis cannot be deleted at this stage.",
+        message: "Thesis cannot be deleted at this stage.",
       });
     }
 
@@ -88,16 +100,7 @@ export default class ThesisController {
     });
 
     await req.thesis.destroy();
-    res.status(StatusCodes.NO_CONTENT).send();
-  }
-
-  static async delete(req, res) {
-    if (req.isSupervisor) {
-      return await ThesisController.deleteAsSupervisor(req, res);
-    }
-
-    // student
-    return await ThesisController.deleteAsStudent(req, res);
+    return res.status(StatusCodes.NO_CONTENT).send();
   }
 
   static async putDraft(req, res) {
@@ -132,6 +135,14 @@ export default class ThesisController {
   }
 
   static async getTimeline(req, res) {
+    // TODO
+  }
+
+  static async patchStatus(req, res) {
+    // TODO
+  }
+
+  static async cancel(req, res) {
     // TODO
   }
 

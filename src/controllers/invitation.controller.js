@@ -1,19 +1,49 @@
-export async function getInvitation(req, res) {
-  // TODO: fetch invitation by ID from DB
-}
+import { StatusCodes } from "http-status-codes";
+import { InvitationResponse } from "src/constants";
+import { CommitteeMember } from "src/models";
 
-export async function patchInvitation(req, res) {
-  // TODO: update invitation in DB
-}
+export default class InvitationController {
+  static async patchResponse(req, res) {
+    if (req.invitation.professorId !== req.user.id) {
+      return res.status(StatusCodes.FORBIDDEN).json({
+        message: "You are not the receiver of this invitation.",
+      });
+    }
 
-export async function acceptInvitation(req, res) {
-  // TODO: accept invitation (update status in DB)
-}
+    if (req.invitation.response !== InvitationResponse.PENDING) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: "Invitation already responded to." });
+    }
 
-export async function declineInvitation(req, res) {
-  // TODO: decline invitation (update status in DB)
-}
+    req.invitation.response = req.body.response;
+    req.invitation.responseDate = new Date();
+    await req.invitation.save();
 
-export async function deleteInvitation(req, res) {
-  // TODO: delete invitation from DB
+    if (req.body.response === InvitationResponse.ACCEPTED) {
+      CommitteeMember.create({
+        professorId: req.user.id,
+        thesisId: req.invitation.thesisId,
+      });
+    }
+
+    res.status(StatusCodes.OK).json(req.invitation);
+  }
+
+  static async delete(req, res) {
+    if (req.invitation.getThesis().getStudent().id !== req.user.id) {
+      return res.status(StatusCodes.FORBIDDEN).json({
+        message: "You are not the sender of this invitation.",
+      });
+    }
+
+    if (req.invitation.response !== InvitationResponse.PENDING) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: "Invitation already responded to." });
+    }
+
+    await req.invitation.destroy();
+    res.status(StatusCodes.NO_CONTENT).send();
+  }
 }

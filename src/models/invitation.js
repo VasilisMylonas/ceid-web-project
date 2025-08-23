@@ -1,5 +1,5 @@
 import { DataTypes, Model } from "sequelize";
-import { InvitationStatus } from "../constants.js";
+import { InvitationResponse } from "../constants.js";
 
 export default (sequelize) => {
   class Invitation extends Model {
@@ -17,9 +17,9 @@ export default (sequelize) => {
         autoIncrement: true,
       },
       response: {
-        type: DataTypes.ENUM(...Object.values(InvitationStatus)),
+        type: DataTypes.ENUM(...Object.values(InvitationResponse)),
         allowNull: false,
-        defaultValue: InvitationStatus.PENDING,
+        defaultValue: InvitationResponse.PENDING,
       },
       responseDate: {
         type: DataTypes.DATE,

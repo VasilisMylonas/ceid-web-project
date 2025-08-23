@@ -13,20 +13,32 @@ import { Thesis } from "../models/index.js";
 const router = express.Router();
 router.use(requireAuth);
 
-router.get("/", validate(thesisValidator.query), ThesisController.query);
 router.post(
   "/",
   validate(thesisValidator.post),
   requireRole(UserRole.PROFESSOR),
   ThesisController.post
 );
-
 router.get(
   "/:id",
   validate(thesisValidator.get),
   model(Thesis, "thesis"),
+  requireThesisRole(
+    ThesisRole.STUDENT,
+    ThesisRole.SUPERVISOR,
+    ThesisRole.COMMITTEE_MEMBER
+  ),
   ThesisController.get
 );
+router.delete(
+  "/:id",
+  validate(thesisValidator.delete),
+  model(Thesis, "thesis"),
+  requireThesisRole(ThesisRole.STUDENT, ThesisRole.SUPERVISOR),
+  ThesisController.delete
+);
+
+router.get("/", validate(thesisValidator.query), ThesisController.query);
 
 // TODO: weird
 router.patch(
@@ -36,16 +48,19 @@ router.patch(
   requireThesisRole(ThesisRole.STUDENT, ThesisRole.SUPERVISOR),
   ThesisController.patch
 );
-// TODO: change status
-// router.patch(
-// "/:id/status",
-// )
-router.delete(
-  "/:id",
-  validate(thesisValidator.delete),
+router.patch(
+  "/:id/status",
+  validate(thesisValidator.patchStatus),
   model(Thesis, "thesis"),
-  requireThesisRole(ThesisRole.STUDENT, ThesisRole.SUPERVISOR),
-  ThesisController.delete
+  requireRole(UserRole.PROFESSOR),
+  ThesisController.patchStatus
+);
+router.patch(
+  "/:id/cancel",
+  validate(thesisValidator.cancel),
+  model(Thesis, "thesis"),
+  requireRole(UserRole.PROFESSOR),
+  ThesisController.cancel
 );
 router.get(
   "/:id/document",
@@ -133,7 +148,7 @@ router.post(
   "/:id/notes",
   validate(thesisValidator.postNote),
   model(Thesis, "thesis"),
-  requireThesisRole(ThesisRole.SUPERVISOR),
+  requireThesisRole(ThesisRole.COMMITTEE_MEMBER, ThesisRole.SUPERVISOR),
   ThesisController.postNote
 );
 router.post(

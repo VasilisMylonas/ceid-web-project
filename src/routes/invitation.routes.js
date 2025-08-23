@@ -1,47 +1,25 @@
 import express from "express";
+import { validate } from "express-joi-validations";
 import { requireAuth } from "../middleware/authentication.js";
-import { validate } from "../config/validation.js";
-import {
-  getInvitationValidator,
-  patchInvitationValidator,
-  acceptInvitationValidator,
-  declineInvitationValidator,
-} from "../validators/invitation.validators.js";
-import {
-  getInvitation,
-  patchInvitation,
-  acceptInvitation,
-  declineInvitation,
-  deleteInvitation,
-} from "../controllers/invitation.controller.js";
+import invitationValidators from "../validators/invitation.validators.js";
+import InvitationController from "../controllers/invitation.controller.js";
+import { model } from "../middleware/model.js";
+import { Invitation } from "../models/index.js";
 
 const router = express.Router();
 router.use(requireAuth);
 
-// router.get(
-//   "/:id",
-//   validate(getInvitationValidator),
-//   manageInvitation,
-//   getInvitation
-// );
-// router.patch(
-//   "/:id",
-//   validate(patchInvitationValidator),
-//   manageInvitation,
-//   patchInvitation
-// );
-// router.delete("/:id", manageInvitation, deleteInvitation);
-// router.post(
-//   "/:id/accept",
-//   validate(acceptInvitationValidator),
-//   manageInvitation,
-//   acceptInvitation
-// );
-// router.post(
-//   "/:id/decline",
-//   validate(declineInvitationValidator),
-//   manageInvitation,
-//   declineInvitation
-// );
+router.patch(
+  "/:id/response",
+  validate(invitationValidators.patchResponse),
+  model(Invitation, "invitation"),
+  InvitationController.patchResponse
+);
+router.delete(
+  "/:id",
+  validate(invitationValidators.delete),
+  model(Invitation, "invitation"),
+  InvitationController.delete
+);
 
 export default router;

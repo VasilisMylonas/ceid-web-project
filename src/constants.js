@@ -20,7 +20,7 @@ export const PresentationKind = Object.freeze({
   ONLINE: "online",
 });
 
-export const InvitationStatus = Object.freeze({
+export const InvitationResponse = Object.freeze({
   PENDING: "pending",
   ACCEPTED: "accepted",
   DECLINED: "declined",

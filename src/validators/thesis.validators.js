@@ -27,6 +27,29 @@ export default {
       .unknown(false)
       .with("role", "professorId"),
   },
+  cancel: {
+    params: validator
+      .object({
+        id: validator.number().integer().min(1).required(),
+      })
+      .unknown(false),
+    // TODO: assembly year and number
+  },
+  patchStatus: {
+    params: validator
+      .object({
+        id: validator.number().integer().min(1).required(),
+      })
+      .unknown(false),
+    body: validator
+      .object({
+        status: validator
+          .string()
+          .valid(...Object.values(ThesisStatus))
+          .required(),
+      })
+      .unknown(false),
+  },
   get: {
     params: validator
       .object({

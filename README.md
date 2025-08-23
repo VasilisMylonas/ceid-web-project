@@ -130,15 +130,9 @@ DELETE /presentations/:id
 
 GET /invitations/:id
 PATCH /invitations/:id
-POST /invitations/:id/accept
-POST /invitations/:id/decline
-
 
 GET /theses
 GET /theses/:id
-GET /theses/:id/document
-PUT /theses/:id/document
-GET /theses/:id/notes
 GET /theses/:id/resources
 POST /theses/:id/resources
 GET /theses/:id/presentations

@@ -98,6 +98,9 @@ export default class ThesisController {
     CommitteeMember.destroy({
       where: { thesisId: req.thesis.id },
     });
+    Invitation.destroy({
+      where: { thesisId: req.thesis.id },
+    });
 
     await req.thesis.destroy();
     return res.status(StatusCodes.NO_CONTENT).send();

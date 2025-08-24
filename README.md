@@ -1,4 +1,4 @@
-# CEID Web Project
+# Theseus - Thesis Management System
 
 ## Getting Started
 
@@ -6,7 +6,8 @@
 
 - node.js
 - npm
-- Docker or Podman
+- docker or podman
+- docker-compose or podman-compose
 
 ### Installation
 
@@ -14,18 +15,18 @@
 
 ```bash
    git clone https://github.com/yourusername/ceid-web-project.git
-   cd ceid-web-project
 ```
 
 2. Install dependencies:
 
 ```bash
+   cd ceid-web-project
    npm install
 ```
 
 ### Running the Application
 
-To start the development server:
+To start the server:
 
 ```bash
 docker compose up
@@ -38,6 +39,20 @@ podman compose up
 ```
 
 The application should now be running at `http://localhost:3000` (or another port if specified).
+
+See [compose.yaml](./compose.yaml) for environment configuration.
+
+Stop the server with: `docker compose down` or `podman compose down`.
+
+### Running Tests
+
+To run tests, use the following command:
+
+```bash
+npm test
+```
+
+Tests use an in-memory SQLite database. Environment can be configured in [.env.test](./.env.test).
 
 ## Project Structure
 
@@ -55,85 +70,4 @@ ceid-web-project/
 
 ## API Structure
 
-- POST /auth/login
-   Authenticate user and return JWT token
-- POST /auth/logout (TODO)
-   Invalidate the current JWT token NOT IMPLEMENTED - NOT REQUIRED BY THE ASSIGNMENT, just delete it client-side
-- POST /auth/refresh (TODO)
-   Refresh authentication token NOT IMPLEMENTED - NOT REQUIRED BY THE ASSIGNMENT
-- POST /topics (TODO)
-   Create a new topic
-- GET /topics/:id/description (TODO)
-   Get topic description
-- PUT /topics/:id/description (TODO)
-   Update topic description
-- GET /my/topics
-   Get topics created by the authenticated professor
-- PUT /topics/:id
-   Update topic details
-- POST /theses
-   Create a new thesis (assign topic to a student)
-- GET /students
-   Query students
-- GET /my/theses
-   Get theses in which the authenticated professor partakes
-- GET /theses/:id (TODO)
-   Get thesis details
-- GET /my/theses/export (TODO)
-   Get theses of the authenticated student
-- GET /my/invitations
-   Get pending invitations received by the authenticated professor
-- PATCH /invitations/:id/response
-   Accept or decline an invitation
-- DELETE /invitations/:id
-   Delete an invitation (invitation was sent by mistake)
-- GET /theses/:id/invitations
-   Get invitations related to a thesis
-- DELETE /theses/:id
-   Delete a thesis (unassign topic from student)
-- POST /theses/:id/notes
-   Add a note to a thesis
-- GET /theses/:id/notes
-   Get current professor thesis notes
-- POST /theses/:id/cancel
-   Professor cancels the thesis
-- PATCH /theses/:id/status
-   Update thesis status
-- GET /theses/:id/draft
-   Download thesis draft
-
-GET /topics (TODO/NOT REQUIRED)
-GET /topics/:id (TODO/ NOT REQUIRED)
-PUT /topics/:id
-DELETE /topics/:id
-POST /theses/:id/invitations
-
-
-GET /users
-POST /users
-
-GET /users/:id
-PATCH /users/:id
-DELETE /users/:id
-
-GET /notes/:id
-PATCH /notes/:id
-DELETE /notes/:id
-
-GET /resources/:id
-PATCH /resources/:id
-DELETE /resources/:id
-
-GET /presentations/:id
-PATCH /presentations/:id
-DELETE /presentations/:id
-
-GET /invitations/:id
-PATCH /invitations/:id
-
-GET /theses
-GET /theses/:id
-GET /theses/:id/resources
-POST /theses/:id/resources
-GET /theses/:id/presentations
-POST /theses/:id/presentations
+See Postman collection: [LINK](https://vasilismylonas-6137673.postman.co/workspace/Vasilis-Mylonas's-Workspace~bdb1c1e8-077b-415a-8162-22e0b9bd75ec/collection/44259023-63d0ae2b-e09c-49fe-a222-e0101989a819?action=share&creator=44259023&active-environment=44259023-a78b3f97-8acb-4fdb-8ac2-2b5e6e229a23)

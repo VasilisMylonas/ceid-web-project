@@ -43,7 +43,7 @@ export default class ThesisController {
 
   static async delete(req, res) {
     if (!req.isSupervisor) {
-      // TODO
+      // TODO: secretary can also delete
       return res.status(StatusCodes.FORBIDDEN).json({
         message: "Only the supervisor can delete the thesis.",
       });

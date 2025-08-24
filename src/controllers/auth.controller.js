@@ -28,7 +28,7 @@ export async function login(req, res) {
 }
 
 export async function logout(req, res) {
-  // TODO
+  // TODO WONTFIX
   res.status(StatusCodes.IM_A_TEAPOT).json({
     message:
       "Logout not implemented, please clear the token on the client side. See https://jwt.io/ for more information.",
@@ -36,7 +36,7 @@ export async function logout(req, res) {
 }
 
 export async function refresh(req, res) {
-  // TODO: Implement refresh token logic
+  // TODO WONTFIX: Implement refresh token logic
   res.status(StatusCodes.NOT_IMPLEMENTED).json({
     message: "Refresh token not implemented yet.",
   });

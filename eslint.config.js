@@ -20,7 +20,11 @@ export default defineConfig([
     languageOptions: { globals: globals.node },
   },
   {
-    files: ["tests/**/*"],
+    files: ["public/**/*.{js,mjs,cjs}"],
+    languageOptions: { globals: globals.browser },
+  },
+  {
+    files: ["tests/**/*.{js,mjs,cjs}"],
     languageOptions: { globals: globals.jest },
   },
   {

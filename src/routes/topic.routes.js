@@ -18,14 +18,6 @@ router.use(requireAuth);
 
 // TODO
 router.get("/", validate(topicValidators.query), TopicController.query);
-
-// TODO
-router.post(
-  "/",
-  validate(topicValidators.post),
-  requireRole(UserRole.PROFESSOR),
-  TopicController.post
-);
 // TODO
 router.get(
   "/:id",
@@ -34,6 +26,12 @@ router.get(
   TopicController.get
 );
 
+router.post(
+  "/",
+  validate(topicValidators.post),
+  requireRole(UserRole.PROFESSOR),
+  TopicController.post
+);
 router.put(
   "/:id",
   validate(topicValidators.put),

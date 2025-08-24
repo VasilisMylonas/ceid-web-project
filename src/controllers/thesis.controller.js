@@ -186,7 +186,11 @@ export default class ThesisController {
       return res.status(StatusCodes.BAD_REQUEST).send();
     }
 
-    // TODO: check if in correct state
+    if (!req.thesis.status === ThesisStatus.ACTIVE) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: "Thesis is not active." });
+    }
 
     deleteIfExists(req.thesis.documentFile);
     req.thesis.documentFile = req.file.filename;

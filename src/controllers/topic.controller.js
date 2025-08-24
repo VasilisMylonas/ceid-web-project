@@ -127,11 +127,13 @@ export default class TopicController {
   }
 
   static async put(req, res) {
+    const { title, summary } = req.body;
+
     if (req.topic.isAssigned()) {
       return res.status(StatusCodes.BAD_REQUEST).send();
     }
 
-    await req.topic.update(req.body);
+    await req.topic.update({ title, summary });
     res.status(StatusCodes.OK).json(req.topic);
   }
 

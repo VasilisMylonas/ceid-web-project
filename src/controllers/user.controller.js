@@ -6,16 +6,15 @@ import { omit } from "../util.js";
 
 export default class UserController {
   static async query(req, res) {
-    let query = {
-      attributes: ["id", "name", "username", "email", "role"],
+    const users = await User.findAll({
+      attributes: ["id", "name", "email", "role"],
       limit: req.query.limit,
       offset: req.query.offset,
       order: [["id", "ASC"]],
       where: {
         ...(req.query.role && { role: req.query.role }),
       },
-    };
-    const users = await User.findAll(query);
+    });
     res.status(StatusCodes.OK).json(users);
   }
 
@@ -70,35 +69,36 @@ export default class UserController {
     }
   }
 
+  // TODO
   static async get(req, res) {
     let extra = {};
 
-    switch (req.user.role) {
+    switch (req.targetUser.role) {
       case UserRole.SECRETARY:
-        extra = await req.user.getSecretary();
+        extra = await req.targetUser.getSecretary();
         break;
       case UserRole.PROFESSOR:
-        extra = await req.user.getProfessor();
+        extra = await req.targetUser.getProfessor();
         break;
       case UserRole.STUDENT:
-        extra = await req.user.getStudent();
+        extra = await req.targetUser.getStudent();
         break;
     }
 
     const data = omit(
-      { ...req.user.get(), ...(extra ? extra.get() : {}) },
+      { ...req.targetUser.get(), ...(extra ? extra.get() : {}) },
       "password"
     );
     res.status(StatusCodes.OK).json(data);
   }
 
   static async patch(req, res) {
-    await req.user.update(req.body);
-    res.status(StatusCodes.OK).json(req.user);
+    await req.targetUser.update(req.body);
+    res.status(StatusCodes.OK).json(req.targetUser);
   }
 
   static async delete(req, res) {
-    await req.user.destroy();
-    res.status(StatusCodes.NO_CONTENT).send();
+    // TODO WONTFIX: delete user dependencies (professor, secretary, student)
+    res.status(StatusCodes.NOT_IMPLEMENTED).send();
   }
 }

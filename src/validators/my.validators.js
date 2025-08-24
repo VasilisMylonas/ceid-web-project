@@ -35,4 +35,16 @@ export default {
       })
       .unknown(false),
   },
+  getProfile: {},
+  patchProfile: {
+    body: validator
+      .object({
+        phone: validator.string().phoneNumber().optional(),
+        email: validator.string().email().optional(),
+        name: validator.string().min(1).optional(),
+        password: validator.string().min(1).optional(),
+      })
+      .unknown(false),
+  },
+  deleteProfile: {},
 };

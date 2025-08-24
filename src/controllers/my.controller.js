@@ -2,6 +2,7 @@ import { patchQuery } from "../util.js";
 import TopicController from "./topic.controller.js";
 import ThesisController from "./thesis.controller.js";
 import InvitationController from "./invitation.controller.js";
+import UserController from "./user.controller.js";
 import { InvitationResponse } from "../constants.js";
 
 export default class MyController {
@@ -26,5 +27,23 @@ export default class MyController {
       response: InvitationResponse.PENDING,
     });
     await InvitationController.query(req, res);
+  }
+
+  static async getProfile(req, res) {
+    req.params.id = req.user.id;
+    req.targetUser = req.user;
+    await UserController.get(req, res);
+  }
+
+  static async patchProfile(req, res) {
+    req.params.id = req.user.id;
+    req.targetUser = req.user;
+    await UserController.patch(req, res);
+  }
+
+  static async deleteProfile(req, res) {
+    req.params.id = req.user.id;
+    req.targetUser = req.user;
+    await UserController.delete(req, res);
   }
 }

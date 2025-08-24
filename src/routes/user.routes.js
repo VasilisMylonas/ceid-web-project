@@ -3,13 +3,19 @@ import { validate } from "../config/validation.js";
 import { requireAuth, requireRole } from "../middleware/authentication.js";
 import userValidator from "../validators/user.validators.js";
 import UserController from "../controllers/user.controller.js";
-import { requireSameUser } from "../middleware/user.js";
 import { UserRole } from "../constants.js";
+import { User } from "../models/index.js";
+import { model } from "../middleware/model.js";
 
 const router = express.Router();
 router.use(requireAuth);
 
-router.get("/", validate(userValidator.query), UserController.query);
+router.get(
+  "/",
+  validate(userValidator.query),
+  requireRole(UserRole.SECRETARY),
+  UserController.query
+);
 router.post(
   "/",
   validate(userValidator.post),
@@ -23,23 +29,26 @@ router.put(
   UserController.putAll
 );
 
-// TODO: conflict with model(User) and requireAuth user
+// NOTE Conflict with model(User) and requireAuth user
 router.get(
   "/:id",
   validate(userValidator.get),
-  requireSameUser(),
+  model(User, "targetUser"),
+  requireRole(UserRole.SECRETARY),
   UserController.get
 );
 router.patch(
   "/:id",
   validate(userValidator.patch),
-  requireSameUser(),
+  model(User, "targetUser"),
+  requireRole(UserRole.SECRETARY),
   UserController.patch
 );
 router.delete(
   "/:id",
   validate(userValidator.delete),
-  requireSameUser(),
+  model(User, "targetUser"),
+  requireRole(UserRole.SECRETARY),
   UserController.delete
 );
 

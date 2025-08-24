@@ -128,57 +128,59 @@ export default {
       .unknown(false)
       .with("role", "professorId"),
   },
-  getPresentations: {
-    params: validator
-      .object({
-        id: validator.number().integer().min(1).required(),
-      })
-      .unknown(false),
-  },
-  postPresentation: {
-    params: validator
-      .object({
-        id: validator.number().integer().min(1).required(),
-      })
-      .unknown(false),
-    body: validator
-      .object({
-        date: validator.date().min("now").required(),
-        kind: validator
-          .string()
-          .valid(...Object.values(PresentationKind))
-          .required(),
-      })
-      .unknown(false)
-      .when("kind", {
-        is: PresentationKind.ONLINE,
-        then: validator.object({
-          link: validator.string().uri().required(),
-        }),
-        otherwise: validator.object({
-          hall: validator.string().min(1).required(),
-        }),
-      }),
-  },
-  getResources: {
-    params: validator
-      .object({
-        id: validator.number().integer().min(1).required(),
-      })
-      .unknown(false),
-  },
-  postResource: {
-    params: validator
-      .object({
-        id: validator.number().integer().min(1).required(),
-      })
-      .unknown(false),
-    body: validator.object({
-      link: validator.string().uri().required(),
-      kind: validator
-        .string()
-        .valid(...Object.values(ResourceKind))
-        .required(),
-    }),
-  },
+
+  // TODO
+  // getPresentations: {
+  //   params: validator
+  //     .object({
+  //       id: validator.number().integer().min(1).required(),
+  //     })
+  //     .unknown(false),
+  // },
+  // postPresentation: {
+  //   params: validator
+  //     .object({
+  //       id: validator.number().integer().min(1).required(),
+  //     })
+  //     .unknown(false),
+  //   body: validator
+  //     .object({
+  //       date: validator.date().min("now").required(),
+  //       kind: validator
+  //         .string()
+  //         .valid(...Object.values(PresentationKind))
+  //         .required(),
+  //     })
+  //     .unknown(false)
+  //     .when("kind", {
+  //       is: PresentationKind.ONLINE,
+  //       then: validator.object({
+  //         link: validator.string().uri().required(),
+  //       }),
+  //       otherwise: validator.object({
+  //         hall: validator.string().min(1).required(),
+  //       }),
+  //     }),
+  // },
+  // getResources: {
+  //   params: validator
+  //     .object({
+  //       id: validator.number().integer().min(1).required(),
+  //     })
+  //     .unknown(false),
+  // },
+  // postResource: {
+  //   params: validator
+  //     .object({
+  //       id: validator.number().integer().min(1).required(),
+  //     })
+  //     .unknown(false),
+  //   body: validator.object({
+  //     link: validator.string().uri().required(),
+  //     kind: validator
+  //       .string()
+  //       .valid(...Object.values(ResourceKind))
+  //       .required(),
+  //   }),
+  // },
 };

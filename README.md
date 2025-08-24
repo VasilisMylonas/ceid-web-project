@@ -75,3 +75,4 @@ See Postman collection: [LINK](https://vasilismylonas-6137673.postman.co/workspa
 ## TODOs
 
 Maybe autoIncrement should be autoIncrementIdentity for postgres (see models)
+Authentication middleware should attach role info/id

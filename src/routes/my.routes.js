@@ -26,5 +26,20 @@ router.get(
   requireRole(UserRole.PROFESSOR),
   MyController.getInvitations
 );
+router.get(
+  "/profile",
+  validate(myValidators.getProfile),
+  MyController.getProfile
+);
+router.patch(
+  "/profile",
+  validate(myValidators.patchProfile),
+  MyController.patchProfile
+);
+router.delete(
+  "/profile",
+  validate(myValidators.deleteProfile),
+  MyController.deleteProfile
+);
 
 export default router;

@@ -26,13 +26,16 @@ export default class UserController {
 
     switch (user.role) {
       case UserRole.PROFESSOR:
-        await Professor.create({ id: created.id }, { transaction });
+        await Professor.create({ userId: created.id }, { transaction });
         break;
       case UserRole.SECRETARY:
-        await Secretary.create({ id: created.id }, { transaction });
+        await Secretary.create({ userId: created.id }, { transaction });
         break;
       case UserRole.STUDENT:
-        await Student.create({ id: created.id, am: user.am }, { transaction });
+        await Student.create(
+          { userId: created.id, am: user.am },
+          { transaction }
+        );
         break;
     }
 
@@ -72,13 +75,13 @@ export default class UserController {
 
     switch (req.user.role) {
       case UserRole.SECRETARY:
-        extra = await Secretary.findByPk(req.user.id);
+        extra = await req.user.getSecretary();
         break;
       case UserRole.PROFESSOR:
-        extra = await Professor.findByPk(req.user.id);
+        extra = await req.user.getProfessor();
         break;
       case UserRole.STUDENT:
-        extra = await Student.findByPk(req.user.id);
+        extra = await req.user.getStudent();
         break;
     }
 

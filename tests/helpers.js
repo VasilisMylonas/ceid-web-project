@@ -35,7 +35,7 @@ export async function createStudentAgent() {
 }
 
 export async function createProfessor(namepass) {
-  const professor = await User.create({
+  const user = await User.create({
     username: namepass,
     password: await bcrypt.hash(namepass, 10),
     role: UserRole.PROFESSOR,
@@ -43,8 +43,8 @@ export async function createProfessor(namepass) {
     phone: "000",
   });
 
-  await Professor.create({
-    id: professor.id,
+  const professor = await Professor.create({
+    userId: user.id,
     division: "Computer Science",
   });
 
@@ -52,7 +52,7 @@ export async function createProfessor(namepass) {
 }
 
 export async function createStudent() {
-  const student = await User.create({
+  const user = await User.create({
     username: "student",
     name: "Makis",
     password: await bcrypt.hash("student", 10),
@@ -61,8 +61,8 @@ export async function createStudent() {
     phone: "000",
   });
 
-  await Student.create({
-    id: student.id,
+  const student = await Student.create({
+    userId: user.id,
     am: "110110",
   });
 

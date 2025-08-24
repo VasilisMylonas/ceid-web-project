@@ -4,9 +4,9 @@ import { DataTypes, Model } from "sequelize";
 export default (sequelize) => {
   class User extends Model {
     static associate(models) {
-      User.hasOne(models.Professor, { foreignKey: "id" });
-      User.hasOne(models.Student, { foreignKey: "id" });
-      User.hasOne(models.Secretary, { foreignKey: "id" });
+      User.hasOne(models.Professor, { foreignKey: "userId" });
+      User.hasOne(models.Student, { foreignKey: "userId" });
+      User.hasOne(models.Secretary, { foreignKey: "userId" });
     }
   }
 
@@ -25,17 +25,11 @@ export default (sequelize) => {
       phone: {
         type: DataTypes.STRING,
         allowNull: false,
-        validate: {
-          isNumeric: true,
-        },
       },
       email: {
         type: DataTypes.STRING,
         allowNull: false,
         unique: true,
-        validate: {
-          isEmail: true,
-        },
       },
       password: {
         type: DataTypes.STRING,
@@ -43,7 +37,7 @@ export default (sequelize) => {
       },
       name: {
         type: DataTypes.STRING,
-        allowNull: true,
+        allowNull: false,
       },
       role: {
         type: DataTypes.ENUM(...Object.values(UserRole)),

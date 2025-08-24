@@ -71,3 +71,7 @@ ceid-web-project/
 ## API Structure
 
 See Postman collection: [LINK](https://vasilismylonas-6137673.postman.co/workspace/Vasilis-Mylonas's-Workspace~bdb1c1e8-077b-415a-8162-22e0b9bd75ec/collection/44259023-63d0ae2b-e09c-49fe-a222-e0101989a819?action=share&creator=44259023&active-environment=44259023-a78b3f97-8acb-4fdb-8ac2-2b5e6e229a23)
+
+## TODOs
+
+Maybe autoIncrement should be autoIncrementIdentity for postgres (see models)

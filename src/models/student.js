@@ -4,7 +4,7 @@ import { ThesisStatus } from "../constants.js";
 export default (sequelize) => {
   class Student extends Model {
     static associate(models) {
-      Student.belongsTo(models.User, { foreignKey: "id" });
+      Student.belongsTo(models.User, { foreignKey: "userId" });
       Student.hasMany(models.Thesis, { foreignKey: "studentId" });
     }
 
@@ -31,9 +31,17 @@ export default (sequelize) => {
       id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
+        autoIncrement: true,
+      },
+      userId: {
+        type: DataTypes.INTEGER,
+        unique: true,
+        allowNull: false,
       },
       am: {
         type: DataTypes.STRING,
+        unique: true,
+        allowNull: false,
       },
     },
     {

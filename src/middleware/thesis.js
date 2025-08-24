@@ -7,15 +7,21 @@ export function requireThesisRole(...roles) {
     const thesis =
       req.thesis instanceof Thesis ? req.model : await req.model.getThesis();
 
-    const isStudent = thesis.studentId == req.user.id;
-    const isSupervisor = await CommitteeMember.findOne({
-      where: {
-        thesisId: thesis.id,
-        professorId: req.user.id,
-        role: ThesisRole.SUPERVISOR,
-        endDate: null,
-      },
-    });
+    const student = await thesis.getStudent();
+    const professor = await thesis.getProfessor();
+
+    const isStudent = student ? thesis.studentId == student.id : false;
+
+    const isSupervisor = professor
+      ? await CommitteeMember.findOne({
+          where: {
+            thesisId: thesis.id,
+            professorId: professor.id,
+            role: ThesisRole.SUPERVISOR,
+            endDate: null,
+          },
+        })
+      : false;
 
     if (
       !(roles.includes(ThesisRole.STUDENT) && isStudent) &&

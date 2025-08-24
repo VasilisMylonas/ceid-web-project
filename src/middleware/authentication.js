@@ -40,8 +40,10 @@ export function requireRole(...roles) {
 
 export function requireProfessorOwner() {
   return async (req, res, next) => {
-    const professor = await req.model.getProfessor();
-    if (professor.id !== req.user.id) {
+    const owner = await req.model.getProfessor();
+    const professor = await req.user.getProfessor();
+
+    if (!professor || professor.id !== owner.id) {
       return res.status(StatusCodes.FORBIDDEN).send();
     }
 

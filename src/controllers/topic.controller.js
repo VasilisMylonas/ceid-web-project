@@ -88,11 +88,12 @@ export default class TopicController {
 
   static async post(req, res) {
     const { title, summary } = req.body;
+    const professor = await req.user.getProfessor();
 
     const thesisTopic = await Topic.create({
       title,
       summary,
-      professorId: req.user.id,
+      professorId: professor.id,
     });
 
     res.status(StatusCodes.CREATED).json(thesisTopic);

@@ -67,8 +67,9 @@ export default class ThesisController {
   }
 
   static async getNotes(req, res) {
+    const professor = await req.user.getProfessor();
     const notes = await req.thesis.getNotes({
-      where: { professorId: req.user.id },
+      where: { professorId: professor.id },
       order: [["id", "ASC"]],
     });
     res.status(StatusCodes.OK).json(notes);
@@ -80,9 +81,11 @@ export default class ThesisController {
         .status(StatusCodes.BAD_REQUEST)
         .json({ message: "Note exceeds 300 characters." });
     }
+
+    const professor = await req.user.getProfessor();
     const note = await Note.create({
       thesisId: req.thesis.id,
-      professorId: req.user.id,
+      professorId: professor.id,
       content: req.body.content,
     });
     res.status(StatusCodes.CREATED).json(note);

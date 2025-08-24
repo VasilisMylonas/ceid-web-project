@@ -3,7 +3,7 @@ import { DataTypes, Model } from "sequelize";
 export default (sequelize) => {
   class Secretary extends Model {
     static associate(models) {
-      Secretary.belongsTo(models.User, { foreignKey: "id" });
+      Secretary.belongsTo(models.User, { foreignKey: "userId" });
     }
   }
 
@@ -12,6 +12,12 @@ export default (sequelize) => {
       id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
+        autoIncrement: true,
+      },
+      userId: {
+        type: DataTypes.INTEGER,
+        unique: true,
+        allowNull: false,
       },
     },
     {

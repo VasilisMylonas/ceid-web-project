@@ -8,18 +8,21 @@ export default class MyController {
   // Theses mainly forward to appropriate controllers with patched queries
 
   static async getTopics(req, res) {
-    req = patchQuery(req, { professorId: req.user.id });
+    const professor = await req.user.getProfessor();
+    req = patchQuery(req, { professorId: professor.id });
     await TopicController.query(req, res);
   }
 
   static async getTheses(req, res) {
-    req = patchQuery(req, { professorId: req.user.id });
+    const professor = await req.user.getProfessor();
+    req = patchQuery(req, { professorId: professor.id });
     await ThesisController.query(req, res);
   }
 
   static async getInvitations(req, res) {
+    const professor = await req.user.getProfessor();
     req = patchQuery(req, {
-      professorId: req.user.id,
+      professorId: professor.id,
       response: InvitationResponse.PENDING,
     });
     await InvitationController.query(req, res);

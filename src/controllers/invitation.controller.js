@@ -4,7 +4,9 @@ import { CommitteeMember, Invitation } from "../models/index.js";
 
 export default class InvitationController {
   static async patchResponse(req, res) {
-    if (req.invitation.professorId !== req.user.id) {
+    const professor = await req.invitation.getProfessor();
+
+    if (professor.userId !== req.user.id) {
       return res.status(StatusCodes.FORBIDDEN).json({
         message: "You are not the receiver of this invitation.",
       });
@@ -22,7 +24,7 @@ export default class InvitationController {
 
     if (req.body.response === InvitationResponse.ACCEPTED) {
       CommitteeMember.create({
-        professorId: req.user.id,
+        professorId: professor.id,
         thesisId: req.invitation.thesisId,
       });
     }
@@ -30,7 +32,7 @@ export default class InvitationController {
     // If there are at least 3 committee members and the thesis is still under assignment, set it to pending (awaiting approval from secretary)
     const thesis = await req.invitation.getThesis();
     const committeeMembers = await thesis.getCommitteeMembers({
-      where: { professorId: req.user.id },
+      where: { professorId: professor.id },
     });
 
     if (
@@ -53,7 +55,9 @@ export default class InvitationController {
   }
 
   static async delete(req, res) {
-    if (req.invitation.getThesis().getStudent().id !== req.user.id) {
+    const student = await req.invitation.getThesis().getStudent();
+
+    if (student.userId !== req.user.id) {
       return res.status(StatusCodes.FORBIDDEN).json({
         message: "You are not the sender of this invitation.",
       });

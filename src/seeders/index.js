@@ -21,7 +21,7 @@ const adminUser = await db.User.create({
 });
 
 await db.Professor.create({
-  id: adminUser.id,
+  userId: adminUser.id,
   division: "Hardware Engineering",
 });
 

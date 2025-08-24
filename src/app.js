@@ -26,6 +26,28 @@ app.use("/api/v1/invitations", invitationRoutes);
 app.use("/api/v1/my", myRoutes);
 app.use("/api/v1/students", studentRoutes);
 
+import AdminJS from "adminjs";
+import AdminJSExpress from "@adminjs/express";
+import AdminJSSequelize from "@adminjs/sequelize";
+import db from "./models/index.js";
+
+AdminJS.registerAdapter(AdminJSSequelize);
+
+const models = Object.values(db).filter((model) => model !== db.sequelize);
+
+const adminJs = new AdminJS({
+  resources: models.map((model) => {
+    return {
+      resource: model,
+      options: {},
+    };
+  }),
+  rootPath: "/admin",
+});
+
+const adminRouter = AdminJSExpress.buildRouter(adminJs);
+app.use(adminJs.options.rootPath, adminRouter);
+
 // TODO
 // app.
 // use("/api/v1/notes", noteRoutes);

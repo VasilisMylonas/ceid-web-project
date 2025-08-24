@@ -18,29 +18,7 @@ export default class TopicController {
     };
 
     // Filter by status
-
-    if (req.query.status === "assigned") {
-      query.include = [
-        {
-          model: Thesis,
-          attributes: [],
-        },
-      ];
-
-      query.where[Op.or] = [
-        Sequelize.where(Sequelize.col("theses.status"), {
-          [Op.in]: [
-            ThesisStatus.UNDER_ASSIGNMENT,
-            ThesisStatus.PENDING,
-            ThesisStatus.ACTIVE,
-            ThesisStatus.COMPLETED,
-            ThesisStatus.UNDER_EXAMINATION,
-          ],
-        }),
-      ];
-    }
-
-    if (req.query.status === "unassigned") {
+    if (req.query.status) {
       query.include = [
         {
           model: Thesis,
@@ -50,35 +28,24 @@ export default class TopicController {
       ];
 
       query.where[Op.or] = [
-        Sequelize.where(Sequelize.col("theses.status"), {
-          [Op.in]: [ThesisStatus.CANCELLED, ThesisStatus.REJECTED],
-        }),
-        Sequelize.where(Sequelize.col("theses.id"), {
-          [Op.is]: null,
+        Sequelize.where(Sequelize.col("Theses.status"), {
+          [req.query.status === "assigned" ? Op.in : Op.notIn]: [
+            ThesisStatus.UNDER_ASSIGNMENT,
+            ThesisStatus.PENDING,
+            ThesisStatus.ACTIVE,
+            ThesisStatus.COMPLETED,
+            ThesisStatus.UNDER_EXAMINATION,
+          ],
         }),
       ];
-    }
 
-    // Keyword searching
-    if (req.query.keywords) {
-      const keywords = req.query.keywords
-        .split(" ")
-        .filter(Boolean)
-        .map((k) => `%${k}%`);
-
-      if (keywords.length > 0) {
-        query.where[Op.or] = [
-          {
-            title: {
-              [Op.iLike]: { [Op.any]: keywords },
-            },
-          },
-          {
-            summary: {
-              [Op.iLike]: { [Op.any]: keywords },
-            },
-          },
-        ];
+      // Unassigned topics may also have no theses at all
+      if (req.query.status === "unassigned") {
+        query.where[Op.or].push(
+          Sequelize.where(Sequelize.col("Theses.status"), {
+            [Op.is]: null,
+          })
+        );
       }
     }
 

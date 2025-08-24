@@ -16,16 +16,13 @@ import { UserRole } from "../constants.js";
 const router = express.Router();
 router.use(requireAuth);
 
-// TODO
 router.get("/", validate(topicValidators.query), TopicController.query);
-// TODO
 router.get(
   "/:id",
   validate(topicValidators.get),
   model(Topic, "topic"),
   TopicController.get
 );
-
 router.post(
   "/",
   validate(topicValidators.post),

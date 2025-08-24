@@ -69,32 +69,24 @@ export default class UserController {
     }
   }
 
-  // TODO
   static async get(req, res) {
-    let extra = {};
+    const data = await User.findByPk(req.params.id, {
+      attributes: { exclude: ["password"] },
+      include: [{ model: Professor }, { model: Student }, { model: Secretary }],
+    });
 
-    switch (req.targetUser.role) {
-      case UserRole.SECRETARY:
-        extra = await req.targetUser.getSecretary();
-        break;
-      case UserRole.PROFESSOR:
-        extra = await req.targetUser.getProfessor();
-        break;
-      case UserRole.STUDENT:
-        extra = await req.targetUser.getStudent();
-        break;
-    }
-
-    const data = omit(
-      { ...req.targetUser.get(), ...(extra ? extra.get() : {}) },
-      "password"
-    );
     res.status(StatusCodes.OK).json(data);
   }
 
   static async patch(req, res) {
     await req.targetUser.update(req.body);
-    res.status(StatusCodes.OK).json(req.targetUser);
+
+    const data = await User.findByPk(req.params.id, {
+      attributes: { exclude: ["password"] },
+      include: [{ model: Professor }, { model: Student }, { model: Secretary }],
+    });
+
+    res.status(StatusCodes.OK).json(data);
   }
 
   static async delete(req, res) {

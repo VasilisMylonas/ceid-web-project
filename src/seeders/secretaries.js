@@ -3,7 +3,7 @@ import db from "../models/index.js";
 import { UserRole } from "../constants.js";
 
 export default async function seedSecretaries(count) {
-  const secretaries = [];
+  const users = [];
 
   for (let i = 0; i < count; i++) {
     const name = faker.person.fullName();
@@ -15,22 +15,25 @@ export default async function seedSecretaries(count) {
     const username = email.split("@")[0];
     const phone = faker.phone.number();
 
-    secretaries.push({
-      id: i + 10001,
+    users.push({
       username,
       name,
       email,
-      phone,
       password: "xxx",
+      phone,
       role: UserRole.SECRETARY,
     });
   }
 
-  await db.User.bulkCreate(secretaries, {
-    fields: ["id", "username", "name", "email", "password", "phone", "role"],
+  const createdUsers = await db.User.bulkCreate(users, {
+    fields: ["username", "name", "email", "password", "phone", "role"],
   });
 
+  const secretaries = createdUsers.map((user) => ({
+    userId: user.id,
+  }));
+
   await db.Secretary.bulkCreate(secretaries, {
-    fields: ["id"],
+    fields: ["userId"],
   });
 }

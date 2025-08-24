@@ -11,7 +11,6 @@ await db.sequelize.sync({ force: true });
 await Promise.all([seedProfessors(10), seedStudents(50), seedSecretaries(4)]);
 
 const adminUser = await db.User.create({
-  id: 1,
   username: "admin",
   password: await bcrypt.hash("admin", 10),
   email: "example@email.com",

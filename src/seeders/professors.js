@@ -3,7 +3,8 @@ import db from "../models/index.js";
 import { UserRole } from "../constants.js";
 
 export default async function seedProfessors(count) {
-  const professors = [];
+  const users = [];
+  const divisions = [];
 
   for (let i = 0; i < count; i++) {
     const name = faker.person.fullName();
@@ -23,23 +24,27 @@ export default async function seedProfessors(count) {
       "Information Engineering",
     ]);
 
-    professors.push({
-      id: i + 20001,
+    users.push({
       username,
       name,
       email,
-      division,
-      phone,
       password: "xxx",
+      phone,
       role: UserRole.PROFESSOR,
     });
+    divisions.push(division);
   }
 
-  await db.User.bulkCreate(professors, {
-    fields: ["id", "username", "name", "email", "password", "phone", "role"],
+  const createdUsers = await db.User.bulkCreate(users, {
+    fields: ["username", "name", "email", "password", "phone", "role"],
   });
 
+  const professors = createdUsers.map((user, idx) => ({
+    userId: user.id,
+    division: divisions[idx],
+  }));
+
   await db.Professor.bulkCreate(professors, {
-    fields: ["id", "division"],
+    fields: ["userId", "division"],
   });
 }

@@ -31,6 +31,7 @@ export default (sequelize) => {
     {
       sequelize,
       modelName: "Note",
+      underscored: true,
     }
   );
 

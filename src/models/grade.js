@@ -32,6 +32,7 @@ export default (sequelize) => {
     {
       sequelize,
       modelName: "Grade",
+      underscored: true,
     }
   );
 

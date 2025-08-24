@@ -44,6 +44,7 @@ export default (sequelize) => {
     {
       sequelize,
       modelName: "CommitteeMember",
+      underscored: true,
     }
   );
 

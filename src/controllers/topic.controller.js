@@ -28,7 +28,7 @@ export default class TopicController {
       ];
 
       query.where[Op.or] = [
-        Sequelize.where(Sequelize.col("Theses.status"), {
+        Sequelize.where(Sequelize.col("theses.status"), {
           [Op.in]: [
             ThesisStatus.UNDER_ASSIGNMENT,
             ThesisStatus.PENDING,
@@ -50,10 +50,10 @@ export default class TopicController {
       ];
 
       query.where[Op.or] = [
-        Sequelize.where(Sequelize.col("Theses.status"), {
+        Sequelize.where(Sequelize.col("theses.status"), {
           [Op.in]: [ThesisStatus.CANCELLED, ThesisStatus.REJECTED],
         }),
-        Sequelize.where(Sequelize.col("Theses.id"), {
+        Sequelize.where(Sequelize.col("theses.id"), {
           [Op.is]: null,
         }),
       ];

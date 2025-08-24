@@ -94,7 +94,11 @@ export default (sequelize) => {
         defaultValue: ThesisStatus.UNDER_ASSIGNMENT,
       },
     },
-    { sequelize, modelName: "Thesis" }
+    {
+      sequelize,
+      modelName: "Thesis",
+      underscored: true,
+    }
   );
 
   return Thesis;

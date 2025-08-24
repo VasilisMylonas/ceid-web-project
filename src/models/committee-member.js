@@ -45,6 +45,21 @@ export default (sequelize) => {
       sequelize,
       modelName: "CommitteeMember",
       underscored: true,
+      indexes: [
+        {
+          fields: ["thesis_id"],
+        },
+        {
+          fields: ["professor_id"],
+        },
+        {
+          unique: true,
+          fields: ["professor_id", "thesis_id"],
+        },
+        {
+          fields: ["role"],
+        },
+      ],
     }
   );
 

@@ -48,6 +48,19 @@ export default (sequelize) => {
       sequelize,
       modelName: "User",
       underscored: true,
+      indexes: [
+        {
+          fields: ["role"],
+        },
+        {
+          unique: true,
+          fields: ["username"],
+        },
+        {
+          unique: true,
+          fields: ["email"],
+        },
+      ],
     }
   );
 

@@ -35,19 +35,3 @@ db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
 export default db;
-
-// TODO: maybe this should be removed
-export const {
-  User,
-  Topic,
-  Professor,
-  Student,
-  Secretary,
-  Note,
-  Thesis,
-  Presentation,
-  Resource,
-  Grade,
-  Invitation,
-  CommitteeMember,
-} = db;

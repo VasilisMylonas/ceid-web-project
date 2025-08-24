@@ -1,7 +1,7 @@
 import request from "supertest";
 import bcrypt from "bcrypt";
 
-import { User, Professor, Student } from "../src/models/index.js";
+import db from "../src/models/index.js";
 import app from "../src/app.js";
 import { UserRole } from "../src/constants.js";
 
@@ -35,7 +35,7 @@ export async function createStudentAgent() {
 }
 
 export async function createProfessor(namepass) {
-  const user = await User.create({
+  const user = await db.User.create({
     username: namepass,
     name: "Name",
     password: await bcrypt.hash(namepass, 10),
@@ -44,7 +44,7 @@ export async function createProfessor(namepass) {
     phone: "000",
   });
 
-  const professor = await Professor.create({
+  const professor = await db.Professor.create({
     userId: user.id,
     division: "Computer Science",
   });
@@ -53,7 +53,7 @@ export async function createProfessor(namepass) {
 }
 
 export async function createStudent() {
-  const user = await User.create({
+  const user = await db.User.create({
     username: "student",
     name: "Makis",
     password: await bcrypt.hash("student", 10),
@@ -62,7 +62,7 @@ export async function createStudent() {
     phone: "000",
   });
 
-  const student = await Student.create({
+  const student = await db.Student.create({
     userId: user.id,
     am: "110110",
   });

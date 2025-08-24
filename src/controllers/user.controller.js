@@ -1,12 +1,12 @@
 import { StatusCodes } from "http-status-codes";
-import db, { Professor, User, Student, Secretary } from "../models/index.js";
+import db from "../models/index.js";
 import { UserRole } from "../constants.js";
 import bcrypt from "bcrypt";
 import { omit } from "../util.js";
 
 export default class UserController {
   static async query(req, res) {
-    const users = await User.findAll({
+    const users = await db.User.findAll({
       attributes: ["id", "name", "email", "role"],
       limit: req.query.limit,
       offset: req.query.offset,
@@ -21,17 +21,17 @@ export default class UserController {
   static async _add(user, transaction) {
     user.password = bcrypt.hash(user.password, 10);
 
-    const created = await User.create(user, { transaction });
+    const created = await db.User.create(user, { transaction });
 
     switch (user.role) {
       case UserRole.PROFESSOR:
-        await Professor.create({ userId: created.id }, { transaction });
+        await db.Professor.create({ userId: created.id }, { transaction });
         break;
       case UserRole.SECRETARY:
-        await Secretary.create({ userId: created.id }, { transaction });
+        await db.Secretary.create({ userId: created.id }, { transaction });
         break;
       case UserRole.STUDENT:
-        await Student.create(
+        await db.Student.create(
           { userId: created.id, am: user.am },
           { transaction }
         );
@@ -70,9 +70,13 @@ export default class UserController {
   }
 
   static async get(req, res) {
-    const data = await User.findByPk(req.params.id, {
+    const data = await db.User.findByPk(req.params.id, {
       attributes: { exclude: ["password"] },
-      include: [{ model: Professor }, { model: Student }, { model: Secretary }],
+      include: [
+        { model: db.Professor },
+        { model: db.Student },
+        { model: db.Secretary },
+      ],
     });
 
     res.status(StatusCodes.OK).json(data);
@@ -81,9 +85,13 @@ export default class UserController {
   static async patch(req, res) {
     await req.targetUser.update(req.body);
 
-    const data = await User.findByPk(req.params.id, {
+    const data = await db.User.findByPk(req.params.id, {
       attributes: { exclude: ["password"] },
-      include: [{ model: Professor }, { model: Student }, { model: Secretary }],
+      include: [
+        { model: db.Professor },
+        { model: db.Student },
+        { model: db.Secretary },
+      ],
     });
 
     res.status(StatusCodes.OK).json(data);

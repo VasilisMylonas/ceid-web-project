@@ -2,10 +2,12 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
 import { StatusCodes } from "http-status-codes";
-import { User } from "../models/index.js";
+import db from "../models/index.js";
 
 export async function login(req, res) {
-  const user = await User.findOne({ where: { username: req.body.username } });
+  const user = await db.User.findOne({
+    where: { username: req.body.username },
+  });
 
   if (!user) {
     return res.status(StatusCodes.UNAUTHORIZED).send();

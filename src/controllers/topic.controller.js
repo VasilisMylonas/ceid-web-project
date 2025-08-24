@@ -1,5 +1,5 @@
 import { StatusCodes } from "http-status-codes";
-import { Topic, Thesis } from "../models/index.js";
+import db from "../models/index.js";
 import { deleteIfExists, getFilePath } from "../config/file-storage.js";
 import { Op, Sequelize } from "sequelize";
 import { ThesisStatus } from "../constants.js";
@@ -21,7 +21,7 @@ export default class TopicController {
     if (req.query.status) {
       query.include = [
         {
-          model: Thesis,
+          model: db.Thesis,
           attributes: [],
           required: false,
         },
@@ -49,7 +49,7 @@ export default class TopicController {
       }
     }
 
-    const topics = await Topic.findAll(query);
+    const topics = await db.Topic.findAll(query);
     res.status(StatusCodes.OK).json(topics);
   }
 
@@ -57,7 +57,7 @@ export default class TopicController {
     const { title, summary } = req.body;
     const professor = await req.user.getProfessor();
 
-    const thesisTopic = await Topic.create({
+    const thesisTopic = await db.Topic.create({
       title,
       summary,
       professorId: professor.id,

@@ -37,12 +37,12 @@ describe("View and create topics", () => {
 
   it("creates a topic", async () => {
     const response = await professorAgent.post("/api/v1/topics").send({
-      title: "New Topic",
+      title: "New db.Topic",
       summary: "This is a new topic",
     });
     expect(response.statusCode).toBe(StatusCodes.CREATED);
     expect(response.body).toHaveProperty("id");
-    expect(response.body.title).toBe("New Topic");
+    expect(response.body.title).toBe("New db.Topic");
     expect(response.body.summary).toBe("This is a new topic");
 
     topicId = response.body.id;
@@ -53,7 +53,7 @@ describe("View and create topics", () => {
     expect(response.statusCode).toBe(StatusCodes.OK);
     expect(Array.isArray(response.body)).toBe(true);
     expect(response.body[0].id).toBe(topicId);
-    expect(response.body[0].title).toBe("New Topic");
+    expect(response.body[0].title).toBe("New db.Topic");
     expect(response.body[0].summary).toBe("This is a new topic");
   });
 

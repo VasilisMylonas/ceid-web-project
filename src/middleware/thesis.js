@@ -1,11 +1,11 @@
-import { CommitteeMember, Thesis } from "../models/index.js";
+import db from "../models/index.js";
 import { ThesisRole } from "../constants.js";
 import { StatusCodes } from "http-status-codes";
 
 export function requireThesisRole(...roles) {
   return async (req, res, next) => {
     const thesis =
-      req.thesis instanceof Thesis ? req.model : await req.model.getThesis();
+      req.thesis instanceof db.Thesis ? req.model : await req.model.getThesis();
 
     const student = await thesis.getStudent();
     const professor = await (await thesis.getTopic()).getProfessor();
@@ -13,7 +13,7 @@ export function requireThesisRole(...roles) {
     const isStudent = student ? thesis.studentId == student.id : false;
 
     const isSupervisor = professor
-      ? await CommitteeMember.findOne({
+      ? await db.CommitteeMember.findOne({
           where: {
             thesisId: thesis.id,
             professorId: professor.id,
@@ -41,7 +41,7 @@ export function requireThesisRole(...roles) {
 export function requireThesisStatus(...status) {
   return async (req, res, next) => {
     const thesis =
-      req.thesis instanceof Thesis ? req.model : await req.model.getThesis();
+      req.thesis instanceof db.Thesis ? req.model : await req.model.getThesis();
 
     if (!status.includes(thesis.status)) {
       return res.status(StatusCodes.BAD_REQUEST).send();

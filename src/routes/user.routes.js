@@ -4,7 +4,7 @@ import { requireAuth, requireRole } from "../middleware/authentication.js";
 import userValidator from "../validators/user.validators.js";
 import UserController from "../controllers/user.controller.js";
 import { UserRole } from "../constants.js";
-import { User } from "../models/index.js";
+import db from "../models/index.js";
 import { model } from "../middleware/model.js";
 
 const router = express.Router();
@@ -29,25 +29,25 @@ router.put(
   UserController.putAll
 );
 
-// NOTE Conflict with model(User) and requireAuth user
+// NOTE Conflict with model(db.User) and requireAuth user
 router.get(
   "/:id",
   validate(userValidator.get),
-  model(User, "targetUser"),
+  model(db.User, "targetUser"),
   requireRole(UserRole.SECRETARY),
   UserController.get
 );
 router.patch(
   "/:id",
   validate(userValidator.patch),
-  model(User, "targetUser"),
+  model(db.User, "targetUser"),
   requireRole(UserRole.SECRETARY),
   UserController.patch
 );
 router.delete(
   "/:id",
   validate(userValidator.delete),
-  model(User, "targetUser"),
+  model(db.User, "targetUser"),
   requireRole(UserRole.SECRETARY),
   UserController.delete
 );

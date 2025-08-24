@@ -1,22 +1,13 @@
 import { StatusCodes } from "http-status-codes";
-import {
-  CommitteeMember,
-  Note,
-  Thesis,
-  Resource,
-  Presentation,
-  Topic,
-  Student,
-  Invitation,
-} from "../models/index.js";
+import db from "../models/index.js";
 import { getFilePath, deleteIfExists } from "../config/file-storage.js";
 import { ThesisStatus } from "../constants.js";
 import { SourceCode } from "eslint";
 
 export default class ThesisController {
   static async post(req, res) {
-    const topic = await Topic.findByPk(req.body.topicId);
-    const student = await Student.findByPk(req.body.studentId);
+    const topic = await db.Topic.findByPk(req.body.topicId);
+    const student = await db.Student.findByPk(req.body.studentId);
 
     if (!topic) {
       return res
@@ -31,7 +22,7 @@ export default class ThesisController {
     }
 
     try {
-      const thesis = await Thesis.createFrom({
+      const thesis = await db.Thesis.createFrom({
         topic: topic,
         student: student,
       });
@@ -55,10 +46,10 @@ export default class ThesisController {
       });
     }
 
-    CommitteeMember.destroy({
+    db.CommitteeMember.destroy({
       where: { thesisId: req.thesis.id },
     });
-    Invitation.destroy({
+    db.Invitation.destroy({
       where: { thesisId: req.thesis.id },
     });
 
@@ -83,7 +74,7 @@ export default class ThesisController {
     }
 
     const professor = await req.user.getProfessor();
-    const note = await Note.create({
+    const note = await db.Note.create({
       thesisId: req.thesis.id,
       professorId: professor.id,
       content: req.body.content,
@@ -99,7 +90,7 @@ export default class ThesisController {
   }
 
   static async postInvitation(req, res) {
-    const invitations = await Invitation.findAll({
+    const invitations = await db.Invitation.findAll({
       where: {
         thesisId: req.thesis.id,
         professorId: req.body.professorId,
@@ -112,7 +103,7 @@ export default class ThesisController {
       });
     }
 
-    const invitation = await Invitation.create({
+    const invitation = await db.Invitation.create({
       thesisId: req.thesis.id,
       professorId: req.body.professorId,
     });
@@ -219,7 +210,7 @@ export default class ThesisController {
     if (req.query.professorId) {
       query.include = [
         {
-          model: CommitteeMember,
+          model: db.CommitteeMember,
           attributes: [],
           where: {
             professorId: req.query.professorId,
@@ -229,7 +220,7 @@ export default class ThesisController {
       ];
     }
 
-    const theses = await Thesis.findAll(query);
+    const theses = await db.Thesis.findAll(query);
     res.status(StatusCodes.OK).json(theses);
   }
 
@@ -259,7 +250,7 @@ export default class ThesisController {
       return res.status(StatusCodes.BAD_REQUEST).send();
     }
 
-    const resource = await Resource.create({
+    const resource = await db.Resource.create({
       thesisId: req.thesis.id,
       link: req.body.link,
       type: req.body.type,
@@ -269,7 +260,7 @@ export default class ThesisController {
   }
 
   static async postPresentation(req, res) {
-    const presentation = await Presentation.create({
+    const presentation = await db.Presentation.create({
       thesisId: req.thesis.id,
       date: req.body.date,
       kind: req.body.kind,

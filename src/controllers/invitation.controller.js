@@ -1,6 +1,6 @@
 import { StatusCodes } from "http-status-codes";
 import { InvitationResponse, ThesisStatus } from "../constants.js";
-import { CommitteeMember, Invitation } from "../models/index.js";
+import db from "../models/index.js";
 
 export default class InvitationController {
   static async patchResponse(req, res) {
@@ -23,7 +23,7 @@ export default class InvitationController {
     await req.invitation.save();
 
     if (req.body.response === InvitationResponse.ACCEPTED) {
-      CommitteeMember.create({
+      db.CommitteeMember.create({
         professorId: professor.id,
         thesisId: req.invitation.thesisId,
       });
@@ -44,7 +44,7 @@ export default class InvitationController {
     }
 
     // Remove all other pending invitations
-    await Invitation.destroy({
+    await db.Invitation.destroy({
       where: {
         thesisId: req.invitation.thesisId,
         response: InvitationResponse.PENDING,

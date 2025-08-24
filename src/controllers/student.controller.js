@@ -1,9 +1,9 @@
 import { Op, Sequelize } from "sequelize";
-import { Student, User } from "../models/index.js";
+import db from "../models/index.js";
 import { StatusCodes } from "http-status-codes";
 
 export async function queryStudents(req, res) {
-  const students = await Student.findAll({
+  const students = await db.Student.findAll({
     limit: req.query.limit,
     offset: req.query.offset,
     attributes: [
@@ -25,7 +25,7 @@ export async function queryStudents(req, res) {
     include: [
       {
         attributes: [],
-        model: User,
+        model: db.User,
       },
     ],
   });

@@ -9,7 +9,7 @@ import {
   requireRole,
 } from "../middleware/authentication.js";
 import { fileStorage } from "../config/file-storage.js";
-import { Topic } from "../models/index.js";
+import db from "../models/index.js";
 import { model } from "../middleware/model.js";
 import { UserRole } from "../constants.js";
 
@@ -20,7 +20,7 @@ router.get("/", validate(topicValidators.query), TopicController.query);
 router.get(
   "/:id",
   validate(topicValidators.get),
-  model(Topic, "topic"),
+  model(db.Topic, "topic"),
   TopicController.get
 );
 router.post(
@@ -32,28 +32,28 @@ router.post(
 router.put(
   "/:id",
   validate(topicValidators.put),
-  model(Topic, "topic"),
+  model(db.Topic, "topic"),
   requireProfessorOwner(),
   TopicController.put
 );
 router.delete(
   "/:id",
   validate(topicValidators.delete),
-  model(Topic, "topic"),
+  model(db.Topic, "topic"),
   requireProfessorOwner(),
   TopicController.delete
 );
 router.get(
   "/:id/description",
   validate(topicValidators.getDescription),
-  model(Topic, "topic"),
+  model(db.Topic, "topic"),
   TopicController.getDescription
 );
 router.put(
   "/:id/description",
   validate(topicValidators.putDescription),
   multer({ storage: fileStorage }).single("file"),
-  model(Topic, "topic"),
+  model(db.Topic, "topic"),
   requireProfessorOwner(),
   TopicController.putDescription
 );

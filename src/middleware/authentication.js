@@ -1,6 +1,6 @@
 import { StatusCodes } from "http-status-codes";
 import jwt from "jsonwebtoken";
-import { User } from "../models/index.js";
+import db from "../models/index.js";
 
 export async function requireAuth(req, res, next) {
   const authHeader = req.headers["authorization"]; // The header is "Authorization: Bearer <token>"
@@ -15,7 +15,7 @@ export async function requireAuth(req, res, next) {
     if (!id) {
       return res.status(StatusCodes.UNAUTHORIZED).send();
     }
-    const user = await User.findByPk(id);
+    const user = await db.User.findByPk(id);
     if (!user) {
       return res.status(StatusCodes.UNAUTHORIZED).send();
     }

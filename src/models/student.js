@@ -48,6 +48,16 @@ export default (sequelize) => {
       sequelize,
       modelName: "Student",
       underscored: true,
+      indexes: [
+        {
+          unique: true,
+          fields: ["user_id"],
+        },
+        {
+          unique: true,
+          fields: ["am"],
+        },
+      ],
     }
   );
 

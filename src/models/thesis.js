@@ -98,6 +98,17 @@ export default (sequelize) => {
       sequelize,
       modelName: "Thesis",
       underscored: true,
+      indexes: [
+        {
+          fields: ["topic_id"],
+        },
+        {
+          fields: ["student_id"],
+        },
+        {
+          fields: ["status"],
+        },
+      ],
     }
   );
 

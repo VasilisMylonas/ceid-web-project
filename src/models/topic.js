@@ -61,6 +61,15 @@ export default (sequelize) => {
       sequelize,
       modelName: "Topic",
       underscored: true,
+      indexes: [
+        {
+          fields: ["professor_id"],
+        },
+        {
+          fields: ["title"],
+          type: "FULLTEXT",
+        },
+      ],
     }
   );
 

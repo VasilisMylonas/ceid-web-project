@@ -4,7 +4,7 @@ import TopicController from "../controllers/topic.controller.js";
 import topicValidators from "../validators/topic.validators.js";
 import { validate } from "../config/validation.js";
 import {
-  requireOwner,
+  requireProfessorOwner,
   requireAuth,
   requireRole,
 } from "../middleware/authentication.js";
@@ -38,14 +38,14 @@ router.put(
   "/:id",
   validate(topicValidators.put),
   model(Topic, "topic"),
-  requireOwner(),
+  requireProfessorOwner(),
   TopicController.put
 );
 router.delete(
   "/:id",
   validate(topicValidators.delete),
   model(Topic, "topic"),
-  requireOwner(),
+  requireProfessorOwner(),
   TopicController.delete
 );
 router.get(
@@ -59,7 +59,7 @@ router.put(
   validate(topicValidators.putDescription),
   multer({ storage: fileStorage }).single("file"),
   model(Topic, "topic"),
-  requireOwner(),
+  requireProfessorOwner(),
   TopicController.putDescription
 );
 

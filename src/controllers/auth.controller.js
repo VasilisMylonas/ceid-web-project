@@ -28,6 +28,7 @@ export async function login(req, res) {
 }
 
 export async function logout(req, res) {
+  // TODO
   res.status(StatusCodes.IM_A_TEAPOT).json({
     message:
       "Logout not implemented, please clear the token on the client side. See https://jwt.io/ for more information.",

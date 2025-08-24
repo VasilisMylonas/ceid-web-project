@@ -1,5 +1,8 @@
 import express from "express";
-import { requireAuth, requireOwner } from "../middleware/authentication.js";
+import {
+  requireAuth,
+  requireProfessorOwner,
+} from "../middleware/authentication.js";
 import { validate } from "../config/validation.js";
 import noteValidators from "../validators/note.validators.js";
 import NoteController from "../controllers/note.controller.js";
@@ -13,21 +16,21 @@ router.get(
   "/:id",
   validate(noteValidators.get),
   model(Note, "note"),
-  requireOwner(),
+  requireProfessorOwner(),
   NoteController.get
 );
 router.put(
   "/:id",
   validate(noteValidators.put),
   model(Note, "note"),
-  requireOwner(),
+  requireProfessorOwner(),
   NoteController.put
 );
 router.delete(
   "/:id",
   validate(noteValidators.delete),
   model(Note, "note"),
-  requireOwner(),
+  requireProfessorOwner(),
   NoteController.delete
 );
 

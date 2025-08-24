@@ -8,7 +8,7 @@ export function requireThesisRole(...roles) {
       req.thesis instanceof Thesis ? req.model : await req.model.getThesis();
 
     const student = await thesis.getStudent();
-    const professor = await thesis.getProfessor();
+    const professor = await (await thesis.getTopic()).getProfessor();
 
     const isStudent = student ? thesis.studentId == student.id : false;
 

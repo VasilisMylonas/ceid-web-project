@@ -37,6 +37,7 @@ export async function createStudentAgent() {
 export async function createProfessor(namepass) {
   const user = await User.create({
     username: namepass,
+    name: "Name",
     password: await bcrypt.hash(namepass, 10),
     role: UserRole.PROFESSOR,
     email: `${namepass}@upatras.gr`,

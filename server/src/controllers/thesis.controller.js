@@ -2,7 +2,6 @@ import { StatusCodes } from "http-status-codes";
 import db from "../models/index.js";
 import { getFilePath, deleteIfExists } from "../config/file-storage.js";
 import { ThesisStatus } from "../constants.js";
-import { SourceCode } from "eslint";
 
 export default class ThesisController {
   static async post(req, res) {

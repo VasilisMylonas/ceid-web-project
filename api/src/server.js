@@ -1,7 +1,7 @@
-import app from "./app.js";
+import api from "./api.js";
 import db from "./models/index.js";
 
-import "./seeders/index.js";
+// import "./seeders/index.js";
 
 try {
   await db.sequelize.authenticate();
@@ -12,7 +12,7 @@ try {
 }
 
 // Start server
-const server = app.listen(process.env.PORT, () => {
+const server = api.listen(process.env.PORT, () => {
   console.log(`Server is running on port ${process.env.PORT}`);
 });
 

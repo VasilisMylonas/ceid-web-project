@@ -14,23 +14,23 @@ import studentRoutes from "./routes/student.routes.js";
 import myRoutes from "./routes/my.routes.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 
-const app = express();
-app.use(express.json()); // JSON middleware
-app.use(morgan("dev")); // Logging middleware
-app.use(expressJoiValidations({ throwErrors: true })); // Request validation
-app.use("/api/v1/auth", authRoutes);
-app.use("/api/v1/topics", topicRoutes);
-app.use("/api/v1/users", userRoutes);
-app.use("/api/v1/theses", thesisRoutes);
-app.use("/api/v1/invitations", invitationRoutes);
-app.use("/api/v1/my", myRoutes);
-app.use("/api/v1/students", studentRoutes);
+const api = express();
+api.use(express.json()); // JSON middleware
+api.use(morgan("dev")); // Logging middleware
+api.use(expressJoiValidations({ throwErrors: true })); // Request validation
+api.use("/v1/auth", authRoutes);
+api.use("/v1/topics", topicRoutes);
+api.use("/v1/users", userRoutes);
+api.use("/v1/theses", thesisRoutes);
+api.use("/v1/invitations", invitationRoutes);
+api.use("/v1/my", myRoutes);
+api.use("/v1/students", studentRoutes);
 
 // TODO
-// app.use("/api/v1/notes", noteRoutes);
-// app.use("/api/v1/resources", resourceRoutes);
-// app.use("/api/v1/presentations", presentationRoutes);
+// app.use("/v1/notes", noteRoutes);
+// app.use("/v1/resources", resourceRoutes);
+// app.use("/v1/presentations", presentationRoutes);
 
-app.use(errorHandler); // Use error handler middleware, after all routes
+api.use(errorHandler); // Use error handler middleware, after all routes
 
-export default app;
+export default api;

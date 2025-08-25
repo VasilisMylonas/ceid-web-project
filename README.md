@@ -20,7 +20,7 @@
 2. Install dependencies:
 
 ```bash
-   cd ceid-web-project
+   cd ceid-web-project/server
    npm install
 ```
 
@@ -53,18 +53,6 @@ npm test
 ```
 
 Tests use an in-memory SQLite database. Environment can be configured in [.env.test](./.env.test).
-
-## Project Structure
-
-```text
-|-- src/ # Source code
-|   |-- config/
-|   |-- controllers/
-|   |-- middleware/
-|   |-- models/
-|   |-- routes/
-|-- tests/
-```
 
 ## API Structure
 

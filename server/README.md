@@ -57,9 +57,7 @@ Tests use an in-memory SQLite database. Environment can be configured in [.env.t
 ## Project Structure
 
 ```text
-ceid-web-project/
-|-- public/ # Static assets (frontend)
-|-- src/ # Source code (backend)
+|-- src/ # Source code
 |   |-- config/
 |   |-- controllers/
 |   |-- middleware/

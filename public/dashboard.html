@@ -17,7 +17,7 @@
     <link rel="stylesheet" href="/styles/main.css">
 </head>
 
-<body>
+<body class="d-flex flex-column min-vh-100">
     <header class="header">
         <div class="container-lg py-3 px-3 d-flex justify-content-between align-items-center">
             <div class="d-flex align-items-center">
@@ -49,7 +49,7 @@
         </div>
     </header>
 
-    <div class="main-content">
+    <div class="main-content flex-grow-1">
         <div class="container-lg py-3 px-3">
             <div class="row">
                 <nav class="col-md-3 list-group list-group-flush">
@@ -115,8 +115,8 @@
     <footer class="footer bg-light border-top">
         <div class="container-lg py-3 px-3">
             <div class="row">
-                <div class="col-12 d-flex flex-column flex-md-row justify-content-between align-items-center">
-                    <nav>
+                <div class="col-xl-9 d-flex justify-content-center justify-content-xl-start">
+                    <nav class="mb-4 mb-xl-0 d-flex flex-wrap justify-content-center gap-3 gap-xl-1">
                         <a href="#" class="text-muted me-3 text-decoration-none"><i
                                 class="bi bi-question-circle me-1"></i>Βοήθεια</a>
                         <a href="#" class="text-muted me-3 text-decoration-none"><i
@@ -131,8 +131,11 @@
                                 class="bi bi-shield-lock me-1"></i>Πολιτική
                             Απορρήτου</a>
                     </nav>
-                    <span class="text-muted fw-bold small">Copyright &copy; 2025 Vasilis Mylonas. All rights
-                        reserved.</span>
+                </div>
+                <div class="col-xl-3 d-flex justify-content-center justify-content-xl-end">
+                    <span class="text-muted fw-bold small text-center text-md-end">
+                        Copyright &copy; 2025 All rights reserved.
+                    </span>
                 </div>
             </div>
         </div>

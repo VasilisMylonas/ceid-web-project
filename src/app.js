@@ -26,9 +26,10 @@ app.use("/api/v1/invitations", invitationRoutes);
 app.use("/api/v1/my", myRoutes);
 app.use("/api/v1/students", studentRoutes);
 
+app.use(express.static("public"));
+
 // TODO
-// app.
-// use("/api/v1/notes", noteRoutes);
+// app.use("/api/v1/notes", noteRoutes);
 // app.use("/api/v1/resources", resourceRoutes);
 // app.use("/api/v1/presentations", presentationRoutes);
 

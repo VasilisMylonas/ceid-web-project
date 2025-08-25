@@ -2,9 +2,9 @@ import express from "express";
 import multer from "multer";
 import { fileStorage } from "../config/file-storage.js";
 import { requireAuth, requireRole } from "../middleware/authentication.js";
-import { requireThesisRole } from "../middleware/thesis.js";
+import { requireThesisRole, requireThesisStatus } from "../middleware/thesis.js";
 import { validate } from "../config/validation.js";
-import { UserRole, ThesisRole } from "../constants.js";
+import { UserRole, ThesisRole, ThesisStatus } from "../constants.js";
 import thesisValidator from "../validators/thesis.validators.js";
 import ThesisController from "../controllers/thesis.controller.js";
 import { model } from "../middleware/model.js";
@@ -17,6 +17,7 @@ router.patch(
   validate(thesisValidator.patchGrading),
   model(db.Thesis, "thesis"),
   requireThesisRole(ThesisRole.SUPERVISOR),
+  requireThesisStatus(ThesisStatus.UNDER_EXAMINATION),
   ThesisController.patchGrading
 );
 router.post(

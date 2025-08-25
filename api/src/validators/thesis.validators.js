@@ -98,6 +98,18 @@ export default {
       })
       .unknown(false),
   },
+  patchGrading: {
+    params: validator
+      .object({
+        id: validator.number().integer().min(1).required(),
+      })
+      .unknown(false),
+    body: validator
+      .object({
+        grading: validator.string().valid("enabled", "disabled").required(),
+      })
+      .unknown(false),
+  },
 
   // TODO
   get: {

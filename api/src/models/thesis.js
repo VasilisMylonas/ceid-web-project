@@ -93,6 +93,11 @@ export default (sequelize) => {
         allowNull: false,
         defaultValue: ThesisStatus.UNDER_ASSIGNMENT,
       },
+      grading: {
+        type: DataTypes.ENUM("enabled", "disabled"),
+        allowNull: false,
+        defaultValue: "disabled",
+      },
     },
     {
       sequelize,

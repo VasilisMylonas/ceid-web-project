@@ -30,7 +30,17 @@ export default class ThesisController {
       res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
     }
   }
-
+  static async patchGrading(req, res) {
+    console.log("hello");
+    if (req.thesis.status !== ThesisStatus.UNDER_EXAMINATION) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: "Thesis is not under examination." });
+    }
+    req.thesis.grading = req.body.grading;
+    await req.thesis.save();
+    res.status(StatusCodes.OK).json(req.thesis);
+  }
   static async delete(req, res) {
     if (!req.isSupervisor) {
       // TODO: secretary can also delete

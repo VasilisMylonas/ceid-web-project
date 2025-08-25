@@ -12,7 +12,13 @@ import db from "../models/index.js";
 
 const router = express.Router();
 router.use(requireAuth);
-
+router.patch(
+  "/:id/grading",
+  validate(thesisValidator.patchGrading),
+  model(db.Thesis, "thesis"),
+  requireThesisRole(ThesisRole.SUPERVISOR),
+  ThesisController.patchGrading
+);
 router.post(
   "/",
   validate(thesisValidator.post),

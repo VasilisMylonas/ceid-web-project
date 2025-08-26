@@ -32,17 +32,11 @@ To start the server:
 docker compose up
 ```
 
-or
-
-```bash
-podman compose up
-```
-
 The application should now be running at `http://localhost:3000` (or another port if specified).
 
 See [compose.yaml](./compose.yaml) for environment configuration.
 
-Stop the server with: `docker compose down` or `podman compose down`.
+Stop the server with: `docker compose down`.
 
 ### Running Tests
 

@@ -1,6 +1,7 @@
 version: "3.8"
 
 services:
+  # Service for nginx proxy
   nginx:
     container_name: theseus_nginx
     image: nginx:latest
@@ -11,6 +12,9 @@ services:
     depends_on:
       - api
 
+  # Service for the API. See Dockerfile in ./api. Set environment variables as needed,
+  # especially JWT_SECRET as this determines JWT authentication security.
+  # Make sure the DATABASE_URL points to the db service.
   api:
     container_name: theseus_api
     build: ./api
@@ -24,6 +28,7 @@ services:
     depends_on:
       - db
 
+  # Service for the Postgres database. Set user, password, db in the environment variables below.
   db:
     container_name: theseus_db
     image: postgres:15
@@ -37,4 +42,5 @@ services:
       - db_data:/var/lib/postgresql/data
 
 volumes:
+  # Volume for persisting Postgres data
   db_data:

@@ -1,7 +1,7 @@
 version: "3.8"
 
 services:
-  # Service for nginx proxy
+  # Service for nginx proxy. This is the entry point.
   nginx:
     container_name: theseus_nginx
     image: nginx:latest

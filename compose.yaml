@@ -17,7 +17,9 @@ services:
   # Service to build the client application. Output is in ./client/dist which is mounted to nginx.
   client-build:
     container_name: theseus_client_build
-    build: ./client
+    build:
+      context: ./client
+      dockerfile: Dockerfile.build
     volumes:
       - ./client/dist:/usr/src/client/dist:Z
 

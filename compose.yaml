@@ -39,6 +39,35 @@ services:
     depends_on:
       - db
 
+  client-dev:
+    container_name: theseus_client_dev
+    build:
+      context: ./client
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./client:/usr/src/client:Z
+    ports:
+      - "5173:5173"
+    command: ["npm", "run", "dev"]
+
+  api-dev:
+    container_name: theseus_api_dev
+    build:
+      context: ./api
+      dockerfile: Dockerfile.dev
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgres://postgres:postgres@theseus_db:5432/postgres
+      - JWT_SECRET=my_jwt_secret
+      - PORT=3000
+    volumes:
+      - ./api:/usr/src/api:Z
+    ports:
+      - "3000:3000"
+    command: ["npm", "run", "dev"]
+    depends_on:
+      - db
+
   # Service for the Postgres database. Set user, password, db in the environment variables below.
   db:
     container_name: theseus_db

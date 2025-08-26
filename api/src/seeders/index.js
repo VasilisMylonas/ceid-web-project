@@ -18,7 +18,7 @@ const adminUser = await db.User.create({
   role: UserRole.PROFESSOR,
   phone: "6942023594",
 });
-const testStudentUser = await db.User.create({
+const studentUser = await db.User.create({
   username: "student",
   password: await bcrypt.hash("student", 10),
   email: "student@example.com",
@@ -32,7 +32,7 @@ await db.Professor.create({
   division: "Hardware Engineering",
 });
 await db.Student.create({
-  userId: testStudentUser.id,
+  userId: studentUser.id,
   am: "1100491",
 });
 

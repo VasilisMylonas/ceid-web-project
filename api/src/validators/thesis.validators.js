@@ -1,10 +1,5 @@
 import { validator } from "../config/validation.js";
-import {
-  ThesisRole,
-  ThesisStatus,
-  ResourceKind,
-  PresentationKind,
-} from "../constants.js";
+import { ThesisRole, ThesisStatus } from "../constants.js";
 
 export default {
   cancel: {

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Σύστημα Υποστήριξης Διπλωματικών Εργασιών</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="wrapper">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <img src="./images/images.jpeg" alt="University of Patras logo">
+            </div>
+            <ul class="sidebar-menu">
+                <li class="sidebar-menu-item active" data-page="view-topic">
+                    <i class="bi bi-book icon" aria-hidden="true"></i>
+                    <span>Προβολή θέματος</span>
+                </li>
+                <li class="sidebar-menu-item" data-page="edit-profile">
+                    <i class="bi bi-person-circle icon" aria-hidden="true"></i>
+                    <span>Επεξεργασία Προφίλ</span>
+                </li>
+                <li class="sidebar-menu-item" data-page="manage-thesis">
+                    <i class="bi bi-file-earmark-check icon" aria-hidden="true"></i>
+                    <span>Διπλωματική εργασία</span>
+                </li>
+            </ul>
+            <ul class="sidebar-menu sidebar-footer">
+                <li class="sidebar-menu-item" data-page="settings">
+                    <i class="bi bi-gear-fill icon" aria-hidden="true"></i>
+                    <span>Settings</span>
+                </li>
+                <li class="sidebar-menu-item" data-page="sign-out">
+                    <i class="bi bi-door-open icon" aria-hidden="true"></i>
+                    <span>Sign Out</span>
+                </li>
+            </ul>
+        </div>
+
+        <div class="main-content">
+            <div id="dynamic-content">
+                </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+    // Toggle sidebar "active" class and remember selection in localStorage
+    (function () {
+        const items = document.querySelectorAll('.sidebar-menu-item');
+        const STORAGE_KEY = 'student-active-page';
+
+        function setActiveByPage(page) {
+            items.forEach(i => {
+                if (i.dataset.page === page) i.classList.add('active');
+                else i.classList.remove('active');
+            });
+        }
+
+        // Initialize from storage or default to first item
+        const saved = localStorage.getItem(STORAGE_KEY);
+        const defaultPage = saved || (items[0] && items[0].dataset.page);
+        if (defaultPage) setActiveByPage(defaultPage);
+
+        // Click handlers — toggle active and persist
+        items.forEach(i => i.addEventListener('click', () => {
+            const page = i.dataset.page;
+            setActiveByPage(page);
+            try { localStorage.setItem(STORAGE_KEY, page); } catch (e) {}
+            // optional: load content for page into #dynamic-content here
+            // document.getElementById('dynamic-content').textContent = page;
+        }));
+    })();
+    </script>
+</body>
+</html>

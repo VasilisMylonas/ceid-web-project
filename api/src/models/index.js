@@ -32,6 +32,5 @@ for (const modelName of Object.keys(db)) {
 }
 
 db.sequelize = sequelize;
-db.Sequelize = Sequelize;
 
 export default db;

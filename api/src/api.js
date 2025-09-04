@@ -13,6 +13,7 @@ import invitationRoutes from "./routes/invitation.routes.js";
 import studentRoutes from "./routes/student.routes.js";
 import myRoutes from "./routes/my.routes.js";
 import { errorHandler } from "./middleware/errorHandler.js";
+import adminPanel from "./admin-panel.js";
 
 const api = express();
 api.use(express.json()); // JSON middleware
@@ -25,6 +26,8 @@ api.use("/v1/theses", thesisRoutes);
 api.use("/v1/invitations", invitationRoutes);
 api.use("/v1/my", myRoutes);
 api.use("/v1/students", studentRoutes);
+
+api.use("/admin", adminPanel);
 
 // TODO
 // app.use("/v1/notes", noteRoutes);

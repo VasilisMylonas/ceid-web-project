@@ -1,3 +1,5 @@
 FROM node:20
 WORKDIR /usr/src/client
-CMD ["sh", "-c", "npm install && npm run dev"]
+COPY package*.json ./
+RUN npm install
+CMD ["npm", "run", "dev"]

@@ -29,14 +29,14 @@ afterAll(async () => {
 
 describe("View and create topics", () => {
   it("has no topics", async () => {
-    const response = await professorAgent.get("/api/v1/topics");
+    const response = await professorAgent.get("/v1/topics");
     expect(response.statusCode).toBe(StatusCodes.OK);
     expect(Array.isArray(response.body)).toBe(true);
     expect(response.body.length).toBe(0);
   });
 
   it("creates a topic", async () => {
-    const response = await professorAgent.post("/api/v1/topics").send({
+    const response = await professorAgent.post("/v1/topics").send({
       title: "New db.Topic",
       summary: "This is a new topic",
     });
@@ -49,7 +49,7 @@ describe("View and create topics", () => {
   });
 
   it("lists the topic", async () => {
-    const response = await professorAgent.get("/api/v1/topics");
+    const response = await professorAgent.get("/v1/topics");
     expect(response.statusCode).toBe(StatusCodes.OK);
     expect(Array.isArray(response.body)).toBe(true);
     expect(response.body[0].id).toBe(topicId);
@@ -59,14 +59,14 @@ describe("View and create topics", () => {
 
   it("marks the topic as unassigned", async () => {
     let response = await professorAgent
-      .get("/api/v1/topics")
+      .get("/v1/topics")
       .query({ professorId: professorId, status: "unassigned" });
     expect(response.statusCode).toBe(StatusCodes.OK);
     expect(Array.isArray(response.body)).toBe(true);
     expect(response.body[0].id).toBe(topicId);
 
     response = await professorAgent
-      .get("/api/v1/topics")
+      .get("/v1/topics")
       .query({ professorId: professorId, status: "assigned" });
     expect(response.statusCode).toBe(StatusCodes.OK);
     expect(Array.isArray(response.body)).toBe(true);
@@ -77,7 +77,7 @@ describe("View and create topics", () => {
 describe("Initial topic assignment", () => {
   it("searches students by name or AM", async () => {
     let response = await professorAgent
-      .get("/api/v1/students")
+      .get("/v1/students")
       .query({ search: "makis" });
     expect(response.statusCode).toBe(StatusCodes.OK);
     expect(Array.isArray(response.body)).toBe(true);
@@ -85,7 +85,7 @@ describe("Initial topic assignment", () => {
     expect(response.body[0].id).toBe(studentId);
 
     response = await professorAgent
-      .get("/api/v1/students")
+      .get("/v1/students")
       .query({ search: "110110" });
     expect(response.statusCode).toBe(StatusCodes.OK);
     expect(Array.isArray(response.body)).toBe(true);
@@ -94,7 +94,7 @@ describe("Initial topic assignment", () => {
   });
 
   it("assigns a topic to a student", async () => {
-    const response = await professorAgent.post("/api/v1/theses").send({
+    const response = await professorAgent.post("/v1/theses").send({
       topicId: topicId,
       studentId: studentId,
     });
@@ -108,14 +108,14 @@ describe("Initial topic assignment", () => {
 
   it("marks the topic as assigned", async () => {
     let response = await professorAgent
-      .get("/api/v1/topics")
+      .get("/v1/topics")
       .query({ professorId: professorId, status: "assigned" });
     expect(response.statusCode).toBe(StatusCodes.OK);
     expect(Array.isArray(response.body)).toBe(true);
     expect(response.body[0].id).toBe(topicId);
 
     response = await professorAgent
-      .get("/api/v1/topics")
+      .get("/v1/topics")
       .query({ professorId: professorId, status: "unassigned" });
     expect(response.statusCode).toBe(StatusCodes.OK);
     expect(Array.isArray(response.body)).toBe(true);
@@ -123,25 +123,23 @@ describe("Initial topic assignment", () => {
   });
 
   it("un-assigns the topic", async () => {
-    let response = await professorAgent
-      .delete(`/api/v1/theses/${thesisId}`)
-      .send();
+    let response = await professorAgent.delete(`/v1/theses/${thesisId}`).send();
     expect(response.statusCode).toBe(StatusCodes.NO_CONTENT);
 
-    response = await professorAgent.get(`/api/v1/theses/${thesisId}`).send();
+    response = await professorAgent.get(`/v1/theses/${thesisId}`).send();
     expect(response.statusCode).toBe(StatusCodes.NOT_FOUND);
   });
 
   it("marks the topic as unassigned", async () => {
     let response = await professorAgent
-      .get("/api/v1/topics")
+      .get("/v1/topics")
       .query({ professorId: professorId, status: "unassigned" });
     expect(response.statusCode).toBe(StatusCodes.OK);
     expect(Array.isArray(response.body)).toBe(true);
     expect(response.body[0].id).toBe(topicId);
 
     response = await professorAgent
-      .get("/api/v1/topics")
+      .get("/v1/topics")
       .query({ professorId: professorId, status: "assigned" });
     expect(response.statusCode).toBe(StatusCodes.OK);
     expect(Array.isArray(response.body)).toBe(true);
@@ -152,7 +150,7 @@ describe("Initial topic assignment", () => {
 describe("View theses", () => {
   it("lists the professor's theses", async () => {
     let response = await professorAgent
-      .get("/api/v1/theses")
+      .get("/v1/theses")
       .query({ professorId: professorId });
     expect(response.statusCode).toBe(StatusCodes.OK);
     expect(Array.isArray(response.body)).toBe(true);
@@ -160,7 +158,7 @@ describe("View theses", () => {
   });
 
   it("assigns a topic to a student", async () => {
-    const response = await professorAgent.post("/api/v1/theses").send({
+    const response = await professorAgent.post("/v1/theses").send({
       topicId: topicId,
       studentId: studentId,
     });
@@ -186,7 +184,7 @@ describe("Student interaction", () => {
   });
 
   it("list the student's thesis", async () => {
-    const response = await studentAgent.get(`/api/v1/theses/${thesisId}`);
+    const response = await studentAgent.get(`/v1/theses/${thesisId}`);
     expect(response.statusCode).toBe(StatusCodes.OK);
     expect(response.body.id).toBe(thesisId);
     expect(response.body.topicId).toBe(topicId);
@@ -195,7 +193,7 @@ describe("Student interaction", () => {
 
   it("invites other professors to the committee", async () => {
     let response = await studentAgent
-      .post(`/api/v1/theses/${thesisId}/invitations`)
+      .post(`/v1/theses/${thesisId}/invitations`)
       .send({
         professorId: professorAId,
       });
@@ -205,7 +203,7 @@ describe("Student interaction", () => {
     expect(response.body.professorId).toBe(professorAId);
 
     response = await studentAgent
-      .post(`/api/v1/theses/${thesisId}/invitations`)
+      .post(`/v1/theses/${thesisId}/invitations`)
       .send({
         professorId: professorBId,
       });
@@ -217,7 +215,7 @@ describe("Student interaction", () => {
 
   it("rejects duplicate invitations", async () => {
     const response = await studentAgent
-      .post(`/api/v1/theses/${thesisId}/invitations`)
+      .post(`/v1/theses/${thesisId}/invitations`)
       .send({
         professorId: professorAId,
       });
@@ -226,7 +224,7 @@ describe("Student interaction", () => {
 
   it("lists the invitations", async () => {
     const response = await studentAgent
-      .get(`/api/v1/theses/${thesisId}/invitations`)
+      .get(`/v1/theses/${thesisId}/invitations`)
       .send();
     expect(response.statusCode).toBe(StatusCodes.OK);
     expect(Array.isArray(response.body)).toBe(true);

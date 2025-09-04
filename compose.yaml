@@ -46,6 +46,7 @@ services:
       dockerfile: Dockerfile.dev
     volumes:
       - ./client:/usr/src/client:Z
+      - /usr/src/client/node_modules
     ports:
       - "5173:5173"
 
@@ -61,10 +62,24 @@ services:
       - PORT=3000
     volumes:
       - ./api:/usr/src/api:Z
+      - /usr/src/api/node_modules
     ports:
       - "3000:3000"
     depends_on:
       - db
+
+  api-test:
+    container_name: theseus_api_test
+    build:
+      context: ./api
+      dockerfile: Dockerfile.test
+    environment:
+      - NODE_ENV=test
+      - JWT_SECRET=my_jwt_secret
+      - PORT=3000
+    volumes:
+      - ./api:/usr/src/api:Z
+      - /usr/src/api/node_modules
 
   # Service for the Postgres database. Set user, password, db in the environment variables below.
   db:

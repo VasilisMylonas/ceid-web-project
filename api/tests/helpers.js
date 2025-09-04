@@ -8,7 +8,7 @@ import { UserRole } from "../src/constants.js";
 export async function createProfessorAgent(namepass) {
   const agent = request.agent(api);
   const response = await agent
-    .post("/api/v1/auth/login")
+    .post("/v1/auth/login")
     .send({
       username: namepass,
       password: namepass,
@@ -23,7 +23,7 @@ export async function createProfessorAgent(namepass) {
 export async function createStudentAgent() {
   const agent = request.agent(api);
   const response = await agent
-    .post("/api/v1/auth/login")
+    .post("/v1/auth/login")
     .send({
       username: "student",
       password: "student",

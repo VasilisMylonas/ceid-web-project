@@ -5,11 +5,21 @@ body {
     --pink: #F2DFDF;
     --gray: #D9D9D9;
 
+    --dark-brown-hover: #57040f;
+
     /*
         https://getbootstrap.com/docs/5.0/customize/css-variables/
 
         Overwrite bootstrap variables here
     */
+}
 
-    --bs-blue: #ff5733;
+.btn-primary {
+    background-color: var(--dark-brown);
+    border-color: var(--dark-brown);
+}
+
+.btn-primary:hover {
+    background-color: var(--dark-brown-hover);
+    border-color: var(--dark-brown-hover);
 }

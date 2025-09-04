@@ -46,7 +46,7 @@ const adminJs = new AdminJS({
 });
 
 const adminRouter = AdminJSExpress.buildRouter(adminJs);
-app.use(adminJs.options.rootPath, adminRouter);
+api.use(adminJs.options.rootPath, adminRouter);
 
 // TODO
 // app.use("/v1/notes", noteRoutes);

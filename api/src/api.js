@@ -13,6 +13,7 @@ import invitationRoutes from "./routes/invitation.routes.js";
 import studentRoutes from "./routes/student.routes.js";
 import myRoutes from "./routes/my.routes.js";
 import { errorHandler } from "./middleware/errorHandler.js";
+import adminPanel from "./admin-panel.js";
 
 const api = express();
 api.use(express.json()); // JSON middleware
@@ -26,27 +27,7 @@ api.use("/v1/invitations", invitationRoutes);
 api.use("/v1/my", myRoutes);
 api.use("/v1/students", studentRoutes);
 
-import AdminJS from "adminjs";
-import AdminJSExpress from "@adminjs/express";
-import AdminJSSequelize from "@adminjs/sequelize";
-import db from "./models/index.js";
-
-AdminJS.registerAdapter(AdminJSSequelize);
-
-const models = Object.values(db).filter((model) => model !== db.sequelize);
-
-const adminJs = new AdminJS({
-  resources: models.map((model) => {
-    return {
-      resource: model,
-      options: {},
-    };
-  }),
-  rootPath: "/admin",
-});
-
-const adminRouter = AdminJSExpress.buildRouter(adminJs);
-api.use(adminJs.options.rootPath, adminRouter);
+api.use("/admin", adminPanel);
 
 // TODO
 // app.use("/v1/notes", noteRoutes);

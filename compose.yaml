@@ -48,7 +48,6 @@ services:
       - ./client:/usr/src/client:Z
     ports:
       - "5173:5173"
-    command: ["npm", "run", "dev"]
 
   api-dev:
     container_name: theseus_api_dev
@@ -64,7 +63,6 @@ services:
       - ./api:/usr/src/api:Z
     ports:
       - "3000:3000"
-    command: ["npm", "run", "dev"]
     depends_on:
       - db
 

@@ -1,0 +1,15 @@
+body {
+    --dark-brown: #710513;
+    --light-brown: #D28231DE;
+    --yellow: #F8E7A3;
+    --pink: #F2DFDF;
+    --gray: #D9D9D9;
+
+    /*
+        https://getbootstrap.com/docs/5.0/customize/css-variables/
+
+        Overwrite bootstrap variables here
+    */
+
+    --bs-blue: #ff5733;
+}

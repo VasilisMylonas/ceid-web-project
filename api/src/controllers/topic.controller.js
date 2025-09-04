@@ -67,6 +67,7 @@ export default class TopicController {
   }
 
   static async get(req, res) {
+    // TODO: does not omit descriptionFile
     res.status(StatusCodes.OK).json(omit(req.topic.get(), "descriptionFile"));
   }
 

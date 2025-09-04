@@ -1,10 +1,5 @@
 import { validator } from "../config/validation.js";
-import {
-  ThesisRole,
-  ThesisStatus,
-  ResourceKind,
-  PresentationKind,
-} from "../constants.js";
+import { ThesisRole, ThesisStatus } from "../constants.js";
 
 export default {
   cancel: {
@@ -95,6 +90,18 @@ export default {
     body: validator
       .object({
         professorId: validator.number().integer().min(1).required(),
+      })
+      .unknown(false),
+  },
+  patchGrading: {
+    params: validator
+      .object({
+        id: validator.number().integer().min(1).required(),
+      })
+      .unknown(false),
+    body: validator
+      .object({
+        grading: validator.string().valid("enabled", "disabled").required(),
       })
       .unknown(false),
   },

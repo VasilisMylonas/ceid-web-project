@@ -2,7 +2,6 @@ import { StatusCodes } from "http-status-codes";
 import db from "../models/index.js";
 import { getFilePath, deleteIfExists } from "../config/file-storage.js";
 import { ThesisStatus } from "../constants.js";
-import { SourceCode } from "eslint";
 
 export default class ThesisController {
   static async post(req, res) {
@@ -30,6 +29,12 @@ export default class ThesisController {
     } catch (error) {
       res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
     }
+  }
+
+  static async patchGrading(req, res) {
+    req.thesis.grading = req.body.grading;
+    await req.thesis.save();
+    res.status(StatusCodes.OK).json(req.thesis);
   }
 
   static async delete(req, res) {

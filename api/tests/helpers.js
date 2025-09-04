@@ -2,11 +2,11 @@ import request from "supertest";
 import bcrypt from "bcrypt";
 
 import db from "../src/models/index.js";
-import app from "../src/app.js";
+import api from "../src/api.js";
 import { UserRole } from "../src/constants.js";
 
 export async function createProfessorAgent(namepass) {
-  const agent = request.agent(app);
+  const agent = request.agent(api);
   const response = await agent
     .post("/api/v1/auth/login")
     .send({
@@ -21,7 +21,7 @@ export async function createProfessorAgent(namepass) {
 }
 
 export async function createStudentAgent() {
-  const agent = request.agent(app);
+  const agent = request.agent(api);
   const response = await agent
     .post("/api/v1/auth/login")
     .send({

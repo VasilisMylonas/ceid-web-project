@@ -1,9 +1,22 @@
 import { login } from "/js/api.js";
 import { jwtDecode } from "jwt-decode";
 
+const token = sessionStorage.getItem("authToken");
+
+// If token is set, redirect
+if (token) {
+  redirectToMainPage(token);
+}
+
 document
   .getElementById("loginForm")
   .addEventListener("submit", onLoginFormSubmit);
+
+function redirectToMainPage(token) {
+  const { id, role } = jwtDecode(token);
+  console.log(`Welcome user ${id} (${role})`);
+  window.location.href = `/${role}.html`;
+}
 
 async function onLoginFormSubmit(e) {
   e.preventDefault(); // Prevent redirect
@@ -19,13 +32,9 @@ async function onLoginFormSubmit(e) {
     // NOTE: an alternative is HttpOnly cookie which is more secure but requires
     // CORS and CSRF protection on the server
     sessionStorage.setItem("authToken", token);
+
     loginAlert.classList.add("d-none");
-
-    const { id, role } = jwtDecode(token);
-    console.log(`Welcome user ${id} (${role})`);
-
-    // Redirect to appropriate page
-    window.location.href = `/${role}.html`;
+    redirectToMainPage(token);
   } catch (error) {
     // We could also change the message to show the actual error
     // But for security reasons we avoid giving details on why the login failed

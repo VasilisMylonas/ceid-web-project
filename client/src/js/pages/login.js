@@ -4,6 +4,7 @@ import { jwtDecode } from "jwt-decode";
 const token = sessionStorage.getItem("authToken");
 
 // If token is set, redirect
+// TODO: should also check if token is valid (not expired)
 if (token) {
   redirectToMainPage(token);
 }

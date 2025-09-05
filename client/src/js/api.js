@@ -9,6 +9,18 @@ async function request(url, object) {
   });
 }
 
+async function authRequest(url, object) {
+  const token = sessionStorage.getItem("authToken");
+  return await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(object),
+  });
+}
+
 export async function login(username, password) {
   const response = await request(LOGIN_API_URL, { username, password });
 

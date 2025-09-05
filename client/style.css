@@ -1,0 +1,213 @@
+/* Theme variables */
+:root{
+    --sidebar-width: 280px;    /* default sidebar width; adjust as needed */
+    --sidebar-min-width: 200px;
+    --sidebar-max-width: 340px;
+    --main-bg-color: #F3DEDF;
+    --sidebar-bg-color: #ffffff;
+    --accent-color: #D9934C;   /* primary item text color */
+    --active-bg: #710513;     /* active / hover background */
+    --logo-accent: #8c2a3e;
+    --danger-color: #c82333;
+    --text-color: #343a40;
+    --transition-fast: 180ms;
+}
+
+/* Base */
+html,body{
+    height:100%;
+}
+body{
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    background-color: var(--main-bg-color);
+    color: var(--text-color);
+    margin:0;
+}
+
+/* Layout */
+.wrapper{
+    display:flex;
+    min-height:100vh;
+    gap:0;
+}
+
+/* Sidebar */
+.sidebar{
+    flex: 0 0 var(--sidebar-width);
+    min-width: var(--sidebar-min-width);
+    max-width: var(--sidebar-max-width);
+    background: var(--sidebar-bg-color);
+    display:flex;
+    flex-direction:column;
+    border-right: 1px solid #dee2e6;
+    transition: width var(--transition-fast);
+}
+
+/* Header / logo */
+.sidebar-header{
+    padding: 1.25rem 1rem; /* a bit more space around a larger logo */
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-bottom: 1px solid #dee2e6;
+}
+.sidebar-header img{
+    height:9rem;   
+    max-height:10rem;
+    width:auto;
+    object-fit:contain;
+    display:block;
+}
+
+/* Small screens: keep logo reasonable */
+@media (max-width: 767.98px){
+    .sidebar-header img{
+        height:2.5rem;
+        max-height:3rem;
+    }
+}
+
+/* Menu */
+.sidebar-menu{
+    list-style:none;
+    padding: 0.5rem;
+    margin: 0;
+    display:flex;
+    flex-direction:column;
+    gap: 0.25rem;
+    
+}
+
+/* make the main menu (not the footer) fill available space */
+.sidebar > .sidebar-menu:not(.sidebar-footer) {
+    flex-grow: 1;
+}
+
+.sidebar-menu-item{
+    display:flex;
+    align-items:center;
+    gap:0.75rem;
+    padding:0.6rem 0.9rem;
+    color: var(--accent-color);
+    text-decoration:none;
+    font-size:1.05rem;
+    font-weight:700;
+    border-radius:8px;
+    transition: background-color var(--transition-fast), color var(--transition-fast),
+                transform var(--transition-fast);
+    cursor:pointer;
+    user-select:none;
+    -webkit-tap-highlight-color: transparent;
+}
+.sidebar-menu-item .icon{
+    font-size:1.25rem;
+    width:1.25rem;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+}
+
+
+.sidebar-menu-item.active,
+.sidebar-menu-item:hover,
+.sidebar-menu-item:focus{
+    background-color: var(--active-bg);
+    color: #ffffff;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    outline: none;
+}
+
+.sidebar-menu-item[data-page="sign-out"]{
+    color: var(--danger-color);
+}
+.sidebar-menu-item[data-page="sign-out"].active,
+.sidebar-menu-item[data-page="sign-out"]:hover,
+.sidebar-menu-item[data-page="sign-out"]:focus{
+    color:#ffffff;
+}
+
+/* Footer area inside sidebar */
+.sidebar-footer{
+    padding:0.75rem;
+    border-top:1px solid #dee2e6;
+    display:flex;
+    flex-direction:column;
+    gap:0.25rem;
+    margin-top: auto; /* push footer to the bottom of the sidebar */
+    align-items: stretch;
+}
+
+/* Main content area */
+.main-content{
+    flex:1 1 auto;
+    padding:1.25rem;
+    overflow:auto;
+    min-width:0; /* ensures proper flex shrinking */
+}
+
+/* Top bar (if used) */
+.top-bar{
+    background:#fff;
+    padding:0.5rem 1rem;
+    border-bottom:1px solid #dee2e6;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+/* Responsive adjustments */
+/* Small screens: stack sidebar above content and make menu horizontal */
+@media (max-width: 767.98px){
+    .wrapper{
+        flex-direction:column;
+    }
+    .sidebar{
+        width:100%;
+        min-width:0;
+        max-width:100%;
+        border-right:none;
+        border-bottom:1px solid #dee2e6;
+    }
+
+    /* horizontal menu: smaller spacing & type so items fit on one line;
+       allow wrapping to next row only when necessary (flex-wrap on container) */
+    .sidebar-menu{
+        flex-direction:row;
+        flex-wrap:wrap;
+        gap:0.25rem;
+        padding:0.5rem;
+        justify-content:space-around;
+    }
+    .sidebar-menu-item{
+        flex: 0 1 auto;                 /* size to content, but allow shrinking */
+        min-width:6.5rem;               /* prevent items from collapsing too small */
+        max-width: calc(50% - 0.5rem);  /* typical two-per-row; adjust if needed */
+        justify-content:center;
+        padding:0.35rem 0.5rem;         /* reduced padding */
+        text-align:center;
+        font-size:0.88rem;              /* smaller font so labels fit */
+        gap:0.5rem;                      /* smaller icon/text gap */
+        white-space:nowrap;             /* force single-line label */
+        overflow:hidden;
+        text-overflow:ellipsis;         /* show ellipsis if label is too long */
+    }
+    .sidebar-menu-item .icon{
+        margin-right:0;
+        display:block;
+        font-size:1rem; /* smaller icon */
+        width:auto;
+    }
+
+    .main-content{
+        padding:1rem;
+    }
+}
+
+/* Accessibility: focus visible */
+.sidebar-menu-item:focus-visible{
+    box-shadow: 0 0 0 3px rgba(217,147,76,0.18);
+}
+
+/* Utility: allow easy width override in layouts or debugging */
+.sidebar--narrow{ --sidebar-width: 220px; }
+.sidebar--wide{ --sidebar-width: 340px; }

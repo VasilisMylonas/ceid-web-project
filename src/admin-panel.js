@@ -1,7 +1,7 @@
 import AdminJS from "adminjs";
 import AdminJSExpress from "@adminjs/express";
 import AdminJSSequelize from "@adminjs/sequelize";
-import db from "./api/models/index.js";
+import db from "./models/index.js";
 
 const models = Object.values(db).filter((model) => model !== db.sequelize);
 

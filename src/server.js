@@ -1,7 +1,7 @@
-import api from "./api/index.js";
-import db from "./api/models/index.js";
+import api from "./api.js";
+import db from "./models/index.js";
 import express from "express";
-import seedDatabase from "./api/seeders/index.js";
+import seedDatabase from "./seeders/index.js";
 import adminPanel from "./admin-panel.js";
 import morgan from "morgan";
 

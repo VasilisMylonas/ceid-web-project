@@ -1,0 +1,34 @@
+/*
+ * This file contains specific styles for the thesis management page (thesis.html).
+ * It complements the main styles in student.css and the Bootstrap framework.
+ */
+
+/* Add a subtle transition for a smoother hover effect on interactive sections */
+.upload-section,
+.presentation-section,
+.final-submission-section {
+    transition: box-shadow 0.2s ease-in-out;
+}
+
+/* Slightly enhance the shadow on hover to indicate interactivity */
+.upload-section:hover,
+.presentation-section:hover,
+.final-submission-section:hover {
+    box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.075);
+}
+
+/* Style for the card representing the current, active step, if needed.
+   You would need to dynamically add the 'active-step' class with JavaScript. */
+.card.active-step {
+    border-color: var(--bs-primary);
+    border-width: 2px;
+}
+
+/* Custom styling for the file input to make it more prominent */
+#thesisFile {
+    cursor: pointer;
+}
+
+.input-group-text {
+    cursor: pointer;
+}

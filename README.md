@@ -64,6 +64,8 @@ docker compose up api-dev
 
 The API should now be running at <http://localhost:3000>.
 
+The API is documented using Postman. You can import the provided Postman collection to explore and test the API endpoints. You can access it [here](https://vasilismylonas-6137673.postman.co/workspace/Vasilis-Mylonas's-Workspace~bdb1c1e8-077b-415a-8162-22e0b9bd75ec/collection/44259023-63d0ae2b-e09c-49fe-a222-e0101989a819?action=share&creator=44259023&active-environment=44259023-a78b3f97-8acb-4fdb-8ac2-2b5e6e229a23)
+
 ### Running the Client (with hot-reloading)
 
 ```bash
@@ -71,10 +73,9 @@ docker compose up client-dev
 ```
 
 The client should now be running at <http://localhost:5173>.
+This will also start the API in dev mode as well, since the client depends on it.
 
-### API Documentation
-
-The API is documented using Postman. You can import the provided Postman collection to explore and test the API endpoints. You can access it [here](https://vasilismylonas-6137673.postman.co/workspace/Vasilis-Mylonas's-Workspace~bdb1c1e8-077b-415a-8162-22e0b9bd75ec/collection/44259023-63d0ae2b-e09c-49fe-a222-e0101989a819?action=share&creator=44259023&active-environment=44259023-a78b3f97-8acb-4fdb-8ac2-2b5e6e229a23)
+`client/src/login.html` appears as `http://localhost:5173/login.html`; same with other pages.
 
 ## TODOs
 

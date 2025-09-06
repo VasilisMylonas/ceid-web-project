@@ -150,12 +150,14 @@ body.sidebar-collapsed #sidebar-toggle {
     }
 
     .sidebar {
-        position: static; /* Position at the top in normal document flow */
+        position: sticky; /* Make sidebar sticky on mobile */
+        top: 0; /* Stick to the top */
         height: auto;
         width: 100%;
         border-right: none;
         border-bottom: 1px solid #dee2e6;
         transition: none; /* Disable horizontal width transition */
+        background-color: var(--sidebar-bg-color); /* Ensure it has a background */
     }
 
     .main-content {

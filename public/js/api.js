@@ -2,7 +2,7 @@
  * This module contains functions for making API requests to the backend server.
  */
 
-const BASE_URL = "http://localhost:3000";
+const BASE_URL = "http://localhost:3000/api";
 const LOGIN_API_URL = `${BASE_URL}/v1/auth/login`;
 const PROFILE_API_URL = `${BASE_URL}/v1/my/profile`;
 

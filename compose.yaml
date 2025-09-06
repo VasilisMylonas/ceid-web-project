@@ -12,6 +12,7 @@ services:
       - ./nginx/conf.d:/etc/nginx/conf.d:ro,Z
       - ./nginx/certs:/etc/ssl/certs:ro,Z
       - ./nginx/private:/etc/ssl/private:ro,Z
+      - ./public:/usr/share/nginx/html:ro,Z
     depends_on:
       - theseus
 
@@ -25,7 +26,7 @@ services:
       dockerfile: Dockerfile
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=postgres://postgres:postgres@theseus_db:5432/postgres
+      - DATABASE_URL=postgres://postgres:postgres@theseus-db:5432/postgres
       - JWT_SECRET=my_jwt_secret
       - PORT=3000
     ports:
@@ -40,7 +41,7 @@ services:
       dockerfile: Dockerfile.dev
     environment:
       - NODE_ENV=development
-      - DATABASE_URL=postgres://postgres:postgres@theseus_db:5432/postgres
+      - DATABASE_URL=postgres://postgres:postgres@theseus-db:5432/postgres
       - JWT_SECRET=my_jwt_secret
       - PORT=3000
     volumes:

@@ -1,5 +1,5 @@
 import { login } from "/js/api.js";
-import { jwtDecode } from "jwt-decode";
+import { jwtDecode } from "https://cdn.jsdelivr.net/npm/jwt-decode@4.0.0/+esm";
 
 const token = sessionStorage.getItem("authToken");
 

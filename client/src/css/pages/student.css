@@ -5,6 +5,7 @@
     --main-bg-color: #F3DEDF;
     --sidebar-bg-color: #ffffff;
     --active-bg: #710513;
+    --hover-bg: #74333a; /* Lighter red for hover */
     --nav-link-color: #343a40;
     --nav-link-hover-color: #000;
     --nav-link-active-color: #fff;
@@ -62,17 +63,22 @@ body {
     color: var(--nav-link-color);
     padding: 0.75rem 1rem;
     border-radius: 0.25rem;
-    white-space: nowrap;
+    white-space: normal; /* Allow text to wrap */
     overflow: hidden;
+    line-height: 1.2; /* Adjust line height for better readability on wrap */
 }
 
 .nav-link .icon {
     font-size: 1.25rem;
 }
 
-.nav-item.active .nav-link,
-.nav-link:hover {
+.nav-item.active .nav-link {
     background-color: var(--active-bg);
+    color: var(--nav-link-active-color);
+}
+
+.nav-link:hover {
+    background-color: var(--hover-bg);
     color: var(--nav-link-active-color);
 }
 
@@ -130,6 +136,19 @@ body.sidebar-collapsed #sidebar-toggle {
 
 /* Small screens: Vertical Collapse from Top */
 @media (max-width: 767.98px) {
+    .sidebar-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 1rem;
+    }
+
+    .sidebar-header img {
+        max-height: 2.5rem; /* Make logo much smaller on mobile */
+        width: auto;
+        display: block; /* Ensure it's a block element for layout */
+    }
+
     .sidebar {
         position: static; /* Position at the top in normal document flow */
         height: auto;
@@ -142,13 +161,23 @@ body.sidebar-collapsed #sidebar-toggle {
     .main-content {
         margin-left: 0; /* Full width content area */
         transition: none;
+        display: block; /* Override flex display */
+        padding: 1rem; /* Adjust padding for mobile */
+    }
+
+    /*
+     * Override the desktop collapsed margin. On mobile, the margin
+     * should always be 0, regardless of the sidebar state.
+    */
+    body.sidebar-collapsed .main-content {
+        margin-left: 0;
     }
 
     /* Prepare menu sections for smooth transition */
     .sidebar-menu,
     .sidebar-footer {
         overflow: hidden;
-        transition: max-height 0.1s ease-out, padding 0.3s ease-out;
+        transition: max-height 0.2s ease-out, padding 0.3s ease-out;
         max-height: 40rem; /* A height large enough to show all content */
     }
 
@@ -165,7 +194,7 @@ body.sidebar-collapsed #sidebar-toggle {
         width: 100%;
     }
 
-    /* Override desktop collapse rules that hide text/logo */
+    /* On mobile, the logo and nav link text should always be visible */
     body.sidebar-collapsed .sidebar-header img,
     body.sidebar-collapsed .nav-link span {
         opacity: 1;

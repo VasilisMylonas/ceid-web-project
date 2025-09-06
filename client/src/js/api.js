@@ -1,33 +1,45 @@
+/**
+ * This module contains functions for making API requests to the backend server.
+ */
+
 const BASE_URL = "http://localhost:3000";
 const LOGIN_API_URL = `${BASE_URL}/v1/auth/login`;
+const PROFILE_API_URL = `${BASE_URL}/v1/my/profile`;
 
-async function request(url, object) {
-  return await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(object),
-  });
-}
-
-async function authRequest(url, object) {
-  const token = sessionStorage.getItem("authToken");
-  return await fetch(url, {
-    method: "POST",
+async function request(method, url, object = {}, auth = true) {
+  const response = await fetch(url, {
+    method: method,
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
+      ...(auth && {
+        Authorization: `Bearer ${sessionStorage.getItem("authToken")}`,
+      }),
     },
     body: JSON.stringify(object),
   });
-}
-
-export async function login(username, password) {
-  const response = await request(LOGIN_API_URL, { username, password });
 
   if (response.ok) {
-    const { token } = await response.json();
-    return token;
+    return await response.json();
   }
 
   throw new Error(`${response.status} ${response.statusText}`);
+}
+
+export async function login(username, password) {
+  const { token } = await request(
+    "POST",
+    LOGIN_API_URL,
+    { username, password },
+    false
+  );
+
+  return token;
+}
+
+export async function getProfile() {
+  return await request("GET", PROFILE_API_URL);
+}
+
+export async function updateProfile(properties) {
+  return await request("PATCH", PROFILE_API_URL, properties);
 }

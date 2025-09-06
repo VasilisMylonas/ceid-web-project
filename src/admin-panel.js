@@ -18,6 +18,5 @@ const adminJs = new AdminJS({
 });
 
 const adminPanel = AdminJSExpress.buildRouter(adminJs);
-// adminPanel.use(adminJs.options.rootPath, AdminJSExpress.buildRouter(adminJs));
 
 export default adminPanel;

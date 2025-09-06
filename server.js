@@ -3,31 +3,29 @@ import db from "./api/models/index.js";
 import express from "express";
 import seedDatabase from "./api/seeders/index.js";
 import adminPanel from "./admin-panel.js";
-import { createProxyMiddleware } from "http-proxy-middleware";
 import morgan from "morgan";
 
 const app = express();
 app.use(morgan("dev")); // Logging middleware
+
+// API
 app.use("/api", api);
+
+// Admin panel
 app.use("/admin", adminPanel);
+
+// EJS templates
+app.set("view engine", "ejs");
+app.set("views", "views");
+
+app.get("/login", (req, res) => {
+  res.render("login", {});
+});
 
 if (process.env.NODE_ENV === "development") {
   // Serve static files
   app.use(express.static("public"));
-
-  // Proxy assets to vite server
-  // app.use(
-  //   "/assets",
-  //   createProxyMiddleware({
-  //     target: "http://localhost:5173", // vite url
-  //     changeOrigin: true, // change Host header
-  //     ws: true, // (web sockets) hot reload support
-  //   })
-  // );
 }
-
-app.set("view engine", "ejs");
-app.set("views", "views");
 
 // app.get("/", (req, res) => {
 // TODO
@@ -35,10 +33,6 @@ app.set("views", "views");
 // return res.redirect("/login");
 // }
 // });
-
-app.get("/login", (req, res) => {
-  res.render("login", {});
-});
 
 try {
   await db.sequelize.authenticate();

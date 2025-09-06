@@ -1,9 +1,9 @@
 import request from "supertest";
 import bcrypt from "bcrypt";
 
-import db from "../src/models/index.js";
-import api from "../src/api.js";
-import { UserRole } from "../src/constants.js";
+import db from "../models/index.js";
+import api from "../api.js";
+import { UserRole } from "../constants.js";
 
 export async function createProfessorAgent(namepass) {
   const agent = request.agent(api);

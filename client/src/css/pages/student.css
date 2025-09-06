@@ -1,15 +1,13 @@
 /* Theme variables */
-:root{
-    --sidebar-width: 280px;    /* default sidebar width; adjust as needed */
-    --sidebar-min-width: 200px;
-    --sidebar-max-width: 340px;
+:root {
+    --sidebar-width: 280px;
+    --sidebar-collapsed-width: 80px;
     --main-bg-color: #F3DEDF;
     --sidebar-bg-color: #ffffff;
-    --accent-color: #D9934C;   /* primary item text color */
-    --active-bg: #710513;     /* active / hover background */
-    --logo-accent: #8c2a3e;
-    --danger-color: #c82333;
-    --text-color: #343a40;
+    --active-bg: #710513;
+    --nav-link-color: #343a40;
+    --nav-link-hover-color: #000;
+    --nav-link-active-color: #fff;
     --transition-fast: 180ms;
 }
 
@@ -17,197 +15,172 @@
 html,body{
     height:100%;
 }
-body{
+body {
     font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
     background-color: var(--main-bg-color);
-    color: var(--text-color);
+    color: var(--nav-link-color);
     margin:0;
 }
 
 /* Layout */
 .wrapper{
-    display:flex;
+    position: relative;
     min-height:100vh;
-    gap:0;
 }
 
 /* Sidebar */
 .sidebar{
-    flex: 0 0 var(--sidebar-width);
-    min-width: var(--sidebar-min-width);
-    max-width: var(--sidebar-max-width);
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: var(--sidebar-width);
     background: var(--sidebar-bg-color);
-    display:flex;
-    flex-direction:column;
     border-right: 1px solid #dee2e6;
     transition: width var(--transition-fast);
+    z-index: 1020;
+    padding: 0;
 }
 
 /* Header / logo */
 .sidebar-header{
-    padding: 1.25rem 1rem; /* a bit more space around a larger logo */
-    display:flex;
-    align-items:center;
-    justify-content:center;
+    padding: 1.25rem 1rem;
     border-bottom: 1px solid #dee2e6;
+    position: relative;
 }
 .sidebar-header img{
-    height:9rem;   
-    max-height:10rem;
-    width:auto;
-    object-fit:contain;
-    display:block;
-}
-
-/* Small screens: keep logo reasonable */
-@media (max-width: 767.98px){
-    .sidebar-header img{
-        height:2.5rem;
-        max-height:3rem;
-    }
+    max-height: 9rem;
+    transition: opacity var(--transition-fast);
 }
 
 /* Menu */
-.sidebar-menu{
-    list-style:none;
+.sidebar-menu {
     padding: 0.5rem;
-    margin: 0;
-    display:flex;
-    flex-direction:column;
-    gap: 0.25rem;
-    
 }
 
-/* make the main menu (not the footer) fill available space */
-.sidebar > .sidebar-menu:not(.sidebar-footer) {
-    flex-grow: 1;
+.nav-link {
+    color: var(--nav-link-color);
+    padding: 0.75rem 1rem;
+    border-radius: 0.25rem;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
-.sidebar-menu-item{
-    display:flex;
-    align-items:center;
-    gap:0.75rem;
-    padding:0.6rem 0.9rem;
-    color: var(--accent-color);
-    text-decoration:none;
-    font-size:1.05rem;
-    font-weight:700;
-    border-radius:8px;
-    transition: background-color var(--transition-fast), color var(--transition-fast),
-                transform var(--transition-fast);
-    cursor:pointer;
-    user-select:none;
-    -webkit-tap-highlight-color: transparent;
-}
-.sidebar-menu-item .icon{
-    font-size:1.25rem;
-    width:1.25rem;
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
+.nav-link .icon {
+    font-size: 1.25rem;
 }
 
-
-.sidebar-menu-item.active,
-.sidebar-menu-item:hover,
-.sidebar-menu-item:focus{
+.nav-item.active .nav-link,
+.nav-link:hover {
     background-color: var(--active-bg);
-    color: #ffffff;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-    outline: none;
+    color: var(--nav-link-active-color);
 }
 
-.sidebar-menu-item[data-page="sign-out"]{
-    color: var(--danger-color);
-}
-.sidebar-menu-item[data-page="sign-out"].active,
-.sidebar-menu-item[data-page="sign-out"]:hover,
-.sidebar-menu-item[data-page="sign-out"]:focus{
-    color:#ffffff;
-}
-
-/* Footer area inside sidebar */
 .sidebar-footer{
-    padding:0.75rem;
-    border-top:1px solid #dee2e6;
-    display:flex;
-    flex-direction:column;
-    gap:0.25rem;
-    margin-top: auto; /* push footer to the bottom of the sidebar */
-    align-items: stretch;
+    padding: 0.75rem;
+    border-top: 1px solid #dee2e6;
 }
 
 /* Main content area */
 .main-content{
-    flex:1 1 auto;
-    padding:1.25rem;
-    overflow:auto;
-    min-width:0; /* ensures proper flex shrinking */
+    margin-left: var(--sidebar-width);
+    transition: margin-left var(--transition-fast);
+    padding: 2rem;
+    display: flex;
+    justify-content: center;
 }
 
-/* Top bar (if used) */
-.top-bar{
-    background:#fff;
-    padding:0.5rem 1rem;
-    border-bottom:1px solid #dee2e6;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
+/* Sidebar Toggle Button */
+#sidebar-toggle {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    font-size: 1.5rem;
+    color: var(--nav-link-color);
 }
 
-/* Responsive adjustments */
-/* Small screens: stack sidebar above content and make menu horizontal */
-@media (max-width: 767.98px){
-    .wrapper{
-        flex-direction:column;
-    }
-    .sidebar{
-        width:100%;
-        min-width:0;
-        max-width:100%;
-        border-right:none;
-        border-bottom:1px solid #dee2e6;
-    }
-
-    /* horizontal menu: smaller spacing & type so items fit on one line;
-       allow wrapping to next row only when necessary (flex-wrap on container) */
-    .sidebar-menu{
-        flex-direction:row;
-        flex-wrap:wrap;
-        gap:0.25rem;
-        padding:0.5rem;
-        justify-content:space-around;
-    }
-    .sidebar-menu-item{
-        flex: 0 1 auto;                 /* size to content, but allow shrinking */
-        min-width:6.5rem;               /* prevent items from collapsing too small */
-        max-width: calc(50% - 0.5rem);  /* typical two-per-row; adjust if needed */
-        justify-content:center;
-        padding:0.35rem 0.5rem;         /* reduced padding */
-        text-align:center;
-        font-size:0.88rem;              /* smaller font so labels fit */
-        gap:0.5rem;                      /* smaller icon/text gap */
-        white-space:nowrap;             /* force single-line label */
-        overflow:hidden;
-        text-overflow:ellipsis;         /* show ellipsis if label is too long */
-    }
-    .sidebar-menu-item .icon{
-        margin-right:0;
-        display:block;
-        font-size:1rem; /* smaller icon */
-        width:auto;
-    }
-
-    .main-content{
-        padding:1rem;
-    }
+#sidebar-toggle:hover {
+    color: var(--active-bg);
 }
 
-/* Accessibility: focus visible */
-.sidebar-menu-item:focus-visible{
-    box-shadow: 0 0 0 3px rgba(217,147,76,0.18);
+/* Collapsed Sidebar Styles */
+body.sidebar-collapsed .sidebar {
+    width: var(--sidebar-collapsed-width);
 }
 
-/* Utility: allow easy width override in layouts or debugging */
-.sidebar--narrow{ --sidebar-width: 220px; }
-.sidebar--wide{ --sidebar-width: 340px; }
+body.sidebar-collapsed .main-content {
+    margin-left: var(--sidebar-collapsed-width);
+}
+
+body.sidebar-collapsed .sidebar-header img,
+body.sidebar-collapsed .nav-link span {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+}
+
+body.sidebar-collapsed .nav-link {
+    justify-content: center;
+}
+
+body.sidebar-collapsed #sidebar-toggle {
+    position: static;
+}
+
+/* Small screens: Vertical Collapse from Top */
+@media (max-width: 767.98px) {
+    .sidebar {
+        position: static; /* Position at the top in normal document flow */
+        height: auto;
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid #dee2e6;
+        transition: none; /* Disable horizontal width transition */
+    }
+
+    .main-content {
+        margin-left: 0; /* Full width content area */
+        transition: none;
+    }
+
+    /* Prepare menu sections for smooth transition */
+    .sidebar-menu,
+    .sidebar-footer {
+        overflow: hidden;
+        transition: max-height 0.1s ease-out, padding 0.3s ease-out;
+        max-height: 40rem; /* A height large enough to show all content */
+    }
+
+    /* Hide menu sections when sidebar is collapsed by setting max-height to 0 */
+    body.sidebar-collapsed .sidebar-menu,
+    body.sidebar-collapsed .sidebar-footer {
+        max-height: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+
+    /* On mobile, ensure the sidebar itself remains full-width when collapsed */
+    body.sidebar-collapsed .sidebar {
+        width: 100%;
+    }
+
+    /* Override desktop collapse rules that hide text/logo */
+    body.sidebar-collapsed .sidebar-header img,
+    body.sidebar-collapsed .nav-link span {
+        opacity: 1;
+        width: auto;
+        height: auto;
+        pointer-events: auto;
+    }
+
+    /* Override desktop collapse rule that centers nav links */
+    body.sidebar-collapsed .nav-link {
+        justify-content: flex-start;
+    }
+
+    /* Ensure toggle button stays in the corner on mobile */
+    body.sidebar-collapsed #sidebar-toggle {
+        position: absolute;
+    }
+}

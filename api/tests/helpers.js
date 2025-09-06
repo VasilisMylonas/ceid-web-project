@@ -2,7 +2,7 @@ import request from "supertest";
 import bcrypt from "bcrypt";
 
 import db from "../models/index.js";
-import api from "../api.js";
+import api from "../index.js";
 import { UserRole } from "../constants.js";
 
 export async function createProfessorAgent(namepass) {

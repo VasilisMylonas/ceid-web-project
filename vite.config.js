@@ -3,8 +3,9 @@ import path from "path";
 
 export default defineConfig({
   publicDir: path.resolve(__dirname, "public"),
-  root: path.resolve(__dirname, "src"),
+  root: "./views",
   server: {
     host: "0.0.0.0",
+    port: 5173,
   },
 });

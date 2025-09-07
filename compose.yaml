@@ -46,7 +46,6 @@ services:
       - PORT=3000
     volumes:
       - .:/usr/src/app:Z
-      - /usr/src/app/node_modules
     ports:
       - "3000:3000"
     depends_on:
@@ -63,7 +62,6 @@ services:
       - PORT=3000
     volumes:
       - .:/usr/src/app:Z
-      - /usr/src/app/node_modules
 
   # Service for the Postgres database. Set user, password, db in the environment variables below.
   db:

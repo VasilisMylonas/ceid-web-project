@@ -86,6 +86,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 : `<span class="badge bg-warning text-dark">${thesis.status}</span>`;
             statusElement.innerHTML = `Κατάσταση: ${statusBadge}`;
 
+            document.getElementById('modal-thesis-student').textContent = thesis.student;
+            document.getElementById('modal-thesis-assignment-date').textContent = new Date(thesis.assignmentDate).toLocaleDateString('el-GR');
             document.getElementById('modal-thesis-description').textContent = thesis.description;
 
             const committeeList = document.getElementById('modal-committee-list');

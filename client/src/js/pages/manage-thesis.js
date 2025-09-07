@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // This is where you will get the state from your backend.
     // For now, we will simulate it with a variable.
     // You can change this value to 'assignment', 'examination', or 'completed' to test.
-    const currentThesisState = 'examination'; // <-- CHANGE THIS TO TEST DIFFERENT STATES
+    const currentThesisState = 'assignment'; // <-- CHANGE THIS TO TEST DIFFERENT STATES
 
     // This is where you would get the thesis data from your backend.
     // For now, we use the sample data hardcoded in the HTML.

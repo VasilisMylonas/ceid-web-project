@@ -1,6 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
     // Sample data that would be fetched from a backend
     const profileData = {
+        name: 'Γιάννης',
+        surname: 'Παπαδόπουλος',
+        studentId: '1234567',
         address: 'Οδός Πανεπιστημίου 1, Πάτρα, 26504',
         email: 'student@upatras.gr',
         mobilePhone: '6901234567',
@@ -12,6 +15,12 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {object} data - The user profile data.
      */
     function populateProfileData(data) {
+        // Populate static info
+        document.getElementById('student-name').textContent = data.name;
+        document.getElementById('student-surname').textContent = data.surname;
+        document.getElementById('student-id').textContent = data.studentId;
+
+        // Populate editable info
         document.getElementById('address').value = data.address;
         document.getElementById('email').value = data.email;
         document.getElementById('mobilePhone').value = data.mobilePhone;

@@ -4,6 +4,7 @@ import AuthService from "./services/auth.service.js";
 import { UserRole } from "./constants.js";
 import { extractTokenFromRequest } from "./util.js";
 import cookieParser from "cookie-parser";
+import process from "process";
 
 const pages = express.Router();
 
@@ -23,11 +24,11 @@ pages.use(setPage());
 function getHomeRedirectPath(role) {
   switch (role) {
     case UserRole.PROFESSOR:
-      return "/professor";
+      return "/professor/home";
     case UserRole.STUDENT:
-      return "/student";
+      return "/student/home";
     case UserRole.SECRETARY:
-      return "/secretary";
+      return "/secretary/home";
     default:
       return "/login";
   }
@@ -96,19 +97,34 @@ pages.get("/student/:page", async (req, res) => {
     return res.redirect(getHomeRedirectPath(user.role));
   }
 
+  const studentLinks = [
+    {
+      href: "/student/home",
+      icon: "bi-house",
+      title: "Αρχική",
+    },
+    {
+      href: "/student/view-topic",
+      icon: "bi-book",
+      title: "Προβολή θέματος",
+    },
+    {
+      href: "/student/manage-thesis",
+      icon: "bi-file-earmark-check",
+      title: "Διαχείριση Διπλωματικής Εργασίας",
+    },
+    {
+      href: "/student/edit-profile",
+      icon: "bi-person-circle",
+      title: "Επεξεργασία Προφίλ",
+    },
+  ];
+
   return res.render(`pages/student/${req.params.page}`, {
-    title: "Φοιτητής",
+    title: studentLinks.find((link) => link.href === req.path)?.title,
+    layout: "layouts/student",
+    links: studentLinks,
   });
 });
 
-pages.get("/edit-profile", async (req, res) => {
-  const token = extractTokenFromRequest(req);
-  const user = await AuthService.verifyToken(token);
-
-  if (!user) {
-    return res.redirect("/login");
-  }
-
-  return res.render(`pages/edit-profile`, { title: "Προφίλ Χρήστη" });
-});
 export default pages;

@@ -7,7 +7,20 @@
 
     --dark-brown-hover: #57040f;
     --dark-brown-shadow: rgba(113, 5, 19, 0.5);
+
+    --sidebar-width: 280px;
+    --sidebar-collapsed-width: 80px;
+    --main-bg-color: #F3DEDF;
+    --sidebar-bg-color: #ffffff;
+    --active-bg: #710513;
+    --hover-bg: #74333a;
+    /* Lighter red for hover */
+    --nav-link-color: #343a40;
+    --nav-link-hover-color: #000;
+    --nav-link-active-color: #fff;
+    --transition-fast: 180ms;
 }
+
 
 .btn-primary {
     background-color: var(--dark-brown) !important;

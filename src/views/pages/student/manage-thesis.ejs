@@ -1,138 +1,121 @@
-<link rel="stylesheet" href="/css/pages/student.css">
 <link rel="stylesheet" href="/css/pages/manage-thesis.css">
 
-<script src="/js/pages/student.js"></script>
-<script src="/js/pages/manage-thesis.js"></script>
+<div class="container-fluid py-4">
+  <h2 class="mb-4">Διαχείριση Διπλωματικής Εργασίας</h2>
 
-<div class="wrapper">
-    <%- include('../../partials/student-sidebar') %>
-
-        <div class="main-content">
-            <div class="container-fluid py-4">
-                <h2 class="mb-4">Διαχείριση Διπλωματικής Εργασίας</h2>
-
-                <!-- State 1: Under Assignment -->
-                <div id="state-assignment" class="card shadow-sm mb-4" style="display: none;">
-                    <div class="card-body">
-                        <h5 class="card-title text-center">Κατάσταση: Υπό ανάθεση</h5>
-                        <p class="text-center text-muted">Επιλέξτε τους υπόλοιπους 2 διδάσκοντες για να σχηματιστεί
-                            η τριμελής επιτροπή.</p>
-                        <hr>
-                        <div class="d-grid gap-2 col-6 mx-auto">
-                            <button class="btn btn-dark" type="button">Πρόσκληση Μελών Επιτροπής</button>
-                        </div>
-                        <div class="mt-4">
-                            <h6>Επιλεγμένα μέλη και κατάσταση προσκλήσεων:</h6>
-                            <ul class="list-group mt-2">
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    <div>
-                                        Καθηγητής Α. Αλεξίου
-                                        <small class="d-block text-muted">Επιβλέπων</small>
-                                    </div>
-                                    <span class="badge bg-success">Αποδεκτή</span>
-                                </li>
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    Καθηγητής Β. Βασιλείου
-                                    <span class="badge bg-warning text-dark">Αναμονή</span>
-                                </li>
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    Καθηγητής Γ. Γεωργίου
-                                    <span class="badge bg-danger">Απορρίφθηκε</span>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- State 2: Under Examination -->
-                <div id="state-examination" class="card shadow-sm mb-4" style="display: none;">
-                    <div class="card-body">
-                        <h5 class="card-title text-center">Κατάσταση: Υπό εξέταση</h5>
-                        <p class="text-center text-muted">Ανεβάστε το κείμενο, καταχωρήστε την ημερομηνία εξέτασης
-                            και το σύνδεσμο της διπλωματικής.</p>
-                        <hr>
-                        <div class="d-flex flex-column gap-3">
-                            <div class="upload-section p-3 border rounded">
-                                <h6>Ανάρτηση κειμένου και υλικού</h6>
-                                <p class="text-muted">Ανεβάστε το κείμενο της διπλωματικής σας (PDF) και συνδέσμους
-                                    προς υποστηρικτικό υλικό.</p>
-                                <div class="mb-3">
-                                    <label for="thesisFile" class="form-label">Κείμενο Διπλωματικής (PDF)</label>
-                                    <input class="form-control" type="file" id="thesisFile" accept=".pdf">
-                                </div>
-                                <div class="form-floating">
-                                    <textarea class="form-control" placeholder="Σύνδεσμοι προς υποστηρικτικό υλικό"
-                                        id="links" rows="4"
-                                        aria-label="Σύνδεσμοι προς υλικό">https://github.com/my-username/my-thesis-repo</textarea>
-                                    <label for="links">Σύνδεσμοι (GitHub, Google Drive, YouTube κλπ.)</label>
-                                </div>
-                            </div>
-                            <div class="presentation-section p-3 border rounded">
-                                <h6>Λεπτομέρειες Εξέτασης</h6>
-                                <p class="text-muted">Καταχωρήστε τον τύπο, την ημερομηνία, ώρα και τόπο της
-                                    εξέτασης.</p>
-                                <div class="row g-3">
-                                    <div class="col-12">
-                                        <label class="form-label">Τύπος Εξέτασης</label>
-                                        <div>
-                                            <div class="form-check form-check-inline">
-                                                <input class="form-check-input" type="radio" name="examType"
-                                                    id="examTypeOnline" value="online" checked>
-                                                <label class="form-check-label" for="examTypeOnline">Εξ
-                                                    αποστάσεως</label>
-                                            </div>
-                                            <div class="form-check form-check-inline">
-                                                <input class="form-check-input" type="radio" name="examType"
-                                                    id="examTypeInPerson" value="in-person">
-                                                <label class="form-check-label" for="examTypeInPerson">Δια
-                                                    ζώσης</label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label for="examDate" class="form-label">Ημερομηνία</label>
-                                        <input type="date" class="form-control" id="examDate" value="2024-09-15"
-                                            aria-label="Ημερομηνία εξέτασης">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label for="examTime" class="form-label">Ώρα</label>
-                                        <input type="time" class="form-control" id="examTime" value="11:00"
-                                            aria-label="Ώρα εξέτασης">
-                                    </div>
-                                    <div class="col-12">
-                                        <label for="examLocation" class="form-label">Σύνδεσμος Τηλεδιάσκεψης</label>
-                                        <input type="text" class="form-control" id="examLocation"
-                                            value="https://teams.microsoft.com/..."
-                                            placeholder="Σύνδεσμος τηλεδιάσκεψης" aria-label="Χώρος ή σύνδεσμος">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="final-submission-section p-3 border rounded">
-                                <h6>Τελική Υποβολή</h6>
-                                <p class="text-muted">Καταχωρήστε το σύνδεσμο προς το αποθετήριο της βιβλιοθήκης
-                                    (Νημερτής) μετά την επιτυχή εξέταση.</p>
-                                <div class="form-floating">
-                                    <input type="url" class="form-control" id="nimertisLink" placeholder="URL Νημερτής"
-                                        aria-label="URL Νημερτής">
-                                    <label for="nimertisLink">Σύνδεσμος Νημερτής</label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- State 3: Completed -->
-                <div id="state-completed" class="card shadow-sm" style="display: none;">
-                    <div class="card-body">
-                        <h5 class="card-title text-center">Κατάσταση: Περατωμένη</h5>
-                        <p class="text-center text-muted">Η διπλωματική εργασία έχει ολοκληρωθεί και βαθμολογηθεί.
-                            Μπορείτε να δείτε το πρακτικό εξέτασης.</p>
-                        <hr>
-                        <div class="d-grid gap-2 col-6 mx-auto">
-                            <button class="btn btn-dark" type="button">Προβολή Πρακτικού Εξέτασης</button>
-                        </div>
-                    </div>
-                </div>
+  <!-- State 1: Under Assignment -->
+  <div id="state-assignment" class="card shadow-sm mb-4" style="display: none;">
+    <div class="card-body">
+      <h5 class="card-title text-center">Κατάσταση: Υπό ανάθεση</h5>
+      <p class="text-center text-muted">Επιλέξτε τους υπόλοιπους 2 διδάσκοντες για να σχηματιστεί
+        η τριμελής επιτροπή.</p>
+      <hr>
+      <div class="d-grid gap-2 col-6 mx-auto">
+        <button class="btn btn-dark" type="button">Πρόσκληση Μελών Επιτροπής</button>
+      </div>
+      <div class="mt-4">
+        <h6>Επιλεγμένα μέλη και κατάσταση προσκλήσεων:</h6>
+        <ul class="list-group mt-2">
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <div>
+              Καθηγητής Α. Αλεξίου
+              <small class="d-block text-muted">Επιβλέπων</small>
             </div>
+            <span class="badge bg-success">Αποδεκτή</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            Καθηγητής Β. Βασιλείου
+            <span class="badge bg-warning text-dark">Αναμονή</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            Καθηγητής Γ. Γεωργίου
+            <span class="badge bg-danger">Απορρίφθηκε</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- State 2: Under Examination -->
+  <div id="state-examination" class="card shadow-sm mb-4" style="display: none;">
+    <div class="card-body">
+      <h5 class="card-title text-center">Κατάσταση: Υπό εξέταση</h5>
+      <p class="text-center text-muted">Ανεβάστε το κείμενο, καταχωρήστε την ημερομηνία εξέτασης
+        και το σύνδεσμο της διπλωματικής.</p>
+      <hr>
+      <div class="d-flex flex-column gap-3">
+        <div class="upload-section p-3 border rounded">
+          <h6>Ανάρτηση κειμένου και υλικού</h6>
+          <p class="text-muted">Ανεβάστε το κείμενο της διπλωματικής σας (PDF) και συνδέσμους
+            προς υποστηρικτικό υλικό.</p>
+          <div class="mb-3">
+            <label for="thesisFile" class="form-label">Κείμενο Διπλωματικής (PDF)</label>
+            <input class="form-control" type="file" id="thesisFile" accept=".pdf">
+          </div>
+          <div class="form-floating">
+            <textarea class="form-control" placeholder="Σύνδεσμοι προς υποστηρικτικό υλικό" id="links" rows="4" aria-label="Σύνδεσμοι προς υλικό">https://github.com/my-username/my-thesis-repo</textarea>
+            <label for="links">Σύνδεσμοι (GitHub, Google Drive, YouTube κλπ.)</label>
+          </div>
         </div>
+        <div class="presentation-section p-3 border rounded">
+          <h6>Λεπτομέρειες Εξέτασης</h6>
+          <p class="text-muted">Καταχωρήστε τον τύπο, την ημερομηνία, ώρα και τόπο της
+            εξέτασης.</p>
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label">Τύπος Εξέτασης</label>
+              <div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="examType" id="examTypeOnline" value="online" checked>
+                  <label class="form-check-label" for="examTypeOnline">Εξ
+                    αποστάσεως</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="examType" id="examTypeInPerson" value="in-person">
+                  <label class="form-check-label" for="examTypeInPerson">Δια
+                    ζώσης</label>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label for="examDate" class="form-label">Ημερομηνία</label>
+              <input type="date" class="form-control" id="examDate" value="2024-09-15" aria-label="Ημερομηνία εξέτασης">
+            </div>
+            <div class="col-md-6">
+              <label for="examTime" class="form-label">Ώρα</label>
+              <input type="time" class="form-control" id="examTime" value="11:00" aria-label="Ώρα εξέτασης">
+            </div>
+            <div class="col-12">
+              <label for="examLocation" class="form-label">Σύνδεσμος Τηλεδιάσκεψης</label>
+              <input type="text" class="form-control" id="examLocation" value="https://teams.microsoft.com/..." placeholder="Σύνδεσμος τηλεδιάσκεψης" aria-label="Χώρος ή σύνδεσμος">
+            </div>
+          </div>
+        </div>
+        <div class="final-submission-section p-3 border rounded">
+          <h6>Τελική Υποβολή</h6>
+          <p class="text-muted">Καταχωρήστε το σύνδεσμο προς το αποθετήριο της βιβλιοθήκης
+            (Νημερτής) μετά την επιτυχή εξέταση.</p>
+          <div class="form-floating">
+            <input type="url" class="form-control" id="nimertisLink" placeholder="URL Νημερτής" aria-label="URL Νημερτής">
+            <label for="nimertisLink">Σύνδεσμος Νημερτής</label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- State 3: Completed -->
+  <div id="state-completed" class="card shadow-sm" style="display: none;">
+    <div class="card-body">
+      <h5 class="card-title text-center">Κατάσταση: Περατωμένη</h5>
+      <p class="text-center text-muted">Η διπλωματική εργασία έχει ολοκληρωθεί και βαθμολογηθεί.
+        Μπορείτε να δείτε το πρακτικό εξέτασης.</p>
+      <hr>
+      <div class="d-grid gap-2 col-6 mx-auto">
+        <button class="btn btn-dark" type="button">Προβολή Πρακτικού Εξέτασης</button>
+      </div>
+    </div>
+  </div>
 </div>
+
+<script src="/js/pages/manage-thesis.js"></script>

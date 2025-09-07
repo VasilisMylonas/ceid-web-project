@@ -2,6 +2,7 @@
     width: var(--sidebar-width);
     background: var(--sidebar-bg-color);
     transition: width var(--transition-fast);
+    height: 100vh;
 }
 
 .nav-link {
@@ -24,20 +25,19 @@
 }
 
 #sidebar-toggle {
-    align-self: end;
-    /* margin-right: 0.5rem; */
+    margin-top: 0.5rem;
     font-size: 1.5rem;
     color: var(--nav-link-color);
     transition: align-self var(--transition-fast);
-}
-
-.sidebar-collapsed #sidebar-toggle {
-    align-self: center;
-    margin: 0;
+    align-self: flex-end;
 }
 
 #sidebar-toggle:hover {
     color: var(--active-bg);
+}
+
+.sidebar-collapsed #sidebar-toggle {
+    align-self: center;
 }
 
 .sidebar-collapsed .sidebar {
@@ -56,44 +56,60 @@
     justify-content: center;
 }
 
+@media (max-width: 767.98px) {
 
-/* .sidebar {
-    background: var(--sidebar-bg-color);
-    border-right: 1px solid #dee2e6;
-    transition: width var(--transition-fast);
-    z-index: 1020;
-    padding: 0;
-}
+    #sidebar-toggle,
+    .sidebar-collapsed #sidebar-toggle {
+        align-self: auto;
+        margin: 0;
+    }
 
-.sidebar-header img {
-    aspect-ratio: 1/1;
-    max-height: 15rem;
-}
+    .sidebar-header img {
+        max-height: 5rem;
+    }
 
-
-
-
-.
-}
- */
-
-
-
-
-
-
-/* On mobile, the logo and nav link text should always be visible */
-/* .sidebar-collapsed .sidebar-header img,
-    .sidebar-collapsed .nav-link span {
-        opacity: 1;
-        width: auto;
+    .sidebar {
         height: auto;
-        pointer-events: auto;
-    } */
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid #dee2e6;
 
-/* Override desktop collapse rule that centers nav links */
-/* .sidebar-collapsed .nav-link {
+        /* This prevents transition when resizing window */
+        transition: none;
+    }
+
+
+    /*
+    * Override the desktop collapsed margin. On mobile, the margin
+    * should always be 0, regardless of the sidebar state.
+    */
+    .sidebar-collapsed .main-content {
+        margin-left: 0;
+    }
+
+    .sidebar-menu,
+    .sidebar-footer {
+        overflow: hidden;
+    }
+
+    .sidebar-collapsed .sidebar-menu,
+    .sidebar-collapsed .sidebar-footer {
+        height: 0;
+    }
+
+    /* On mobile, ensure the sidebar itself remains full-width when collapsed */
+    .sidebar-collapsed .sidebar {
+        width: 100%;
+    }
+
+    /* On mobile, the logo and nav link text should always be visible */
+    .sidebar-collapsed .sidebar-header img,
+    .sidebar-collapsed .nav-link span {
+        display: block;
+    }
+
+    /* Override desktop collapse rule that centers nav links */
+    .sidebar-collapsed .nav-link {
         justify-content: flex-start;
-    } */
-
+    }
 }

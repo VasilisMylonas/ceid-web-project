@@ -1,0 +1,40 @@
+<link rel="stylesheet" href="/css/pages/login.css">
+
+<div class="container-fluid d-flex align-items-center justify-content-center min-vh-100 bg-image">
+  <div class="row justify-content-center">
+    <div class="col d-flex justify-content-center">
+      <div class="card mx-auto p-2" style="max-width: 400px;">
+        <img src="/images/upatras_long.png" alt="Πανεπιστήμιο Πατρών" class="card-img-top py-2 px-4">
+        <form class="card-body" method="POST" action="/login">
+          <fieldset class="mb-4">
+            <label for="username" class="form-label">Όνομα Χρήστη</label>
+            <div class="input-group">
+              <span class="input-group-text">
+                <i role="img" class="bi bi-person-fill" aria-hidden="true"></i>
+              </span>
+              <input type="text" class="form-control" placeholder="Εισάγετε το όνομα χρήστη σας." required name="username">
+            </div>
+          </fieldset>
+          <fieldset class="mb-4">
+            <label for="password" class="form-label">Κωδικός Χρήστη</label>
+            <div class="input-group">
+              <span class="input-group-text">
+                <i role="img" class="bi bi-lock-fill" aria-hidden="true"></i>
+              </span>
+              <input type="password" class="form-control" placeholder="Εισάγετε τον κωδικό σας" required name="password">
+            </div>
+          </fieldset>
+          <% if (error) { %>
+          <div class="mb-4 alert alert-danger d-flex align-items-center" role="alert">
+            <i role="img" class="bi bi-person-fill-dash me-3" aria-hidden="true"></i>
+            <span>
+              <%= error %>
+            </span>
+          </div>
+          <% } %>
+          <button type="submit" class="btn btn-primary w-100">Σύνδεση</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

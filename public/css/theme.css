@@ -1,0 +1,85 @@
+:root {
+    --dark-brown: #710513;
+    --light-brown: #D28231DE;
+    --yellow: #F8E7A3;
+    --pink: #F2DFDF;
+    --gray: #D9D9D9;
+
+    --dark-brown-hover: #57040f;
+    --dark-brown-shadow: rgba(113, 5, 19, 0.5);
+
+    --sidebar-width: 280px;
+    --sidebar-collapsed-width: 80px;
+    --main-bg-color: #F3DEDF;
+    --sidebar-bg-color: #ffffff;
+    --active-bg: #710513;
+    --hover-bg: #74333a;
+    /* Lighter red for hover */
+    --nav-link-color: #343a40;
+    --nav-link-hover-color: #000;
+    --nav-link-active-color: #fff;
+    --transition-fast: 180ms;
+}
+
+
+.btn-primary {
+    background-color: var(--dark-brown) !important;
+    border-color: var(--light-brown) !important;
+}
+
+.btn-primary:hover {
+    background-color: var(--dark-brown-hover) !important;
+    border-color: var(--dark-brown-hover) !important;
+}
+
+.bg-primary {
+    background-color: var(--dark-brown) !important;
+}
+
+.bg-secondary {
+    background-color: var(--light-brown) !important;
+}
+
+.bg-success,
+.bg-warning {
+    background-color: var(--yellow) !important;
+}
+
+.bg-info {
+    background-color: var(--pink) !important;
+}
+
+.bg-danger,
+.bg-dark {
+    background-color: var(--dark-brown) !important;
+}
+
+.bg-light {
+    background-color: var(--gray) !important;
+}
+
+.text-primary {
+    color: var(--dark-brown) !important;
+}
+
+.text-secondary {
+    color: var(--light-brown) !important;
+}
+
+.text-success,
+.text-warning {
+    color: var(--yellow) !important;
+}
+
+.text-info {
+    color: var(--pink) !important;
+}
+
+.text-danger,
+.text-dark {
+    color: var(--dark-brown) !important;
+}
+
+.text-light {
+    color: var(--gray) !important;
+}

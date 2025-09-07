@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   # Service for nginx proxy. This is the entry point.
-  nginx:
+  theseus-nginx:
     container_name: theseus_nginx
     image: nginx:latest
     ports:
@@ -12,30 +12,21 @@ services:
       - ./nginx/conf.d:/etc/nginx/conf.d:ro,Z
       - ./nginx/certs:/etc/ssl/certs:ro,Z
       - ./nginx/private:/etc/ssl/private:ro,Z
-      - build_data:/usr/share/nginx/html:ro
+      - ./public:/usr/share/nginx/html:ro,Z
     depends_on:
-      - api
-      - client-build
+      - theseus
 
-  # Service to build the client application. Output is in ./client/dist which is mounted to nginx.
-  client-build:
-    container_name: theseus_client_build
-    build:
-      context: ./client
-      dockerfile: Dockerfile.build
-    volumes:
-      - build_data:/usr/src/client/dist
-      - /usr/src/client/node_modules
-
-  # Service for the API. See Dockerfile in ./api. Set environment variables as needed,
-  # especially JWT_SECRET as this determines JWT authentication security.
+  # Set environment variables as needed, especially JWT_SECRET as this determines
+  # JWT authentication security.
   # Make sure the DATABASE_URL points to the db service.
-  api:
-    container_name: theseus_api
-    build: ./api
+  theseus:
+    container_name: theseus
+    build:
+      context: .
+      dockerfile: Dockerfile
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=postgres://postgres:postgres@theseus_db:5432/postgres
+      - DATABASE_URL=postgres://postgres:postgres@theseus-db:5432/postgres
       - JWT_SECRET=my_jwt_secret
       - PORT=3000
     ports:
@@ -43,53 +34,40 @@ services:
     depends_on:
       - db
 
-  client-dev:
-    container_name: theseus_client_dev
+  theseus-dev:
+    container_name: theseus-dev
     build:
-      context: ./client
-      dockerfile: Dockerfile.dev
-    volumes:
-      - ./client:/usr/src/client:Z
-      - /usr/src/client/node_modules
-    ports:
-      - "5173:5173"
-    depends_on:
-      - api-dev
-
-  api-dev:
-    container_name: theseus_api_dev
-    build:
-      context: ./api
+      context: .
       dockerfile: Dockerfile.dev
     environment:
       - NODE_ENV=development
-      - DATABASE_URL=postgres://postgres:postgres@theseus_db:5432/postgres
+      - DATABASE_URL=postgres://postgres:postgres@theseus-db:5432/postgres
       - JWT_SECRET=my_jwt_secret
       - PORT=3000
     volumes:
-      - ./api:/usr/src/api:Z
-      - /usr/src/api/node_modules
+      - .:/usr/src/app:Z
+      - /usr/src/app/node_modules
     ports:
       - "3000:3000"
     depends_on:
       - db
 
-  api-test:
-    container_name: theseus_api_test
+  theseus-test:
+    container_name: theseus-test
     build:
-      context: ./api
+      context: .
       dockerfile: Dockerfile.test
     environment:
       - NODE_ENV=test
       - JWT_SECRET=my_jwt_secret
       - PORT=3000
     volumes:
-      - ./api:/usr/src/api:Z
-      - /usr/src/api/node_modules
+      - .:/usr/src/app:Z
+      - /usr/src/app/node_modules
 
   # Service for the Postgres database. Set user, password, db in the environment variables below.
   db:
-    container_name: theseus_db
+    container_name: theseus-db
     image: postgres:15
     environment:
       - POSTGRES_USER=postgres
@@ -103,5 +81,3 @@ services:
 volumes:
   # Volume for persisting Postgres data
   db_data:
-  # Volume for sharing built client files between client-build and nginx
-  build_data:

@@ -40,10 +40,10 @@ Ensure you have the following installed:
 
    ```bash
       cd ceid-web-project
-      docker compose up --build nginx
+      docker compose up theseus-nginx
    ```
 
-The entire system should now be running at <http://localhost:8080>.
+The entire system should now be running at <http://localhost:8080> and <https://localhost:8443>.
 
 Of course, you can change ports and other environment variables in [compose.yaml](./compose.yaml).
 
@@ -51,28 +51,15 @@ Of course, you can change ports and other environment variables in [compose.yaml
 
 ### Project Structure
 
-- [api/](./api/): Contains the backend API code built with Node.js, Express and other libraries.
-- [client/](./client/): Contains the frontend code.
-- [compose.yaml](./compose.yaml): Docker Compose configuration file for setting up the development environment.
-- [nginx.conf](./nginx.conf): Nginx configuration file.
+TODO
 
-### Running the API (with hot-reloading)
+### Running the server
 
 ```bash
-docker compose up api-dev
+docker compose up theseus-dev
 ```
 
-The API should now be running at <http://localhost:3000>.
-
-### Running the Client (with hot-reloading)
-
-```bash
-docker compose up client-dev
-```
-
-The client should now be running at <http://localhost:5173>.
-
-### API Documentation
+The server should now be running at <http://localhost:3000>.
 
 The API is documented using Postman. You can import the provided Postman collection to explore and test the API endpoints. You can access it [here](https://vasilismylonas-6137673.postman.co/workspace/Vasilis-Mylonas's-Workspace~bdb1c1e8-077b-415a-8162-22e0b9bd75ec/collection/44259023-63d0ae2b-e09c-49fe-a222-e0101989a819?action=share&creator=44259023&active-environment=44259023-a78b3f97-8acb-4fdb-8ac2-2b5e6e229a23)
 

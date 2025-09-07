@@ -1,23 +1,20 @@
-<link rel="stylesheet" href="/css/sidebar.css" />
-
-<!-- vh-100 z-3 position-fixed top-0 start-0 -->
-<nav class="sidebar d-flex flex-column">
-  <div class="sidebar-header text-center">
-    <img src="/images/upatras_logo.gif" alt="University of Patras logo" class="img-fluid" />
+<nav class="sidebar d-flex flex-column py-2 vh-100 z-3 position-fixed top-0 start-0 border-end">
+  <div class="sidebar-header border-bottom d-flex flex-column justify-content-center align-items-center px-2">
     <button class="btn" id="sidebar-toggle" aria-label="Toggle sidebar">
       <i class="bi bi-list" aria-hidden="true"></i>
     </button>
+    <img src="/images/upatras_logo.gif" alt="University of Patras logo" class="img-fluid mb-2" />
   </div>
 
   <!-- Add menu entries -->
-  <ul class="nav flex-column sidebar-menu">
+  <ul class="sidebar-menu nav d-flex flex-column">
     <% links.forEach((link) => { %>
     <!-- Prefetch  for performance -->
     <link rel="prefetch" href="<%= link.href %>" />
     <li class="nav-item">
-      <a href="<%= link.href %>" class="nav-link d-flex align-items-center <%= page === link.href ? 'active' : ''%>">
-        <i class="bi <%= link.icon %> icon me-2" aria-hidden="true"></i>
-        <span>
+      <a href="<%= link.href %>" class="nav-link p-3 d-flex align-items-center <%= page === link.href ? 'active' : ''%>">
+        <i class="bi <%= link.icon %> nav-link-icon" aria-hidden="true"></i>
+        <span class="nav-link-text ms-3">
           <%= link.title %>
         </span>
       </a>
@@ -25,17 +22,17 @@
     <% }); %>
   </ul>
 
-  <ul class="nav flex-column sidebar-footer mt-auto">
+  <ul class="sidebar-footer nav d-flex flex-column mt-auto border-top">
     <li class="nav-item">
-      <a href="#" class="nav-link d-flex align-items-center">
-        <i class="bi bi-gear-fill icon me-2" aria-hidden="true"></i>
-        <span>Settings</span>
+      <a href="#" class="nav-link p-3 d-flex align-items-center">
+        <i class="bi bi-gear-fill nav-link-icon" aria-hidden="true"></i>
+        <span class="nav-link-text ms-3">Settings</span>
       </a>
     </li>
     <li class="nav-item">
-      <a href="#" class="nav-link d-flex align-items-center">
-        <i class="bi bi-door-open icon me-2" aria-hidden="true"></i>
-        <span>Sign Out</span>
+      <a href="#" class="nav-link p-3 d-flex align-items-center">
+        <i class="bi bi-door-open nav-link-icon" aria-hidden="true"></i>
+        <span class="nav-link-text ms-3">Sign Out</span>
       </a>
     </li>
   </ul>

@@ -1,45 +1,12 @@
 .sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100vh;
     width: var(--sidebar-width);
     background: var(--sidebar-bg-color);
-    border-right: 1px solid #dee2e6;
     transition: width var(--transition-fast);
-    z-index: 1020;
-    padding: 0;
-}
-
-.sidebar-header {
-    padding: 1.25rem 1rem;
-    border-bottom: 1px solid #dee2e6;
-    position: relative;
-}
-
-.sidebar-header img {
-    max-height: 9rem;
-    transition: opacity var(--transition-fast);
-}
-
-/* Menu */
-.sidebar-menu {
-    padding: 0.5rem;
 }
 
 .nav-link {
     color: var(--nav-link-color);
-    padding: 0.75rem 1rem;
-    border-radius: 0.25rem;
-    white-space: normal;
-    /* Allow text to wrap */
-    overflow: hidden;
     line-height: 1.2;
-    /* Adjust line height for better readability on wrap */
-}
-
-.nav-link .icon {
-    font-size: 1.25rem;
 }
 
 .nav-link.active {
@@ -52,26 +19,27 @@
     color: var(--nav-link-active-color);
 }
 
-.sidebar-footer {
-    padding: 0.75rem;
-    border-top: 1px solid #dee2e6;
+.nav-link-icon {
+    font-size: 1.25rem;
 }
 
-
-/* Sidebar Toggle Button */
 #sidebar-toggle {
-    position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
+    align-self: end;
+    /* margin-right: 0.5rem; */
     font-size: 1.5rem;
     color: var(--nav-link-color);
+    transition: align-self var(--transition-fast);
+}
+
+.sidebar-collapsed #sidebar-toggle {
+    align-self: center;
+    margin: 0;
 }
 
 #sidebar-toggle:hover {
     color: var(--active-bg);
 }
 
-/* Collapsed Sidebar Styles */
 .sidebar-collapsed .sidebar {
     width: var(--sidebar-collapsed-width);
 }
@@ -80,101 +48,52 @@
     margin-left: var(--sidebar-collapsed-width);
 }
 
-.sidebar-collapsed .sidebar-header img,
-.sidebar-collapsed .nav-link span {
-    opacity: 0;
-    width: 0;
-    height: 0;
-    pointer-events: none;
+.sidebar-collapsed .nav-link-text {
+    display: none;
 }
 
 .sidebar-collapsed .nav-link {
     justify-content: center;
 }
 
-.sidebar-collapsed #sidebar-toggle {
-    position: static;
+
+/* .sidebar {
+    background: var(--sidebar-bg-color);
+    border-right: 1px solid #dee2e6;
+    transition: width var(--transition-fast);
+    z-index: 1020;
+    padding: 0;
 }
 
-/* Small screens: Vertical Collapse from Top */
-@media (max-width: 767.98px) {
-    .sidebar-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0.5rem 1rem;
-    }
-
-    .sidebar-header img {
-        max-height: 2.5rem;
-        /* Make logo much smaller on mobile */
-        width: auto;
-        display: block;
-        /* Ensure it's a block element for layout */
-    }
-
-    .sidebar {
-        position: sticky;
-        /* Make sidebar sticky on mobile */
-        top: 0;
-        /* Stick to the top */
-        height: auto;
-        width: 100%;
-        border-right: none;
-        border-bottom: 1px solid #dee2e6;
-        transition: none;
-        /* Disable horizontal width transition */
-        background-color: var(--sidebar-bg-color);
-        /* Ensure it has a background */
-    }
+.sidebar-header img {
+    aspect-ratio: 1/1;
+    max-height: 15rem;
+}
 
 
-    /*
-* Override the desktop collapsed margin. On mobile, the margin
-* should always be 0, regardless of the sidebar state.
-*/
-    .sidebar-collapsed .main-content {
-        margin-left: 0;
-    }
 
-    /* Prepare menu sections for smooth transition */
-    .sidebar-menu,
-    .sidebar-footer {
-        overflow: hidden;
-        transition: max-height 0.2s ease-out, padding 0.3s ease-out;
-        max-height: 40rem;
-        /* A height large enough to show all content */
-    }
 
-    /* Hide menu sections when sidebar is collapsed by setting max-height to 0 */
-    .sidebar-collapsed .sidebar-menu,
-    .sidebar-collapsed .sidebar-footer {
-        max-height: 0;
-        padding-top: 0;
-        padding-bottom: 0;
-    }
+.
+}
+ */
 
-    /* On mobile, ensure the sidebar itself remains full-width when collapsed */
-    .sidebar-collapsed .sidebar {
-        width: 100%;
-    }
 
-    /* On mobile, the logo and nav link text should always be visible */
-    .sidebar-collapsed .sidebar-header img,
+
+
+
+
+/* On mobile, the logo and nav link text should always be visible */
+/* .sidebar-collapsed .sidebar-header img,
     .sidebar-collapsed .nav-link span {
         opacity: 1;
         width: auto;
         height: auto;
         pointer-events: auto;
-    }
+    } */
 
-    /* Override desktop collapse rule that centers nav links */
-    .sidebar-collapsed .nav-link {
+/* Override desktop collapse rule that centers nav links */
+/* .sidebar-collapsed .nav-link {
         justify-content: flex-start;
-    }
+    } */
 
-    /* Ensure toggle button stays in the corner on mobile */
-    .sidebar-collapsed #sidebar-toggle {
-        position: absolute;
-    }
 }

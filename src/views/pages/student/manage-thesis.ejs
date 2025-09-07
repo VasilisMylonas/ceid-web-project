@@ -1,62 +1,14 @@
 <!DOCTYPE html>
 <html lang="el">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Διαχείριση Διπλωματικής Εργασίας - Σύστημα Υποστήριξης Διπλωματικών Εργασιών</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="css/pages/student.css">
-    <link rel="stylesheet" href="css/pages/manage-thesis.css">
-</head>
+<link rel="stylesheet" href="/css/pages/student.css">
+<link rel="stylesheet" href="/css/pages/manage-thesis.css">
 
-<body>
-    <div class="wrapper">
-        <!-- Sidebar remains the same -->
-        <div class="sidebar d-flex flex-column">
-            <div class="sidebar-header text-center">
-                <img src="../images/images.jpeg" alt="University of Patras logo" class="img-fluid">
-                <button class="btn" id="sidebar-toggle" aria-label="Toggle sidebar">
-                    <i class="bi bi-list"></i>
-                </button>
-            </div>
-            <ul class="nav flex-column sidebar-menu">
-                <li class="nav-item" data-page="view-topic">
-                    <a href="#" class="nav-link d-flex align-items-center">
-                        <i class="bi bi-book icon me-2" aria-hidden="true"></i>
-                        <span>Προβολή θέματος</span>
-                    </a>
-                </li>
-                <li class="nav-item" data-page="edit-profile">
-                    <a href="#" class="nav-link d-flex align-items-center">
-                        <i class="bi bi-person-circle icon me-2" aria-hidden="true"></i>
-                        <span>Επεξεργασία Προφίλ</span>
-                    </a>
-                </li>
-                <li class="nav-item" data-page="manage-thesis">
-                    <a href="#" class="nav-link d-flex align-items-center active">
-                        <i class="bi bi-file-earmark-check icon me-2" aria-hidden="true"></i>
-                        <span>Διαχείριση Διπλωματικής Εργασίας</span>
-                    </a>
-                </li>
-            </ul>
-            <ul class="nav flex-column sidebar-footer mt-auto">
-                <li class="nav-item" data-page="settings">
-                    <a href="#" class="nav-link d-flex align-items-center">
-                        <i class="bi bi-gear-fill icon me-2" aria-hidden="true"></i>
-                        <span>Settings</span>
-                    </a>
-                </li>
-                <li class="nav-item" data-page="sign-out">
-                    <a href="#" class="nav-link d-flex align-items-center">
-                        <i class="bi bi-door-open icon me-2" aria-hidden="true"></i>
-                        <span>Sign Out</span>
-                    </a>
-                </li>
-            </ul>
-        </div>
+<script src="/js/pages/student.js"></script>
+<script src="/js/pages/manage-thesis.js"></script>
 
+<div class="wrapper">
+    <%- include('../../partials/student-sidebar') %>
         <div class="main-content">
             <div id="dynamic-content">
                 <div class="container-fluid py-4">
@@ -66,7 +18,8 @@
                     <div id="state-assignment" class="card shadow-sm mb-4" style="display: none;">
                         <div class="card-body">
                             <h5 class="card-title text-center">Κατάσταση: Υπό ανάθεση</h5>
-                            <p class="text-center text-muted">Επιλέξτε τους υπόλοιπους 2 διδάσκοντες για να σχηματιστεί η τριμελής επιτροπή.</p>
+                            <p class="text-center text-muted">Επιλέξτε τους υπόλοιπους 2 διδάσκοντες για να σχηματιστεί
+                                η τριμελής επιτροπή.</p>
                             <hr>
                             <div class="d-grid gap-2 col-6 mx-auto">
                                 <button class="btn btn-dark" type="button">Πρόσκληση Μελών Επιτροπής</button>
@@ -98,57 +51,72 @@
                     <div id="state-examination" class="card shadow-sm mb-4" style="display: none;">
                         <div class="card-body">
                             <h5 class="card-title text-center">Κατάσταση: Υπό εξέταση</h5>
-                            <p class="text-center text-muted">Ανεβάστε το κείμενο, καταχωρήστε την ημερομηνία εξέτασης και το σύνδεσμο της διπλωματικής.</p>
+                            <p class="text-center text-muted">Ανεβάστε το κείμενο, καταχωρήστε την ημερομηνία εξέτασης
+                                και το σύνδεσμο της διπλωματικής.</p>
                             <hr>
                             <div class="d-flex flex-column gap-3">
                                 <div class="upload-section p-3 border rounded">
                                     <h6>Ανάρτηση κειμένου και υλικού</h6>
-                                    <p class="text-muted">Ανεβάστε το κείμενο της διπλωματικής σας (PDF) και συνδέσμους προς υποστηρικτικό υλικό.</p>
+                                    <p class="text-muted">Ανεβάστε το κείμενο της διπλωματικής σας (PDF) και συνδέσμους
+                                        προς υποστηρικτικό υλικό.</p>
                                     <div class="mb-3">
                                         <label for="thesisFile" class="form-label">Κείμενο Διπλωματικής (PDF)</label>
                                         <input class="form-control" type="file" id="thesisFile" accept=".pdf">
                                     </div>
                                     <div class="form-floating">
-                                        <textarea class="form-control" placeholder="Σύνδεσμοι προς υποστηρικτικό υλικό" id="links" rows="4" aria-label="Σύνδεσμοι προς υλικό">https://github.com/my-username/my-thesis-repo</textarea>
+                                        <textarea class="form-control" placeholder="Σύνδεσμοι προς υποστηρικτικό υλικό"
+                                            id="links" rows="4"
+                                            aria-label="Σύνδεσμοι προς υλικό">https://github.com/my-username/my-thesis-repo</textarea>
                                         <label for="links">Σύνδεσμοι (GitHub, Google Drive, YouTube κλπ.)</label>
                                     </div>
                                 </div>
                                 <div class="presentation-section p-3 border rounded">
                                     <h6>Λεπτομέρειες Εξέτασης</h6>
-                                    <p class="text-muted">Καταχωρήστε τον τύπο, την ημερομηνία, ώρα και τόπο της εξέτασης.</p>
+                                    <p class="text-muted">Καταχωρήστε τον τύπο, την ημερομηνία, ώρα και τόπο της
+                                        εξέτασης.</p>
                                     <div class="row g-3">
                                         <div class="col-12">
                                             <label class="form-label">Τύπος Εξέτασης</label>
                                             <div>
                                                 <div class="form-check form-check-inline">
-                                                    <input class="form-check-input" type="radio" name="examType" id="examTypeOnline" value="online" checked>
-                                                    <label class="form-check-label" for="examTypeOnline">Εξ αποστάσεως</label>
+                                                    <input class="form-check-input" type="radio" name="examType"
+                                                        id="examTypeOnline" value="online" checked>
+                                                    <label class="form-check-label" for="examTypeOnline">Εξ
+                                                        αποστάσεως</label>
                                                 </div>
                                                 <div class="form-check form-check-inline">
-                                                    <input class="form-check-input" type="radio" name="examType" id="examTypeInPerson" value="in-person">
-                                                    <label class="form-check-label" for="examTypeInPerson">Δια ζώσης</label>
+                                                    <input class="form-check-input" type="radio" name="examType"
+                                                        id="examTypeInPerson" value="in-person">
+                                                    <label class="form-check-label" for="examTypeInPerson">Δια
+                                                        ζώσης</label>
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
                                             <label for="examDate" class="form-label">Ημερομηνία</label>
-                                            <input type="date" class="form-control" id="examDate" value="2024-09-15" aria-label="Ημερομηνία εξέτασης">
+                                            <input type="date" class="form-control" id="examDate" value="2024-09-15"
+                                                aria-label="Ημερομηνία εξέτασης">
                                         </div>
                                         <div class="col-md-6">
                                             <label for="examTime" class="form-label">Ώρα</label>
-                                            <input type="time" class="form-control" id="examTime" value="11:00" aria-label="Ώρα εξέτασης">
+                                            <input type="time" class="form-control" id="examTime" value="11:00"
+                                                aria-label="Ώρα εξέτασης">
                                         </div>
                                         <div class="col-12">
                                             <label for="examLocation" class="form-label">Σύνδεσμος Τηλεδιάσκεψης</label>
-                                            <input type="text" class="form-control" id="examLocation" value="https://teams.microsoft.com/..." placeholder="Σύνδεσμος τηλεδιάσκεψης" aria-label="Χώρος ή σύνδεσμος">
+                                            <input type="text" class="form-control" id="examLocation"
+                                                value="https://teams.microsoft.com/..."
+                                                placeholder="Σύνδεσμος τηλεδιάσκεψης" aria-label="Χώρος ή σύνδεσμος">
                                         </div>
                                     </div>
                                 </div>
                                 <div class="final-submission-section p-3 border rounded">
                                     <h6>Τελική Υποβολή</h6>
-                                    <p class="text-muted">Καταχωρήστε το σύνδεσμο προς το αποθετήριο της βιβλιοθήκης (Νημερτής) μετά την επιτυχή εξέταση.</p>
+                                    <p class="text-muted">Καταχωρήστε το σύνδεσμο προς το αποθετήριο της βιβλιοθήκης
+                                        (Νημερτής) μετά την επιτυχή εξέταση.</p>
                                     <div class="form-floating">
-                                        <input type="url" class="form-control" id="nimertisLink" placeholder="URL Νημερτής" aria-label="URL Νημερτής">
+                                        <input type="url" class="form-control" id="nimertisLink"
+                                            placeholder="URL Νημερτής" aria-label="URL Νημερτής">
                                         <label for="nimertisLink">Σύνδεσμος Νημερτής</label>
                                     </div>
                                 </div>
@@ -160,7 +128,8 @@
                     <div id="state-completed" class="card shadow-sm" style="display: none;">
                         <div class="card-body">
                             <h5 class="card-title text-center">Κατάσταση: Περατωμένη</h5>
-                            <p class="text-center text-muted">Η διπλωματική εργασία έχει ολοκληρωθεί και βαθμολογηθεί. Μπορείτε να δείτε το πρακτικό εξέτασης.</p>
+                            <p class="text-center text-muted">Η διπλωματική εργασία έχει ολοκληρωθεί και βαθμολογηθεί.
+                                Μπορείτε να δείτε το πρακτικό εξέτασης.</p>
                             <hr>
                             <div class="d-grid gap-2 col-6 mx-auto">
                                 <button class="btn btn-dark" type="button">Προβολή Πρακτικού Εξέτασης</button>
@@ -170,12 +139,4 @@
                 </div>
             </div>
         </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/pages/student.js"></script>
-    <!-- Load the new script for this page -->
-    <script src="js/pages/manage-thesis.js"></script>
-</body>
-
-</html>
+</div>

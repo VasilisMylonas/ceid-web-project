@@ -1,0 +1,47 @@
+<div class="sidebar d-flex flex-column">
+    <div class="sidebar-header text-center">
+        <img src="../images/images.jpeg" alt="University of Patras logo" class="img-fluid">
+        <button class="btn" id="sidebar-toggle" aria-label="Toggle sidebar">
+            <i class="bi bi-list"></i>
+        </button>
+    </div>
+
+    <ul class="nav flex-column sidebar-menu">
+        <li class="nav-item">
+            <a href="/student/view-topic"
+                class="nav-link d-flex align-items-center <%= page === '/student/view-topic' ? 'active' : ''%>">
+                <i class="bi bi-book icon me-2" aria-hidden="true"></i>
+                <span>Προβολή θέματος</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href=" /student/manage-thesis"
+                class="nav-link d-flex align-items-center  <%= page === '/student/manage-thesis' ? 'active' : ''%>">
+                <i class="bi bi-file-earmark-check icon me-2" aria-hidden="true"></i>
+                <span>Διαχείριση Διπλωματικής Εργασίας</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="/edit-profile"
+                class="nav-link d-flex align-items-center <%= page === '/edit-profile' ? 'active' : ''%>">
+                <i class="bi bi-person-circle icon me-2" aria-hidden="true"></i>
+                <span>Επεξεργασία Προφίλ</span>
+            </a>
+        </li>
+    </ul>
+
+    <ul class="nav flex-column sidebar-footer mt-auto">
+        <li class="nav-item" data-page="settings">
+            <a href="#" class="nav-link d-flex align-items-center">
+                <i class="bi bi-gear-fill icon me-2" aria-hidden="true"></i>
+                <span>Settings</span>
+            </a>
+        </li>
+        <li class="nav-item" data-page="sign-out">
+            <a href="#" class="nav-link d-flex align-items-center">
+                <i class="bi bi-door-open icon me-2" aria-hidden="true"></i>
+                <span>Sign Out</span>
+            </a>
+        </li>
+    </ul>
+</div>

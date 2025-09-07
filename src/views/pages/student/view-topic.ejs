@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="el">
+
+<link rel="stylesheet" href="/css/pages/student.css">
+<script src="/js/pages/student.js"></script>
+<script src="/js/pages/view-topic.js"></script>
+
+<div class="wrapper">
+    <%- include('../../partials/student-sidebar') %>
+
+        <div class="main-content">
+            <div class="container-fluid py-4">
+                <h2 class="mb-4">Προβολή Θέματος</h2>
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Διπλωματική Εργασία</h5>
+                        <p class="card-text">
+                            <strong>Θέμα:</strong> <span id="thesis-title"></span>
+                        </p>
+                        <p class="card-text">
+                            <strong>Περιγραφή:</strong> <span id="thesis-description"></span>
+                        </p>
+                        <p class="card-text">
+                            <strong>Συνημμένο Αρχείο:</strong> <a id="thesis-attachment" href="#"></a>
+                        </p>
+                        <p class="card-text">
+                            <strong>Τρέχουσα Κατάσταση:</strong> <span id="thesis-status" class="badge"></span>
+                        </p>
+                        <p class="card-text">
+                            <strong>Χρόνος από ανάθεση:</strong> <span id="thesis-days"></span> ημέρες
+                        </p>
+                    </div>
+                </div>
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">Τριμελής Επιτροπή</h5>
+                        <ul id="committee-list" class="list-group list-group-flush">
+                            <!-- Committee members will be inserted here by JS -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+</div>

@@ -7,9 +7,18 @@ import cookieParser from "cookie-parser";
 
 const pages = express.Router();
 
+// Middleware to set ejs `page` variable
+function setPage() {
+  return (req, res, next) => {
+    res.locals.page = req.path;
+    next();
+  };
+}
+
 pages.use(expressEjsLayouts); // EJS layouts
 pages.use(express.urlencoded({ extended: true })); // Parse form data
 pages.use(cookieParser()); // Parse cookies
+pages.use(setPage());
 
 function getHomeRedirectPath(role) {
   switch (role) {
@@ -30,7 +39,7 @@ pages.get("/login", async (req, res) => {
 
   // User already logged in
   if (user) {
-    return res.redirect(getHomeRedirectPath(user.role));
+    return res.redirect("/");
   }
 
   res.render("pages/login", { title: "Σύνδεση", error: null });
@@ -56,13 +65,40 @@ pages.post("/login", async (req, res) => {
     maxAge: 60 * 60 * 1000, // 1 hour (3600 seconds)
   });
 
-  const user = await AuthService.verifyToken(token);
-  res.redirect(getHomeRedirectPath(user.role));
+  res.redirect("/");
 });
 
 pages.post("/logout", (req, res) => {
   res.clearCookie("token");
   res.redirect("/login");
+});
+
+pages.get("/", async (req, res) => {
+  const token = extractTokenFromRequest(req);
+  const user = await AuthService.verifyToken(token);
+
+  if (!user) {
+    return res.redirect("/login");
+  }
+
+  return res.redirect(getHomeRedirectPath(user.role));
+});
+
+pages.get("/student/:page", async (req, res) => {
+  const token = extractTokenFromRequest(req);
+  const user = await AuthService.verifyToken(token);
+
+  if (!user) {
+    return res.redirect("/login");
+  }
+
+  if (user.role !== UserRole.STUDENT) {
+    return res.redirect(getHomeRedirectPath(user.role));
+  }
+
+  return res.render(`pages/student/${req.params.page}`, {
+    title: "Φοιτητής",
+  });
 });
 
 export default pages;

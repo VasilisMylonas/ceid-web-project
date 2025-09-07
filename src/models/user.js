@@ -1,5 +1,6 @@
 import { UserRole } from "../constants.js";
 import { DataTypes, Model } from "sequelize";
+import bcrypt from "bcrypt";
 
 export default (sequelize) => {
   class User extends Model {
@@ -7,6 +8,10 @@ export default (sequelize) => {
       User.hasOne(models.Professor, { foreignKey: "userId" });
       User.hasOne(models.Student, { foreignKey: "userId" });
       User.hasOne(models.Secretary, { foreignKey: "userId" });
+    }
+
+    async comparePassword(password) {
+      return bcrypt.compare(password, this.password);
     }
   }
 

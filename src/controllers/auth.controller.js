@@ -1,35 +1,13 @@
 import jwt from "jsonwebtoken";
-import bcrypt from "bcrypt";
-
 import { StatusCodes } from "http-status-codes";
-import db from "../models/index.js";
+import AuthService from "../services/auth.service.js";
 
 export async function login(req, res) {
-  const user = await db.User.findOne({
-    where: { username: req.body.username },
-  });
+  const token = AuthService.login(req.body.username, req.body.password);
 
-  if (!user) {
+  if (!token) {
     return res.status(StatusCodes.UNAUTHORIZED).send();
   }
-
-  const isPasswordValid = await bcrypt.compare(
-    req.body.password,
-    user.password
-  );
-
-  if (!isPasswordValid) {
-    return res.status(StatusCodes.UNAUTHORIZED).send();
-  }
-
-  console.log(`User ${user.username} logged in successfully.`);
-  const token = jwt.sign(
-    { id: user.id, role: user.role },
-    process.env.JWT_SECRET,
-    {
-      expiresIn: "1h",
-    }
-  );
 
   res.status(StatusCodes.OK).json({ token });
 }

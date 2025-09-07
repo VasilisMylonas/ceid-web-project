@@ -11,9 +11,11 @@ import invitationRoutes from "./routes/invitation.routes.js";
 import studentRoutes from "./routes/student.routes.js";
 import myRoutes from "./routes/my.routes.js";
 import { errorHandler } from "./middleware/errorHandler.js";
+import cookieParser from "cookie-parser";
 
 const api = express.Router();
 api.use(express.json()); // JSON middleware
+api.use(cookieParser()); // Parse cookies, for cookie-based login
 api.use(expressJoiValidations({ throwErrors: true })); // Request validation
 api.use("/v1/auth", authRoutes);
 api.use("/v1/topics", topicRoutes);

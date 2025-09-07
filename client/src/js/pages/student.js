@@ -20,9 +20,9 @@
 
     // --- Dynamic Sidebar Menu ---
     const menuItems = [
-        { href: 'view-topic.html', icon: 'bi-book', text: 'Προβολή θέματος' },
-        { href: 'manage-thesis.html', icon: 'bi-file-earmark-check', text: 'Διαχείριση Διπλωματικής' },
-        { href: 'edit-profile.html', icon: 'bi-person-circle', text: 'Επεξεργασία Προφίλ' }
+        { href: 'student-view-topic.html', icon: 'bi-book', text: 'Προβολή θέματος' },
+        { href: 'student-manage-thesis.html', icon: 'bi-file-earmark-check', text: 'Διαχείριση Διπλωματικής' },
+        { href: 'student-edit-profile.html', icon: 'bi-person-circle', text: 'Επεξεργασία Προφίλ' }
     ];
 
     const sidebarMenu = document.querySelector('.sidebar-menu');
@@ -56,7 +56,7 @@
         
         // Special case for the main student page to default to "view-topic"
         const isStudentIndex = currentPage === 'student.html' || currentPage === '';
-        if (linkPage === 'view-topic.html' && isStudentIndex) {
+        if (linkPage === 'student-view-topic.html' && isStudentIndex) {
              link.classList.add('active');
         } else if (linkPage === currentPage) {
             link.classList.add('active');

@@ -3,19 +3,13 @@ import expressEjsLayouts from "express-ejs-layouts";
 import AuthService from "./services/auth.service.js";
 import { UserRole } from "./constants.js";
 import { extractTokenFromRequest } from "./util.js";
-import path from "path";
 import cookieParser from "cookie-parser";
-const __dirname = path.dirname(new URL(import.meta.url).pathname);
 
 const pages = express.Router();
 
 pages.use(expressEjsLayouts); // EJS layouts
 pages.use(express.urlencoded({ extended: true })); // Parse form data
 pages.use(cookieParser()); // Parse cookies
-
-// EJS templates
-pages.set("view engine", "ejs");
-pages.set("views", path.join(__dirname, "views"));
 
 function getHomeRedirectPath(role) {
   switch (role) {

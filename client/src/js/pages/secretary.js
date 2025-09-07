@@ -20,11 +20,10 @@
 
     // --- Dynamic Sidebar Menu ---
     const menuItems = [
-        { href: 'data-entry.html', icon: 'bi-pencil-square', text: 'Καταχώρηση Δεδομένων' },
-        { href: 'manage-thesis-secretary.html', icon: 'bi-file-earmark-check', text: 'Διαχείριση Διπλωματικών' },
-        { href: 'view-thesis.html', icon: 'bi-journal-text', text: 'Προβολή Διπλωματικών' }
+        { href: 'view-thesis-secretary.html', icon: 'bi-journal-text', text: 'Προβολή Διπλωματικών' },
+        { href: 'data-entry-secretary.html', icon: 'bi-pencil-square', text: 'Καταχώρηση Δεδομένων' },
+        { href: 'manage-thesis-secretary.html', icon: 'bi-file-earmark-check', text: 'Διαχείριση Διπλωματικών' }
     ];
-
     const sidebarMenu = document.querySelector('.sidebar-menu');
     if (sidebarMenu) {
         menuItems.forEach(item => {

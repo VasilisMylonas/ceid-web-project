@@ -56,4 +56,13 @@
             }
         }
     });
+
+    const signOutLink = document.getElementById('sign-out-link');
+    if (signOutLink) {
+        signOutLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            // In a real app, you would clear user tokens here
+            window.location.href = 'login.html';
+        });
+    }
 })();

@@ -17,70 +17,60 @@
             localStorage.setItem(STORAGE_KEY_COLLAPSED, body.classList.contains('sidebar-collapsed'));
         });
     }
-})();
 
-// Toggle sidebar "active" class and remember selection in localStorage
-(function () {
-    const navItems = document.querySelectorAll('.sidebar-menu .nav-item');
-    const navLinks = document.querySelectorAll('.sidebar-menu .nav-link, .sidebar-footer .nav-link');
-    const STORAGE_KEY = 'student-active-page';
+    // --- Dynamic Sidebar Menu ---
+    const menuItems = [
+        { href: 'student-view-topic.html', icon: 'bi-book', text: 'Προβολή θέματος' },
+        { href: 'student-manage-thesis.html', icon: 'bi-file-earmark-check', text: 'Διαχείριση Διπλωματικής' },
+        { href: 'student-edit-profile.html', icon: 'bi-person-circle', text: 'Επεξεργασία Προφίλ' }
+    ];
 
-    function setActiveByPage(page) {
-        navItems.forEach(item => {
-            if (item.dataset.page === page) {
-                item.classList.add('active');
-            } else {
-                item.classList.remove('active');
-            }
+    const sidebarMenu = document.querySelector('.sidebar-menu');
+    if (sidebarMenu) {
+        // Clear any hardcoded items first
+        sidebarMenu.innerHTML = '';
+        
+        menuItems.forEach(item => {
+            const li = document.createElement('li');
+            li.className = 'nav-item';
+
+            const a = document.createElement('a');
+            a.href = item.href;
+            a.className = 'nav-link d-flex align-items-center';
+            a.innerHTML = `
+                <i class="bi ${item.icon} icon me-2"></i>
+                <span>${item.text}</span>
+            `;
+
+            li.appendChild(a);
+            sidebarMenu.appendChild(li);
         });
     }
 
-    // Determine the current page from the URL to set the active state correctly on load
-    const currentPage = window.location.pathname.split('/').pop().replace('.html', '');
-    const pageToSet = (currentPage === 'student' || currentPage === '') ? 'view-topic' : currentPage;
-    
-    if (pageToSet) {
-        setActiveByPage(pageToSet);
-        localStorage.setItem(STORAGE_KEY, pageToSet);
+    // --- Set "active" class on the current page's sidebar link ---
+    const currentPage = window.location.pathname.split('/').pop();
+    const navLinks = document.querySelectorAll('.sidebar-menu .nav-link');
+
+    navLinks.forEach(link => {
+        const linkPage = link.getAttribute('href').split('/').pop();
+        
+        // Special case for the main student page to default to "view-topic"
+        const isStudentIndex = currentPage === 'student.html' || currentPage === '';
+        if (linkPage === 'student-view-topic.html' && isStudentIndex) {
+             link.classList.add('active');
+        } else if (linkPage === currentPage) {
+            link.classList.add('active');
+        }
+    });
+
+    // --- Footer Link Handler ---
+    // This can be simplified if the footer links are static
+    const signOutLink = document.querySelector('[data-page="sign-out"]');
+    if (signOutLink) {
+        signOutLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            // Add any sign-out logic here (e.g., clearing tokens)
+            window.location.href = 'login.html';
+        });
     }
-
-    // Click handlers — persist and then navigate
-    navLinks.forEach(link => link.addEventListener('click', (e) => {
-        e.preventDefault(); // Prevent the link from navigating to "#"
-        const parentItem = link.closest('.nav-item');
-        if (!parentItem) return;
-
-        const page = parentItem.dataset.page;
-
-        // Persist the selection first
-        try {
-            if (page !== 'sign-out') {
-                localStorage.setItem(STORAGE_KEY, page);
-            } else {
-                localStorage.removeItem(STORAGE_KEY);
-            }
-        } catch (err) {
-            console.error(err);
-        }
-
-        // Navigate
-        switch (page) {
-            case 'sign-out':
-                window.location.href = 'login.html';
-                break;
-            case 'view-topic':
-                window.location.href = 'view-topic.html';
-                break;
-            case 'edit-profile':
-                window.location.href = 'edit-profile.html';
-                break;
-            case 'manage-thesis':
-                window.location.href = 'manage-thesis.html';
-                break;
-            // For pages without redirection, just set active class
-            default:
-                setActiveByPage(page);
-                break;
-        }
-    }));
 })();

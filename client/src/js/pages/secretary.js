@@ -20,11 +20,10 @@
 
     // --- Dynamic Sidebar Menu ---
     const menuItems = [
-        { href: 'data-entry.html', icon: 'bi-pencil-square', text: 'Καταχώρηση Δεδομένων' },
-        { href: 'manage-thesis-secretary.html', icon: 'bi-file-earmark-check', text: 'Διαχείριση Διπλωματικών' },
-        { href: 'view-thesis.html', icon: 'bi-journal-text', text: 'Προβολή Διπλωματικών' }
+        { href: 'secretary-view-thesis.html', icon: 'bi-journal-text', text: 'Προβολή Διπλωματικών' },
+        { href: 'secretary-data-entry.html', icon: 'bi-pencil-square', text: 'Καταχώρηση Δεδομένων' },
+        { href: 'secretary-manage-thesis.html', icon: 'bi-file-earmark-check', text: 'Διαχείριση Διπλωματικών' }
     ];
-
     const sidebarMenu = document.querySelector('.sidebar-menu');
     if (sidebarMenu) {
         menuItems.forEach(item => {
@@ -57,4 +56,13 @@
             }
         }
     });
+
+    const signOutLink = document.getElementById('sign-out-link');
+    if (signOutLink) {
+        signOutLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            // In a real app, you would clear user tokens here
+            window.location.href = 'login.html';
+        });
+    }
 })();

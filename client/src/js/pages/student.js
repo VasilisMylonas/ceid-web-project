@@ -53,19 +53,20 @@
 
     navLinks.forEach(link => {
         const linkPage = link.getAttribute('href').split('/').pop();
-        
+        const parentLi = link.parentElement;
+
         // Special case for the main student page to default to "view-topic"
         const isStudentIndex = currentPage === 'student.html' || currentPage === '';
         if (linkPage === 'student-view-topic.html' && isStudentIndex) {
-             link.classList.add('active');
+            link.classList.add('active');
+            if (parentLi) parentLi.classList.add('active');
         } else if (linkPage === currentPage) {
             link.classList.add('active');
+            if (parentLi) parentLi.classList.add('active');
         }
     });
 
-    // --- Footer Link Handler ---
-    // This can be simplified if the footer links are static
-    const signOutLink = document.querySelector('[data-page="sign-out"]');
+    const signOutLink = document.getElementById('sign-out-link');
     if (signOutLink) {
         signOutLink.addEventListener('click', (e) => {
             e.preventDefault();

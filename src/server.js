@@ -6,6 +6,7 @@ import db from "./models/index.js";
 import seedDatabase from "./seeders/index.js";
 import morgan from "morgan";
 import path from "path";
+import process from "process";
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
 

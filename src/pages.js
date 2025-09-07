@@ -43,7 +43,10 @@ pages.get("/login", async (req, res) => {
     return res.redirect("/");
   }
 
-  res.render("pages/login", { title: "Σύνδεση", error: null });
+  res.render("pages/login", {
+    title: "Σύνδεση",
+    error: null,
+  });
 });
 
 pages.post("/login", async (req, res) => {
@@ -122,8 +125,8 @@ pages.get("/student/:page", async (req, res) => {
 
   return res.render(`pages/student/${req.params.page}`, {
     title: studentLinks.find((link) => link.href === req.path)?.title,
-    layout: "layouts/student",
     links: studentLinks,
+    layout: "layouts/student",
   });
 });
 

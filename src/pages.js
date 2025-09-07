@@ -101,4 +101,14 @@ pages.get("/student/:page", async (req, res) => {
   });
 });
 
+pages.get("/edit-profile", async (req, res) => {
+  const token = extractTokenFromRequest(req);
+  const user = await AuthService.verifyToken(token);
+
+  if (!user) {
+    return res.redirect("/login");
+  }
+
+  return res.render(`pages/edit-profile`, { title: "Προφίλ Χρήστη" });
+});
 export default pages;

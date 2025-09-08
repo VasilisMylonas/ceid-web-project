@@ -3,17 +3,13 @@
  */
 
 const BASE_URL = "http://localhost:3000/api";
-const LOGIN_API_URL = `${BASE_URL}/v1/auth/login`;
 const PROFILE_API_URL = `${BASE_URL}/v1/my/profile`;
 
-async function request(method, url, object = {}, auth = true) {
+async function request(method, url, object = {}) {
   const response = await fetch(url, {
     method: method,
     headers: {
       "Content-Type": "application/json",
-      ...(auth && {
-        Authorization: `Bearer ${sessionStorage.getItem("authToken")}`,
-      }),
     },
     body: JSON.stringify(object),
   });
@@ -23,17 +19,6 @@ async function request(method, url, object = {}, auth = true) {
   }
 
   throw new Error(`${response.status} ${response.statusText}`);
-}
-
-export async function login(username, password) {
-  const { token } = await request(
-    "POST",
-    LOGIN_API_URL,
-    { username, password },
-    false
-  );
-
-  return token;
 }
 
 export async function getProfile() {

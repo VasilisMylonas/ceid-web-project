@@ -13,6 +13,12 @@ function toggleSidebar() {
   );
 }
 
+function onLogoutSubmit(event) {
+  if (!confirm("Είστε σίγουροι ότι θέλετε να αποσυνδεθείτε;")) {
+    e.preventDefault();
+  }
+}
+
 // Apply collapsed state on page load
 if (localStorage.getItem(STORAGE_KEY_COLLAPSED) === "true") {
   document.documentElement.classList.add("sidebar-collapsed");
@@ -21,4 +27,7 @@ if (localStorage.getItem(STORAGE_KEY_COLLAPSED) === "true") {
 document.addEventListener("DOMContentLoaded", () => {
   const toggleButton = document.getElementById("sidebar-toggle");
   toggleButton.addEventListener("click", toggleSidebar);
+
+  const logoutForm = document.getElementById("logoutForm");
+  logoutForm.addEventListener("submit", onLogoutSubmit);
 });

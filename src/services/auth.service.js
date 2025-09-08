@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import db from "../models/index.js";
+import process from "process";
 
 export default class AuthService {
   // Returns a JWT token if the username and password are correct, null otherwise
@@ -35,6 +36,10 @@ export default class AuthService {
   // Returns the user if the token is valid, null otherwise
   static async verifyToken(token) {
     try {
+      if (!token) {
+        return null;
+      }
+
       console.info("Token received:", token);
       const id = jwt.verify(token, process.env.JWT_SECRET).id;
       if (!id) {

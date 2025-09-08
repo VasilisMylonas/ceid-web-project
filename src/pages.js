@@ -88,6 +88,48 @@ pages.get("/", async (req, res) => {
   return res.redirect(getHomeRedirectPath(user.role));
 });
 
+pages.get("/secretary/:page", async (req, res) => {
+  const token = extractTokenFromRequest(req);
+  const user = await AuthService.verifyToken(token);
+
+  if (!user) {
+    return res.redirect("/login");
+  }
+
+  if (user.role !== UserRole.SECRETARY) {
+    return res.redirect(getHomeRedirectPath(user.role));
+  }
+
+  const secretaryLinks = [
+    {
+      href: "/secretary/home",
+      icon: "bi-house",
+      title: "Αρχική",
+    },
+    {
+      href: "/secretary/view-theses",
+      icon: "bi-journal-text",
+      title: "Προβολή Διπλωματικών",
+    },
+    {
+      href: "/secretary/data-entry",
+      icon: "bi-pencil-square",
+      title: "Καταχώρηση Δεδομένων",
+    },
+    {
+      href: "/secretary/manage-theses",
+      icon: "bi-file-earmark-check",
+      title: "Διαχείριση Διπλωματικών",
+    },
+  ];
+
+  return res.render(`pages/secretary/${req.params.page}`, {
+    title: secretaryLinks.find((link) => link.href === req.path)?.title,
+    links: secretaryLinks,
+    layout: "layouts/secretary",
+  });
+});
+
 pages.get("/student/:page", async (req, res) => {
   const token = extractTokenFromRequest(req);
   const user = await AuthService.verifyToken(token);

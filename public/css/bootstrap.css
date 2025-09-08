@@ -29,7 +29,7 @@
   --bs-gray-700: #495057;
   --bs-gray-800: #343a40;
   --bs-gray-900: #212529;
-  --bs-light: #f9cbca;
+  --bs-light: #f3dedf;
   --bs-dark: #0d0200;
   --bs-primary: #710513;
   --bs-secondary: #f2dfdf;
@@ -37,7 +37,7 @@
   --bs-success: #65af10;
   --bs-warning: #ffc378;
   --bs-danger: #f60669;
-  --bs-light-rgb: 249, 203, 202;
+  --bs-light-rgb: 243, 222, 223;
   --bs-dark-rgb: 13, 2, 0;
   --bs-primary-rgb: 113, 5, 19;
   --bs-secondary-rgb: 242, 223, 223;
@@ -2970,19 +2970,19 @@ textarea.form-control-lg {
 
 .btn-light {
   --bs-btn-color: #000;
-  --bs-btn-bg: #f9cbca;
-  --bs-btn-border-color: #f9cbca;
+  --bs-btn-bg: #f3dedf;
+  --bs-btn-border-color: #f3dedf;
   --bs-btn-hover-color: #000;
-  --bs-btn-hover-bg: rgb(211.65, 172.55, 171.7);
-  --bs-btn-hover-border-color: rgb(199.2, 162.4, 161.6);
-  --bs-btn-focus-shadow-rgb: 212, 173, 172;
+  --bs-btn-hover-bg: rgb(206.55, 188.7, 189.55);
+  --bs-btn-hover-border-color: rgb(194.4, 177.6, 178.4);
+  --bs-btn-focus-shadow-rgb: 207, 189, 190;
   --bs-btn-active-color: #000;
-  --bs-btn-active-bg: rgb(199.2, 162.4, 161.6);
-  --bs-btn-active-border-color: rgb(186.75, 152.25, 151.5);
+  --bs-btn-active-bg: rgb(194.4, 177.6, 178.4);
+  --bs-btn-active-border-color: rgb(182.25, 166.5, 167.25);
   --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
   --bs-btn-disabled-color: #000;
-  --bs-btn-disabled-bg: #f9cbca;
-  --bs-btn-disabled-border-color: #f9cbca;
+  --bs-btn-disabled-bg: #f3dedf;
+  --bs-btn-disabled-border-color: #f3dedf;
 }
 
 .btn-dark {
@@ -3105,19 +3105,19 @@ textarea.form-control-lg {
 }
 
 .btn-outline-light {
-  --bs-btn-color: #f9cbca;
-  --bs-btn-border-color: #f9cbca;
+  --bs-btn-color: #f3dedf;
+  --bs-btn-border-color: #f3dedf;
   --bs-btn-hover-color: #000;
-  --bs-btn-hover-bg: #f9cbca;
-  --bs-btn-hover-border-color: #f9cbca;
-  --bs-btn-focus-shadow-rgb: 249, 203, 202;
+  --bs-btn-hover-bg: #f3dedf;
+  --bs-btn-hover-border-color: #f3dedf;
+  --bs-btn-focus-shadow-rgb: 243, 222, 223;
   --bs-btn-active-color: #000;
-  --bs-btn-active-bg: #f9cbca;
-  --bs-btn-active-border-color: #f9cbca;
+  --bs-btn-active-bg: #f3dedf;
+  --bs-btn-active-border-color: #f3dedf;
   --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
-  --bs-btn-disabled-color: #f9cbca;
+  --bs-btn-disabled-color: #f3dedf;
   --bs-btn-disabled-bg: transparent;
-  --bs-btn-disabled-border-color: #f9cbca;
+  --bs-btn-disabled-border-color: #f3dedf;
   --bs-gradient: none;
 }
 
@@ -6802,8 +6802,8 @@ textarea.form-control-lg {
   text-decoration-color: RGBA(var(--bs-light-rgb), var(--bs-link-underline-opacity, 1)) !important;
 }
 .link-light:hover, .link-light:focus {
-  color: RGBA(250, 213, 213, var(--bs-link-opacity, 1)) !important;
-  text-decoration-color: RGBA(250, 213, 213, var(--bs-link-underline-opacity, 1)) !important;
+  color: RGBA(245, 229, 229, var(--bs-link-opacity, 1)) !important;
+  text-decoration-color: RGBA(245, 229, 229, var(--bs-link-underline-opacity, 1)) !important;
 }
 
 .link-dark {
@@ -11858,6 +11858,32 @@ textarea.form-control-lg {
   .d-print-none {
     display: none !important;
   }
+}
+:root {
+  --bs-light: #f3dedf;
+  --bs-light-hover: rgb(238.24, 208.91, 210.3066666667);
+  --bs-light-active: rgb(232.8, 193.95, 195.8);
+  --bs-dark: #0d0200;
+  --bs-dark-hover: black;
+  --bs-dark-active: black;
+  --bs-primary: #710513;
+  --bs-primary-hover: rgb(95.9063559322, 4.2436440678, 16.1258474576);
+  --bs-primary-active: rgb(76.3707627119, 3.3792372881, 12.8411016949);
+  --bs-secondary: #f2dfdf;
+  --bs-secondary-hover: rgb(236.8433333333, 210.3066666667, 210.3066666667);
+  --bs-secondary-active: rgb(230.95, 195.8, 195.8);
+  --bs-info: #eb4f31;
+  --bs-info-hover: rgb(233.4203539823, 65.0991150442, 32.7296460177);
+  --bs-info-active: rgb(224.0022123894, 54.3694690265, 21.7477876106);
+  --bs-success: #65af10;
+  --bs-success-hover: rgb(91.5609947644, 158.6452879581, 14.5047120419);
+  --bs-success-active: rgb(80.7735602094, 139.9541884817, 12.7958115183);
+  --bs-warning: #ffc378;
+  --bs-warning-hover: rgb(255, 187.0666666667, 102.15);
+  --bs-warning-active: rgb(255, 178, 81.75);
+  --bs-danger: #f60669;
+  --bs-danger-hover: rgb(228.575, 5.575, 97.5625);
+  --bs-danger-active: rgb(208.6607142857, 5.0892857143, 89.0625);
 }
 
 /*# sourceMappingURL=bootstrap.css.map */

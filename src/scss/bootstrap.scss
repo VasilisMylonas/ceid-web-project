@@ -3,7 +3,7 @@
 $white: #ffffff;
 
 $theme-colors: (
-  "light": #f9cbca,
+  "light": #f3dedf,
   "dark": #0d0200,
   "primary": #710513,
   "secondary": #f2dfdf,
@@ -14,3 +14,14 @@ $theme-colors: (
 );
 
 @import "bootstrap/scss/bootstrap";
+
+$hover-darken: 3.5%;
+$active-darken: 7.5%;
+
+:root {
+  @each $name, $color in $theme-colors {
+    --bs-#{$name}: #{$color};
+    --bs-#{$name}-hover: #{darken($color, $hover-darken)};
+    --bs-#{$name}-active: #{darken($color, $active-darken)};
+  }
+}

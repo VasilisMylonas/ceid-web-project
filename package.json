@@ -4,17 +4,19 @@
   "description": "",
   "scripts": {
     "start": "node src/server.js",
-    "dev": "nodemon src/server.js",
+    "dev": "nodemon src/server.js & sass --load-path=node_modules src/scss/bootstrap.scss public/css/bootstrap.css --watch",
     "test": "node --experimental-vm-modules node_modules/.bin/jest"
   },
   "type": "module",
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@adminjs/sequelize": "^4.1.1",
     "@adminjs/express": "^6.1.1",
+    "@adminjs/sequelize": "^4.1.1",
     "adminjs": "^7.8.17",
     "bcrypt": "^5.1.1",
+    "bootstrap": "^5.3.8",
+    "bootstrap-icons": "^1.13.1",
     "cookie-parser": "^1.4.7",
     "ejs": "^3.1.10",
     "express": "^5.1.0",
@@ -29,6 +31,7 @@
     "multer": "^2.0.2",
     "pg": "^8.14.1",
     "pg-hstore": "^2.3.4",
+    "sass": "^1.92.1",
     "sequelize": "^6.37.7"
   },
   "devDependencies": {

@@ -1,0 +1,17 @@
+// <https://huemint.com/bootstrap-basic/#palette=f9cbca-ffffff-0d0200-710513-f2dfdf-eb4f31>
+
+$white: #ffffff;
+
+$theme-colors: (
+  "light": #f9cbca,
+  "dark": #0d0200,
+  "primary": #710513,
+  "secondary": #f2dfdf,
+  "info": #eb4f31,
+  "success": #65af10,
+  "warning": #ffc378,
+  "danger": #f60669,
+);
+
+@import "bootstrap/scss/bootstrap";
+@import "bootstrap-icons/font/bootstrap-icons";

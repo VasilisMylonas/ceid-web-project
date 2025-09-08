@@ -3,7 +3,7 @@ version: "3.8"
 services:
   # Service for nginx proxy. This is the entry point.
   theseus-nginx:
-    container_name: theseus_nginx
+    container_name: theseus-nginx
     image: nginx:latest
     ports:
       - "8080:80"

@@ -6,7 +6,7 @@
 .sidebar {
     width: var(--sidebar-width);
     height: 100vh;
-    background-color: var(--bs-white);
+    background-color: var(--bs-body);
 }
 
 .sidebar img {

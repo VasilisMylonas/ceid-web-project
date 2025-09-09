@@ -16,7 +16,7 @@
 
         <button type="button" class="btn" id="sidebar-toggle"
             aria-label="Toggle sidebar">
-          <i class="bi bi-list fs-3" aria-hidden="true"></i>
+          <i class="bi bi-list fs-2" aria-hidden="true"></i>
         </button>
 
         <img src="/images/upatras_logo.gif" alt="Πανεπιστήμιο Πατρών"
@@ -42,6 +42,14 @@
       </nav>
 
       <div class="list-group list-group-flush flex-md-column border-top">
+        <button type="button" id="theme-toggle"
+            class="list-group-item list-group-item-action d-flex align-items-center"
+            data-bs-toggle="tooltip" data-bs-placement="right"
+            data-bs-original-title="Θέμα">
+          <i id="theme-icon" class="bi bi-moon sidebar-link-icon fs-3"
+              aria-hidden="true"></i>
+          <span class="sidebar-link-text mx-3">Θέμα</span>
+        </button>
         <button
             class="list-group-item list-group-item-action d-flex align-items-center"
             data-bs-toggle="tooltip" data-bs-placement="right"
@@ -64,7 +72,7 @@
       </div>
     </div>
 
-    <main class="main-content">
+    <main class="main-content p-4">
       <%- body %>
     </main>
   </div>

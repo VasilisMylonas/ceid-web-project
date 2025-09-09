@@ -1,61 +1,59 @@
-<div class="container-fluid py-4">
-  <h2 class="mb-4">Προβολή Διπλωματικών Εργασιών</h2>
-  <div class="card shadow-sm mb-4">
-    <div class="card-body">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <h5 class="card-title mb-0">Λίστα Ενεργών & Υπό Εξέταση ΔΕ</h5>
-        <button class="btn btn-dark btn-sm">
-          <i class="bi bi-file-earmark-arrow-down-fill me-1"></i>
-          Εξαγωγή Λίστας
-        </button>
-      </div>
-      <div class="table-responsive">
-        <table class="table table-striped table-hover">
-          <thead>
-            <tr>
-              <th scope="col">Θέμα</th>
-              <th scope="col">Φοιτητής</th>
-              <th scope="col">Επιβλέπων</th>
-              <th scope="col">Κατάσταση</th>
-              <th scope="col">Ημερομηνία Ανάθεσης</th>
-            </tr>
-          </thead>
-          <tbody id="theses-table-body">
-          </tbody>
-        </table>
-      </div>
+<h2 class="mb-4">Προβολή Διπλωματικών Εργασιών</h2>
+<div class="card shadow-sm mb-4">
+  <div class="card-body">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 class="card-title mb-0">Λίστα Ενεργών & Υπό Εξέταση ΔΕ</h5>
+      <button class="btn btn-dark btn-sm">
+        <i class="bi bi-file-earmark-arrow-down-fill me-1"></i>
+        Εξαγωγή Λίστας
+      </button>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-striped table-hover">
+        <thead>
+          <tr>
+            <th scope="col">Θέμα</th>
+            <th scope="col">Φοιτητής</th>
+            <th scope="col">Επιβλέπων</th>
+            <th scope="col">Κατάσταση</th>
+            <th scope="col">Ημερομηνία Ανάθεσης</th>
+          </tr>
+        </thead>
+        <tbody id="theses-table-body">
+        </tbody>
+      </table>
     </div>
   </div>
+</div>
 
-  <div class="modal fade" id="thesisDetailsModal" tabindex="-1"
-      aria-labelledby="thesisDetailsModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="thesisDetailsModalLabel">Λεπτομέρειες
-            Διπλωματικής Εργασίας</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"
-              aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <h4 id="modal-thesis-topic"></h4>
-          <p class="text-muted" id="modal-thesis-status"></p>
-          <p><strong>Φοιτητής:</strong> <span id="modal-thesis-student"></span>
-          </p>
-          <p><strong>Ημερομηνία Ανάθεσης:</strong> <span
-                id="modal-thesis-assignment-date"></span></p>
-          <hr>
-          <h6>Περιγραφή</h6>
-          <p id="modal-thesis-description"></p>
-          <hr>
-          <h6>Εξεταστική Επιτροπή</h6>
-          <ul class="list-group" id="modal-committee-list">
-          </ul>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary"
-              data-bs-dismiss="modal">Κλείσιμο</button>
-        </div>
+<div class="modal fade" id="thesisDetailsModal" tabindex="-1"
+    aria-labelledby="thesisDetailsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="thesisDetailsModalLabel">Λεπτομέρειες
+          Διπλωματικής Εργασίας</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"
+            aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <h4 id="modal-thesis-topic"></h4>
+        <p class="text-muted" id="modal-thesis-status"></p>
+        <p><strong>Φοιτητής:</strong> <span id="modal-thesis-student"></span>
+        </p>
+        <p><strong>Ημερομηνία Ανάθεσης:</strong> <span
+              id="modal-thesis-assignment-date"></span></p>
+        <hr>
+        <h6>Περιγραφή</h6>
+        <p id="modal-thesis-description"></p>
+        <hr>
+        <h6>Εξεταστική Επιτροπή</h6>
+        <ul class="list-group" id="modal-committee-list">
+        </ul>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary"
+            data-bs-dismiss="modal">Κλείσιμο</button>
       </div>
     </div>
   </div>

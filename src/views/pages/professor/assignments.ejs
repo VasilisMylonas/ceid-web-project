@@ -1,59 +1,17 @@
+
 <div class="container-fluid">
-    <h1 class="h2 mb-4">Διαχείριση Θεμάτων & Ανάθεση</h1>
+    <h1 class="h2 mb-4">Διαχείριση Θεμάτων</h1>
 
-    <!-- 1. Create New Thesis Topic -->
-    <div class="card mb-4">
-        <div class="card-header">
-            <h5 class="mb-0">Δημιουργία Νέου Θέματος</h5>
-        </div>
-        <div class="card-body">
-            <form action="/professor/assignments/create" method="POST" enctype="multipart/form-data">
-                <div class="mb-3">
-                    <label for="title" class="form-label">Τίτλος</label>
-                    <input type="text" class="form-control" id="title" name="title" required>
-                </div>
-                <div class="mb-3">
-                    <label for="description" class="form-label">Σύντομη Περιγραφή</label>
-                    <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
-                </div>
-                <div class="mb-3">
-                    <label for="pdfFile" class="form-label">Αρχείο PDF (Προαιρετικό)</label>
-                    <input class="form-control" type="file" id="pdfFile" name="pdfFile" accept=".pdf">
-                </div>
-                <button type="submit" class="btn btn-success">Δημιουργία Θέματος</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- 2. Assign Topic to Student -->
-    <div class="card mb-4">
-        <div class="card-header">
-            <h5 class="mb-0">Προσωρινή Ανάθεση Θέματος σε Φοιτητή</h5>
-        </div>
-        <div class="card-body">
-            <form action="/professor/assignments/assign" method="POST">
-                <div class="mb-3">
-                    <label for="topicSelect" class="form-label">Επιλογή Ελεύθερου Θέματος</label>
-                    <select class="form-select" id="topicSelect" name="topicId" required>
-                        <option selected disabled value="">Επιλέξτε θέμα...</option>
-                        <!-- Options will be populated by assignments.js -->
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label for="studentSearch" class="form-label">Αναζήτηση Φοιτητή (Α.Μ. ή Ονοματεπώνυμο)</label>
-                    <input type="text" class="form-control" id="studentSearch" name="studentIdentifier" required>
-                </div>
-                <button type="submit" class="btn btn-primary">Ανάθεση</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- 3. List of Created/Assigned Topics -->
+    <!-- 1. List of Created/Assigned Topics -->
     <div class="card">
-        <div class="card-header">
+        <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Τα Θέματά μου</h5>
+            <button id="show-create-form-btn" class="btn btn-success">
+                <i class="bi bi-plus-circle me-1"></i> Δημιουργία Νέου Θέματος
+            </button>
         </div>
         <div class="card-body">
+            <p class="text-muted">Επιλέξτε μια ενέργεια από τη λίστα για να διαχειριστείτε τα θέματά σας.</p>
             <table class="table table-hover">
                 <thead>
                     <tr>
@@ -67,6 +25,91 @@
                     <!-- Rows will be populated by assignments.js -->
                 </tbody>
             </table>
+        </div>
+    </div>
+
+    <!-- 2. Create New Thesis Topic (Initially Hidden) -->
+    <div class="card my-4" id="create-topic-card" style="display: none;">
+        <div class="card-header">
+            <h5 class="mb-0">Δημιουργία Νέου Θέματος</h5>
+        </div>
+        <div class="card-body">
+            <form id="create-topic-form">
+                <div class="mb-3">
+                    <label for="title" class="form-label">Τίτλος</label>
+                    <input type="text" class="form-control" id="title" name="title" required>
+                </div>
+                <div class="mb-3">
+                    <label for="description" class="form-label">Σύντομη Περιγραφή</label>
+                    <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="pdfFile" class="form-label">Αρχείο PDF (Προαιρετικό)</label>
+                    <input class="form-control" type="file" id="pdfFile" name="pdfFile" accept=".pdf">
+                </div>
+                <button type="submit" class="btn btn-success">Αποθήκευση Θέματος</button>
+                <button type="button" id="cancel-create-btn" class="btn btn-secondary">Ακύρωση</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Topic Details Modal -->
+<div class="modal fade" id="topic-details-modal" tabindex="-1" aria-labelledby="topicDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="topicDetailsModalLabel">Λεπτομέρειες Θέματος</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="edit-topic-form">
+                    <input type="hidden" id="modal-topic-id">
+                    <div class="mb-3">
+                        <label for="modal-topic-title" class="form-label">Τίτλος</label>
+                        <input type="text" class="form-control" id="modal-topic-title" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="modal-topic-description" class="form-label">Περιγραφή</label>
+                        <textarea class="form-control" id="modal-topic-description" rows="5" readonly></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="modal-topic-file" class="form-label">Επισύναψη Νέου Αρχείου</label>
+                        <input class="form-control" type="file" id="modal-topic-file" accept=".pdf" disabled>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Κλείσιμο</button>
+                <button type="button" class="btn btn-primary" id="edit-topic-btn">Επεξεργασία</button>
+                <button type="button" class="btn btn-success" id="save-topic-btn" style="display: none;">Αποθήκευση</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Assign Student Modal -->
+<div class="modal fade" id="assign-student-modal" tabindex="-1" aria-labelledby="assignStudentModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="assignStudentModalLabel">Ανάθεση Θέματος σε Φοιτητή</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="assign-student-form">
+                    <input type="hidden" id="assign-topic-id">
+                    <p><strong>Θέμα:</strong> <span id="assign-topic-title"></span></p>
+                    <div class="mb-3">
+                        <label for="studentSearch" class="form-label">Αναζήτηση Φοιτητή (Α.Μ. ή Ονοματεπώνυμο)</label>
+                        <input type="text" class="form-control" id="studentSearch" name="studentIdentifier" required placeholder="π.χ. 10XXXXX ή Γιάννης Παπαδόπουλος">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Ακύρωση</button>
+                        <button type="submit" class="btn btn-primary">Ολοκλήρωση Ανάθεσης</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </div>

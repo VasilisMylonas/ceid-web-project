@@ -64,10 +64,10 @@
                 <h5 class="modal-title" id="thesis-modal-title"></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body" data-thesis-id="">
                 <div class="row">
                     <!-- Left Column: Info & Timeline -->
-                    <div class="col-md-4">
+                    <div class="col-md-4 border-end">
                         <h6>Βασικές Πληροφορίες</h6>
                         <p><strong>Φοιτητής:</strong> <span id="modal-student-name"></span></p>
                         <p><strong>Επιτροπή:</strong></p>
@@ -84,8 +84,8 @@
                             <div id="modal-committee-status"></div>
                             <div id="supervisor-actions-under-assignment" class="supervisor-action mt-3">
                                 <hr>
-                                <p class="text-danger">Ως επιβλέπων, μπορείτε να ακυρώσετε την ανάθεση.</p>
-                                <button class="btn btn-danger">Ακύρωση Ανάθεσης</button>
+                                <p class="text-danger small">Ως επιβλέπων, μπορείτε να ακυρώσετε την ανάθεση. Αυτή η ενέργεια είναι οριστική.</p>
+                                <button id="cancel-assignment-btn" class="btn btn-danger">Ακύρωση Ανάθεσης</button>
                             </div>
                         </div>
                         <!-- Status: Active -->
@@ -97,7 +97,14 @@
                             <div id="supervisor-actions-active" class="supervisor-action mt-3">
                                 <hr>
                                 <button id="change-status-to-review-btn" class="btn btn-primary">Αλλαγή σε "Υπό Εξέταση"</button>
-                                <!-- Cancellation form would go here -->
+                                <div id="cancel-thesis-section" class="mt-3 border rounded p-3" style="display: none;">
+                                    <p class="small text-danger">Ακύρωση διπλωματικής (μόνο μετά από 2 έτη).</p>
+                                    <div class="input-group">
+                                        <input type="text" id="ga-number" class="form-control" placeholder="Αρ. Γεν. Συνέλευσης">
+                                        <input type="text" id="ga-year" class="form-control" placeholder="Έτος">
+                                        <button id="confirm-cancel-thesis-btn" class="btn btn-danger">Επιβεβαίωση</button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <!-- Status: Under Review -->
@@ -105,12 +112,16 @@
                             <a href="#" id="view-draft-link" class="btn btn-secondary" target="_blank">Προβολή Κειμένου Διπλωματικής</a>
                             <div id="supervisor-actions-under-review" class="supervisor-action mt-3">
                                 <hr>
-                                <button id="generate-announcement-btn" class="btn btn-info">Δημιουργία Ανακοίνωσης Παρουσίασης</button>
+                                <button id="generate-announcement-btn" class="btn btn-info" disabled>Δημιουργία Ανακοίνωσης Παρουσίασης</button>
                                 <button id="activate-grading-btn" class="btn btn-success ms-2">Ενεργοποίηση Βαθμολόγησης</button>
                             </div>
-                            <div id="grading-section" class="mt-3">
-                                <!-- Grading form for each member would go here -->
-                                <p>Η βαθμολόγηση είναι ενεργή.</p>
+                            <div id="grading-section" class="mt-3" style="display: none;">
+                                <hr>
+                                <h6>Βαθμολόγηση</h6>
+                                <table class="table">
+                                    <thead><tr><th>Μέλος Επιτροπής</th><th>Βαθμός</th><th>Ενέργεια</th></tr></thead>
+                                    <tbody id="grading-table-body"></tbody>
+                                </table>
                             </div>
                         </div>
                         <!-- Status: Completed -->
@@ -131,4 +142,3 @@
 </div>
 
 <script src="/js/pages/professor/theses-list.js"></script>
-

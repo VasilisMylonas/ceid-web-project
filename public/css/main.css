@@ -7,9 +7,12 @@
     width: var(--sidebar-width);
     height: 100vh;
     background-color: var(--bs-body);
+    transition: all 0.3s;
+    z-index: 100;
 }
 
 .sidebar img {
+    transition: all 0.3s;
     width: 256px;
 }
 
@@ -63,8 +66,19 @@
         align-self: center;
     }
 
-    .sidebar-collapsed .sidebar .list-group {
-        display: none;
+    .non-collapsable {
+        z-index: 2;
+    }
+
+    .collapsable {
+        transition: transform 0.3s;
+        z-index: 1;
+    }
+
+    .sidebar-collapsed .collapsable {
+        width: 100%;
+        position: absolute;
+        transform: translateY(-100%);
     }
 
     .main-content {

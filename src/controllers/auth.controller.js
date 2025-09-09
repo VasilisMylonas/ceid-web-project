@@ -1,9 +1,8 @@
-import jwt from "jsonwebtoken";
 import { StatusCodes } from "http-status-codes";
 import AuthService from "../services/auth.service.js";
 
 export async function login(req, res) {
-  const token = AuthService.login(req.body.username, req.body.password);
+  const token = await AuthService.login(req.body.username, req.body.password);
 
   if (!token) {
     return res.status(StatusCodes.UNAUTHORIZED).send();

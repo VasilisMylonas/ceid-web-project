@@ -126,7 +126,7 @@ pages.get("/secretary/:page", async (req, res) => {
   return res.render(`pages/secretary/${req.params.page}`, {
     title: secretaryLinks.find((link) => link.href === req.path)?.title,
     links: secretaryLinks,
-    layout: "layouts/secretary",
+    layout: "layouts/basic",
   });
 });
 
@@ -168,7 +168,7 @@ pages.get("/student/:page", async (req, res) => {
   return res.render(`pages/student/${req.params.page}`, {
     title: studentLinks.find((link) => link.href === req.path)?.title,
     links: studentLinks,
-    layout: "layouts/student",
+    layout: "layouts/basic",
   });
 });
 

@@ -28,7 +28,10 @@ if (process.env.NODE_ENV === "development") {
 
 try {
   await db.sequelize.authenticate();
-  // await seedDatabase();
+  const userCount = await db.User.count();
+  if (userCount === 0) {
+    await seedDatabase();
+  }
   console.log("Database connected successfully");
 } catch (error) {
   console.error("Database error:", error);

@@ -3,18 +3,75 @@
   <div class="card-body">
     <h5 class="card-title">Εισαγωγή Δεδομένων Χρηστών</h5>
     <p class="card-text text-muted">Επιλέξτε ένα αρχείο JSON για να εισάγετε
-      τα δεδομένα των φοιτητών και διδασκόντων.</p>
-    <form>
-      <div class="mb-3">
-        <label for="dataFile" class="form-label">Επιλογή Αρχείου JSON</label>
-        <input class="form-control" type="file" id="dataFile" accept=".json">
+      τα δεδομένα των φοιτητών και των διδασκόντων.</p>
+    <form id="data-entry-form" class="needs-validation">
+      <fieldset class="mb-4">
+        <label for="data-file" class="form-label">Επιλογή Αρχείου JSON</label>
+        <input class="form-control" type="file" id="data-file" accept=".json"
+            required>
+      </fieldset>
+      <div id="success" class="alert alert-success d-none" role="alert">
+        <div class="d-flex align-items-center mb-2">
+          <i class="bi bi-check-circle-fill me-2" aria-hidden="true"></i>
+          <strong>Επιτυχής Εισαγωγή Δεδομένων</strong>
+        </div>
+        <p>Τα δεδομένα εισήχθησαν με επιτυχία.</p>
       </div>
-      <div class="d-grid gap-2">
-        <button type="submit" class="btn btn-dark">
-          <i class="bi bi-upload me-2"></i>
-          Ανέβασμα Αρχείου
+      <div id="error" class="alert alert-danger d-none" role="alert">
+        <div class="d-flex align-items-center mb-2">
+          <i class="bi bi-exclamation-triangle-fill me-2"
+              aria-hidden="true"></i>
+          <strong>Σφάλμα εισαγωγής δεδομένων</strong>
+        </div>
+        <p>
+          Παρουσιάστηκε πρόβλημα κατά την εισαγωγή. Ελέγξτε το αρχείο JSON και
+          προσπαθήστε ξανά.
+        </p>
+        <button class="btn btn-link p-0" type="button" data-bs-toggle="collapse"
+            data-bs-target="#error-details" aria-expanded="false"
+            aria-controls="error-details">
+          Προβολή λεπτομερειών
         </button>
+        <div class="collapse mt-2" id="error-details"></div>
       </div>
+      <button type="submit" class="btn btn-dark w-100">
+        <i class="bi bi-upload me-2" aria-hidden="true"></i>
+        Ανέβασμα Αρχείου
+      </button>
     </form>
   </div>
 </div>
+<script>
+  function handleDataEntrySubmit(e) {
+    e.preventDefault();
+
+    const dataFile = document.getElementById('data-file');
+    const file = dataFile.files[0];
+
+    const fileReader = new FileReader();
+    fileReader.readAsText(file);
+
+    fileReader.onload = async () => {
+      const successDiv = document.getElementById('success');
+      const errorDiv = document.getElementById('error');
+
+      try {
+        await importUsers(JSON.parse(fileReader.result));
+        successDiv.classList.remove('d-none');
+        errorDiv.classList.add('d-none');
+      } catch (error) {
+        errorDiv.classList.remove('d-none');
+        successDiv.classList.add('d-none');
+
+        const errorDetails = document.getElementById('error-details');
+        errorDetails.textContent = error.message;
+      }
+    };
+
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const dataEntryForm = document.getElementById('data-entry-form');
+    dataEntryForm.addEventListener("submit", handleDataEntrySubmit);
+  })
+</script>

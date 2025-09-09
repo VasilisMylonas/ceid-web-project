@@ -4,6 +4,7 @@
 
 const BASE_URL = "http://localhost:3000/api";
 const PROFILE_API_URL = `${BASE_URL}/v1/my/profile`;
+const USERS_API_URL = `${BASE_URL}/v1/users`;
 
 async function request(method, url, object = null) {
   const response = await fetch(url, {
@@ -14,11 +15,18 @@ async function request(method, url, object = null) {
     body: object ? JSON.stringify(object) : object,
   });
 
-  if (response.ok) {
-    return await response.json();
+  // Handle NO_CONTENT
+  if (response.status === 204) {
+    return;
   }
 
-  throw new Error(`${response.status} ${response.statusText}`);
+  const json = await response.json();
+
+  if (response.ok) {
+    return json;
+  }
+
+  throw new Error(`${response.statusText}: ${json.message}`);
 }
 
 async function getProfile() {
@@ -32,4 +40,8 @@ async function updateProfile(properties) {
 async function getTheses() {
   const theses = await request("GET", `${BASE_URL}/v1/theses`);
   console.log(theses);
+}
+
+async function importUsers(users) {
+  return await request("PUT", USERS_API_URL, users);
 }

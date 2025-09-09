@@ -26,7 +26,7 @@ async function request(method, url, object = null) {
     return json;
   }
 
-  throw new Error(`${response.statusText}: ${json.message}`);
+  throw new Error(`${response.statusText}: ${json.error.message}`);
 }
 
 async function getProfile() {

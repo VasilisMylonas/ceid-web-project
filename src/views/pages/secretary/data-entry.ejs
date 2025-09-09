@@ -10,30 +10,9 @@
         <input class="form-control" type="file" id="data-file" accept=".json"
             required>
       </fieldset>
-      <div id="success" class="alert alert-success d-none" role="alert">
-        <div class="d-flex align-items-center mb-2">
-          <i class="bi bi-check-circle-fill me-2" aria-hidden="true"></i>
-          <strong>Επιτυχής Εισαγωγή Δεδομένων</strong>
-        </div>
-        <p>Τα δεδομένα εισήχθησαν με επιτυχία.</p>
-      </div>
-      <div id="error" class="alert alert-danger d-none" role="alert">
-        <div class="d-flex align-items-center mb-2">
-          <i class="bi bi-exclamation-triangle-fill me-2"
-              aria-hidden="true"></i>
-          <strong>Σφάλμα εισαγωγής δεδομένων</strong>
-        </div>
-        <p>
-          Παρουσιάστηκε πρόβλημα κατά την εισαγωγή. Ελέγξτε το αρχείο JSON και
-          προσπαθήστε ξανά.
-        </p>
-        <button class="btn btn-link p-0" type="button" data-bs-toggle="collapse"
-            data-bs-target="#error-details" aria-expanded="false"
-            aria-controls="error-details">
-          Προβολή λεπτομερειών
-        </button>
-        <div class="collapse mt-2" id="error-details"></div>
-      </div>
+
+      <div id="result"></div>
+
       <button type="submit" class="btn btn-dark w-100">
         <i class="bi bi-upload me-2" aria-hidden="true"></i>
         Ανέβασμα Αρχείου
@@ -52,19 +31,17 @@
     fileReader.readAsText(file);
 
     fileReader.onload = async () => {
-      const successDiv = document.getElementById('success');
-      const errorDiv = document.getElementById('error');
-
       try {
+        showSpinner("result");
+        await delay(250); // allow spinner to render
         await importUsers(JSON.parse(fileReader.result));
-        successDiv.classList.remove('d-none');
-        errorDiv.classList.add('d-none');
+        showSuccessAlert("result", "Επιτυχής Εισαγωγή Δεδομένων",
+          "Τα δεδομένα εισήχθησαν με επιτυχία.");
       } catch (error) {
-        errorDiv.classList.remove('d-none');
-        successDiv.classList.add('d-none');
-
-        const errorDetails = document.getElementById('error-details');
-        errorDetails.textContent = error.message;
+        showErrorAlert("result", "Σφάλμα εισαγωγής δεδομένων",
+          "Παρουσιάστηκε πρόβλημα κατά την εισαγωγή. Ελέγξτε το αρχείο JSON και προσπαθήστε ξανά.",
+          error.message
+        );
       }
     };
 

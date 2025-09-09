@@ -10,10 +10,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Element Selectors ---
     const myTopicsTableBody = document.getElementById('my-topics-table-body');
-    const showCreateFormBtn = document.getElementById('show-create-form-btn');
-    const createTopicCard = document.getElementById('create-topic-card');
-    const cancelCreateBtn = document.getElementById('cancel-create-btn');
     
+    // Create Modal elements
+    const createTopicModal = new bootstrap.Modal(document.getElementById('create-topic-modal'));
+    const createTopicForm = document.getElementById('create-topic-form');
+
     // Details Modal elements
     const topicDetailsModal = new bootstrap.Modal(document.getElementById('topic-details-modal'));
     const modalTopicId = document.getElementById('modal-topic-id');
@@ -38,12 +39,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
             let statusBadge;
             if (topic.status === 'Ελεύθερο') statusBadge = `<span class="badge bg-success">Ελεύθερο</span>`;
-            else if (topic.status === 'Υπό Ανάθεση') statusBadge = `<span class="badge bg-warning">Υπό Ανάθεση</span>`;
+            else if (topic.status === 'Υπό Ανάθεση') statusBadge = `<span class="badge bg-warning text-dark">Υπό Ανάθεση</span>`;
             else statusBadge = `<span class="badge bg-primary">Ενεργή</span>`;
 
+            // Updated buttons with better styling and spacing
             const actions = `
-                <button class="btn btn-sm btn-outline-secondary view-details-btn">Λεπτομέρειες</button>
-                ${topic.status === 'Ελεύθερο' ? '<button class="btn btn-sm btn-primary assign-btn ms-1">Ανάθεση</button>' : ''}
+                <div class="d-flex justify-content-center gap-2">
+                    <button class="btn btn-sm btn-info view-details-btn" title="Λεπτομέρειες"><i class="bi bi-eye"></i></button>
+                    ${topic.status === 'Ελεύθερο' ? '<button class="btn btn-sm btn-primary assign-btn" title="Ανάθεση"><i class="bi bi-person-plus"></i></button>' : ''}
+                </div>
             `;
 
             row.innerHTML = `
@@ -65,14 +69,20 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- Event Listeners ---
-    showCreateFormBtn.addEventListener('click', () => {
-        createTopicCard.style.display = 'block';
-        showCreateFormBtn.style.display = 'none';
-    });
-
-    cancelCreateBtn.addEventListener('click', () => {
-        createTopicCard.style.display = 'none';
-        showCreateFormBtn.style.display = 'block';
+    createTopicForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const newTopic = {
+            id: Date.now(), // Use timestamp for unique ID in sample data
+            title: formData.get('title'),
+            description: formData.get('description'),
+            status: 'Ελεύθερο',
+            student: null
+        };
+        sampleData.allMyTopics.unshift(newTopic); // Add to the beginning of the array
+        renderTopicsTable();
+        createTopicModal.hide();
+        e.target.reset();
     });
 
     myTopicsTableBody.addEventListener('click', (e) => {
@@ -82,13 +92,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const topic = sampleData.allMyTopics.find(t => t.id == topicId);
         if (!topic) return;
 
-        if (e.target.classList.contains('view-details-btn')) {
+        if (e.target.closest('.view-details-btn')) {
             modalTopicId.value = topic.id;
             modalTopicTitle.value = topic.title;
             modalTopicDescription.value = topic.description;
             setModalState(false);
             topicDetailsModal.show();
-        } else if (e.target.classList.contains('assign-btn')) {
+        } else if (e.target.closest('.assign-btn')) {
             assignTopicIdInput.value = topic.id;
             assignTopicTitle.textContent = topic.title;
             assignStudentModal.show();
@@ -110,15 +120,14 @@ document.addEventListener('DOMContentLoaded', () => {
         
         console.log(`Assigning topic ID ${topicId} to student: ${studentIdentifier}`);
         
-        // Find and update the topic in the sample data
         const topic = sampleData.allMyTopics.find(t => t.id == topicId);
         if (topic) {
             topic.status = 'Υπό Ανάθεση';
-            topic.student = studentIdentifier; // In a real app, you'd use the student's full name
+            topic.student = studentIdentifier;
         }
         
         assignStudentModal.hide();
-        renderTopicsTable(); // Re-render the table to show the change
+        renderTopicsTable();
         e.target.reset();
     });
 

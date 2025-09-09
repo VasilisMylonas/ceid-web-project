@@ -1,0 +1,70 @@
+
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h2 mb-0">Λίστα Διπλωματικών</h1>
+        <div>
+            <button class="btn btn-outline-secondary"><i class="bi bi-file-earmark-spreadsheet me-1"></i> Export CSV</button>
+            <button class="btn btn-outline-secondary"><i class="bi bi-filetype-json me-1"></i> Export JSON</button>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form class="row g-3 align-items-end">
+                <div class="col-md-5">
+                    <label for="filterStatus" class="form-label">Φίλτρο κατάστασης</label>
+                    <select id="filterStatus" class="form-select">
+                        <option selected>Όλες</option>
+                        <option>Υπό Ανάθεση</option>
+                        <option>Ενεργή</option>
+                        <option>Ολοκληρωμένη</option>
+                        <option>Ακυρωμένη</option>
+                    </select>
+                </div>
+                <div class="col-md-5">
+                    <label for="filterRole" class="form-label">Φίλτρο ρόλου</label>
+                    <select id="filterRole" class="form-select">
+                        <option selected>Όλοι οι ρόλοι</option>
+                        <option>Επιβλέπων</option>
+                        <option>Μέλος Επιτροπής</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">Φιλτράρισμα</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Theses Table -->
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Θέμα</th>
+                <th>Φοιτητής</th>
+                <th>Ο Ρόλος μου</th>
+                <th>Κατάσταση</th>
+                <th>Ημερομηνία</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- EJS loop to populate theses -->
+            <tr>
+                <td><a href="/professor/thesis/1">Τεχνητή Νοημοσύνη στην Ιατρική</a></td>
+                <td>Μαρία Σταύρου</td>
+                <td>Επιβλέπων</td>
+                <td><span class="badge bg-primary">Ενεργή</span></td>
+                <td>15/03/2024</td>
+            </tr>
+            <tr>
+                <td><a href="/professor/thesis/2">Ανάπτυξη Εφαρμογών για Κινητά</a></td>
+                <td>Νίκος Δημητρίου</td>
+                <td>Μέλος Επιτροπής</td>
+                <td><span class="badge bg-success">Ολοκληρωμένη</span></td>
+                <td>10/01/2024</td>
+            </tr>
+        </tbody>
+    </table>
+</div>

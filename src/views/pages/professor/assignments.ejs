@@ -1,0 +1,74 @@
+<div class="container-fluid">
+    <h1 class="h2 mb-4">Διαχείριση Θεμάτων & Ανάθεση</h1>
+
+    <!-- 1. Create New Thesis Topic -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Δημιουργία Νέου Θέματος</h5>
+        </div>
+        <div class="card-body">
+            <form action="/professor/assignments/create" method="POST" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label for="title" class="form-label">Τίτλος</label>
+                    <input type="text" class="form-control" id="title" name="title" required>
+                </div>
+                <div class="mb-3">
+                    <label for="description" class="form-label">Σύντομη Περιγραφή</label>
+                    <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="pdfFile" class="form-label">Αρχείο PDF (Προαιρετικό)</label>
+                    <input class="form-control" type="file" id="pdfFile" name="pdfFile" accept=".pdf">
+                </div>
+                <button type="submit" class="btn btn-success">Δημιουργία Θέματος</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 2. Assign Topic to Student -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Προσωρινή Ανάθεση Θέματος σε Φοιτητή</h5>
+        </div>
+        <div class="card-body">
+            <form action="/professor/assignments/assign" method="POST">
+                <div class="mb-3">
+                    <label for="topicSelect" class="form-label">Επιλογή Ελεύθερου Θέματος</label>
+                    <select class="form-select" id="topicSelect" name="topicId" required>
+                        <option selected disabled value="">Επιλέξτε θέμα...</option>
+                        <!-- Options will be populated by assignments.js -->
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="studentSearch" class="form-label">Αναζήτηση Φοιτητή (Α.Μ. ή Ονοματεπώνυμο)</label>
+                    <input type="text" class="form-control" id="studentSearch" name="studentIdentifier" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Ανάθεση</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 3. List of Created/Assigned Topics -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Τα Θέματά μου</h5>
+        </div>
+        <div class="card-body">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Τίτλος</th>
+                        <th>Κατάσταση</th>
+                        <th>Φοιτητής</th>
+                        <th>Ενέργειες</th>
+                    </tr>
+                </thead>
+                <tbody id="my-topics-table-body">
+                    <!-- Rows will be populated by assignments.js -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="/js/pages/professor/assignments.js"></script>

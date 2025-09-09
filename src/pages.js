@@ -129,6 +129,52 @@ pages.get("/secretary/:page", async (req, res) => {
     layout: "layouts/basic",
   });
 });
+pages.get("/professor/:page", async (req, res) => {
+  const token = extractTokenFromRequest(req);
+  const user = await AuthService.verifyToken(token);
+
+  if (!user) {
+    return res.redirect("/login");
+  }
+
+  if (user.role !== UserRole.PROFESSOR) {
+    return res.redirect(getHomeRedirectPath(user.role));
+  }
+
+  const professorLinks = [
+    {
+      href: "/professor/home",
+      icon: "bi-house-door",
+      title: "Αρχική",
+    },
+    {
+      href: "/professor/assignments",
+      icon: "bi-journal-plus",
+      title: "Θέματα & Ανάθεση",
+    },
+    {
+      href: "/professor/theses-list",
+      icon: "bi-collection",
+      title: "Οι Διπλωματικές μου",
+    },
+    {
+      href: "/professor/invitations",
+      icon: "bi-envelope",
+      title: "Προσκλήσεις",
+    },
+    {
+      href: "/professor/statistics",
+      icon: "bi-graph-up",
+      title: "Στατιστικά",
+    },
+  ];
+  
+  return res.render(`pages/professor/${req.params.page}`, {
+    title: professorLinks.find((link) => link.href === req.path)?.title,
+    links: professorLinks,
+    layout: "layouts/basic",
+  });
+});
 
 pages.get("/student/:page", async (req, res) => {
   const token = extractTokenFromRequest(req);

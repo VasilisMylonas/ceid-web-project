@@ -94,7 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td>${thesis.student}</td>
                 <td>${thesis.myRole === 'supervisor' ? 'Επιβλέπων' : 'Μέλος Επιτροπής'}</td>
                 <td><span class="badge ${badgeClass}">${thesis.status}</span></td>
-                <td class="text-center"><button class="btn btn-sm btn-outline-primary manage-btn">Διαχείριση</button></td>
+                <td class="text-center"><button class="btn btn-sm btn-primary manage-btn">Διαχείριση</button></td>
             `;
             tableBody.appendChild(row);
         });

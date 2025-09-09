@@ -1,9 +1,10 @@
+
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h2 mb-0">Λίστα Διπλωματικών</h1>
-        <div>
-            <button id="export-csv-btn" class="btn btn-outline-secondary"><i class="bi bi-file-earmark-spreadsheet me-1"></i> Export CSV</button>
-            <button id="export-json-btn" class="btn btn-outline-secondary"><i class="bi bi-filetype-json me-1"></i> Export JSON</button>
+        <div class="d-flex flex-column flex-md-row gap-2">
+            <button id="export-csv-btn" class="btn btn-secondary"><i class="bi bi-file-earmark-spreadsheet me-1"></i> Export CSV</button>
+            <button id="export-json-btn" class="btn btn-secondary"><i class="bi bi-filetype-json me-1"></i> Export JSON</button>
         </div>
     </div>
 
@@ -93,7 +94,7 @@
                             <h6>Σημειώσεις (Ορατές μόνο σε εσάς)</h6>
                             <div id="modal-notes-list" class="mb-2"></div>
                             <textarea id="modal-new-note" class="form-control" rows="3" placeholder="Προσθέστε μια νέα σημείωση (max 300 χαρακτήρες)..."></textarea>
-                            <button id="add-note-btn" class="btn btn-outline-primary btn-sm mt-2">Προσθήκη Σημείωσης</button>
+                            <button id="add-note-btn" class="btn btn-primary btn-sm mt-2">Προσθήκη Σημείωσης</button>
                             <div id="supervisor-actions-active" class="supervisor-action mt-3">
                                 <hr>
                                 <button id="change-status-to-review-btn" class="btn btn-primary">Αλλαγή σε "Υπό Εξέταση"</button>

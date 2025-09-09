@@ -18,14 +18,18 @@ export default class UserController {
     res.status(StatusCodes.OK).json(users);
   }
 
-  static async _add(user, transaction) {
-    user.password = bcrypt.hash(user.password, 10);
+  static async _createUser(user, transaction) {
+    // Hash password before storing
+    user.password = JSON.stringify(bcrypt.hash(user.password, 10));
 
     const created = await db.User.create(user, { transaction });
 
     switch (user.role) {
       case UserRole.PROFESSOR:
-        await db.Professor.create({ userId: created.id }, { transaction });
+        await db.Professor.create(
+          { userId: created.id, division: user.division },
+          { transaction }
+        );
         break;
       case UserRole.SECRETARY:
         await db.Secretary.create({ userId: created.id }, { transaction });
@@ -46,7 +50,7 @@ export default class UserController {
 
     try {
       for (const user of req.body) {
-        this._add(user, transaction);
+        await UserController._createUser(user, transaction);
       }
       transaction.commit();
       res.status(StatusCodes.NO_CONTENT).send();
@@ -60,7 +64,7 @@ export default class UserController {
     const transaction = await db.sequelize.transaction();
 
     try {
-      const created = this._add(req.body, transaction);
+      const created = await UserController._createUser(req.body, transaction);
       transaction.commit();
       res.status(StatusCodes.CREATED).json(omit(created.get(), "password"));
     } catch (error) {

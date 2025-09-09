@@ -80,6 +80,11 @@ export default {
           then: validator.required(),
           otherwise: validator.forbidden(),
         }),
+        division: validator.string().min(1).when("role", {
+          is: UserRole.PROFESSOR,
+          then: validator.required(),
+          otherwise: validator.forbidden(),
+        }),
       })
     ),
   },

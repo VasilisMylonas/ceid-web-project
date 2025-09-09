@@ -53,7 +53,7 @@ export default class UserController {
         await UserController._createUser(user, transaction);
       }
       transaction.commit();
-      res.status(StatusCodes.NO_CONTENT).send();
+      return res.status(StatusCodes.NO_CONTENT).json();
     } catch (error) {
       transaction.rollback();
       throw error;
@@ -103,6 +103,6 @@ export default class UserController {
 
   static async delete(req, res) {
     // TODO WONTFIX: delete user dependencies (professor, secretary, student)
-    res.status(StatusCodes.NOT_IMPLEMENTED).send();
+    res.status(StatusCodes.NOT_IMPLEMENTED).json();
   }
 }

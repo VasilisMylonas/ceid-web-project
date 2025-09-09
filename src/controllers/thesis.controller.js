@@ -11,13 +11,13 @@ export default class ThesisController {
     if (!topic) {
       return res
         .status(StatusCodes.NOT_FOUND)
-        .send({ message: "No such topic." });
+        .json({ message: "No such topic." });
     }
 
     if (!student) {
       return res
         .status(StatusCodes.NOT_FOUND)
-        .send({ message: "No such student." });
+        .json({ message: "No such student." });
     }
 
     try {
@@ -59,7 +59,7 @@ export default class ThesisController {
     });
 
     await req.thesis.destroy();
-    return res.status(StatusCodes.NO_CONTENT).send();
+    return res.status(StatusCodes.NO_CONTENT).json();
   }
 
   static async getNotes(req, res) {
@@ -139,7 +139,7 @@ export default class ThesisController {
 
     await thesis.save();
 
-    return res.status(StatusCodes.OK).send(req.thesis);
+    return res.status(StatusCodes.OK).json(req.thesis);
   }
 
   static async patchStatus(req, res) {
@@ -153,7 +153,7 @@ export default class ThesisController {
       req.thesis.status = ThesisStatus.UNDER_EXAMINATION;
       await req.thesis.save();
 
-      return res.status(StatusCodes.OK).send(req.thesis);
+      return res.status(StatusCodes.OK).json(req.thesis);
     }
 
     if (req.body.status === ThesisStatus.COMPLETED) {
@@ -167,22 +167,22 @@ export default class ThesisController {
       req.thesis.endDate = new Date();
       await req.thesis.save();
 
-      return res.status(StatusCodes.OK).send(req.thesis);
+      return res.status(StatusCodes.OK).json(req.thesis);
     }
 
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send();
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json();
   }
 
   static async getDraft(req, res) {
     if (!req.thesis.documentFile) {
-      return res.status(StatusCodes.NOT_FOUND).send();
+      return res.status(StatusCodes.NOT_FOUND).json();
     }
     res.status(StatusCodes.OK).sendFile(getFilePath(req.thesis.documentFile));
   }
 
   static async putDraft(req, res) {
     if (!req.file) {
-      return res.status(StatusCodes.BAD_REQUEST).send();
+      return res.status(StatusCodes.BAD_REQUEST).json();
     }
 
     if (!req.thesis.status === ThesisStatus.ACTIVE) {
@@ -195,7 +195,7 @@ export default class ThesisController {
     req.thesis.documentFile = req.file.filename;
     await req.thesis.save();
 
-    res.status(StatusCodes.NO_CONTENT).send();
+    res.status(StatusCodes.NO_CONTENT).json();
   }
 
   // TODO
@@ -252,7 +252,7 @@ export default class ThesisController {
 
   static async postResource(req, res) {
     if (!req.file) {
-      return res.status(StatusCodes.BAD_REQUEST).send();
+      return res.status(StatusCodes.BAD_REQUEST).json();
     }
 
     const resource = await db.Resource.create({

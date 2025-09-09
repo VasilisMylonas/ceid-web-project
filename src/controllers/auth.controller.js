@@ -5,7 +5,7 @@ export async function login(req, res) {
   const token = await AuthService.login(req.body.username, req.body.password);
 
   if (!token) {
-    return res.status(StatusCodes.UNAUTHORIZED).send();
+    return res.status(StatusCodes.UNAUTHORIZED).json();
   }
 
   res.status(StatusCodes.OK).json({ token });

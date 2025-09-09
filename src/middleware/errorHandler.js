@@ -10,7 +10,6 @@ export async function errorHandler(err, req, res, next) {
   }
 
   if (err instanceof UniqueConstraintError) {
-    console.log(err);
     return res.status(StatusCodes.CONFLICT).json({
       message: err.errors[0].message,
     });

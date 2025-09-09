@@ -73,7 +73,7 @@ export default class TopicController {
 
   static async getDescription(req, res) {
     if (!req.topic.descriptionFile) {
-      return res.status(StatusCodes.NOT_FOUND).send();
+      return res.status(StatusCodes.NOT_FOUND).json();
     }
 
     res.status(StatusCodes.OK).sendFile(getFilePath(req.topic.descriptionFile));
@@ -81,25 +81,25 @@ export default class TopicController {
 
   static async putDescription(req, res) {
     if (!req.file) {
-      return res.status(StatusCodes.BAD_REQUEST).send();
+      return res.status(StatusCodes.BAD_REQUEST).json();
     }
 
     if (req.topic.isAssigned()) {
-      return res.status(StatusCodes.BAD_REQUEST).send();
+      return res.status(StatusCodes.BAD_REQUEST).json();
     }
 
     deleteIfExists(req.topic.descriptionFile);
     req.topic.descriptionFile = req.file.filename;
     await req.topic.save();
 
-    res.status(StatusCodes.NO_CONTENT).send();
+    res.status(StatusCodes.NO_CONTENT).json();
   }
 
   static async put(req, res) {
     const { title, summary } = req.body;
 
     if (req.topic.isAssigned()) {
-      return res.status(StatusCodes.BAD_REQUEST).send();
+      return res.status(StatusCodes.BAD_REQUEST).json();
     }
 
     await req.topic.update({ title, summary });
@@ -108,10 +108,10 @@ export default class TopicController {
 
   static async delete(req, res) {
     if (req.topic.isAssigned()) {
-      return res.status(StatusCodes.BAD_REQUEST).send();
+      return res.status(StatusCodes.BAD_REQUEST).json();
     }
 
     await req.topic.destroy();
-    res.status(StatusCodes.NO_CONTENT).send();
+    res.status(StatusCodes.NO_CONTENT).json();
   }
 }

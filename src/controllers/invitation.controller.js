@@ -70,6 +70,6 @@ export default class InvitationController {
     }
 
     await req.invitation.destroy();
-    res.status(StatusCodes.NO_CONTENT).send();
+    res.status(StatusCodes.NO_CONTENT).json();
   }
 }

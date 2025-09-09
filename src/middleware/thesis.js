@@ -28,7 +28,7 @@ export function requireThesisRole(...roles) {
       !(roles.includes(ThesisRole.SUPERVISOR) && isSupervisor) &&
       roles.length != 0
     ) {
-      return res.status(StatusCodes.FORBIDDEN).send();
+      return res.status(StatusCodes.FORBIDDEN).json();
     }
 
     req.isStudent = !!isStudent;
@@ -44,7 +44,7 @@ export function requireThesisStatus(...status) {
       req.thesis instanceof db.Thesis ? req.model : await req.model.getThesis();
 
     if (!status.includes(thesis.status)) {
-      return res.status(StatusCodes.BAD_REQUEST).send();
+      return res.status(StatusCodes.BAD_REQUEST).json();
     }
 
     req.thesis = thesis;

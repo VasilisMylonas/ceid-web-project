@@ -177,7 +177,7 @@ export default class ThesisController {
     if (!req.thesis.documentFile) {
       return res.status(StatusCodes.NOT_FOUND).send();
     }
-    res.status(SourceCode.OK).sendFile(getFilePath(req.thesis.documentFile));
+    res.status(StatusCodes.OK).sendFile(getFilePath(req.thesis.documentFile));
   }
 
   static async putDraft(req, res) {

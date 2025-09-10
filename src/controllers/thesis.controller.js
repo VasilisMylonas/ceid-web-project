@@ -201,7 +201,8 @@ export default class ThesisController {
   // TODO
   static async query(req, res) {
     let query = {
-      attributes: ["id", "status", "topicId", "studentId"],
+      subquery: false,
+      attributes: ["id", "status", "topicId", "studentId", "startDate"],
       limit: req.query.limit,
       offset: req.query.offset,
       order: [["id", "ASC"]],
@@ -210,20 +211,45 @@ export default class ThesisController {
         ...(req.query.status && { status: req.query.status }),
         ...(req.query.topicId && { topicId: req.query.topicId }),
       },
-    };
-
-    if (req.query.professorId) {
-      query.include = [
+      include: [
+        {
+          model: db.Topic,
+          attributes: ["id", "title"],
+        },
+        {
+          model: db.Student,
+          attributes: ["id"],
+          include: [
+            {
+              model: db.User,
+              attributes: ["name"],
+            },
+          ],
+        },
         {
           model: db.CommitteeMember,
-          attributes: [],
-          where: {
-            professorId: req.query.professorId,
-            ...(req.query.role && { role: req.query.role }),
-          },
+          attributes: ["role"],
+          include: [
+            {
+              model: db.Professor,
+              attributes: ["id"],
+              include: [
+                {
+                  model: db.User,
+                  attributes: ["name"],
+                },
+              ],
+              ...(req.query.professorId && {
+                where: {
+                  professorId: req.query.professorId,
+                  ...(req.query.role && { role: req.query.role }),
+                },
+              }),
+            },
+          ],
         },
-      ];
-    }
+      ],
+    };
 
     const theses = await db.Thesis.findAll(query);
     res.status(StatusCodes.OK).json(theses);

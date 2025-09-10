@@ -6,6 +6,7 @@ import seedStudents from "./students.js";
 import seedSecretaries from "./secretaries.js";
 import seedTopics from "./topics.js";
 import seedTheses from "./theses.js";
+import seedCommitteeMembers from "./committee-members.js";
 
 export default async function seedDatabase() {
   await db.sequelize.sync({ force: true });
@@ -50,4 +51,5 @@ export default async function seedDatabase() {
 
   await seedTopics(60);
   await seedTheses(40);
+  await seedCommitteeMembers();
 }

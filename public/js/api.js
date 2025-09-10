@@ -38,8 +38,7 @@ async function updateProfile(properties) {
 }
 
 async function getTheses() {
-  const theses = await request("GET", `${BASE_URL}/v1/theses`);
-  console.log(theses);
+  return await request("GET", `${BASE_URL}/v1/theses`);
 }
 
 async function importUsers(users) {

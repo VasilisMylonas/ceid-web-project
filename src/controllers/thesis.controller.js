@@ -2,6 +2,7 @@ import { StatusCodes } from "http-status-codes";
 import db from "../models/index.js";
 import { getFilePath, deleteIfExists } from "../config/file-storage.js";
 import { ThesisStatus } from "../constants.js";
+import { omit } from "../util.js";
 
 export default class ThesisController {
   static async post(req, res) {
@@ -198,68 +199,65 @@ export default class ThesisController {
     res.status(StatusCodes.NO_CONTENT).json();
   }
 
-  // TODO
   static async query(req, res) {
-    let query = {
-      subquery: false,
-      attributes: ["id", "status", "topicId", "studentId", "startDate"],
-      limit: req.query.limit,
-      offset: req.query.offset,
-      order: [["id", "ASC"]],
-      where: {
-        ...(req.query.studentId && { studentId: req.query.studentId }),
-        ...(req.query.status && { status: req.query.status }),
-        ...(req.query.topicId && { topicId: req.query.topicId }),
-      },
-      include: [
-        {
-          model: db.Topic,
-          attributes: ["id", "title"],
-        },
-        {
-          model: db.Student,
-          attributes: ["id"],
-          include: [
-            {
-              model: db.User,
-              attributes: ["name"],
-            },
-          ],
-        },
-        {
-          model: db.CommitteeMember,
-          attributes: ["role"],
-          include: [
-            {
-              model: db.Professor,
-              attributes: ["id"],
-              include: [
-                {
-                  model: db.User,
-                  attributes: ["name"],
-                },
-              ],
-              ...(req.query.professorId && {
-                where: {
-                  professorId: req.query.professorId,
-                  ...(req.query.role && { role: req.query.role }),
-                },
-              }),
-            },
-          ],
-        },
-      ],
+    let whereClause = {
+      "students.id": req.query.studentId,
+      "theses.status": req.query.status,
+      "topics.id": req.query.topicId,
+      "professors.id": req.query.professorId,
+      "committee_members.role": req.query.role,
     };
 
-    const theses = await db.Thesis.findAll(query);
-    res.status(StatusCodes.OK).json(theses);
+    const where = Object.entries(whereClause)
+      .filter(([key, value]) => value !== undefined) // Remove undefined values
+      .map(([key, value]) => {
+        return `${key} = '${value}'`; // Create condition strings
+      })
+      .join(" AND "); // Join conditions with AND
+
+    // This query is complicated due to the need to join multiple tables and filter based on various criteria.
+    // So we use a raw SQL query here.
+    // Nothing beats raw SQL for complex queries...
+    let raw_query = `
+    SELECT
+theses.id AS "id",
+theses.status AS "status",
+theses.start_date AS "startDate",
+topics.id AS "topicId",
+topics.title AS "topic",
+student_users.name AS "student",
+students.id AS "studentId",
+supervisor_users.name AS "supervisor",
+supervisors.id AS "supervisorId"
+
+FROM theses
+JOIN topics ON theses.topic_id = topics.id
+
+JOIN students ON theses.student_id = students.id
+JOIN users AS student_users ON students.user_id = student_users.id
+
+JOIN committee_members AS supervisor_members ON theses.id = supervisor_members.thesis_id AND supervisor_members.role = 'supervisor'
+JOIN professors AS supervisors ON supervisor_members.professor_id = supervisors.id
+JOIN users AS supervisor_users ON supervisors.user_id = supervisor_users.id
+
+JOIN committee_members ON theses.id = committee_members.thesis_id
+JOIN professors ON committee_members.professor_id = professors.id
+JOIN users AS professor_users ON professors.user_id = professor_users.id
+
+${where ? `WHERE ${where}` : ""}
+ORDER BY theses.id ASC
+${req.query.limit ? `LIMIT ${req.query.limit}` : ""}
+${req.query.offset ? `OFFSET ${req.query.offset}` : ""}
+    `;
+
+    const [results, _] = await db.sequelize.query(raw_query);
+
+    res.status(StatusCodes.OK).json(results);
   }
 
   // TODO
   static async get(req, res) {
-    const thesis = req.thesis.toJSON();
-    delete thesis.documentFile;
-    res.status(StatusCodes.OK).json(thesis);
+    res.status(StatusCodes.OK).json(omit(req.thesis.get(), "documentFile"));
   }
 
   static async getResources(req, res) {

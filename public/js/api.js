@@ -41,6 +41,10 @@ async function getTheses() {
   return await request("GET", `${BASE_URL}/v1/theses`);
 }
 
+async function getThesisDetails(thesisId) {
+  return await request("GET", `${BASE_URL}/v1/theses/${thesisId}`);
+}
+
 async function importUsers(users) {
   return await request("PUT", USERS_API_URL, users);
 }

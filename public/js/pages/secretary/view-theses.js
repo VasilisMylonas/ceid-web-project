@@ -123,7 +123,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("thesisDetailsModal")
   );
 
-  const res = await getTheses();
+  const res = await getThesesSecretary();
   const theses = res.data;
 
   // Add event listener to the table body

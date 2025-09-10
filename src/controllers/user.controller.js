@@ -26,16 +26,19 @@ export default class UserController {
 
     switch (user.role) {
       case UserRole.PROFESSOR:
-        await db.Professor.create(
+        created.Professor = await db.Professor.create(
           { userId: created.id, division: user.division },
           { transaction }
         );
         break;
       case UserRole.SECRETARY:
-        await db.Secretary.create({ userId: created.id }, { transaction });
+        created.Secretary = await db.Secretary.create(
+          { userId: created.id },
+          { transaction }
+        );
         break;
       case UserRole.STUDENT:
-        await db.Student.create(
+        created.Student = await db.Student.create(
           { userId: created.id, am: user.am },
           { transaction }
         );
@@ -45,15 +48,20 @@ export default class UserController {
     return created;
   }
 
-  static async putAll(req, res) {
+  static async postBatch(req, res) {
     const transaction = await db.sequelize.transaction();
+
+    const created = [];
 
     try {
       for (const user of req.body) {
-        await UserController._createUser(user, transaction);
+        created.push(await UserController._createUser(user, transaction));
       }
+
       transaction.commit();
-      return res.status(StatusCodes.NO_CONTENT).json();
+      return res
+        .status(StatusCodes.CREATED)
+        .json(created.map((user) => omit(user.get(), "password")));
     } catch (error) {
       transaction.rollback();
       throw error;

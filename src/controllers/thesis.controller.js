@@ -210,6 +210,10 @@ export default class ThesisController {
     const where = Object.entries(whereClause)
       .filter(([key, value]) => value !== undefined) // Remove undefined values
       .map(([key, value]) => {
+        if (Array.isArray(value)) {
+          return `(${key} IN (${value.map((v) => `'${v}'`).join(", ")}))`;
+        }
+
         return `${key} = '${value}'`; // Create condition strings
       })
       .join(" AND "); // Join conditions with AND
@@ -248,6 +252,8 @@ ORDER BY theses.id ASC
 ${req.query.limit ? `LIMIT ${req.query.limit}` : ""}
 ${req.query.offset ? `OFFSET ${req.query.offset}` : ""}
     `;
+
+    console.log(raw_query);
 
     const [results, _] = await db.sequelize.query(raw_query);
 

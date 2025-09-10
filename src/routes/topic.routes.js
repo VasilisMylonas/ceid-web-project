@@ -2,7 +2,7 @@ import express from "express";
 import multer from "multer";
 import TopicController from "../controllers/topic.controller.js";
 import topicValidators from "../validators/topic.validators.js";
-import { validate } from "../config/validation.js";
+import { validate } from "../middleware/validation.js";
 import {
   requireProfessorOwner,
   requireAuth,

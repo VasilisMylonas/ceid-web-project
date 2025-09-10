@@ -3,7 +3,7 @@ import {
   requireAuth,
   requireProfessorOwner,
 } from "../middleware/authentication.js";
-import { validate } from "../config/validation.js";
+import { validate } from "../middleware/validation.js";
 import noteValidators from "../validators/note.validators.js";
 import NoteController from "../controllers/note.controller.js";
 import { model } from "../middleware/model.js";

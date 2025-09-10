@@ -7,7 +7,7 @@ import {
   requireThesisRoleOrSecretary,
   requireThesisStatus,
 } from "../middleware/thesis.js";
-import { validate } from "../config/validation.js";
+import { validate } from "../middleware/validation.js";
 import { UserRole, ThesisRole, ThesisStatus } from "../constants.js";
 import thesisValidator from "../validators/thesis.validators.js";
 import ThesisController from "../controllers/thesis.controller.js";

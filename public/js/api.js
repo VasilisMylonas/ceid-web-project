@@ -3,8 +3,6 @@
  */
 
 const BASE_URL = "http://localhost:3000/api";
-const PROFILE_API_URL = `${BASE_URL}/v1/my/profile`;
-const USERS_API_URL = `${BASE_URL}/v1/users`;
 
 async function request(method, url, object = null) {
   const response = await fetch(url, {
@@ -30,15 +28,18 @@ async function request(method, url, object = null) {
 }
 
 async function getProfile() {
-  return await request("GET", PROFILE_API_URL);
+  return await request("GET", `${BASE_URL}/v1/my/profile`);
 }
 
 async function updateProfile(properties) {
-  return await request("PATCH", PROFILE_API_URL, properties);
+  return await request("PATCH", `${BASE_URL}/v1/my/profile`, properties);
 }
 
-async function getTheses() {
-  return await request("GET", `${BASE_URL}/v1/theses`);
+async function getThesesSecretary() {
+  return await request(
+    "GET",
+    `${BASE_URL}/v1/theses?status=active&status=under_examination`
+  );
 }
 
 async function getThesisDetails(thesisId) {
@@ -46,5 +47,5 @@ async function getThesisDetails(thesisId) {
 }
 
 async function importUsers(users) {
-  return await request("PUT", USERS_API_URL, users);
+  return await request("POST", `${BASE_URL}/v1/users/batch`, users);
 }

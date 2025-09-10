@@ -18,8 +18,8 @@ import { wrapResponse } from "../middleware/responses.js";
 
 const router = express.Router();
 router.use(express.json()); // JSON middleware
-router.use(wrapResponse()); // Wrap all responses in a standard format
 router.use(cookieParser()); // Parse cookies, for cookie-based login
+router.use(wrapResponse()); // Wrap all responses in a standard format
 router.use(expressJoiValidations({ throwErrors: true })); // Request validation
 router.use("/auth", authRoutes);
 router.use("/topics", topicRoutes);

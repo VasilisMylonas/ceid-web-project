@@ -270,7 +270,8 @@ supervisors.id AS "supervisorId",
 theses.status_reason AS "statusReason",
 theses.end_date AS "endDate",
 theses.protocol_number AS "protocolNumber",
-theses.grading AS "grading"
+theses.grading AS "grading",
+topics.summary AS "topicSummary"
 
 FROM theses
 JOIN topics ON theses.topic_id = topics.id

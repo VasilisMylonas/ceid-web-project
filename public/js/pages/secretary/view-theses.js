@@ -76,33 +76,36 @@ function showDetails(thesisModal, thesis) {
   document.getElementById("modal-thesis-topic").textContent = thesis.topic;
 
   const statusElement = document.getElementById("modal-thesis-status");
-  const statusBadge = `
-        <span class="badge ${getThesisStatusBootstrapBgClass(thesis.status)}">
-            ${getThesisStatusName(thesis.status)}
-        </span>
+
+  statusElement.innerHTML = `
+    Κατάσταση:
+    <span class="badge ${getThesisStatusBootstrapBgClass(thesis.status)}">
+        ${getThesisStatusName(thesis.status)}
+    </span>
     `;
-  statusElement.innerHTML = `Κατάσταση: ${statusBadge}`;
 
   document.getElementById("modal-thesis-student").textContent = thesis.student;
   document.getElementById("modal-thesis-assignment-date").textContent =
     new Date(thesis.startDate).toLocaleDateString("el-GR");
   document.getElementById("modal-thesis-description").textContent =
-    thesis.topic.summary;
+    thesis.topicSummary;
 
   const committeeList = document.getElementById("modal-committee-list");
+
   committeeList.innerHTML = "";
-  thesis.CommitteeMembers.forEach((member) => {
+
+  for (const member of thesis.committeeMembers) {
     const li = document.createElement("li");
     li.className =
       "list-group-item d-flex justify-content-between align-items-center";
     li.innerHTML = `
-                    ${member.Professor.User.name}
-                    <span class="badge bg-secondary">${getMemberRoleName(
-                      member.role
-                    )}</span>
-                `;
+        ${member.name}
+        <span class="badge bg-secondary">
+            ${getMemberRoleName(member.role)}
+        </span>
+    `;
     committeeList.appendChild(li);
-  });
+  }
 
   thesisModal.show();
 }

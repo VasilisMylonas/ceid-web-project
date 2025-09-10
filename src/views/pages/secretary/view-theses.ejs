@@ -1,9 +1,10 @@
 <h2 class="mb-4">Προβολή Διπλωματικών Εργασιών</h2>
-<div class="card shadow-sm mb-4">
+<article class="card shadow-sm mb-4">
   <div class="card-body">
     <div class="d-flex justify-content-between align-items-center mb-3">
-      <h5 class="card-title mb-0">Λίστα Ενεργών & Υπό Εξέταση ΔΕ</h5>
-      <button class="btn btn-dark btn-sm" id="export-theses">
+      <h5 class="card-title mb-0">Λίστα Ενεργών & Υπό Εξέταση Διπλωματικών
+        Εργασιών</h5>
+      <button class="btn btn-dark" id="export-theses">
         <i class="bi bi-file-earmark-arrow-down-fill me-1"></i>
         Εξαγωγή Λίστας
       </button>
@@ -25,9 +26,9 @@
         <tbody id="theses-table-body">
         </tbody>
       </table>
-    </div>
+          </div>
   </div>
-</div>
+</article>
 
 <div class="modal fade" id="thesisDetailsModal" tabindex="-1"
     aria-labelledby="thesisDetailsModalLabel" aria-hidden="true">
@@ -58,7 +59,7 @@
         </ul>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary"
+        <button type="button" class="btn btn-primary"
             data-bs-dismiss="modal">Κλείσιμο
         </button>
       </div>

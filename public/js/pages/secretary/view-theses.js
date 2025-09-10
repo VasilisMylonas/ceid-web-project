@@ -98,7 +98,7 @@ function showDetails(thesisModal, thesis) {
       "list-group-item d-flex justify-content-between align-items-center";
     li.innerHTML = `
         ${member.name}
-        <span class="badge bg-secondary">
+        <span class="badge bg-primary">
             ${getMemberRoleName(member.role)}
         </span>
     `;

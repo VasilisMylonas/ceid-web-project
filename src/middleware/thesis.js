@@ -1,14 +1,24 @@
 import db from "../models/index.js";
-import { ThesisRole } from "../constants.js";
+import { ThesisRole, UserRole } from "../constants.js";
 import { StatusCodes } from "http-status-codes";
+
+export function requireThesisRoleOrSecretary(...roles) {
+  return async (req, res, next) => {
+    if (req.user.role === UserRole.SECRETARY) {
+      return next();
+    }
+
+    requireThesisRole(...roles)(req, res, next);
+  };
+}
 
 export function requireThesisRole(...roles) {
   return async (req, res, next) => {
     const thesis =
       req.thesis instanceof db.Thesis ? req.model : await req.model.getThesis();
 
-    const student = await thesis.getStudent();
-    const professor = await (await thesis.getTopic()).getProfessor();
+    const student = await req.user.getStudent();
+    const professor = await req.user.getProfessor();
 
     const isStudent = student ? thesis.studentId == student.id : false;
 
@@ -24,9 +34,11 @@ export function requireThesisRole(...roles) {
       : false;
 
     if (
-      !(roles.includes(ThesisRole.STUDENT) && isStudent) &&
-      !(roles.includes(ThesisRole.SUPERVISOR) && isSupervisor) &&
-      roles.length != 0
+      !(
+        (roles.includes(ThesisRole.STUDENT) && isStudent) ||
+        (roles.includes(ThesisRole.SUPERVISOR) && isSupervisor) ||
+        roles.length == 0
+      )
     ) {
       return res.status(StatusCodes.FORBIDDEN).json();
     }
@@ -34,6 +46,10 @@ export function requireThesisRole(...roles) {
     req.isStudent = !!isStudent;
     req.isSupervisor = !!isSupervisor;
     req.thesis = thesis;
+
+    console.log("SUPERVISOR", req.isSupervisor);
+    console.log("STUDENT", req.isStudent);
+
     next();
   };
 }

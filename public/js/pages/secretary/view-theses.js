@@ -105,30 +105,39 @@ function showDetails(thesisModal, thesisDetails) {
   thesisModal.show();
 }
 
-document.addEventListener("DOMContentLoaded", async function () {
-  // This check ensures the script only runs on the correct page.
-  if (document.getElementById("theses-table-body")) {
-    const tableBody = document.getElementById("theses-table-body");
-    const thesisDetailsModal = new bootstrap.Modal(
-      document.getElementById("thesisDetailsModal")
-    );
+function exportTheses(theses) {
+  const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+  saveToFile(
+    JSON.stringify(theses),
+    `theses-${today}.json`,
+    "application/json"
+  );
+}
 
-    const res = await getTheses();
-    const theses = res.data;
+document.addEventListener("DOMContentLoaded", async () => {
+  const tableBody = document.getElementById("theses-table-body");
+  const thesisDetailsModal = new bootstrap.Modal(
+    document.getElementById("thesisDetailsModal")
+  );
 
-    // Add event listener to the table body
-    tableBody.addEventListener("click", async (event) => {
-      const row = event.target.closest("tr");
+  const res = await getTheses();
+  const theses = res.data;
 
-      // Get the data-thesis-id attribute
-      if (row && row.dataset.thesisId) {
-        const res = await getThesisDetails(row.dataset.thesisId);
-        const thesisDetails = res.data;
-        showDetails(thesisDetailsModal, thesisDetails);
-      }
-    });
+  // Add event listener to the table body
+  tableBody.addEventListener("click", async (event) => {
+    const row = event.target.closest("tr");
 
-    // Initial render
-    renderThesisTable(tableBody, theses);
-  }
+    // Get the data-thesis-id attribute
+    if (row && row.dataset.thesisId) {
+      const res = await getThesisDetails(row.dataset.thesisId);
+      const thesisDetails = res.data;
+      showDetails(thesisDetailsModal, thesisDetails);
+    }
+  });
+
+  // Initial render
+  renderThesisTable(tableBody, theses);
+
+  const exportThesesButton = document.getElementById("export-theses");
+  exportThesesButton.addEventListener("click", () => exportTheses(theses));
 });

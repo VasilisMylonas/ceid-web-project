@@ -2,7 +2,6 @@ import { StatusCodes } from "http-status-codes";
 import db from "../models/index.js";
 import { getFilePath, deleteIfExists } from "../config/file-storage.js";
 import { ThesisStatus } from "../constants.js";
-import { omit } from "../util.js";
 
 export default class ThesisController {
   static async post(req, res) {
@@ -218,7 +217,7 @@ export default class ThesisController {
     // This query is complicated due to the need to join multiple tables and filter based on various criteria.
     // So we use a raw SQL query here.
     // Nothing beats raw SQL for complex queries...
-    let raw_query = `
+    const raw_query = `
     SELECT
 theses.id AS "id",
 theses.status AS "status",
@@ -255,9 +254,63 @@ ${req.query.offset ? `OFFSET ${req.query.offset}` : ""}
     res.status(StatusCodes.OK).json(results);
   }
 
-  // TODO
   static async get(req, res) {
-    res.status(StatusCodes.OK).json(omit(req.thesis.get(), "documentFile"));
+    const raw_query = `
+  SELECT
+theses.id AS "id",
+theses.status AS "status",
+theses.start_date AS "startDate",
+topics.id AS "topicId",
+topics.title AS "topic",
+student_users.name AS "student",
+students.id AS "studentId",
+supervisor_users.name AS "supervisor",
+supervisors.id AS "supervisorId",
+
+theses.status_reason AS "statusReason",
+theses.end_date AS "endDate",
+theses.protocol_number AS "protocolNumber",
+theses.grading AS "grading"
+
+FROM theses
+JOIN topics ON theses.topic_id = topics.id
+
+JOIN students ON theses.student_id = students.id
+JOIN users AS student_users ON students.user_id = student_users.id
+
+JOIN committee_members AS supervisor_members ON theses.id = supervisor_members.thesis_id AND supervisor_members.role = 'supervisor'
+JOIN professors AS supervisors ON supervisor_members.professor_id = supervisors.id
+JOIN users AS supervisor_users ON supervisors.user_id = supervisor_users.id
+
+JOIN committee_members ON theses.id = committee_members.thesis_id
+JOIN professors ON committee_members.professor_id = professors.id
+JOIN users AS professor_users ON professors.user_id = professor_users.id
+WHERE theses.id = '${req.thesis.id}'
+    `;
+
+    const [results, _] = await db.sequelize.query(raw_query);
+    const thesis = results[0];
+
+    // Get committee members
+    thesis.committeeMembers = await req.thesis.getCommitteeMembers({
+      raw: true,
+      attributes: [
+        "professorId",
+        "role",
+        "startDate",
+        "endDate",
+        [db.sequelize.col("Professor.User.name"), "name"],
+      ],
+      include: [
+        {
+          model: db.Professor,
+          attributes: [],
+          include: [{ model: db.User, attributes: [] }],
+        },
+      ],
+    });
+
+    res.status(StatusCodes.OK).json(thesis);
   }
 
   static async getResources(req, res) {

@@ -70,7 +70,9 @@ function renderThesisTable(tableBody, theses) {
 }
 
 // Function to show details in the modal
-function showDetails(thesisModal, thesisDetails) {
+function showDetails(thesisModal, thesis) {
+  console.log(thesis);
+
   document.getElementById("modal-thesis-topic").textContent = thesis.topic;
 
   const statusElement = document.getElementById("modal-thesis-status");
@@ -85,7 +87,7 @@ function showDetails(thesisModal, thesisDetails) {
   document.getElementById("modal-thesis-assignment-date").textContent =
     new Date(thesis.startDate).toLocaleDateString("el-GR");
   document.getElementById("modal-thesis-description").textContent =
-    thesis.Topic.summary;
+    thesis.topic.summary;
 
   const committeeList = document.getElementById("modal-committee-list");
   committeeList.innerHTML = "";

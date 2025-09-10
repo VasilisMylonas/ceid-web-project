@@ -71,8 +71,6 @@ function renderThesisTable(tableBody, theses) {
 
 // Function to show details in the modal
 function showDetails(thesisModal, thesis) {
-  console.log(thesis);
-
   document.getElementById("modal-thesis-topic").textContent = thesis.topic;
 
   const statusElement = document.getElementById("modal-thesis-status");

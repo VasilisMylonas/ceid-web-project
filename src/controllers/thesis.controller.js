@@ -218,7 +218,7 @@ export default class ThesisController {
     // So we use a raw SQL query here.
     // Nothing beats raw SQL for complex queries...
     const raw_query = `
-    SELECT
+    SELECT DISTINCT
 theses.id AS "id",
 theses.status AS "status",
 theses.start_date AS "startDate",
@@ -256,7 +256,7 @@ ${req.query.offset ? `OFFSET ${req.query.offset}` : ""}
 
   static async get(req, res) {
     const raw_query = `
-  SELECT
+  SELECT DISTINCT
 theses.id AS "id",
 theses.status AS "status",
 theses.start_date AS "startDate",

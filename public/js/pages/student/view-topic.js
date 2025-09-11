@@ -1,55 +1,90 @@
 document.addEventListener('DOMContentLoaded', async () => {
-    // Fetch the student's thesis
-    let thesisData;
+    const container = document.getElementById('view-topic-container');
+    if (!container) {
+        console.error("Main container #view-topic-container not found!");
+        return;
+    }
+
+    let response;
     try {
-        thesisData = await getThesis();
+        response = await getThesis();
     } catch (error) {
         console.error("Failed to fetch thesis:", error);
-        document.getElementById("thesis-title").textContent = "Σφάλμα φόρτωσης δεδομένων";
+        container.innerHTML = '<div class="alert alert-danger">Σφάλμα φόρτωσης δεδομένων διπλωματικής.</div>';
         return;
     }
 
-    if (!thesisData || !thesisData.data) {
-        document.getElementById("thesis-title").textContent = "Δεν βρέθηκε διπλωματική εργασία";
+    // Check if the response has data and the data array is not empty
+    if (!response || !response.data || response.data.length === 0) {
+        container.innerHTML = '<div class="alert alert-warning">Δεν έχετε αναλάβει κάποια διπλωματική εργασία.</div>';
         return;
     }
 
-    const thesis = thesisData.data;
+    // The thesis is the first object in the 'data' array
+    const thesis = response.data[0];
 
-    // Fill in thesis details
-    document.getElementById("thesis-title").textContent = thesis.title || "-";
-    document.getElementById("thesis-description").textContent = thesis.description || "-";
-    document.getElementById("thesis-attachment").textContent = thesis.attachmentName || "Χωρίς αρχείο";
-    document.getElementById("thesis-attachment").href = thesis.attachmentUrl || "#";
+    // --- Helper function to get status color ---
+    function getStatusClass(status) {
+        switch (status) {
+            case 'available': return 'bg-success';
+            case 'assigned':
+            case 'under_assignment': return 'bg-primary';
+            case 'under_examination': return 'bg-info text-dark';
+            case 'completed': return 'bg-secondary';
+            default: return 'bg-dark';
+        }
+    }
+
+    // Fill in thesis details using the correct property names
+    document.getElementById("thesis-title").textContent = thesis.topic || "Χωρίς Τίτλο";
+    // 'description' is not in the response, so we show a placeholder.
+    document.getElementById("thesis-description").textContent = "Η περιγραφή δεν είναι διαθέσιμη σε αυτή την προβολή.";
+    
+    const attachmentLink = document.getElementById("thesis-attachment");
+    // 'attachment' is not in the response.
+    attachmentLink.textContent = "Χωρίς συνημμένο αρχείο";
+    attachmentLink.href = "#";
+    attachmentLink.classList.add('disabled');
 
     // Status badge
     const statusSpan = document.getElementById("thesis-status");
-    statusSpan.textContent = Name.ofThesisStatus(thesis.status) || "-";
-    statusSpan.className = "badge bg-secondary";
+    if (statusSpan) {
+        statusSpan.textContent = Name.ofThesisStatus(thesis.status) || thesis.status;
+        statusSpan.className = `badge ${getStatusClass(thesis.status)}`;
+    }
 
-    // Days since assignment
-    if (thesis.assignedAt) {
-        const assignedDate = new Date(thesis.assignedAt);
+    // Days since assignment (using 'startDate' from the response)
+    const daysElement = document.getElementById("thesis-days");
+    if (daysElement && thesis.startDate) {
+        const assignedDate = new Date(thesis.startDate);
         const now = new Date();
         const diffTime = Math.abs(now - assignedDate);
         const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-        document.getElementById("thesis-days").textContent = diffDays;
-    } else {
-        document.getElementById("thesis-days").textContent = "-";
+        daysElement.textContent = diffDays;
+    } else if(daysElement) {
+        daysElement.textContent = "-";
     }
 
-    // Committee members
+    // Committee members (using 'supervisor' from the response)
     const committeeList = document.getElementById("committee-list");
-    committeeList.innerHTML = "";
-    if (Array.isArray(thesis.committee)) {
-        thesis.committee.forEach(member => {
+    if (committeeList) {
+        committeeList.innerHTML = ""; // Clear existing list
+        if (thesis.supervisor) {
+            const li = document.createElement("li");
+            li.className = "list-group-item d-flex justify-content-between align-items-center";
+            li.textContent = thesis.supervisor;
+            
+            const roleSpan = document.createElement('span');
+            roleSpan.className = 'badge bg-primary rounded-pill';
+            roleSpan.textContent = "Επιβλέπων";
+            li.appendChild(roleSpan);
+
+            committeeList.appendChild(li);
+        } else {
             const li = document.createElement("li");
             li.className = "list-group-item";
-            li.textContent = `${member.name} (${Name.ofMemberRole(member.role) || member.role})`;
+            li.textContent = "Δεν έχει οριστεί επιβλέπων.";
             committeeList.appendChild(li);
-        });
-    } else {
-        const li = document.createElement("li");
-        li.className = "list-group-item";
-        li.textContent = "Δεν έχουν οριστεί μέλη επιτροπής.";
-        committeeList.appendChild(li);
+        }
+    }
+});

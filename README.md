@@ -67,6 +67,7 @@ The API is documented using Postman. You can import the provided Postman collect
 
 - Check /src/routes/theses.routes.js for TODOs
 - Refresh button in thesis-manage
+- Public announcements API
 
 - Ignore below
 - Maybe autoIncrement should be autoIncrementIdentity for postgres (see models)

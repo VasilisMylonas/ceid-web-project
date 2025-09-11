@@ -39,4 +39,5 @@ export default {
     }).unknown(false),
   },
   deleteProfile: {},
+  getThesis: {},
 };

@@ -14,11 +14,13 @@ export default async function seedSecretaries(count) {
     });
     const username = email.split("@")[0];
     const phone = faker.phone.number();
+    const address = faker.location.streetAddress();
 
     users.push({
       username,
       name,
       email,
+      address,
       password: "xxx",
       phone,
       role: UserRole.SECRETARY,
@@ -26,7 +28,15 @@ export default async function seedSecretaries(count) {
   }
 
   const createdUsers = await db.User.bulkCreate(users, {
-    fields: ["username", "name", "email", "password", "phone", "role"],
+    fields: [
+      "username",
+      "name",
+      "email",
+      "password",
+      "phone",
+      "role",
+      "address",
+    ],
   });
 
   const secretaries = createdUsers.map((user) => ({

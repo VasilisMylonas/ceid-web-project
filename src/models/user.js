@@ -22,6 +22,10 @@ export default (sequelize) => {
         primaryKey: true,
         autoIncrement: true,
       },
+      address: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
       username: {
         type: DataTypes.STRING,
         allowNull: false,

@@ -3,7 +3,7 @@ import TopicController from "./topic.controller.js";
 import ThesisController from "./thesis.controller.js";
 import InvitationController from "./invitation.controller.js";
 import UserController from "./user.controller.js";
-import { InvitationResponse } from "../constants.js";
+import { InvitationResponse, ThesisStatus } from "../constants.js";
 
 export default class MyController {
   // Theses mainly forward to appropriate controllers with patched queries
@@ -45,5 +45,11 @@ export default class MyController {
     req.params.id = req.user.id;
     req.targetUser = req.user;
     await UserController.delete(req, res);
+  }
+
+  static async getThesis(req, res) {
+    const student = await req.user.getStudent();
+    req = patchQuery(req, { studentId: student.id });
+    await ThesisController.query(req, res);
   }
 }

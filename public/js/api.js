@@ -36,6 +36,9 @@ async function updateProfile(properties) {
 }
 
 async function getThesesSecretary(page, pageSize) {
+  page = parseInt(page, 10);
+  pageSize = parseInt(pageSize, 10);
+
   const offset = (page - 1) * pageSize;
   const limit = pageSize;
 

@@ -28,11 +28,9 @@ router.use("/theses", thesisRoutes);
 router.use("/invitations", invitationRoutes);
 router.use("/my", myRoutes);
 router.use("/students", studentRoutes);
-
-// TODO
-// app.use("/notes", noteRoutes);
-// app.use("/resources", resourceRoutes);
-// app.use("/presentations", presentationRoutes);
+router.use("/notes", noteRoutes);
+router.use("/resources", resourceRoutes);
+router.use("/presentations", presentationRoutes);
 
 router.use(errorHandler); // Use error handler middleware, after all routes
 

@@ -51,7 +51,7 @@ Of course, you can change ports and other environment variables in [compose.yaml
 
 ### Project Structure
 
-TODO
+
 
 ### Running the server
 
@@ -65,6 +65,9 @@ The API is documented using Postman. You can import the provided Postman collect
 
 ## TODOs
 
+- Check /src/routes/theses.routes.js for TODOs
+- Refresh button in thesis-manage
+
+- Ignore below
 - Maybe autoIncrement should be autoIncrementIdentity for postgres (see models)
 - Authentication middleware should attach role info/id
-- Refresh button in thesis-manage

@@ -28,7 +28,11 @@ export function extractTokenFromRequest(req) {
   }
 
   // Give the the header priority over the cookie
-  const token = authHeader ? authHeader.split(" ")[1] : authCookie; // The header is "Bearer <token>"
+  if (authHeader) {
+    // The header is "Bearer <token>"
+    const match = authHeader.match(/^Bearer\s+(\S+)$/);
+    return match == null ? null : match[1]; // [0] is the full match, [1] is the first group
+  }
 
-  return token;
+  return authCookie;
 }

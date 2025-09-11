@@ -13,25 +13,27 @@ export function wrapResponse() {
     // Keep original res.json()
     const originalJsonMethod = res.json.bind(res);
 
-    // Use (function) so that (this) is the same (res) that res.json() gets
-
     // Add custom success function
-    res.success = function (data, meta = {}) {
-      switch (req.method) {
-        case "DELETE":
-          res.status(StatusCodes.NO_CONTENT);
-          break;
-        case "GET":
-          res.status(StatusCodes.OK);
-          break;
-        case "POST":
-          // TODO: OK or CREATED prefer CREATED
-          res.status(StatusCodes.CREATED);
-          break;
-        default: // PUT, PATCH
-          // TODO: OK or NO_CONTENT prefer OK
-          res.status(StatusCodes.OK);
-          break;
+    res.success = (data, meta = {}, status = null) => {
+      if (status) {
+        res.status(status);
+      } else {
+        switch (req.method) {
+          case "DELETE":
+            res.status(StatusCodes.NO_CONTENT);
+            break;
+          case "GET":
+            res.status(StatusCodes.OK);
+            break;
+          case "POST":
+            // TODO: OK or CREATED prefer CREATED
+            res.status(StatusCodes.CREATED);
+            break;
+          default: // PUT, PATCH
+            // TODO: OK or NO_CONTENT prefer OK
+            res.status(StatusCodes.OK);
+            break;
+        }
       }
 
       return originalJsonMethod({
@@ -46,11 +48,7 @@ export function wrapResponse() {
 
     // Add custom error function
     // BAD_REQUEST, NOT_FOUND, INTERNAL_SERVER_ERROR, UNAUTHORIZED, FORBIDDEN, CONFLICT, NOT_IMPLEMENTED
-    res.error = function (
-      message,
-      status = StatusCodes.BAD_REQUEST,
-      meta = {}
-    ) {
+    res.error = (message, status = StatusCodes.BAD_REQUEST, meta = {}) => {
       res.status(status);
       return originalJsonMethod({
         success: false,
@@ -62,20 +60,27 @@ export function wrapResponse() {
       });
     };
 
-    res.json = function (payload = {}) {
-      if (this.statusCode === StatusCodes.NO_CONTENT) {
-        // Respect NO_CONTENT
-        return originalJsonMethod();
-      }
+    // TODO: remove this
+    // res.json = (payload = {}) => {
+    //   if (res.statusCode === StatusCodes.NO_CONTENT) {
+    //     // Respect NO_CONTENT
+    //     return originalJsonMethod();
+    //   }
 
-      const isSuccess = this.statusCode >= 200 && this.statusCode < 300;
+    //   const isSuccess = res.statusCode >= 200 && res.statusCode < 300;
 
-      if (isSuccess) {
-        return res.success(payload);
-      }
+    //   if (isSuccess) {
+    //     return originalJsonMethod({
+    //       success: true,
+    //       data: payload,
+    //     });
+    //   }
 
-      return res.error(payload);
-    };
+    //   return originalJsonMethod({
+    //     success: false,
+    //     error: payload,
+    //   });
+    // };
 
     next();
   };

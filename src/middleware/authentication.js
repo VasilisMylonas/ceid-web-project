@@ -5,10 +5,18 @@ import { extractTokenFromRequest } from "../util.js";
 
 export async function requireAuth(req, res, next) {
   const token = extractTokenFromRequest(req);
+  if (!token) {
+    return res.error(
+      "Missing authorization, please set Authorization: Bearer <token> or the token=<token> cookie",
+      StatusCodes.UNAUTHORIZED
+    );
+  }
+
   const user = await AuthService.verifyToken(token);
   if (!user) {
-    return res.status(StatusCodes.UNAUTHORIZED).json();
+    return res.error("Expired or invalid token", StatusCodes.UNAUTHORIZED);
   }
+
   req.user = user;
   next();
 }

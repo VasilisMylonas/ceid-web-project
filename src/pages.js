@@ -143,7 +143,7 @@ pages.get("/professor/:page", async (req, res) => {
 
   const professorLinks = [
     {
-      href: "/professor/home",
+      href: "/professor/topics-manage",
       icon: "bi-house-door",
       title: "Αρχική",
     },

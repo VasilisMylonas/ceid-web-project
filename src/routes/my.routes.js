@@ -41,5 +41,11 @@ router.delete(
   validate(myValidators.deleteProfile),
   MyController.deleteProfile
 );
+router.get(
+  "/thesis",
+  validate(myValidators.getThesis),
+  requireRole(UserRole.STUDENT),
+  MyController.getThesis
+);
 
 export default router;

@@ -27,6 +27,7 @@ export default {
       email: Joi.string().email().optional(),
       name: Joi.string().min(1).optional(),
       password: Joi.string().min(1).optional(),
+      address: Joi.string().min(1).optional(),
     }).unknown(false),
   },
   delete: {
@@ -40,6 +41,7 @@ export default {
       name: Joi.string().min(1).required(),
       email: Joi.string().email().required(),
       password: Joi.string().min(1).required(),
+      address: Joi.string().min(1).required(),
       role: Joi.string()
         .valid(...Object.values(UserRole))
         .required(),
@@ -60,6 +62,7 @@ export default {
         name: Joi.string().min(1).required(),
         email: Joi.string().email().required(),
         password: Joi.string().min(1).required(),
+        address: Joi.string().min(1).required(),
         role: Joi.string()
           .valid(...Object.values(UserRole))
           .required(),

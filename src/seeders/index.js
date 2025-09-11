@@ -23,6 +23,7 @@ export default async function seedDatabase() {
     name: "Test Professor",
     role: UserRole.PROFESSOR,
     phone: "6942023594",
+    address: "ADDRESS",
   });
   const studentUser = await db.User.create({
     username: "student",
@@ -31,6 +32,7 @@ export default async function seedDatabase() {
     name: "Test Student",
     role: UserRole.STUDENT,
     phone: "6942023594",
+    address: "ADDRESS",
   });
   const secretaryUser = await db.User.create({
     username: "secretary",
@@ -39,6 +41,7 @@ export default async function seedDatabase() {
     name: "Test Secretary",
     role: UserRole.SECRETARY,
     phone: "6942023594",
+    address: "ADDRESS",
   });
 
   await db.Professor.create({

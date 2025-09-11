@@ -14,8 +14,12 @@ export default class UserController {
       where: {
         ...(req.query.role && { role: req.query.role }),
       },
+      raw: true,
     });
-    res.status(StatusCodes.OK).json(users);
+
+    const total = await db.User.count();
+
+    res.success(users, { total, count: users.length });
   }
 
   static async _createUser(user, transaction) {

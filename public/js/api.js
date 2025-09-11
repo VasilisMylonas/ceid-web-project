@@ -20,6 +20,8 @@ async function request(method, url, object = null) {
 
   const json = await response.json();
 
+  console.debug("API Response:", json);
+
   if (response.ok) {
     return json;
   }
@@ -35,7 +37,17 @@ async function updateProfile(properties) {
   return await request("PATCH", `${BASE_URL}/v1/my/profile`, properties);
 }
 
-async function getThesesSecretary(page, pageSize) {
+async function getAllProfessors() {
+  return await request("GET", `${BASE_URL}/v1/users?role=professor`);
+}
+
+async function getThesesSecretary(
+  page,
+  pageSize,
+  supervisorId = null,
+  status = null,
+  query = null
+) {
   page = parseInt(page, 10);
   pageSize = parseInt(pageSize, 10);
 
@@ -44,12 +56,12 @@ async function getThesesSecretary(page, pageSize) {
 
   return await request(
     "GET",
-    `${BASE_URL}/v1/theses?status=active&status=under_examination&offset=${offset}&limit=${limit}`
+    `${BASE_URL}/v1/theses?&offset=${offset}&limit=${limit}${
+      supervisorId ? `&professorId=${supervisorId}&role=supervisor` : ""
+    }${status ? `&status=${status}` : ""}${
+      query ? `&q=${encodeURIComponent(query)}` : ""
+    }`
   );
-}
-
-async function getAllProfessors() {
-  return await request("GET", `${BASE_URL}/v1/professors`);
 }
 
 async function getThesisDetails(thesisId) {

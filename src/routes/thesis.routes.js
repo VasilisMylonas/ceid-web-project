@@ -76,7 +76,7 @@ router.patch(
   "/:id/status",
   validate(thesisValidator.patchStatus),
   model(db.Thesis, "thesis"),
-  requireThesisRole(ThesisRole.SUPERVISOR),
+  requireThesisRoleOrSecretary(ThesisRole.SUPERVISOR),
   ThesisController.patchStatus
 );
 router.get(

@@ -17,7 +17,12 @@ export default {
     }).unknown(false),
     body: Joi.object({
       status: Joi.string()
-        .valid(ThesisStatus.UNDER_EXAMINATION, ThesisStatus.COMPLETED)
+        .valid(
+          ThesisStatus.ACTIVE,
+          ThesisStatus.REJECTED,
+          ThesisStatus.UNDER_EXAMINATION,
+          ThesisStatus.COMPLETED
+        )
         .required(),
     }),
   },
@@ -91,6 +96,7 @@ export default {
       studentId: Joi.number().integer().min(1).optional(),
       professorId: Joi.number().integer().min(1).optional(),
       topicId: Joi.number().integer().min(1).optional(),
+      q: Joi.string().min(1).optional(),
       status: Joi.alternatives().try(
         Joi.string()
           .valid(...Object.values(ThesisStatus))

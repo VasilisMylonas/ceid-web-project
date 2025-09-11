@@ -1,7 +1,7 @@
 import { StatusCodes } from "http-status-codes";
 import db from "../models/index.js";
 import { getFilePath, deleteIfExists } from "../config/file-storage.js";
-import { ThesisStatus } from "../constants.js";
+import { ThesisRole, ThesisStatus, UserRole } from "../constants.js";
 
 export default class ThesisController {
   static async post(req, res) {
@@ -143,31 +143,83 @@ export default class ThesisController {
   }
 
   static async patchStatus(req, res) {
-    if (req.body.status === ThesisStatus.UNDER_EXAMINATION) {
-      if (req.thesis.status !== ThesisStatus.ACTIVE) {
-        return res
-          .status(StatusCodes.BAD_REQUEST)
-          .json({ message: "Thesis is not active." });
+    switch (req.body.status) {
+      case ThesisStatus.UNDER_EXAMINATION: {
+        if (req.user.role !== UserRole.PROFESSOR) {
+          return res
+            .status(StatusCodes.FORBIDDEN)
+            .json({
+              message: "Only professors can set thesis under examination.",
+            });
+        }
+
+        if (req.thesis.status !== ThesisStatus.ACTIVE) {
+          return res
+            .status(StatusCodes.BAD_REQUEST)
+            .json({ message: "Thesis is not active." });
+        }
+
+        req.thesis.status = ThesisStatus.UNDER_EXAMINATION;
+        await req.thesis.save();
+
+        return res.status(StatusCodes.OK).json(req.thesis);
       }
+      case ThesisStatus.COMPLETED: {
+        if (req.user.role !== UserRole.PROFESSOR) {
+          return res
+            .status(StatusCodes.FORBIDDEN)
+            .json({ message: "Only professors can complete theses." });
+        }
 
-      req.thesis.status = ThesisStatus.UNDER_EXAMINATION;
-      await req.thesis.save();
+        if (req.thesis.status !== ThesisStatus.UNDER_EXAMINATION) {
+          return res.status(StatusCodes.BAD_REQUEST).json({
+            message: "Thesis is not under examination.",
+          });
+        }
 
-      return res.status(StatusCodes.OK).json(req.thesis);
-    }
+        req.thesis.status = ThesisStatus.COMPLETED;
+        req.thesis.endDate = new Date();
+        await req.thesis.save();
 
-    if (req.body.status === ThesisStatus.COMPLETED) {
-      if (req.thesis.status !== ThesisStatus.UNDER_EXAMINATION) {
-        return res.status(StatusCodes.BAD_REQUEST).json({
-          message: "Thesis is not under examination.",
-        });
+        return res.status(StatusCodes.OK).json(req.thesis);
       }
+      case ThesisStatus.REJECTED: {
+        if (req.user.role !== UserRole.SECRETARY) {
+          return res
+            .status(StatusCodes.FORBIDDEN)
+            .json({ message: "Only secretaries can review theses." });
+        }
 
-      req.thesis.status = ThesisStatus.COMPLETED;
-      req.thesis.endDate = new Date();
-      await req.thesis.save();
+        if (req.thesis.status !== ThesisStatus.PENDING) {
+          return res.status(StatusCodes.BAD_REQUEST).json({
+            message: "Thesis is not pending review.",
+          });
+        }
 
-      return res.status(StatusCodes.OK).json(req.thesis);
+        req.thesis.status = ThesisStatus.REJECTED;
+        await req.thesis.save();
+
+        return res.status(StatusCodes.OK).json(req.thesis);
+      }
+      case ThesisStatus.ACTIVE: {
+        if (req.user.role !== UserRole.SECRETARY) {
+          return res
+            .status(StatusCodes.FORBIDDEN)
+            .json({ message: "Only secretaries can review theses." });
+        }
+
+        if (req.thesis.status !== ThesisStatus.PENDING) {
+          return res.status(StatusCodes.BAD_REQUEST).json({
+            message: "Thesis is not pending review.",
+          });
+        }
+
+        req.thesis.status = ThesisStatus.ACTIVE;
+        req.thesis.startDate = new Date();
+        await req.thesis.save();
+
+        return res.status(StatusCodes.OK).json(req.thesis);
+      }
     }
 
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json();
@@ -199,7 +251,7 @@ export default class ThesisController {
   }
 
   static async query(req, res) {
-    let whereClause = {
+    let wherePairs = {
       "students.id": req.query.studentId,
       "theses.status": req.query.status,
       "topics.id": req.query.topicId,
@@ -207,7 +259,7 @@ export default class ThesisController {
       "committee_members.role": req.query.role,
     };
 
-    const where = Object.entries(whereClause)
+    const whereTemp = Object.entries(wherePairs)
       .filter(([key, value]) => value !== undefined) // Remove undefined values
       .map(([key, value]) => {
         if (Array.isArray(value)) {
@@ -215,8 +267,15 @@ export default class ThesisController {
         }
 
         return `${key} = '${value}'`; // Create condition strings
-      })
-      .join(" AND "); // Join conditions with AND
+      });
+
+    if (req.query.q) {
+      const q = req.query.q.toLowerCase().replace(/'/g, "''");
+      const searchCondition = `(LOWER(topics.title) LIKE '%${q}%' OR LOWER(topics.summary) LIKE '%${q}%' OR LOWER(student_users.name) LIKE '%${q}%' OR LOWER(supervisor_users.name) LIKE '%${q}%' OR LOWER(professor_users.name) LIKE '%${q}%')`;
+      whereTemp.push(searchCondition);
+    }
+
+    const where = whereTemp.join(" AND "); // Join conditions with AND
 
     // This query is complicated due to the need to join multiple tables and filter based on various criteria.
     // So we use a raw SQL query here.
@@ -326,7 +385,7 @@ WHERE theses.id = '${req.thesis.id}'
       ],
     });
 
-    res.status(StatusCodes.OK).json(thesis);
+    res.success(thesis);
   }
 
   static async getResources(req, res) {

@@ -222,7 +222,7 @@ export default class ThesisController {
     // So we use a raw SQL query here.
     // Nothing beats raw SQL for complex queries...
     const raw_query = `
-    SELECT DISTINCT
+    SELECT
 theses.id AS "id",
 theses.status AS "status",
 theses.start_date AS "startDate",
@@ -250,15 +250,20 @@ JOIN professors ON committee_members.professor_id = professors.id
 JOIN users AS professor_users ON professors.user_id = professor_users.id
 
 ${where ? `WHERE ${where}` : ""}
+GROUP BY theses.id, topics.id, supervisor_users.id, supervisors.id, student_users.id, students.id
 ORDER BY theses.id ASC
 ${req.query.limit ? `LIMIT ${req.query.limit}` : ""}
 ${req.query.offset ? `OFFSET ${req.query.offset}` : ""}
-    `;
+`;
+
+    console.log(raw_query);
 
     const [results, _] = await db.sequelize.query(raw_query);
 
+    // console.log(results);
+
     // Get the count and remove it from the records
-    const total = results.length > 0 ? results[0].total : 0;
+    const total = results.length > 0 ? parseInt(results[0].total) : 0;
     results.forEach((r) => delete r.total);
 
     res.success(results, { count: results.length, total });
@@ -266,7 +271,7 @@ ${req.query.offset ? `OFFSET ${req.query.offset}` : ""}
 
   static async get(req, res) {
     const raw_query = `
-  SELECT DISTINCT
+  SELECT
 theses.id AS "id",
 theses.status AS "status",
 theses.start_date AS "startDate",

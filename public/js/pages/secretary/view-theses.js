@@ -113,6 +113,7 @@ async function onShowDetailsClick(event) {
 
 const STORAGE_KEY_THESES_PAGE_SIZE = "theses_page_size";
 const STORAGE_KEY_THESES_PAGE = "theses_page";
+const STORAGE_KEY_THESES_PAGE_COUNT = "theses_page_count";
 
 function getPage() {
   return parseInt(sessionStorage.getItem(STORAGE_KEY_THESES_PAGE));
@@ -120,6 +121,10 @@ function getPage() {
 
 function getPageSize() {
   return parseInt(sessionStorage.getItem(STORAGE_KEY_THESES_PAGE_SIZE));
+}
+
+function getPageCount() {
+  return parseInt(sessionStorage.getItem(STORAGE_KEY_THESES_PAGE_COUNT));
 }
 
 function setPage(page) {
@@ -130,118 +135,80 @@ function setPageSize(pageSize) {
   sessionStorage.setItem(STORAGE_KEY_THESES_PAGE_SIZE, pageSize);
 }
 
-function createPageNavButton(page, isActive = false) {
-  const li = document.createElement("li");
-  li.className = "page-item dynamic-page-item";
-  li.innerHTML = `
-    <button
-      type="button"
-      class="btn btn-link page-link ${isActive ? "active" : ""}"
-      aria-label="Σελίδα ${page}"
-    >
-      ${page}
-    </button>`;
-  li.querySelector("button").addEventListener("click", () => {
-    setPage(page);
-    onReload();
-  });
-  return li;
+function setPageCount(pageCount) {
+  sessionStorage.setItem(STORAGE_KEY_THESES_PAGE_COUNT, pageCount);
 }
 
-function renderPageNav(currentPage, totalPages) {
-  // Remove previous dynamic page buttons
-  const dynamicPageItems = document.querySelectorAll(".dynamic-page-item");
-  dynamicPageItems.forEach((item) => item.remove());
-  // Add new page buttons
-  const fragment = document.createDocumentFragment();
+function renderSupervisorOptions(professors) {
+  const supervisorSelect = document.getElementById("supervisor-select");
+  supervisorSelect.innerHTML = '<option value="">Όλοι</option>';
 
-  // Always show first page
-  fragment.appendChild(createPageNavButton(1, currentPage === 1));
-
-  // Calculate start and end page for the middle buttons
-  let startPage, endPage;
-  if (totalPages <= 6) {
-    startPage = 2;
-    endPage = totalPages - 1;
-  } else {
-    if (currentPage <= 3) {
-      startPage = 2;
-      endPage = 5;
-    } else if (currentPage >= totalPages - 2) {
-      startPage = totalPages - 4;
-      endPage = totalPages - 1;
-    } else {
-      startPage = currentPage - 1;
-      endPage = currentPage + 1;
-    }
+  for (const professor of professors) {
+    const option = document.createElement("option");
+    option.value = professor.id;
+    option.textContent = professor.name;
+    supervisorSelect.appendChild(option);
   }
-
-  // Ellipsis after first page if needed
-  if (startPage > 2) {
-    const ellipsis = document.createElement("li");
-    ellipsis.className = "page-item disabled dynamic-page-item";
-    ellipsis.innerHTML = `<span class="page-link">...</span>`;
-    fragment.appendChild(ellipsis);
-  }
-
-  // Middle page buttons (always show 4 middle pages if possible)
-  for (let page = startPage; page <= endPage; page++) {
-    if (page > 1 && page < totalPages) {
-      fragment.appendChild(createPageNavButton(page, currentPage === page));
-    }
-  }
-
-  // Ellipsis before last page if needed
-  if (endPage < totalPages - 1) {
-    const ellipsis = document.createElement("li");
-    ellipsis.className = "page-item disabled dynamic-page-item";
-    ellipsis.innerHTML = `<span class="page-link">...</span>`;
-    fragment.appendChild(ellipsis);
-  }
-
-  // Always show last page if more than one page
-  if (totalPages > 1) {
-    fragment.appendChild(
-      createPageNavButton(totalPages, currentPage === totalPages)
-    );
-  }
-
-  // Disable/enable pagination buttons
-  const prevPageBtn = document.getElementById("prev-page-btn");
-  const nextPageBtn = document.getElementById("next-page-btn");
-  prevPageBtn.disabled = currentPage <= 1;
-  nextPageBtn.disabled = currentPage >= totalPages;
-
-  // Insert the new buttons before the next page button
-  const nextPageBtnParent = nextPageBtn.parentElement;
-  nextPageBtnParent.parentElement.insertBefore(fragment, nextPageBtnParent);
 }
 
 async function onReload() {
   // Set defaults if not set
 
   if (!sessionStorage.getItem(STORAGE_KEY_THESES_PAGE)) {
-    sessionStorage.setItem(STORAGE_KEY_THESES_PAGE, 1);
+    const urlParams = new URLSearchParams(window.location.search);
+    const pageFromUrl = parseInt(urlParams.get("page"));
+    if (!isNaN(pageFromUrl) && pageFromUrl > 0) {
+      sessionStorage.setItem(STORAGE_KEY_THESES_PAGE, pageFromUrl);
+    } else {
+      sessionStorage.setItem(STORAGE_KEY_THESES_PAGE, 1);
+    }
   }
 
   if (!sessionStorage.getItem(STORAGE_KEY_THESES_PAGE_SIZE)) {
     sessionStorage.setItem(STORAGE_KEY_THESES_PAGE_SIZE, 10);
   }
 
-  const res = await getThesesSecretary(getPage(), getPageSize());
-  renderThesisTable(res.data);
-
   const page = getPage();
   const pageSize = getPageSize();
-  const totalPages = Math.ceil(res.meta.total / pageSize);
+
+  const theses = await getThesesSecretary(page, pageSize);
+  setPageCount(Math.ceil(theses.meta.total / pageSize));
+
+  const totalPages = getPageCount();
+
+  renderThesisTable(theses.data);
+
+  // todo
+  // const professors = await getAllProfessors();
+  // renderSupervisorOptions(professors.data);
 
   document.getElementById("current-page").textContent = page;
   document.getElementById("total-pages").textContent = totalPages;
+  document.getElementById("item-count").textContent = theses.meta.total;
 
-  renderPageNav(page, totalPages);
+  const nextPageBtn = document.getElementById("next-page-btn");
+  const prevPageBtn = document.getElementById("prev-page-btn");
+  const firstPageBtn = document.getElementById("first-page-btn");
+  const lastPageBtn = document.getElementById("last-page-btn");
+
+  if (page >= totalPages) {
+    nextPageBtn.classList.add("disabled");
+    lastPageBtn.classList.add("disabled");
+  } else {
+    nextPageBtn.classList.remove("disabled");
+    lastPageBtn.classList.remove("disabled");
+  }
+
+  if (page <= 1) {
+    prevPageBtn.classList.add("disabled");
+    firstPageBtn.classList.add("disabled");
+  } else {
+    prevPageBtn.classList.remove("disabled");
+    firstPageBtn.classList.remove("disabled");
+  }
 }
 
-function onPageSizeChange() {
+async function onPageSizeChange() {
   const pageSizeSelect = document.getElementById("page-size-select");
 
   const newPageSize = parseInt(pageSizeSelect.value);
@@ -254,17 +221,27 @@ function onPageSizeChange() {
   setPageSize(newPageSize);
   setPage(newPage);
 
-  onReload();
+  await onReload();
 }
 
-function onPrevPageClick() {
+async function onPrevPageClick() {
   setPage(getPage() - 1);
-  onReload();
+  await onReload();
 }
 
-function onNextPageClick() {
+async function onNextPageClick() {
   setPage(getPage() + 1);
-  onReload();
+  await onReload();
+}
+
+async function onFirstPageClick() {
+  setPage(1);
+  await onReload();
+}
+
+async function onLastPageClick() {
+  setPage(getPageCount());
+  await onReload();
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -282,19 +259,25 @@ document.addEventListener("DOMContentLoaded", async () => {
   const nextPageBtn = document.getElementById("next-page-btn");
   nextPageBtn.addEventListener("click", onNextPageClick);
 
-  const searchInput = document.getElementById("search-thesis");
-  searchInput.addEventListener("input", (event) => {
-    const query = event.target.value.toLowerCase();
-    if (query == "") {
-      return;
-    }
+  const firstPageBtn = document.getElementById("first-page-btn");
+  firstPageBtn.addEventListener("click", onFirstPageClick);
 
-    const filteredTheses = theses.filter(
-      (thesis) =>
-        thesis.topic.toLowerCase().includes(query) ||
-        thesis.student.toLowerCase().includes(query)
-    );
-    console.log("FILTER");
-    renderThesisTable(filteredTheses);
-  });
+  const lastPageBtn = document.getElementById("last-page-btn");
+  lastPageBtn.addEventListener("click", onLastPageClick);
+
+  // const searchInput = document.getElementById("search-thesis");
+  // searchInput.addEventListener("input", (event) => {
+  //   const query = event.target.value.toLowerCase();
+  //   if (query == "") {
+  //     return;
+  //   }
+
+  //   const filteredTheses = theses.filter(
+  //     (thesis) =>
+  //       thesis.topic.toLowerCase().includes(query) ||
+  //       thesis.student.toLowerCase().includes(query)
+  //   );
+  //   console.log("FILTER");
+  //   renderThesisTable(filteredTheses);
+  // });
 });

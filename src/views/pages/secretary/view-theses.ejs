@@ -1,13 +1,13 @@
 <h2 class="mb-4">Διαχείριση Διπλωματικών Εργασιών</h2>
 
 <!-- Header: Title + Export -->
-<div class="row mb-4 g-4 align-items-center">
+<div class="row mb-4 g-4 align-items-center d-flex justify-content-between">
   <div class="col-12 col-md-auto mb-2 mb-md-0">
     <h5 class="card-title mb-0">
       Ενεργές & Υπό Εξέταση Διπλωματικών Εργασίες
     </h5>
   </div>
-  <div class="col-12 col-md-auto text-md-end">
+  <div class="col-12 col-md-auto">
     <button class="btn btn-dark" id="export-theses"
         title="Εξαγωγή λίστας διπλωματικών σε αρχείο JSON">
       <i class="bi bi-file-earmark-arrow-down-fill me-1"></i>
@@ -34,7 +34,7 @@
     <fieldset class="col-12 col-sm-6 col-xl-2">
       <label for="filter-status" class="form-label">Κατάσταση</label>
       <select class="form-select" id="filter-status">
-        <option value="">Κατάσταση (Όλες)</option>
+        <option value="">(Όλες)</option>
         <option value="active">Ενεργή</option>
         <option value="pending">Υπό Εξέταση</option>
         <option value="completed">Ολοκληρωμένη</option>
@@ -45,7 +45,7 @@
       <label for="filter-supervisor" class="form-label">Επιβλέπων</label>
       <select class="form-select" id="filter-supervisor">
         <option value="">(Όλοι)</option>
-        <!-- Add supervisor options dynamically -->
+        <!-- Added dynamically -->
       </select>
     </fieldset>
 
@@ -122,34 +122,51 @@
   }
 </style>
 
-<div class="row g-4">
-  <div class="text-muted col-12 col-lg-2">
-    Σελίδα
-    <span id="current-page"></span> από <span id="total-pages"></span>
+<div
+    class="row g-4 align-items-center justify-content-center justify-content-lg-between mb-3">
+  <div class="col-12 col-lg-auto text-muted">
+    <span id="item-count">
+    </span> αποτελέσματα
   </div>
-  <nav aria-label="Περιήγηση σελίδων" id="page-nav"
-      class="text-center col-12 col-lg-10 d-flex justify-content-center justify-content-lg-end">
-    <ul class="pagination mb-0">
-      <li class="page-item">
-        <button type="button" class="btn btn-link page-link" id="prev-page-btn"
-            aria-label="Προηγούμενη σελίδα">
-          <i class="bi bi-chevron-left" aria-hidden="true"></i>
-          <span class="d-none d-md-inline">
-            Προηγούμενη
-          </span>
-        </button>
-      </li>
-      <li class="page-item">
-        <button type="button" class="btn btn-link page-link" id="next-page-btn"
-            aria-label="Επόμενη σελίδα">
-          <span class="d-none d-md-inline">
-            Επόμενη
-          </span>
-          <i class="bi bi-chevron-right" aria-hidden="true"></i>
-        </button>
-      </li>
-    </ul>
-  </nav>
+  <div class="col-12 col-lg-auto">
+    <nav aria-label="Περιήγηση σελίδων">
+      <ul class="pagination mb-0 justify-content-center">
+        <li class="page-item">
+          <button class="page-link" id="first-page-btn" type="button"
+              aria-label="Πρώτη σελίδα">
+            <i class="bi bi-chevron-double-left"></i>
+          </button>
+        </li>
+        <li class="page-item">
+          <button class="page-link" id="prev-page-btn" type="button"
+              aria-label="Previous">
+            <i class="bi bi-chevron-left"></i>
+          </button>
+        </li>
+        <li class="page-item disabled">
+          <span class="page-link">
+            <span id="current-page" class="d-inline-block text-end"
+                style="width: 20px;"></span>
+            από
+            <span id="total-pages" class="d-inline-block text-start"
+                style="width: 20px;">
+            </span></span>
+        </li>
+        <li class="page-item">
+          <button class="page-link" id="next-page-btn" type="button"
+              aria-label="Επόμενη σελίδα">
+            <i class="bi bi-chevron-right"></i>
+          </button>
+        </li>
+        <li class="page-item">
+          <button class="page-link" id="last-page-btn" type="button"
+              aria-label="Τελευταία σελίδα">
+            <i class="bi bi-chevron-double-right"></i>
+          </button>
+        </li>
+      </ul>
+    </nav>
+  </div>
 </div>
 
 <div class="modal fade" id="thesisDetailsModal" tabindex="-1"

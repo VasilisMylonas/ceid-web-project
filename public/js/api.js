@@ -48,6 +48,10 @@ async function getThesesSecretary(page, pageSize) {
   );
 }
 
+async function getAllProfessors() {
+  return await request("GET", `${BASE_URL}/v1/professors`);
+}
+
 async function getThesisDetails(thesisId) {
   return await request("GET", `${BASE_URL}/v1/theses/${thesisId}`);
 }

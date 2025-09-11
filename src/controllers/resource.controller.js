@@ -6,7 +6,7 @@ export default class ResourceController {
   }
   static async delete(req, res) {
     await req.resource.destroy();
-    res.status(StatusCodes.NO_CONTENT).send();
+    res.status(StatusCodes.NO_CONTENT).json();
   }
   static async put(req, res) {
     await req.resource.update(req.body);

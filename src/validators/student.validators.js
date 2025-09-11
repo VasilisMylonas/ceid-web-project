@@ -1,9 +1,9 @@
-import { validator } from "../config/validation.js";
+import Joi from "joi";
 
 export const queryStudentsValidator = {
-  query: validator.object({
-    search: validator.string().min(1).optional(),
-    limit: validator.number().integer().min(1),
-    offset: validator.number().integer().min(0),
+  query: Joi.object({
+    search: Joi.string().min(1).optional(),
+    limit: Joi.number().integer().min(1),
+    offset: Joi.number().integer().min(0),
   }),
 };

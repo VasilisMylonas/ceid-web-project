@@ -1,7 +1,7 @@
 import express from "express";
 import { requireAuth } from "../middleware/authentication.js";
 import { requireThesisRole } from "../middleware/thesis.js";
-import { validate } from "../config/validation.js";
+import { validate } from "../middleware/validation.js";
 import resourceValidators from "../validators/resource.validators.js";
 import ResourceController from "../controllers/resource.controller.js";
 import { model } from "../middleware/model.js";

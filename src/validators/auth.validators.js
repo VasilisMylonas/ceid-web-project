@@ -1,10 +1,8 @@
-import { validator } from "../config/validation.js";
+import Joi from "joi";
 
 export const loginValidator = {
-  body: validator
-    .object({
-      username: validator.string().min(1).required(),
-      password: validator.string().min(1).required(),
-    })
-    .unknown(false),
+  body: Joi.object({
+    username: Joi.string().min(1).required(),
+    password: Joi.string().min(1).required(),
+  }).unknown(false),
 };

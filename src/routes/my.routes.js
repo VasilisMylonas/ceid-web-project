@@ -2,7 +2,7 @@ import express from "express";
 import { requireAuth, requireRole } from "../middleware/authentication.js";
 import { UserRole } from "../constants.js";
 import MyController from "../controllers/my.controller.js";
-import { validate } from "../config/validation.js";
+import { validate } from "../middleware/validation.js";
 import myValidators from "../validators/my.validators.js";
 
 const router = express.Router();
@@ -40,6 +40,12 @@ router.delete(
   "/profile",
   validate(myValidators.deleteProfile),
   MyController.deleteProfile
+);
+router.get(
+  "/thesis",
+  validate(myValidators.getThesis),
+  requireRole(UserRole.STUDENT),
+  MyController.getThesis
 );
 
 export default router;

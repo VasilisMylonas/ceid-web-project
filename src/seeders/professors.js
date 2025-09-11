@@ -15,6 +15,7 @@ export default async function seedProfessors(count) {
     });
     const username = email.split("@")[0];
     const phone = faker.phone.number();
+    const address = faker.location.streetAddress();
 
     const division = faker.helpers.arrayElement([
       "Software Engineering",
@@ -28,6 +29,7 @@ export default async function seedProfessors(count) {
       username,
       name,
       email,
+      address,
       password: "xxx",
       phone,
       role: UserRole.PROFESSOR,
@@ -36,7 +38,15 @@ export default async function seedProfessors(count) {
   }
 
   const createdUsers = await db.User.bulkCreate(users, {
-    fields: ["username", "name", "email", "password", "phone", "role"],
+    fields: [
+      "username",
+      "name",
+      "email",
+      "password",
+      "phone",
+      "role",
+      "address",
+    ],
   });
 
   const professors = createdUsers.map((user, idx) => ({

@@ -12,6 +12,7 @@ export default async function seedStudents(count) {
     const am = 1100000 + i;
     const username = `up${am}`;
     const email = `up${am}@ac.upatras.gr`;
+    const address = faker.location.streetAddress();
 
     users.push({
       username,
@@ -19,13 +20,22 @@ export default async function seedStudents(count) {
       email,
       password: "xxx",
       phone,
+      address,
       role: UserRole.STUDENT,
     });
     ams.push(am);
   }
 
   const createdUsers = await db.User.bulkCreate(users, {
-    fields: ["username", "name", "email", "password", "phone", "role"],
+    fields: [
+      "username",
+      "name",
+      "email",
+      "password",
+      "phone",
+      "role",
+      "address",
+    ],
   });
 
   const students = createdUsers.map((user, idx) => ({

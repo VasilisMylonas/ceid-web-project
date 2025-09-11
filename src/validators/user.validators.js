@@ -1,84 +1,83 @@
 import { UserRole } from "../constants.js";
-import { validator } from "../config/validation.js";
+import Joi from "joi";
 
 export default {
   query: {
-    query: validator
-      .object({
-        role: validator
-          .string()
-          .valid(...Object.values(UserRole))
-          .optional(),
-        offset: validator.number().integer().min(0).optional(),
-        limit: validator.number().integer().min(0).optional(),
-      })
-      .unknown(false),
+    query: Joi.object({
+      role: Joi.string()
+        .valid(...Object.values(UserRole))
+        .optional(),
+      offset: Joi.number().integer().min(0).optional(),
+      limit: Joi.number().integer().min(0).optional(),
+    }).unknown(false),
   },
   get: {
-    params: validator
-      .object({
-        id: validator.number().integer().min(1).required(),
-      })
-      .unknown(false),
+    params: Joi.object({
+      id: Joi.number().integer().min(1).required(),
+    }).unknown(false),
   },
   patch: {
-    params: validator
-      .object({
-        id: validator.number().integer().min(1).required(),
-      })
-      .unknown(false),
-    body: validator
-      .object({
-        phone: validator.string().phoneNumber().optional(),
-        email: validator.string().email().optional(),
-        name: validator.string().min(1).optional(),
-        password: validator.string().min(1).optional(),
-      })
-      .unknown(false),
+    params: Joi.object({
+      id: Joi.number().integer().min(1).required(),
+    }).unknown(false),
+    body: Joi.object({
+      phone: Joi.string()
+        .regex(/^[0-9]{10}$/)
+        .optional(),
+      email: Joi.string().email().optional(),
+      name: Joi.string().min(1).optional(),
+      password: Joi.string().min(1).optional(),
+      address: Joi.string().min(1).optional(),
+    }).unknown(false),
   },
   delete: {
-    params: validator
-      .object({
-        id: validator.number().integer().min(1).required(),
-      })
-      .unknown(false),
+    params: Joi.object({
+      id: Joi.number().integer().min(1).required(),
+    }).unknown(false),
   },
   post: {
-    body: validator
-      .object({
-        username: validator.string().min(1).required(),
-        name: validator.string().min(1).required(),
-        email: validator.string().email().required(),
-        password: validator.string().min(1).required(),
-        role: validator
-          .string()
-          .valid(...Object.values(UserRole))
-          .required(),
-        phone: validator.string().phoneNumber().required(),
-        am: validator.number().integer().min(1).when("role", {
-          is: UserRole.STUDENT,
-          then: validator.required(),
-          otherwise: validator.forbidden(),
-        }),
-      })
-      .unknown(false),
+    body: Joi.object({
+      username: Joi.string().min(1).required(),
+      name: Joi.string().min(1).required(),
+      email: Joi.string().email().required(),
+      password: Joi.string().min(1).required(),
+      address: Joi.string().min(1).required(),
+      role: Joi.string()
+        .valid(...Object.values(UserRole))
+        .required(),
+      phone: Joi.string()
+        .regex(/^[0-9]{10}$/)
+        .required(),
+      am: Joi.number().integer().min(1).when("role", {
+        is: UserRole.STUDENT,
+        then: Joi.required(),
+        otherwise: Joi.forbidden(),
+      }),
+    }).unknown(false),
   },
-  putAll: {
-    body: validator.array().items(
-      validator.object({
-        username: validator.string().min(1).required(),
-        name: validator.string().min(1).required(),
-        email: validator.string().email().required(),
-        password: validator.string().min(1).required(),
-        role: validator
-          .string()
+  postBatch: {
+    body: Joi.array().items(
+      Joi.object({
+        username: Joi.string().min(1).required(),
+        name: Joi.string().min(1).required(),
+        email: Joi.string().email().required(),
+        password: Joi.string().min(1).required(),
+        address: Joi.string().min(1).required(),
+        role: Joi.string()
           .valid(...Object.values(UserRole))
           .required(),
-        phone: validator.string().phoneNumber().required(),
-        am: validator.number().integer().min(1).when("role", {
+        phone: Joi.string()
+          .regex(/^[0-9]{10}$/)
+          .required(),
+        am: Joi.number().integer().min(1).when("role", {
           is: UserRole.STUDENT,
-          then: validator.required(),
-          otherwise: validator.forbidden(),
+          then: Joi.required(),
+          otherwise: Joi.forbidden(),
+        }),
+        division: Joi.string().min(1).when("role", {
+          is: UserRole.PROFESSOR,
+          then: Joi.required(),
+          otherwise: Joi.forbidden(),
         }),
       })
     ),

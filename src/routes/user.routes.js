@@ -1,5 +1,5 @@
 import express from "express";
-import { validate } from "../config/validation.js";
+import { validate } from "../middleware/validation.js";
 import { requireAuth, requireRole } from "../middleware/authentication.js";
 import userValidator from "../validators/user.validators.js";
 import UserController from "../controllers/user.controller.js";
@@ -22,11 +22,11 @@ router.post(
   requireRole(UserRole.SECRETARY),
   UserController.post
 );
-router.put(
-  "/",
-  validate(userValidator.putAll),
+router.post(
+  "/batch",
+  validate(userValidator.postBatch),
   requireRole(UserRole.SECRETARY),
-  UserController.putAll
+  UserController.postBatch
 );
 
 // NOTE Conflict with model(db.User) and requireAuth user

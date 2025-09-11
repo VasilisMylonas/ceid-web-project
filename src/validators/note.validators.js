@@ -1,30 +1,22 @@
-import { validator } from "../config/validation.js";
+import Joi from "joi";
 
 export default {
   get: {
-    params: validator
-      .object({
-        id: validator.number().integer().min(1).required(),
-      })
-      .unknown(false),
+    params: Joi.object({
+      id: Joi.number().integer().min(1).required(),
+    }).unknown(false),
   },
   delete: {
-    params: validator
-      .object({
-        id: validator.number().integer().min(1).required(),
-      })
-      .unknown(false),
+    params: Joi.object({
+      id: Joi.number().integer().min(1).required(),
+    }).unknown(false),
   },
   put: {
-    params: validator
-      .object({
-        id: validator.number().integer().min(1).required(),
-      })
-      .unknown(false),
-    body: validator
-      .object({
-        content: validator.string().min(1).required(),
-      })
-      .unknown(false),
+    params: Joi.object({
+      id: Joi.number().integer().min(1).required(),
+    }).unknown(false),
+    body: Joi.object({
+      content: Joi.string().min(1).required(),
+    }).unknown(false),
   },
 };

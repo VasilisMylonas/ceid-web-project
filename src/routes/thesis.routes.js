@@ -2,8 +2,12 @@ import express from "express";
 import multer from "multer";
 import { fileStorage } from "../config/file-storage.js";
 import { requireAuth, requireRole } from "../middleware/authentication.js";
-import { requireThesisRole, requireThesisStatus } from "../middleware/thesis.js";
-import { validate } from "../config/validation.js";
+import {
+  requireThesisRole,
+  requireThesisRoleOrSecretary,
+  requireThesisStatus,
+} from "../middleware/thesis.js";
+import { validate } from "../middleware/validation.js";
 import { UserRole, ThesisRole, ThesisStatus } from "../constants.js";
 import thesisValidator from "../validators/thesis.validators.js";
 import ThesisController from "../controllers/thesis.controller.js";
@@ -72,7 +76,7 @@ router.patch(
   "/:id/status",
   validate(thesisValidator.patchStatus),
   model(db.Thesis, "thesis"),
-  requireThesisRole(ThesisRole.SUPERVISOR),
+  requireThesisRoleOrSecretary(ThesisRole.SUPERVISOR),
   ThesisController.patchStatus
 );
 router.get(
@@ -95,15 +99,14 @@ router.put(
   ThesisController.putDraft
 );
 
-// TODO
+// TODO: who can access this?
 router.get("/", validate(thesisValidator.query), ThesisController.query);
 
-// TODO
 router.get(
   "/:id",
   validate(thesisValidator.get),
   model(db.Thesis, "thesis"),
-  requireThesisRole(
+  requireThesisRoleOrSecretary(
     ThesisRole.STUDENT,
     ThesisRole.SUPERVISOR,
     ThesisRole.COMMITTEE_MEMBER

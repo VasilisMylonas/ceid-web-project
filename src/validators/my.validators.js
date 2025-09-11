@@ -1,50 +1,42 @@
 import { ThesisRole, ThesisStatus } from "../constants.js";
-import { validator } from "../config/validation.js";
+import Joi from "joi";
 
 export default {
   getTopics: {
-    query: validator
-      .object({
-        limit: validator.number().integer().min(0).optional(),
-        offset: validator.number().integer().min(0).optional(),
-        status: validator.string().valid("assigned", "unassigned").optional(),
-      })
-      .unknown(false),
+    query: Joi.object({
+      limit: Joi.number().integer().min(0).optional(),
+      offset: Joi.number().integer().min(0).optional(),
+      status: Joi.string().valid("assigned", "unassigned").optional(),
+    }).unknown(false),
   },
   getTheses: {
-    query: validator
-      .object({
-        limit: validator.number().integer().min(0).optional(),
-        offset: validator.number().integer().min(0).optional(),
-        status: validator
-          .string()
-          .valid(...Object.keys(ThesisStatus))
-          .optional(),
-        role: validator
-          .string()
-          .valid(...Object.keys(ThesisRole))
-          .optional(),
-      })
-      .unknown(false),
+    query: Joi.object({
+      limit: Joi.number().integer().min(0).optional(),
+      offset: Joi.number().integer().min(0).optional(),
+      status: Joi.string()
+        .valid(...Object.keys(ThesisStatus))
+        .optional(),
+      role: Joi.string()
+        .valid(...Object.keys(ThesisRole))
+        .optional(),
+    }).unknown(false),
   },
   getInvitations: {
-    query: validator
-      .object({
-        limit: validator.number().integer().min(0).optional(),
-        offset: validator.number().integer().min(0).optional(),
-      })
-      .unknown(false),
+    query: Joi.object({
+      limit: Joi.number().integer().min(0).optional(),
+      offset: Joi.number().integer().min(0).optional(),
+    }).unknown(false),
   },
   getProfile: {},
   patchProfile: {
-    body: validator
-      .object({
-        phone: validator.string().phoneNumber().optional(),
-        email: validator.string().email().optional(),
-        name: validator.string().min(1).optional(),
-        password: validator.string().min(1).optional(),
-      })
-      .unknown(false),
+    body: Joi.object({
+      phone: Joi.string()
+        .regex(/^[0-9]{10}$/)
+        .optional(),
+      email: Joi.string().email().optional(),
+      name: Joi.string().min(1).optional(),
+      password: Joi.string().min(1).optional(),
+    }).unknown(false),
   },
   deleteProfile: {},
 };

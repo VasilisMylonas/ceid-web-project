@@ -1,7 +1,7 @@
 import { StatusCodes } from "http-status-codes";
 import db from "../models/index.js";
 import { getFilePath, deleteIfExists } from "../config/file-storage.js";
-import { ThesisStatus } from "../constants.js";
+import { ThesisRole, ThesisStatus, UserRole } from "../constants.js";
 
 export default class ThesisController {
   static async post(req, res) {
@@ -11,13 +11,13 @@ export default class ThesisController {
     if (!topic) {
       return res
         .status(StatusCodes.NOT_FOUND)
-        .send({ message: "No such topic." });
+        .json({ message: "No such topic." });
     }
 
     if (!student) {
       return res
         .status(StatusCodes.NOT_FOUND)
-        .send({ message: "No such student." });
+        .json({ message: "No such student." });
     }
 
     try {
@@ -59,7 +59,7 @@ export default class ThesisController {
     });
 
     await req.thesis.destroy();
-    return res.status(StatusCodes.NO_CONTENT).send();
+    return res.status(StatusCodes.NO_CONTENT).json();
   }
 
   static async getNotes(req, res) {
@@ -139,50 +139,102 @@ export default class ThesisController {
 
     await thesis.save();
 
-    return res.status(StatusCodes.OK).send(req.thesis);
+    return res.status(StatusCodes.OK).json(req.thesis);
   }
 
   static async patchStatus(req, res) {
-    if (req.body.status === ThesisStatus.UNDER_EXAMINATION) {
-      if (req.thesis.status !== ThesisStatus.ACTIVE) {
-        return res
-          .status(StatusCodes.BAD_REQUEST)
-          .json({ message: "Thesis is not active." });
+    switch (req.body.status) {
+      case ThesisStatus.UNDER_EXAMINATION: {
+        if (req.user.role !== UserRole.PROFESSOR) {
+          return res
+            .status(StatusCodes.FORBIDDEN)
+            .json({
+              message: "Only professors can set thesis under examination.",
+            });
+        }
+
+        if (req.thesis.status !== ThesisStatus.ACTIVE) {
+          return res
+            .status(StatusCodes.BAD_REQUEST)
+            .json({ message: "Thesis is not active." });
+        }
+
+        req.thesis.status = ThesisStatus.UNDER_EXAMINATION;
+        await req.thesis.save();
+
+        return res.status(StatusCodes.OK).json(req.thesis);
       }
+      case ThesisStatus.COMPLETED: {
+        if (req.user.role !== UserRole.PROFESSOR) {
+          return res
+            .status(StatusCodes.FORBIDDEN)
+            .json({ message: "Only professors can complete theses." });
+        }
 
-      req.thesis.status = ThesisStatus.UNDER_EXAMINATION;
-      await req.thesis.save();
+        if (req.thesis.status !== ThesisStatus.UNDER_EXAMINATION) {
+          return res.status(StatusCodes.BAD_REQUEST).json({
+            message: "Thesis is not under examination.",
+          });
+        }
 
-      return res.status(StatusCodes.OK).send(req.thesis);
+        req.thesis.status = ThesisStatus.COMPLETED;
+        req.thesis.endDate = new Date();
+        await req.thesis.save();
+
+        return res.status(StatusCodes.OK).json(req.thesis);
+      }
+      case ThesisStatus.REJECTED: {
+        if (req.user.role !== UserRole.SECRETARY) {
+          return res
+            .status(StatusCodes.FORBIDDEN)
+            .json({ message: "Only secretaries can review theses." });
+        }
+
+        if (req.thesis.status !== ThesisStatus.PENDING) {
+          return res.status(StatusCodes.BAD_REQUEST).json({
+            message: "Thesis is not pending review.",
+          });
+        }
+
+        req.thesis.status = ThesisStatus.REJECTED;
+        await req.thesis.save();
+
+        return res.status(StatusCodes.OK).json(req.thesis);
+      }
+      case ThesisStatus.ACTIVE: {
+        if (req.user.role !== UserRole.SECRETARY) {
+          return res
+            .status(StatusCodes.FORBIDDEN)
+            .json({ message: "Only secretaries can review theses." });
+        }
+
+        if (req.thesis.status !== ThesisStatus.PENDING) {
+          return res.status(StatusCodes.BAD_REQUEST).json({
+            message: "Thesis is not pending review.",
+          });
+        }
+
+        req.thesis.status = ThesisStatus.ACTIVE;
+        req.thesis.startDate = new Date();
+        await req.thesis.save();
+
+        return res.status(StatusCodes.OK).json(req.thesis);
+      }
     }
 
-    if (req.body.status === ThesisStatus.COMPLETED) {
-      if (req.thesis.status !== ThesisStatus.UNDER_EXAMINATION) {
-        return res.status(StatusCodes.BAD_REQUEST).json({
-          message: "Thesis is not under examination.",
-        });
-      }
-
-      req.thesis.status = ThesisStatus.COMPLETED;
-      req.thesis.endDate = new Date();
-      await req.thesis.save();
-
-      return res.status(StatusCodes.OK).send(req.thesis);
-    }
-
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send();
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json();
   }
 
   static async getDraft(req, res) {
     if (!req.thesis.documentFile) {
-      return res.status(StatusCodes.NOT_FOUND).send();
+      return res.status(StatusCodes.NOT_FOUND).json();
     }
-    res.status(SourceCode.OK).sendFile(getFilePath(req.thesis.documentFile));
+    res.status(StatusCodes.OK).sendFile(getFilePath(req.thesis.documentFile));
   }
 
   static async putDraft(req, res) {
     if (!req.file) {
-      return res.status(StatusCodes.BAD_REQUEST).send();
+      return res.status(StatusCodes.BAD_REQUEST).json();
     }
 
     if (!req.thesis.status === ThesisStatus.ACTIVE) {
@@ -195,45 +247,145 @@ export default class ThesisController {
     req.thesis.documentFile = req.file.filename;
     await req.thesis.save();
 
-    res.status(StatusCodes.NO_CONTENT).send();
+    res.status(StatusCodes.NO_CONTENT).json();
   }
 
-  // TODO
   static async query(req, res) {
-    let query = {
-      attributes: ["id", "status", "topicId", "studentId"],
-      limit: req.query.limit,
-      offset: req.query.offset,
-      order: [["id", "ASC"]],
-      where: {
-        ...(req.query.studentId && { studentId: req.query.studentId }),
-        ...(req.query.status && { status: req.query.status }),
-        ...(req.query.topicId && { topicId: req.query.topicId }),
-      },
+    let wherePairs = {
+      "students.id": req.query.studentId,
+      "theses.status": req.query.status,
+      "topics.id": req.query.topicId,
+      "professors.id": req.query.professorId,
+      "committee_members.role": req.query.role,
     };
 
-    if (req.query.professorId) {
-      query.include = [
-        {
-          model: db.CommitteeMember,
-          attributes: [],
-          where: {
-            professorId: req.query.professorId,
-            ...(req.query.role && { role: req.query.role }),
-          },
-        },
-      ];
+    const whereTemp = Object.entries(wherePairs)
+      .filter(([key, value]) => value !== undefined) // Remove undefined values
+      .map(([key, value]) => {
+        if (Array.isArray(value)) {
+          return `(${key} IN (${value.map((v) => `'${v}'`).join(", ")}))`;
+        }
+
+        return `${key} = '${value}'`; // Create condition strings
+      });
+
+    if (req.query.q) {
+      const q = req.query.q.toLowerCase().replace(/'/g, "''");
+      const searchCondition = `(LOWER(topics.title) LIKE '%${q}%' OR LOWER(topics.summary) LIKE '%${q}%' OR LOWER(student_users.name) LIKE '%${q}%' OR LOWER(supervisor_users.name) LIKE '%${q}%' OR LOWER(professor_users.name) LIKE '%${q}%')`;
+      whereTemp.push(searchCondition);
     }
 
-    const theses = await db.Thesis.findAll(query);
-    res.status(StatusCodes.OK).json(theses);
+    const where = whereTemp.join(" AND "); // Join conditions with AND
+
+    // This query is complicated due to the need to join multiple tables and filter based on various criteria.
+    // So we use a raw SQL query here.
+    // Nothing beats raw SQL for complex queries...
+    const raw_query = `
+    SELECT
+theses.id AS "id",
+theses.status AS "status",
+theses.start_date AS "startDate",
+topics.id AS "topicId",
+topics.title AS "topic",
+student_users.name AS "student",
+students.id AS "studentId",
+supervisor_users.name AS "supervisor",
+supervisors.id AS "supervisorId",
+
+COUNT(*) OVER() AS "total"
+
+FROM theses
+JOIN topics ON theses.topic_id = topics.id
+
+JOIN students ON theses.student_id = students.id
+JOIN users AS student_users ON students.user_id = student_users.id
+
+JOIN committee_members AS supervisor_members ON theses.id = supervisor_members.thesis_id AND supervisor_members.role = 'supervisor'
+JOIN professors AS supervisors ON supervisor_members.professor_id = supervisors.id
+JOIN users AS supervisor_users ON supervisors.user_id = supervisor_users.id
+
+JOIN committee_members ON theses.id = committee_members.thesis_id
+JOIN professors ON committee_members.professor_id = professors.id
+JOIN users AS professor_users ON professors.user_id = professor_users.id
+
+${where ? `WHERE ${where}` : ""}
+GROUP BY theses.id, topics.id, supervisor_users.id, supervisors.id, student_users.id, students.id
+ORDER BY theses.id ASC
+${req.query.limit ? `LIMIT ${req.query.limit}` : ""}
+${req.query.offset ? `OFFSET ${req.query.offset}` : ""}
+`;
+
+    console.log(raw_query);
+
+    const [results, _] = await db.sequelize.query(raw_query);
+
+    // console.log(results);
+
+    // Get the count and remove it from the records
+    const total = results.length > 0 ? parseInt(results[0].total) : 0;
+    results.forEach((r) => delete r.total);
+
+    res.success(results, { count: results.length, total });
   }
 
-  // TODO
   static async get(req, res) {
-    const thesis = req.thesis.toJSON();
-    delete thesis.documentFile;
-    res.status(StatusCodes.OK).json(thesis);
+    const raw_query = `
+  SELECT
+theses.id AS "id",
+theses.status AS "status",
+theses.start_date AS "startDate",
+topics.id AS "topicId",
+topics.title AS "topic",
+student_users.name AS "student",
+students.id AS "studentId",
+supervisor_users.name AS "supervisor",
+supervisors.id AS "supervisorId",
+
+theses.status_reason AS "statusReason",
+theses.end_date AS "endDate",
+theses.protocol_number AS "protocolNumber",
+theses.grading AS "grading",
+topics.summary AS "topicSummary"
+
+FROM theses
+JOIN topics ON theses.topic_id = topics.id
+
+JOIN students ON theses.student_id = students.id
+JOIN users AS student_users ON students.user_id = student_users.id
+
+JOIN committee_members AS supervisor_members ON theses.id = supervisor_members.thesis_id AND supervisor_members.role = 'supervisor'
+JOIN professors AS supervisors ON supervisor_members.professor_id = supervisors.id
+JOIN users AS supervisor_users ON supervisors.user_id = supervisor_users.id
+
+JOIN committee_members ON theses.id = committee_members.thesis_id
+JOIN professors ON committee_members.professor_id = professors.id
+JOIN users AS professor_users ON professors.user_id = professor_users.id
+WHERE theses.id = '${req.thesis.id}'
+    `;
+
+    const [results, _] = await db.sequelize.query(raw_query);
+    const thesis = results[0];
+
+    // Get committee members
+    thesis.committeeMembers = await req.thesis.getCommitteeMembers({
+      raw: true,
+      attributes: [
+        "professorId",
+        "role",
+        "startDate",
+        "endDate",
+        [db.sequelize.col("Professor.User.name"), "name"],
+      ],
+      include: [
+        {
+          model: db.Professor,
+          attributes: [],
+          include: [{ model: db.User, attributes: [] }],
+        },
+      ],
+    });
+
+    res.success(thesis);
   }
 
   static async getResources(req, res) {
@@ -252,7 +404,7 @@ export default class ThesisController {
 
   static async postResource(req, res) {
     if (!req.file) {
-      return res.status(StatusCodes.BAD_REQUEST).send();
+      return res.status(StatusCodes.BAD_REQUEST).json();
     }
 
     const resource = await db.Resource.create({

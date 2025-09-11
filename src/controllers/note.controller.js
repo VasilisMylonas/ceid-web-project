@@ -7,7 +7,7 @@ export default class NoteController {
 
   static async delete(req, res) {
     await req.note.destroy();
-    res.status(StatusCodes.NO_CONTENT).send();
+    res.status(StatusCodes.NO_CONTENT).json();
   }
 
   static async put(req, res) {

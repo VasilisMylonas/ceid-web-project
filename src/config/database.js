@@ -2,7 +2,7 @@ export default {
   development: {
     dialect: "postgres",
     use_env_variable: "DATABASE_URL",
-    logging: true,
+    logging: false,
   },
   test: {
     dialect: "sqlite",

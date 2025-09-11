@@ -14,24 +14,35 @@ export default class UserController {
       where: {
         ...(req.query.role && { role: req.query.role }),
       },
+      raw: true,
     });
-    res.status(StatusCodes.OK).json(users);
+
+    const total = await db.User.count();
+
+    res.success(users, { total, count: users.length });
   }
 
-  static async _add(user, transaction) {
-    user.password = bcrypt.hash(user.password, 10);
+  static async _createUser(user, transaction) {
+    // Hash password before storing
+    user.password = JSON.stringify(bcrypt.hash(user.password, 10));
 
     const created = await db.User.create(user, { transaction });
 
     switch (user.role) {
       case UserRole.PROFESSOR:
-        await db.Professor.create({ userId: created.id }, { transaction });
+        created.Professor = await db.Professor.create(
+          { userId: created.id, division: user.division },
+          { transaction }
+        );
         break;
       case UserRole.SECRETARY:
-        await db.Secretary.create({ userId: created.id }, { transaction });
+        created.Secretary = await db.Secretary.create(
+          { userId: created.id },
+          { transaction }
+        );
         break;
       case UserRole.STUDENT:
-        await db.Student.create(
+        created.Student = await db.Student.create(
           { userId: created.id, am: user.am },
           { transaction }
         );
@@ -41,15 +52,20 @@ export default class UserController {
     return created;
   }
 
-  static async putAll(req, res) {
+  static async postBatch(req, res) {
     const transaction = await db.sequelize.transaction();
+
+    const created = [];
 
     try {
       for (const user of req.body) {
-        this._add(user, transaction);
+        created.push(await UserController._createUser(user, transaction));
       }
+
       transaction.commit();
-      res.status(StatusCodes.NO_CONTENT).send();
+      return res
+        .status(StatusCodes.CREATED)
+        .json(created.map((user) => omit(user.get(), "password")));
     } catch (error) {
       transaction.rollback();
       throw error;
@@ -60,7 +76,7 @@ export default class UserController {
     const transaction = await db.sequelize.transaction();
 
     try {
-      const created = this._add(req.body, transaction);
+      const created = await UserController._createUser(req.body, transaction);
       transaction.commit();
       res.status(StatusCodes.CREATED).json(omit(created.get(), "password"));
     } catch (error) {
@@ -99,6 +115,6 @@ export default class UserController {
 
   static async delete(req, res) {
     // TODO WONTFIX: delete user dependencies (professor, secretary, student)
-    res.status(StatusCodes.NOT_IMPLEMENTED).send();
+    res.status(StatusCodes.NOT_IMPLEMENTED).json();
   }
 }

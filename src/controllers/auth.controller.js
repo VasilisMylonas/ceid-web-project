@@ -8,12 +8,12 @@ export async function login(req, res) {
     return res.status(StatusCodes.UNAUTHORIZED).json();
   }
 
-  res.status(StatusCodes.OK).json({ token });
+  res.success({ token }, {}, StatusCodes.OK);
 }
 
 export async function logout(req, res) {
   // TODO WONTFIX
-  res.status(StatusCodes.IM_A_TEAPOT).json({
+  res.status(StatusCodes.NOT_IMPLEMENTED).json({
     message:
       "Logout not implemented, please clear the token on the client side. See https://jwt.io/ for more information.",
   });

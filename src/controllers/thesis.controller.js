@@ -146,11 +146,9 @@ export default class ThesisController {
     switch (req.body.status) {
       case ThesisStatus.UNDER_EXAMINATION: {
         if (req.user.role !== UserRole.PROFESSOR) {
-          return res
-            .status(StatusCodes.FORBIDDEN)
-            .json({
-              message: "Only professors can set thesis under examination.",
-            });
+          return res.status(StatusCodes.FORBIDDEN).json({
+            message: "Only professors can set thesis under examination.",
+          });
         }
 
         if (req.thesis.status !== ThesisStatus.ACTIVE) {
@@ -165,10 +163,10 @@ export default class ThesisController {
         return res.status(StatusCodes.OK).json(req.thesis);
       }
       case ThesisStatus.COMPLETED: {
-        if (req.user.role !== UserRole.PROFESSOR) {
+        if (req.user.role !== UserRole.SECRETARY) {
           return res
             .status(StatusCodes.FORBIDDEN)
-            .json({ message: "Only professors can complete theses." });
+            .json({ message: "Only secretaries can complete theses." });
         }
 
         if (req.thesis.status !== ThesisStatus.UNDER_EXAMINATION) {

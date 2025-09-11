@@ -1,6 +1,5 @@
 <h2 class="mb-4">Διαχείριση Διπλωματικών Εργασιών</h2>
 
-<!-- Header: Title + Export -->
 <div class="row mb-4 g-4 align-items-center d-flex justify-content-between">
   <div class="col-12 col-md-auto mb-2 mb-md-0">
     <h5 class="card-title mb-0">
@@ -16,14 +15,14 @@
   </div>
 </div>
 
-<form class="mb-4" id="thesis-search-form">
+<form class="mb-4" id="filters">
   <legend class="visually-hidden">Φίλτρα Διπλωματικών</legend>
   <div class="row g-2 align-items-center">
 
     <fieldset class="col-12 col-xl-8">
-      <label class="form-label" for="search-thesis">Αναζήτηση</label>
+      <label class="form-label" for="search">Αναζήτηση</label>
       <div class="input-group">
-        <input type="text" class="form-control" id="search-thesis"
+        <input type="text" class="form-control" id="search" name="search"
             placeholder="Όνομα θέματος ή φοιτητή...">
         <button class="input-group-text" aria-label="Αναζήτηση">
           <i class="bi bi-search" aria-hidden="true"></i>
@@ -34,9 +33,9 @@
     <fieldset class="col-12 col-sm-6 col-xl-2">
       <label for="filter-status" class="form-label">Κατάσταση</label>
       <select class="form-select" id="filter-status">
-        <option value="">(Όλες)</option>
+        <option value="">Όλες</option>
         <option value="active">Ενεργή</option>
-        <option value="pending">Υπό Εξέταση</option>
+        <option value="under_examination">Υπό Εξέταση</option>
         <option value="completed">Ολοκληρωμένη</option>
       </select>
     </fieldset>
@@ -44,7 +43,7 @@
     <fieldset class="col-12 col-sm-6 col-xl-2">
       <label for="filter-supervisor" class="form-label">Επιβλέπων</label>
       <select class="form-select" id="filter-supervisor">
-        <option value="">(Όλοι)</option>
+        <option value="-1">Όλοι</option>
         <!-- Added dynamically -->
       </select>
     </fieldset>
@@ -82,6 +81,7 @@
     </table>
   </div>
 </div>
+
 <style>
   .table-container {
     position: relative;

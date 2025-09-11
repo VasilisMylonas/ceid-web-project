@@ -73,6 +73,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (isReadOnly) {
             // Switch to edit mode
+            // Clear any previous validation errors
+            input.classList.remove('is-invalid');
+            const errorDiv = input.closest('.input-group').nextElementSibling;
+            if (errorDiv) {
+                errorDiv.textContent = '';
+            }
+
             input.removeAttribute('readonly');
             input.focus();
             input.select();
@@ -81,25 +88,49 @@ document.addEventListener('DOMContentLoaded', async () => {
             button.classList.remove('btn-outline-secondary');
             button.classList.add('btn-success');
         } else {
-            // Switch to save mode
-            input.setAttribute('readonly', true);
-
-            button.innerHTML = '<i class="bi bi-pencil"></i>'; // Change icon back to pencil
-            button.classList.remove('btn-success');
-            button.classList.add('btn-outline-secondary');
-
-            // Send the data to the server
+            // --- VALIDATION LOGIC ---
             const fieldName = targetInputId === 'mobilePhone' ? 'phone' : targetInputId;
-            const body = { [fieldName]: input.value };
+            const value = input.value;
+            let isValid = true;
+            let errorMessage = '';
 
-            try {
-                await updateProfile(body);
-                console.log(`Saved ${targetInputId}: ${input.value}`);
-                // Optionally show a success message
-            } catch (error) {
-                console.error(`Error saving ${targetInputId}:`, error);
-                // Optionally revert the value and show an error message
-                // For now, we just log it.
+            if (fieldName === 'email') {
+                const emailRegex = /^\S+@\S+\.\S+$/;
+                if (!emailRegex.test(value)) {
+                    isValid = false;
+                    errorMessage = 'Please enter a valid email address (e.g., user@example.com).';
+                }
+            } else if (fieldName === 'phone' || fieldName === 'homePhone') {
+                const phoneRegex = /^[0-9]{10}$/;
+                if (value && !phoneRegex.test(value)) { // Allow empty value for optional fields
+                    isValid = false;
+                    errorMessage = 'Phone number must be exactly 10 digits.';
+                }
+            }
+
+            const errorDiv = input.closest('.input-group').nextElementSibling;
+
+            if (isValid) {
+                // --- SAVE LOGIC ---
+                input.classList.remove('is-invalid');
+                if(errorDiv) errorDiv.textContent = '';
+
+                input.setAttribute('readonly', true);
+                button.innerHTML = '<i class="bi bi-pencil"></i>';
+                button.classList.remove('btn-success');
+                button.classList.add('btn-outline-secondary');
+
+                const body = { [fieldName]: value };
+                try {
+                    await updateProfile(body);
+                    console.log(`Saved ${targetInputId}: ${value}`);
+                } catch (error) {
+                    console.error(`Error saving ${targetInputId}:`, error);
+                }
+            } else {
+                // --- SHOW ERROR ---
+                input.classList.add('is-invalid');
+                if(errorDiv) errorDiv.textContent = errorMessage;
             }
         }
     });

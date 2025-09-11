@@ -1,34 +1,156 @@
-<h2 class="mb-4">Προβολή Διπλωματικών Εργασιών</h2>
-<article class="card shadow-sm mb-4">
-  <div class="card-body">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h5 class="card-title mb-0">Λίστα Ενεργών & Υπό Εξέταση Διπλωματικών
-        Εργασιών</h5>
-      <button class="btn btn-dark" id="export-theses">
-        <i class="bi bi-file-earmark-arrow-down-fill me-1"></i>
-        Εξαγωγή Λίστας
-      </button>
-    </div>
-    <p class="text-muted mb-2">
-      Επιλέξτε μια διπλωματική για περισσότερες λεπτομέρειες.
-    </p>
-    <div class="table-responsive">
-      <table class="table table-striped table-hover">
-        <thead>
-          <tr>
-            <th scope="col">Θέμα</th>
-            <th scope="col">Φοιτητής</th>
-            <th scope="col">Επιβλέπων</th>
-            <th scope="col">Κατάσταση</th>
-            <th scope="col">Ημερομηνία Ανάθεσης</th>
-          </tr>
-        </thead>
-        <tbody id="theses-table-body">
-        </tbody>
-      </table>
-          </div>
+<h2 class="mb-4">Διαχείριση Διπλωματικών Εργασιών</h2>
+
+<!-- Header: Title + Export -->
+<div class="row mb-4 g-4 align-items-center">
+  <div class="col-12 col-md-auto mb-2 mb-md-0">
+    <h5 class="card-title mb-0">
+      Ενεργές & Υπό Εξέταση Διπλωματικών Εργασίες
+    </h5>
   </div>
-</article>
+  <div class="col-12 col-md-auto text-md-end">
+    <button class="btn btn-dark" id="export-theses"
+        title="Εξαγωγή λίστας διπλωματικών σε αρχείο JSON">
+      <i class="bi bi-file-earmark-arrow-down-fill me-1"></i>
+      Εξαγωγή Λίστας
+    </button>
+  </div>
+</div>
+
+<form class="mb-4" id="thesis-search-form">
+  <legend class="visually-hidden">Φίλτρα Διπλωματικών</legend>
+  <div class="row g-2 align-items-center">
+
+    <fieldset class="col-12 col-xl-8">
+      <label class="form-label" for="search-thesis">Αναζήτηση</label>
+      <div class="input-group">
+        <input type="text" class="form-control" id="search-thesis"
+            placeholder="Όνομα θέματος ή φοιτητή...">
+        <button class="input-group-text" aria-label="Αναζήτηση">
+          <i class="bi bi-search" aria-hidden="true"></i>
+        </button>
+      </div>
+    </fieldset>
+
+    <fieldset class="col-12 col-sm-6 col-xl-2">
+      <label for="filter-status" class="form-label">Κατάσταση</label>
+      <select class="form-select" id="filter-status">
+        <option value="">Κατάσταση (Όλες)</option>
+        <option value="active">Ενεργή</option>
+        <option value="pending">Υπό Εξέταση</option>
+        <option value="completed">Ολοκληρωμένη</option>
+      </select>
+    </fieldset>
+
+    <fieldset class="col-12 col-sm-6 col-xl-2">
+      <label for="filter-supervisor" class="form-label">Επιβλέπων</label>
+      <select class="form-select" id="filter-supervisor">
+        <option value="">(Όλοι)</option>
+        <!-- Add supervisor options dynamically -->
+      </select>
+    </fieldset>
+
+  </div>
+  </fieldset>
+</form>
+
+<p class="text-muted mb-4">
+  Επιλέξτε μια διπλωματική για περισσότερες λεπτομέρειες.
+</p>
+
+<select class="form-select form-select-sm w-auto mb-4" id="page-size-select">
+  <option value="10">10 ανά σελίδα</option>
+  <option value="25">25 ανά σελίδα</option>
+  <option value="50">50 ανά σελίδα</option>
+  <option value="100">100 ανά σελίδα</option>
+</select>
+
+<div class="table-container mb-4">
+  <div class="table-responsive">
+    <table class="table table-hover fixed-table align-middle">
+      <thead class="sticky-top bg-white">
+        <tr>
+          <th scope="col" style="width: 400px;">Θέμα</th>
+          <th scope="col" style="width: 150px;">Φοιτητής</th>
+          <th scope="col" style="width: 150px;">Επιβλέπων</th>
+          <th scope="col" style="width: 120px;">Κατάσταση</th>
+          <th scope="col" style="width: 150px;">Ημερομηνία Ανάθεσης</th>
+          <th scope="col" style="width: 100px;">Ενέργειες</th>
+        </tr>
+      </thead>
+      <tbody id="theses-table-body">
+      </tbody>
+    </table>
+  </div>
+</div>
+<style>
+  .table-container {
+    position: relative;
+    width: 100%;
+  }
+
+  .table-responsive {
+    height: 500px;
+    overflow-y: auto;
+    overflow-x: auto;
+    border: 1px solid rgba(0, 0, 0, .125);
+    border-radius: 0.25rem;
+  }
+
+  .fixed-table {
+    table-layout: fixed;
+    /* Set minimum width to ensure horizontal scrolling */
+    min-width: 1070px;
+    /* Sum of all column widths */
+  }
+
+  thead.sticky-top {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, .1);
+  }
+
+  td,
+  th {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  td.text-truncate {
+    max-width: 100%;
+  }
+</style>
+
+<div class="row g-4">
+  <div class="text-muted col-12 col-lg-2">
+    Σελίδα
+    <span id="current-page"></span> από <span id="total-pages"></span>
+  </div>
+  <nav aria-label="Περιήγηση σελίδων" id="page-nav"
+      class="text-center col-12 col-lg-10 d-flex justify-content-center justify-content-lg-end">
+    <ul class="pagination mb-0">
+      <li class="page-item">
+        <button type="button" class="btn btn-link page-link" id="prev-page-btn"
+            aria-label="Προηγούμενη σελίδα">
+          <i class="bi bi-chevron-left" aria-hidden="true"></i>
+          <span class="d-none d-md-inline">
+            Προηγούμενη
+          </span>
+        </button>
+      </li>
+      <li class="page-item">
+        <button type="button" class="btn btn-link page-link" id="next-page-btn"
+            aria-label="Επόμενη σελίδα">
+          <span class="d-none d-md-inline">
+            Επόμενη
+          </span>
+          <i class="bi bi-chevron-right" aria-hidden="true"></i>
+        </button>
+      </li>
+    </ul>
+  </nav>
+</div>
 
 <div class="modal fade" id="thesisDetailsModal" tabindex="-1"
     aria-labelledby="thesisDetailsModalLabel" aria-hidden="true">
@@ -59,7 +181,7 @@
         </ul>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-primary"
+        <button type="button" class="btn btn-info fg-white"
             data-bs-dismiss="modal">Κλείσιμο
         </button>
       </div>

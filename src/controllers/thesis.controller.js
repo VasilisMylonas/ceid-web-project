@@ -231,7 +231,9 @@ topics.title AS "topic",
 student_users.name AS "student",
 students.id AS "studentId",
 supervisor_users.name AS "supervisor",
-supervisors.id AS "supervisorId"
+supervisors.id AS "supervisorId",
+
+COUNT(*) OVER() AS "total"
 
 FROM theses
 JOIN topics ON theses.topic_id = topics.id
@@ -255,7 +257,11 @@ ${req.query.offset ? `OFFSET ${req.query.offset}` : ""}
 
     const [results, _] = await db.sequelize.query(raw_query);
 
-    res.status(StatusCodes.OK).json(results);
+    // Get the count and remove it from the records
+    const total = results.length > 0 ? results[0].total : 0;
+    results.forEach((r) => delete r.total);
+
+    res.success(results, { count: results.length, total });
   }
 
   static async get(req, res) {

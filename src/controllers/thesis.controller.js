@@ -253,8 +253,6 @@ ${req.query.limit ? `LIMIT ${req.query.limit}` : ""}
 ${req.query.offset ? `OFFSET ${req.query.offset}` : ""}
     `;
 
-    console.log(raw_query);
-
     const [results, _] = await db.sequelize.query(raw_query);
 
     res.status(StatusCodes.OK).json(results);

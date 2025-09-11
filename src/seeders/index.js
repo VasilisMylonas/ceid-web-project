@@ -10,7 +10,11 @@ import seedCommitteeMembers from "./committee-members.js";
 
 export default async function seedDatabase() {
   await db.sequelize.sync({ force: true });
-  await Promise.all([seedProfessors(10), seedStudents(50), seedSecretaries(4)]);
+  await Promise.all([
+    seedProfessors(30),
+    seedStudents(500),
+    seedSecretaries(4),
+  ]);
 
   const professorUser = await db.User.create({
     username: "professor",
@@ -43,13 +47,13 @@ export default async function seedDatabase() {
   });
   await db.Student.create({
     userId: studentUser.id,
-    am: "1100491",
+    am: "0",
   });
   await db.Secretary.create({
     userId: secretaryUser.id,
   });
 
-  await seedTopics(60);
-  await seedTheses(40);
+  await seedTopics(400);
+  await seedTheses(300);
   await seedCommitteeMembers();
 }

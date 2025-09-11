@@ -14,9 +14,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
-    // Check if the response has data and the data array is not empty
-    if (!response || !response.data || response.data.length === 0) {
-        container.innerHTML = '<div class="alert alert-warning">Δεν έχετε αναλάβει κάποια διπλωματική εργασία.</div>';
+    // Check if the response meta indicates that no thesis was found (count is zero)
+    if (!response || !response.meta || response.meta.count === 0) {
+        container.innerHTML = '<div class="alert alert-warning text-center"><h3>Δεν έχει ανατεθεί κάποια διπλωματική εργασία.</h3><p>Μπορείτε να δείτε τα διαθέσιμα θέματα και να κάνετε αίτηση.</p></div>';
         return;
     }
 

@@ -1,7 +1,7 @@
 import { StatusCodes } from "http-status-codes";
 import db from "../models/index.js";
 import { getFilePath, deleteIfExists } from "../config/file-storage.js";
-import { ThesisRole, ThesisStatus, UserRole } from "../constants.js";
+import { ThesisStatus, UserRole } from "../constants.js";
 
 export default class ThesisController {
   static async post(req, res) {

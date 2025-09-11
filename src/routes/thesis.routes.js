@@ -98,9 +98,12 @@ router.put(
   requireThesisRole(ThesisRole.STUDENT),
   ThesisController.putDraft
 );
-
-// TODO: who can access this?
-router.get("/", validate(thesisValidator.query), ThesisController.query);
+router.get(
+  "/",
+  validate(thesisValidator.query),
+  requireRole(UserRole.SECRETARY),
+  ThesisController.query
+);
 
 router.get(
   "/:id",
@@ -114,6 +117,7 @@ router.get(
   ThesisController.get
 );
 
+// TODO: resources, committee, grades, presentations, timeline, announcement
 // router.get(
 //   "/:id/timeline",
 //   validate(thesisValidator.getTimeline),

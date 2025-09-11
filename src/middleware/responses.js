@@ -30,7 +30,6 @@ export function wrapResponse() {
             res.status(StatusCodes.CREATED);
             break;
           default: // PUT, PATCH
-            // TODO: OK or NO_CONTENT prefer OK
             res.status(StatusCodes.OK);
             break;
         }
@@ -59,28 +58,6 @@ export function wrapResponse() {
         },
       });
     };
-
-    // TODO: remove this
-    // res.json = (payload = {}) => {
-    //   if (res.statusCode === StatusCodes.NO_CONTENT) {
-    //     // Respect NO_CONTENT
-    //     return originalJsonMethod();
-    //   }
-
-    //   const isSuccess = res.statusCode >= 200 && res.statusCode < 300;
-
-    //   if (isSuccess) {
-    //     return originalJsonMethod({
-    //       success: true,
-    //       data: payload,
-    //     });
-    //   }
-
-    //   return originalJsonMethod({
-    //     success: false,
-    //     error: payload,
-    //   });
-    // };
 
     next();
   };

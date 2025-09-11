@@ -67,3 +67,4 @@ The API is documented using Postman. You can import the provided Postman collect
 
 - Maybe autoIncrement should be autoIncrementIdentity for postgres (see models)
 - Authentication middleware should attach role info/id
+- Refresh button in thesis-manage

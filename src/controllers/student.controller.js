@@ -15,10 +15,10 @@ export async function queryStudents(req, res) {
     where: {
       [Op.or]: [
         Sequelize.where(Sequelize.fn("lower", Sequelize.col("am")), {
-          [Op.like]: `%${req.query.search.toLowerCase()}%`,
+          [Op.like]: `%${req.query.q.toLowerCase()}%`,
         }),
         Sequelize.where(Sequelize.fn("lower", Sequelize.col("User.name")), {
-          [Op.like]: `%${req.query.search.toLowerCase()}%`,
+          [Op.like]: `%${req.query.q.toLowerCase()}%`,
         }),
       ],
     },

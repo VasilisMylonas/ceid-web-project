@@ -30,7 +30,11 @@ export function wrapResponse() {
             res.status(StatusCodes.CREATED);
             break;
           default: // PUT, PATCH
-            res.status(StatusCodes.OK);
+            if (data === undefined) {
+              res.status(StatusCodes.NO_CONTENT);
+            } else {
+              res.status(StatusCodes.OK);
+            }
             break;
         }
       }
@@ -47,14 +51,13 @@ export function wrapResponse() {
 
     // Add custom error function
     // BAD_REQUEST, NOT_FOUND, INTERNAL_SERVER_ERROR, UNAUTHORIZED, FORBIDDEN, CONFLICT, NOT_IMPLEMENTED
-    res.error = (message, status = StatusCodes.BAD_REQUEST, meta = {}) => {
+    res.error = (message, status = StatusCodes.BAD_REQUEST) => {
       res.status(status);
       return originalJsonMethod({
         success: false,
         error: { message },
         meta: {
           ...req.context,
-          ...meta,
         },
       });
     };

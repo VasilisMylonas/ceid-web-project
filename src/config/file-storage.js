@@ -14,6 +14,10 @@ export function getFilePath(fileName) {
 }
 
 export function deleteIfExists(fileName) {
+  if (!fileName) {
+    return;
+  }
+
   const filePath = getFilePath(fileName);
   if (fs.existsSync(filePath)) {
     fs.unlinkSync(filePath);

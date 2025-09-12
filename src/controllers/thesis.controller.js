@@ -403,7 +403,7 @@ WHERE theses.id = '${req.thesis.id}'
 
   static async postResource(req, res) {
     if (!req.file) {
-      return res.error("No file uploaded");
+      return res.error("No file uploaded", StatusCodes.BAD_REQUEST);
     }
 
     const resource = await db.Resource.create({

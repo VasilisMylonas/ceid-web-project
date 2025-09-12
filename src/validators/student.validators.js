@@ -1,9 +1,9 @@
 import Joi from "joi";
 
-export const queryStudentsValidator = {
+export default {
   query: Joi.object({
-    search: Joi.string().min(1).optional(),
-    limit: Joi.number().integer().min(1),
+    q: Joi.string().min(1).optional(),
+    limit: Joi.number().integer().min(0),
     offset: Joi.number().integer().min(0),
-  }),
+  }).unknown(false),
 };

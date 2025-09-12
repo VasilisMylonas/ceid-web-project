@@ -27,11 +27,10 @@ router.use("/users", userRoutes);
 router.use("/theses", thesisRoutes);
 router.use("/invitations", invitationRoutes);
 router.use("/my", myRoutes);
-router.use("/students", studentRoutes);
 router.use("/notes", noteRoutes);
 router.use("/resources", resourceRoutes);
+router.use("/students", studentRoutes);
 router.use("/presentations", presentationRoutes);
-
 router.use(errorHandler); // Use error handler middleware, after all routes
 
 export default router;

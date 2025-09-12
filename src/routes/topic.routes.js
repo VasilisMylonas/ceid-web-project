@@ -57,5 +57,12 @@ router.put(
   requireProfessorOwner(),
   TopicController.putDescription
 );
+router.delete(
+  "/:id/description",
+  validate(topicValidators.deleteDescription),
+  model(db.Topic, "topic"),
+  requireProfessorOwner(),
+  TopicController.deleteDescription
+);
 
 export default router;

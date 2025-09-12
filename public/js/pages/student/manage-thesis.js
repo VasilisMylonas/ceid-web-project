@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     switch (thesis.status) {
         case 'under_assignment':
             console.log("Thesis is under assignment.");
-            populatePendingInvitations(invitationsResponse, stateAssignment);
+            // The call to populateInvitationsList is removed from here.
             if(stateAssignment) {
                 activeStateCard = stateAssignment;
             }
@@ -95,8 +95,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         // These should run for all states that have these lists
         populateCommitteeList(thesis, activeStateCard);
-        if (invitationsResponse.data) {
-            populatePendingInvitations(invitationsResponse.data, activeStateCard);
+        // Check for the array itself, not its .data property
+        if (invitationsResponse) {
+            // Pass the invitations array directly
+            populateInvitationsList(invitationsResponse, activeStateCard);
         }
     }
 });
@@ -182,7 +184,7 @@ function setupModalEventListeners(modalElement, inviteModal, getThesis) {
             
             if (activeCard) {
                 populateCommitteeList(thesis, activeCard);
-                populatePendingInvitations(updatedInvitations.data, activeCard);
+                populateInvitationsList(updatedInvitations, activeCard);
             }
 
         } catch (error) {
@@ -194,24 +196,24 @@ function setupModalEventListeners(modalElement, inviteModal, getThesis) {
 
 
 /**
- * Populates the list of pending invitations within a given state card.
+ * Populates the list of pending and rejected invitations within a given state card.
  * @param {Array} invitations - The array of invitation objects from the API.
  * @param {HTMLElement} activeStateCard - The currently active state card element.
  */
-async function populatePendingInvitations(invitations, activeStateCard) {
-   console.log("Populating pending invitations:", invitations);
-    const pendingList = activeStateCard.querySelector('.invitation-list');
-    if (!pendingList) {
+async function populateInvitationsList(invitations, activeStateCard) {
+   console.log("Populating invitations:", invitations);
+    const invitationList = activeStateCard.querySelector('.invitation-list');
+    if (!invitationList) {
         // This is expected if the card is not 'state-assignment'
         return;
     }
     
-    pendingList.innerHTML = ''; // Clear existing list
+    invitationList.innerHTML = ''; // Clear existing list
 
-    const pendingInvitations = invitations.filter(inv => inv.response === 'pending');
+    const relevantInvitations = invitations.filter(inv => inv.response === 'pending' || inv.response === 'declined');
 
-    if (pendingInvitations.length === 0) {
-        pendingList.innerHTML = '<li class="list-group-item">Δεν υπάρχουν εκκρεμείς προσκλήσεις.</li>';
+    if (relevantInvitations.length === 0) {
+        invitationList.innerHTML = '<li class="list-group-item">Δεν υπάρχουν εκκρεμείς ή απορριφθείσες προσκλήσεις.</li>';
         return;
     }
 
@@ -219,12 +221,17 @@ async function populatePendingInvitations(invitations, activeStateCard) {
         const professorsResponse = await getProfessors();
         const professorMap = new Map(professorsResponse.data.map(p => [p.id, p.name]));
 
-        pendingInvitations.forEach(invitation => {
+        relevantInvitations.forEach(invitation => {
             const professorName = professorMap.get(invitation.professorId) || `Άγνωστος Διδάσκων (ID: ${invitation.professorId})`;
             const li = document.createElement('li');
             li.className = 'list-group-item d-flex justify-content-between align-items-center';
             
-            const statusBadge = `<span class="badge bg-warning rounded-pill">Εκκρεμεί</span>`;
+            let statusBadge;
+            if (invitation.response === 'pending') {
+                statusBadge = `<span class="badge bg-warning rounded-pill">Εκκρεμεί</span>`;
+            } else if (invitation.response === 'declined') {
+                statusBadge = `<span class="badge bg-danger rounded-pill">Απορρίφθηκε</span>`;
+            }
 
             li.innerHTML = `
                 <div>
@@ -234,11 +241,11 @@ async function populatePendingInvitations(invitations, activeStateCard) {
                 </div>
                 ${statusBadge}
             `;
-            pendingList.appendChild(li);
+            invitationList.appendChild(li);
         });
     } catch (error) {
-        console.error("Error fetching professors for pending invitations:", error);
-        pendingList.innerHTML = '<li class="list-group-item text-danger">Σφάλμα φόρτωσης λίστας προσκλήσεων.</li>';
+        console.error("Error fetching professors for invitations list:", error);
+        invitationList.innerHTML = '<li class="list-group-item text-danger">Σφάλμα φόρτωσης λίστας προσκλήσεων.</li>';
     }
 }
 

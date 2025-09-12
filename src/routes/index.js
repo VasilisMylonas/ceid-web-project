@@ -8,7 +8,6 @@ import noteRoutes from "./note.routes.js";
 import resourceRoutes from "./resource.routes.js";
 import presentationRoutes from "./presentation.routes.js";
 import invitationRoutes from "./invitation.routes.js";
-import studentRoutes from "./student.routes.js";
 import myRoutes from "./my.routes.js";
 
 import { errorHandler } from "../middleware/errorHandler.js";
@@ -27,7 +26,6 @@ router.use("/users", userRoutes);
 router.use("/theses", thesisRoutes);
 router.use("/invitations", invitationRoutes);
 router.use("/my", myRoutes);
-router.use("/students", studentRoutes);
 router.use("/notes", noteRoutes);
 router.use("/resources", resourceRoutes);
 router.use("/presentations", presentationRoutes);

@@ -36,7 +36,9 @@ async function getProfile() {
 async function getProfessors(){
   return await request("GET", `${BASE_URL}/v1/users/professors`);
 }
-
+async function getThesisInvitations(thesisId){
+  return await request("GET", `${BASE_URL}/v1/theses/${thesisId}/invitations`);
+}
 async function sendThesisInvitation(thesisId, professorId) {
   return await request("POST", `${BASE_URL}/v1/theses/${thesisId}/invitations`, { professorId });
 }

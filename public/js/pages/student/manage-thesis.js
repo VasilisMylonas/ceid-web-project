@@ -34,54 +34,77 @@ document.addEventListener('DOMContentLoaded', async () => {
         container.innerHTML = '<div class="alert alert-danger">Σφάλμα φόρτωσης λεπτομερειών διπλωματικής.</div>';
         return;
     }
-    const thesis = thesisDetailsResponse.data;
+    let thesis = thesisDetailsResponse.data;
     console.log("Thesis details:", thesis);
+
+    let invitationsResponse;
+    try {
+        // Use thesis.id as the argument for getThesisInvitations
+        invitationsResponse = await getThesisInvitations(thesis.id);
+        console.log("Thesis invitations:", invitationsResponse);
+    } catch (error) {
+        console.error("Failed to fetch thesis invitations:", error);
+        // It's not critical, so we can continue, maybe show a message in the list
+        invitationsResponse = { data: [] }; // Ensure it's an array to avoid errors
+    }
 
     hideAllStates();
 
     // --- SETUP EVENT LISTENERS ONCE ---
     if (modalElement) {
         const inviteModal = new bootstrap.Modal(modalElement);
-        setupModalEventListeners(modalElement, inviteModal, thesis);
+        // Pass a function that returns the current thesis object.
+        // This ensures the modal always has the latest data.
+        setupModalEventListeners(modalElement, inviteModal, () => thesis);
     }
 
     let activeStateCard = null;
 
     switch (thesis.status) {
         case 'under_assignment':
+            console.log("Thesis is under assignment.");
+            populatePendingInvitations(invitationsResponse, stateAssignment);
             if(stateAssignment) {
-                stateAssignment.style.display = 'block';
-                populateAssignmentState(thesis);
                 activeStateCard = stateAssignment;
             }
             break;
         case 'under_examination':
             if(stateExamination) {
-                stateExamination.style.display = 'block';
-                populateExaminationState(thesis);
                 activeStateCard = stateExamination;
             }
             break;
         case 'completed':
             if(stateCompleted) {
-                stateCompleted.style.display = 'block';
-                populateCompletedState(thesis);
                 activeStateCard = stateCompleted;
             }
             break;
         default:
-            populateAssignmentState(thesis);
+            // Fallback to the assignment state if status is unknown
+            if(stateAssignment) {
+                activeStateCard = stateAssignment;
+            }
             break;
     }
 
     if (activeStateCard) {
+        activeStateCard.style.display = 'block';
+        // populateCommitteeList handles the member list for all relevant states.
+        // We only need to call specific state functions for unique elements, like the exam form.
+        if (thesis.status === 'under_examination') {
+            populateExaminationState(thesis);
+        }
+        // These should run for all states that have these lists
         populateCommitteeList(thesis, activeStateCard);
+        if (invitationsResponse.data) {
+            populatePendingInvitations(invitationsResponse.data, activeStateCard);
+        }
     }
 });
 
-function setupModalEventListeners(modalElement, inviteModal, thesis) {
+function setupModalEventListeners(modalElement, inviteModal, getThesis) {
     // --- Logic to populate the modal right before it's shown ---
     modalElement.addEventListener('show.bs.modal', async () => {
+        const thesis = getThesis(); // Get the most recent thesis data
         const professorListContainer = document.getElementById('professor-list-container');
         professorListContainer.innerHTML = '<p>Φόρτωση λίστας διδασκόντων...</p>';
 
@@ -121,6 +144,7 @@ function setupModalEventListeners(modalElement, inviteModal, thesis) {
 
     // --- Logic to handle submitting invitations from the modal ---
     document.getElementById('submit-invitations-btn').onclick = async () => {
+        const currentThesis = getThesis(); // Get the most recent thesis data
         const selectedCheckboxes = document.querySelectorAll('#professor-list-container .form-check-input:checked');
         const selectedProfessorIds = Array.from(selectedCheckboxes).map(cb => parseInt(cb.value));
 
@@ -133,7 +157,7 @@ function setupModalEventListeners(modalElement, inviteModal, thesis) {
             // Create an array of promises, one for each invitation request
             const invitationPromises = selectedProfessorIds.map(professorId => {
                 console.log(`Sending invitation to professor with ID: ${professorId}`);
-                return sendThesisInvitation(thesis.id, professorId);
+                return sendThesisInvitation(currentThesis.id, professorId);
             });
 
             // Wait for all invitation requests to complete
@@ -147,13 +171,18 @@ function setupModalEventListeners(modalElement, inviteModal, thesis) {
             inviteModal.hide();
 
             // Refresh the thesis details and the committee list on the main page
-            const updatedThesisDetails = await getThesisDetails(thesis.id);
+            const updatedThesisDetails = await getThesisDetails(currentThesis.id);
+            // Re-assign the main 'thesis' variable in the outer scope with the new data.
+            thesis = updatedThesisDetails.data; 
+            const updatedInvitations = await getThesisInvitations(thesis.id);
+
             const activeCard = document.querySelector('#state-assignment[style*="block"]') || 
                                document.querySelector('#state-examination[style*="block"]') || 
                                document.querySelector('#state-completed[style*="block"]');
             
             if (activeCard) {
-                populateCommitteeList(updatedThesisDetails.data, activeCard);
+                populateCommitteeList(thesis, activeCard);
+                populatePendingInvitations(updatedInvitations.data, activeCard);
             }
 
         } catch (error) {
@@ -165,6 +194,56 @@ function setupModalEventListeners(modalElement, inviteModal, thesis) {
 
 
 /**
+ * Populates the list of pending invitations within a given state card.
+ * @param {Array} invitations - The array of invitation objects from the API.
+ * @param {HTMLElement} activeStateCard - The currently active state card element.
+ */
+async function populatePendingInvitations(invitations, activeStateCard) {
+   console.log("Populating pending invitations:", invitations);
+    const pendingList = activeStateCard.querySelector('.invitation-list');
+    if (!pendingList) {
+        // This is expected if the card is not 'state-assignment'
+        return;
+    }
+    
+    pendingList.innerHTML = ''; // Clear existing list
+
+    const pendingInvitations = invitations.filter(inv => inv.response === 'pending');
+
+    if (pendingInvitations.length === 0) {
+        pendingList.innerHTML = '<li class="list-group-item">Δεν υπάρχουν εκκρεμείς προσκλήσεις.</li>';
+        return;
+    }
+
+    try {
+        const professorsResponse = await getProfessors();
+        const professorMap = new Map(professorsResponse.data.map(p => [p.id, p.name]));
+
+        pendingInvitations.forEach(invitation => {
+            const professorName = professorMap.get(invitation.professorId) || `Άγνωστος Διδάσκων (ID: ${invitation.professorId})`;
+            const li = document.createElement('li');
+            li.className = 'list-group-item d-flex justify-content-between align-items-center';
+            
+            const statusBadge = `<span class="badge bg-warning rounded-pill">Εκκρεμεί</span>`;
+
+            li.innerHTML = `
+                <div>
+                    ${professorName}
+                    <br>
+                    <small class="text-muted">Πρόσκληση στάλθηκε: ${new Date(invitation.createdAt).toLocaleDateString('el-GR')}</small>
+                </div>
+                ${statusBadge}
+            `;
+            pendingList.appendChild(li);
+        });
+    } catch (error) {
+        console.error("Error fetching professors for pending invitations:", error);
+        pendingList.innerHTML = '<li class="list-group-item text-danger">Σφάλμα φόρτωσης λίστας προσκλήσεων.</li>';
+    }
+}
+
+
+/**
  * Populates the committee list within a given state card.
  * This function is used to repopulate the committee list in the active state card
  * after an sendThesisInvitationation is sent or when the modal is closed and reopened.
@@ -172,9 +251,9 @@ function setupModalEventListeners(modalElement, inviteModal, thesis) {
  * @param {HTMLElement} activeStateCard - The currently active state card element.
  */
 function populateCommitteeList(thesis, activeStateCard) {
-    const committeeList = activeStateCard.querySelector('.list-group');
+    const committeeList = activeStateCard.querySelector('.committee-member-list');
     if (!committeeList) {
-        console.error('Committee list element not found in the active state card.');
+        // This is expected in states that don't have a committee list.
         return;
     }
     
@@ -207,45 +286,6 @@ function populateCommitteeList(thesis, activeStateCard) {
 }
 
 
-/**
- * Populates the "Under Assignment" card with the list of committee members.
- * This function is called when the page loads and the thesis status is 'under_assignment'.
- * @param {object} thesis - The detailed thesis object from the API.
- */
-function populateAssignmentState(thesis) {
-    const committeeList = document.querySelector('#state-assignment .list-group');
-    if (!committeeList) {
-        console.error('Committee list element not found in the DOM.');
-        return;
-    }
-    
-    committeeList.innerHTML = ''; // Clear any previous content or placeholders
-
-    if (!thesis.committeeMembers || thesis.committeeMembers.length === 0) {
-        committeeList.innerHTML = '<li class="list-group-item">Δεν έχουν οριστεί μέλη επιτροπής.</li>';
-        return;
-    }
-
-    // Iterate over the committee members from the thesis object and display them
-    thesis.committeeMembers.forEach(member => {
-        const li = document.createElement('li');
-        li.className = 'list-group-item d-flex justify-content-between align-items-center';
-        
-        // Since the detailed API provides the role but not the invitation status,
-        // we display a generic "Μέλος" badge.
-        professor_role = member.role;
-        const statusBadge = `<span class="badge bg-success rounded-pill">${Name.ofMemberRole(professor_role)}</span>`;
-
-        li.innerHTML = `
-            <div>
-                ${member.name}
-                <br>
-            </div>
-            ${statusBadge}
-        `;
-        committeeList.appendChild(li);
-    });
-}
 
 function populateExaminationState(thesis) {
     // The API doesn't provide these details yet. This populates with placeholders or empty values.

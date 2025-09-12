@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const thesis = response.data[0];
     try {
         topic = await getTopic(thesis.topicId);
+        topic = topic.data;
     } catch (error) {
         console.error("Failed to fetch topic:", error);
         container.innerHTML = '<div class="alert alert-danger">Σφάλμα φόρτωσης δεδομένων θέματος.</div>';
@@ -45,7 +46,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Fill in thesis details using the correct property names
     document.getElementById("thesis-title").textContent = thesis.topic || "Χωρίς Τίτλο";
     // 'description' is not in the response, so we show a placeholder.
-    document.getElementById("thesis-description").textContent = topic.summary || 'Χωρίς Περιγραφή';
+    document.getElementById("thesis-description").textContent = topic.summary || "Χωρίς Περιγραφή";
     const attachmentLink = document.getElementById("thesis-attachment");
     // 'attachment' is not in the response.
     attachmentLink.textContent = "Χωρίς συνημμένο αρχείο";

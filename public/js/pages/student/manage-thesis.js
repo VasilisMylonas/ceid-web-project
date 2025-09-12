@@ -121,8 +121,45 @@ function setupModalEventListeners(modalElement, inviteModal, thesis) {
 
     // --- Logic to handle submitting invitations from the modal ---
     document.getElementById('submit-invitations-btn').onclick = async () => {
-        // This is a placeholder for now.
-        alert("Invitation logic needs to be implemented.");
+        const selectedCheckboxes = document.querySelectorAll('#professor-list-container .form-check-input:checked');
+        const selectedProfessorIds = Array.from(selectedCheckboxes).map(cb => parseInt(cb.value));
+
+        if (selectedProfessorIds.length === 0) {
+            alert('Παρακαλώ επιλέξτε τουλάχιστον έναν διδάσκοντα.');
+            return;
+        }
+
+        try {
+            // Create an array of promises, one for each invitation request
+            const invitationPromises = selectedProfessorIds.map(professorId => {
+                console.log(`Sending invitation to professor with ID: ${professorId}`);
+                return sendThesisInvitation(thesis.id, professorId);
+            });
+
+            // Wait for all invitation requests to complete
+            const responses = await Promise.all(invitationPromises);
+            
+            console.log("All invitations sent successfully:", responses);
+
+            // Show a confirmation dialog to the user
+            alert('Όλες οι προσκλήσεις στάλθηκαν με επιτυχία.');
+
+            inviteModal.hide();
+
+            // Refresh the thesis details and the committee list on the main page
+            const updatedThesisDetails = await getThesisDetails(thesis.id);
+            const activeCard = document.querySelector('#state-assignment[style*="block"]') || 
+                               document.querySelector('#state-examination[style*="block"]') || 
+                               document.querySelector('#state-completed[style*="block"]');
+            
+            if (activeCard) {
+                populateCommitteeList(updatedThesisDetails.data, activeCard);
+            }
+
+        } catch (error) {
+            console.error("Error sending one or more invitations:", error);
+            alert('Προέκυψε σφάλμα κατά την αποστολή των προσκλήσεων. Ενδέχεται κάποιες προσκλήσεις να μην στάλθηκαν.');
+        }
     };
 }
 
@@ -130,7 +167,7 @@ function setupModalEventListeners(modalElement, inviteModal, thesis) {
 /**
  * Populates the committee list within a given state card.
  * This function is used to repopulate the committee list in the active state card
- * after an invitation is sent or when the modal is closed and reopened.
+ * after an sendThesisInvitationation is sent or when the modal is closed and reopened.
  * @param {object} thesis - The detailed thesis object from the API.
  * @param {HTMLElement} activeStateCard - The currently active state card element.
  */

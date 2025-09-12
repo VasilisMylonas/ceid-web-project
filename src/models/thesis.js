@@ -107,7 +107,6 @@ export default (sequelize) => {
     },
     {
       sequelize,
-      modelName: "Thesis",
       underscored: true,
       indexes: [
         {

@@ -38,7 +38,6 @@ export default (sequelize) => {
     },
     {
       sequelize,
-      modelName: "Presentation",
       underscored: true,
     }
   );

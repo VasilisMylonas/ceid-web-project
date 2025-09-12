@@ -53,7 +53,6 @@ export default (sequelize) => {
     },
     {
       sequelize,
-      modelName: "Topic",
       underscored: true,
       indexes: [
         {

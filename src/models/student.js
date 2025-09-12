@@ -46,7 +46,6 @@ export default (sequelize) => {
     },
     {
       sequelize,
-      modelName: "Student",
       underscored: true,
       indexes: [
         {

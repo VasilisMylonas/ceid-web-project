@@ -43,6 +43,9 @@ async function getAllProfessors() {
 async function getThesis(){
   return await request("GET", `${BASE_URL}/v1/my/thesis`);
 }
+async function getTopic(param){
+  return await request ("GET", `${BASE_URL}/v1/topics/${param}`);
+}
 async function getThesesSecretary(
   page,
   pageSize,

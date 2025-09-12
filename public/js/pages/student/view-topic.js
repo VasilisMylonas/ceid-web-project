@@ -13,7 +13,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         container.innerHTML = '<div class="alert alert-danger">Σφάλμα φόρτωσης δεδομένων διπλωματικής.</div>';
         return;
     }
-
+    const thesis = response.data[0];
+    try {
+        topic = await getTopic(thesis.topicId);
+    } catch (error) {
+        console.error("Failed to fetch topic:", error);
+        container.innerHTML = '<div class="alert alert-danger">Σφάλμα φόρτωσης δεδομένων θέματος.</div>';
+        return;
+    }
     // Check if the response meta indicates that no thesis was found (count is zero)
     if (!response || !response.meta || response.meta.count === 0) {
         container.innerHTML = '<div class="alert alert-warning text-center"><h3>Δεν έχει ανατεθεί κάποια διπλωματική εργασία.</h3><p>Μπορείτε να δείτε τα διαθέσιμα θέματα και να κάνετε αίτηση.</p></div>';
@@ -21,7 +28,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // The thesis is the first object in the 'data' array
-    const thesis = response.data[0];
+    
 
     // --- Helper function to get status color ---
     function getStatusClass(status) {
@@ -38,8 +45,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Fill in thesis details using the correct property names
     document.getElementById("thesis-title").textContent = thesis.topic || "Χωρίς Τίτλο";
     // 'description' is not in the response, so we show a placeholder.
-    document.getElementById("thesis-description").textContent = "Η περιγραφή δεν είναι διαθέσιμη σε αυτή την προβολή.";
-    
+    document.getElementById("thesis-description").textContent = topic.summary || 'Χωρίς Περιγραφή';
     const attachmentLink = document.getElementById("thesis-attachment");
     // 'attachment' is not in the response.
     attachmentLink.textContent = "Χωρίς συνημμένο αρχείο";

@@ -21,10 +21,16 @@ export default {
       kind: Joi.string()
         .valid(...Object.values(PresentationKind))
         .required(),
-      hall: Joi.string().min(1).optional(),
-      link: Joi.string().uri().optional(),
     })
       .unknown(false)
-      .xor("hall", "link"),
+      .when("kind", {
+        is: PresentationKind.ONLINE,
+        then: Joi.object({
+          link: Joi.string().uri().required(),
+        }),
+        otherwise: Joi.object({
+          hall: Joi.string().min(1).required(),
+        }),
+      }),
   },
 };

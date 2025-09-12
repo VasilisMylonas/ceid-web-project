@@ -1,5 +1,7 @@
 import Joi from "joi";
 import { ThesisRole, ThesisStatus } from "../constants.js";
+import presentationValidators from "./presentation.validators.js";
+import resourceValidators from "./resource.validators.js";
 
 export default {
   cancel: {
@@ -57,7 +59,7 @@ export default {
       id: Joi.number().integer().min(1).required(),
     }).unknown(false),
     body: Joi.object({
-      content: Joi.string().min(1).required(),
+      content: Joi.string().min(1).max(300).required(),
     }).unknown(false),
   },
   getInvitations: {
@@ -113,59 +115,26 @@ export default {
       .unknown(false)
       .with("role", "professorId"),
   },
-
-  // TODO
-  // getPresentations: {
-  //   params: Joi
-  //     .object({
-  //       id: Joi.number().integer().min(1).required(),
-  //     })
-  //     .unknown(false),
-  // },
-  // postPresentation: {
-  //   params: Joi
-  //     .object({
-  //       id: Joi.number().integer().min(1).required(),
-  //     })
-  //     .unknown(false),
-  //   body: Joi
-  //     .object({
-  //       date: Joi.date().min("now").required(),
-  //       kind: Joi
-  //         .string()
-  //         .valid(...Object.values(PresentationKind))
-  //         .required(),
-  //     })
-  //     .unknown(false)
-  //     .when("kind", {
-  //       is: PresentationKind.ONLINE,
-  //       then: Joi.object({
-  //         link: Joi.string().uri().required(),
-  //       }),
-  //       otherwise: Joi.object({
-  //         hall: Joi.string().min(1).required(),
-  //       }),
-  //     }),
-  // },
-  // getResources: {
-  //   params: Joi
-  //     .object({
-  //       id: Joi.number().integer().min(1).required(),
-  //     })
-  //     .unknown(false),
-  // },
-  // postResource: {
-  //   params: Joi
-  //     .object({
-  //       id: Joi.number().integer().min(1).required(),
-  //     })
-  //     .unknown(false),
-  //   body: Joi.object({
-  //     link: Joi.string().uri().required(),
-  //     kind: Joi
-  //       .string()
-  //       .valid(...Object.values(ResourceKind))
-  //       .required(),
-  //   }),
-  // },
+  getResources: {
+    params: Joi.object({
+      id: Joi.number().integer().min(1).required(),
+    }).unknown(false),
+  },
+  getPresentations: {
+    params: Joi.object({
+      id: Joi.number().integer().min(1).required(),
+    }).unknown(false),
+  },
+  postPresentation: {
+    params: Joi.object({
+      id: Joi.number().integer().min(1).required(),
+    }).unknown(false),
+    body: presentationValidators.put.body,
+  },
+  postResource: {
+    params: Joi.object({
+      id: Joi.number().integer().min(1).required(),
+    }).unknown(false),
+    body: resourceValidators.put.body,
+  },
 };

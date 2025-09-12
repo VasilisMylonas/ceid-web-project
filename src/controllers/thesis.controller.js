@@ -1,7 +1,7 @@
 import { StatusCodes } from "http-status-codes";
 import db from "../models/index.js";
 import { getFilePath, deleteIfExists } from "../config/file-storage.js";
-import { ThesisRole, ThesisStatus, UserRole } from "../constants.js";
+import { ThesisStatus, UserRole } from "../constants.js";
 
 export default class ThesisController {
   static async post(req, res) {
@@ -68,23 +68,18 @@ export default class ThesisController {
       where: { professorId: professor.id },
       order: [["id", "ASC"]],
     });
-    res.status(StatusCodes.OK).json(notes);
+
+    res.success(notes, { count: notes.length, total: notes.length });
   }
 
   static async postNote(req, res) {
-    if (req.body.content.length > 300) {
-      return res
-        .status(StatusCodes.BAD_REQUEST)
-        .json({ message: "Note exceeds 300 characters." });
-    }
-
     const professor = await req.user.getProfessor();
     const note = await db.Note.create({
       thesisId: req.thesis.id,
       professorId: professor.id,
       content: req.body.content,
     });
-    res.status(StatusCodes.CREATED).json(note);
+    res.success(note);
   }
 
   static async getInvitations(req, res) {
@@ -146,11 +141,9 @@ export default class ThesisController {
     switch (req.body.status) {
       case ThesisStatus.UNDER_EXAMINATION: {
         if (req.user.role !== UserRole.PROFESSOR) {
-          return res
-            .status(StatusCodes.FORBIDDEN)
-            .json({
-              message: "Only professors can set thesis under examination.",
-            });
+          return res.status(StatusCodes.FORBIDDEN).json({
+            message: "Only professors can set thesis under examination.",
+          });
         }
 
         if (req.thesis.status !== ThesisStatus.ACTIVE) {
@@ -165,10 +158,10 @@ export default class ThesisController {
         return res.status(StatusCodes.OK).json(req.thesis);
       }
       case ThesisStatus.COMPLETED: {
-        if (req.user.role !== UserRole.PROFESSOR) {
+        if (req.user.role !== UserRole.SECRETARY) {
           return res
             .status(StatusCodes.FORBIDDEN)
-            .json({ message: "Only professors can complete theses." });
+            .json({ message: "Only secretaries can complete theses." });
         }
 
         if (req.thesis.status !== ThesisStatus.UNDER_EXAMINATION) {
@@ -392,19 +385,25 @@ WHERE theses.id = '${req.thesis.id}'
     const resources = await req.thesis.getResources({
       order: [["id", "ASC"]],
     });
-    res.status(StatusCodes.OK).json(resources);
+    res.success(resources, {
+      count: resources.length,
+      total: resources.length,
+    });
   }
 
   static async getPresentations(req, res) {
     const presentations = await req.thesis.getPresentations({
       order: [["id", "ASC"]],
     });
-    res.status(StatusCodes.OK).json(presentations);
+    res.success(presentations, {
+      count: presentations.length,
+      total: presentations.length,
+    });
   }
 
   static async postResource(req, res) {
     if (!req.file) {
-      return res.status(StatusCodes.BAD_REQUEST).json();
+      return res.error("No file uploaded");
     }
 
     const resource = await db.Resource.create({
@@ -413,10 +412,12 @@ WHERE theses.id = '${req.thesis.id}'
       type: req.body.type,
     });
 
-    res.status(StatusCodes.CREATED).json(resource);
+    res.success(resource);
   }
 
   static async postPresentation(req, res) {
+    // TODO: maybe check for overlapping presentations?
+
     const presentation = await db.Presentation.create({
       thesisId: req.thesis.id,
       date: req.body.date,
@@ -425,6 +426,6 @@ WHERE theses.id = '${req.thesis.id}'
       link: req.body.link,
     });
 
-    res.status(StatusCodes.CREATED).json(presentation);
+    res.success(presentation);
   }
 }

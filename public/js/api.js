@@ -40,12 +40,15 @@ async function updateProfile(properties) {
 async function getAllProfessors() {
   return await request("GET", `${BASE_URL}/v1/users?role=professor`);
 }
+
 async function getThesis(){
   return await request("GET", `${BASE_URL}/v1/my/thesis`);
 }
-async function getTopic(param){
-  return await request ("GET", `${BASE_URL}/v1/topics/${param}`);
+
+async function getTopic(id){
+  return await request ("GET", `${BASE_URL}/v1/topics/${id}`);
 }
+
 async function getThesesSecretary(
   page,
   pageSize,

@@ -42,6 +42,12 @@ export default {
     }).unknown(false),
   },
 
+  deleteDescription: {
+    params: Joi.object({
+      id: Joi.number().integer().min(1).required(),
+    }).unknown(false),
+  },
+
   query: {
     query: Joi.object({
       professorId: Joi.number().integer().min(1).optional(),

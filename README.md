@@ -72,3 +72,25 @@ The API is documented using Postman. You can import the provided Postman collect
 - Ignore below
 - Maybe autoIncrement should be autoIncrementIdentity for postgres (see models)
 - Authentication middleware should attach role info/id
+
+## Workflow
+
+Professor:
+
+- Create Topic:
+  - POST /topics (PROFESSOR ONLY)
+- Manage Topic:
+  - GET /topics/:id (ANY)
+  - PUT /topics/:id (OWNER ONLY, UNASSIGNED ONLY)
+  - DELETE /topics/:id (OWNER ONLY, UNASSIGNED ONLY)
+- Manage Description:
+  - GET /topics/:id/description (ANY)
+  - PUT /topics/:id/description (OWNER ONLY, UNASSIGNED ONLY)
+  - DELETE /topics/:id/description (OWNER ONLY, UNASSIGNED ONLY)
+- View topics:
+  - GET /my/topics (PROF ONLY)
+  - GET /topics&professorId=id (ANY)
+- Search student:
+  - GET /students?q=search (PROF ONLY)
+- Assign topic:
+  - POST /theses (PROF ONLY)

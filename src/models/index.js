@@ -33,10 +33,4 @@ for (const modelName of Object.keys(db)) {
 
 db.sequelize = sequelize;
 
-/**
- * The `db` object contains all Sequelize models (e.g., Grade, Student, etc.)
- * and the Sequelize instance for interacting with the application's database.
- *
- * @type {{ [key: string]: import('sequelize').Model, sequelize: import('sequelize').Sequelize }}
- */
 export default db;

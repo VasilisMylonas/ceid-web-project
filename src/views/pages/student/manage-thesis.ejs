@@ -7,31 +7,17 @@
   <div id="state-assignment" class="card shadow-sm mb-4" style="display: none;">
     <div class="card-body">
       <h5 class="card-title text-center">Κατάσταση: Υπό ανάθεση</h5>
-      <p class="text-center text-muted">Επιλέξτε τους υπόλοιπους 2 διδάσκοντες για να σχηματιστεί
+      <p class="text-center text-muted">Επιλέξτε τους υπόλοιπους διδάσκοντες για να σχηματιστεί
         η τριμελής επιτροπή.</p>
       <hr>
       <div class="d-grid gap-2 col-6 mx-auto">
-        <button class="btn btn-dark" type="button">Πρόσκληση Μελών Επιτροπής</button>
+        <!-- FIX: Add data-bs-toggle and data-bs-target to the button -->
+        <button class="btn btn-dark" type="button" data-bs-toggle="modal" data-bs-target="#invite-modal">Πρόσκληση Μελών Επιτροπής</button>
       </div>
       <div class="mt-4">
         <h6>Επιλεγμένα μέλη και κατάσταση προσκλήσεων:</h6>
-        <ul class="list-group mt-2">
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            <div>
-              Καθηγητής Α. Αλεξίου
-              <small class="d-block text-muted">Επιβλέπων</small>
-            </div>
-            <span class="badge bg-success">Αποδεκτή</span>
-          </li>
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            Καθηγητής Β. Βασιλείου
-            <span class="badge bg-warning text-dark">Αναμονή</span>
-          </li>
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            Καθηγητής Γ. Γεωργίου
-            <span class="badge bg-danger">Απορρίφθηκε</span>
-          </li>
-        </ul>
+        <!-- This list will be populated by manage-thesis.js -->
+        <ul class="list-group mt-2"></ul>
       </div>
     </div>
   </div>
@@ -53,7 +39,8 @@
             <input class="form-control" type="file" id="thesisFile" accept=".pdf">
           </div>
           <div class="form-floating">
-            <textarea class="form-control" placeholder="Σύνδεσμοι προς υποστηρικτικό υλικό" id="links" rows="4" aria-label="Σύνδεσμοι προς υλικό">https://github.com/my-username/my-thesis-repo</textarea>
+            <!-- Textarea content will be set by manage-thesis.js -->
+            <textarea class="form-control" placeholder="Σύνδεσμοι προς υποστηρικτικό υλικό" id="links" rows="4" aria-label="Σύνδεσμοι προς υλικό"></textarea>
             <label for="links">Σύνδεσμοι (GitHub, Google Drive, YouTube κλπ.)</label>
           </div>
         </div>
@@ -79,15 +66,18 @@
             </div>
             <div class="col-md-6">
               <label for="examDate" class="form-label">Ημερομηνία</label>
-              <input type="date" class="form-control" id="examDate" value="2024-09-15" aria-label="Ημερομηνία εξέτασης">
+              <!-- Value will be set by manage-thesis.js -->
+              <input type="date" class="form-control" id="examDate" aria-label="Ημερομηνία εξέτασης">
             </div>
             <div class="col-md-6">
               <label for="examTime" class="form-label">Ώρα</label>
-              <input type="time" class="form-control" id="examTime" value="11:00" aria-label="Ώρα εξέτασης">
+              <!-- Value will be set by manage-thesis.js -->
+              <input type="time" class="form-control" id="examTime" aria-label="Ώρα εξέτασης">
             </div>
             <div class="col-12">
               <label for="examLocation" class="form-label">Σύνδεσμος Τηλεδιάσκεψης</label>
-              <input type="text" class="form-control" id="examLocation" value="https://teams.microsoft.com/..." placeholder="Σύνδεσμος τηλεδιάσκεψης" aria-label="Χώρος ή σύνδεσμος">
+              <!-- Value will be set by manage-thesis.js -->
+              <input type="text" class="form-control" id="examLocation" placeholder="Σύνδεσμος τηλεδιάσκεψης" aria-label="Χώρος ή σύνδεσμος">
             </div>
           </div>
         </div>
@@ -96,6 +86,7 @@
           <p class="text-muted">Καταχωρήστε το σύνδεσμο προς το αποθετήριο της βιβλιοθήκης
             (Νημερτής) μετά την επιτυχή εξέταση.</p>
           <div class="form-floating">
+            <!-- Value will be set by manage-thesis.js -->
             <input type="url" class="form-control" id="nimertisLink" placeholder="URL Νημερτής" aria-label="URL Νημερτής">
             <label for="nimertisLink">Σύνδεσμος Νημερτής</label>
           </div>
@@ -117,5 +108,29 @@
     </div>
   </div>
 </div>
+
+<!-- Modal for Inviting Professors -->
+<div class="modal fade" id="invite-modal" tabindex="-1" aria-labelledby="inviteModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="inviteModalLabel">Επιλογή Μελών Επιτροπής</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p class="text-muted">Επιλέξτε τους διδάσκοντες που θέλετε να προσκαλέσετε ως μέλη της εξεταστικής επιτροπής.</p>
+        <!-- Professor list will be populated here -->
+        <div id="professor-list-container">
+          <p>Φόρτωση λίστας διδασκόντων...</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Ακύρωση</button>
+        <button type="button" class="btn btn-primary" id="submit-invitations-btn">Αποστολή Προσκλήσεων</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 <script src="/js/pages/manage-thesis.js"></script>

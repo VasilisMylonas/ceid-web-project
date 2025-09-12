@@ -127,7 +127,6 @@ router.get(
   ),
   ThesisController.getResources
 );
-
 router.get(
   "/:id/presentations",
   validate(thesisValidator.getPresentations),
@@ -139,7 +138,6 @@ router.get(
   ),
   ThesisController.getPresentations
 );
-
 router.post(
   "/:id/resources",
   validate(thesisValidator.postResource),
@@ -147,7 +145,6 @@ router.post(
   requireThesisRole(ThesisRole.STUDENT, ThesisRole.SUPERVISOR),
   ThesisController.postResource
 );
-
 router.post(
   "/:id/presentations",
   validate(thesisValidator.postPresentation),

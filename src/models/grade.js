@@ -20,7 +20,7 @@ export default (sequelize) => {
         primaryKey: true,
         allowNull: false,
       },
-      grade: {
+      value: {
         type: DataTypes.FLOAT,
         allowNull: false,
       },

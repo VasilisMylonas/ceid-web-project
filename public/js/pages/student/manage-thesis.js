@@ -53,9 +53,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     // --- SETUP EVENT LISTENERS ONCE ---
     if (modalElement) {
         const inviteModal = new bootstrap.Modal(modalElement);
-        // Pass a function that returns the current thesis object.
-        // This ensures the modal always has the latest data.
-        setupModalEventListeners(modalElement, inviteModal, () => thesis);
+        // Pass functions to get the current thesis and invitations data.
+        setupModalEventListeners(modalElement, inviteModal, () => thesis, () => invitationsResponse);
     }
 
     let activeStateCard = null;
@@ -103,21 +102,28 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
-function setupModalEventListeners(modalElement, inviteModal, getThesis) {
+function setupModalEventListeners(modalElement, inviteModal, getThesis, getInvitations) {
     // --- Logic to populate the modal right before it's shown ---
     modalElement.addEventListener('show.bs.modal', async () => {
         const thesis = getThesis(); // Get the most recent thesis data
+        const invitations = getInvitations(); // Get the most recent invitations data
         const professorListContainer = document.getElementById('professor-list-container');
         professorListContainer.innerHTML = '<p>Φόρτωση λίστας διδασκόντων...</p>';
 
         try {
-            // Make the API call to get all professors
             const professorsResponse = await getProfessors();
-            
-            // Console log the response as requested to check for errors
             console.log("Professors fetched for modal:", professorsResponse);
 
-            const invitedProfessorIds = thesis.committeeMembers.map(member => member.professorId);
+            // Set of professors already on the committee
+            const committeeMemberIds = new Set(thesis.committeeMembers.map(member => member.professorId));
+            
+            // Set of professors with pending or declined invitations
+            const alreadyInvitedIds = new Set(
+                invitations
+                    .filter(inv => inv.response === 'pending' || inv.response === 'declined')
+                    .map(inv => inv.professorId)
+            );
+
             professorListContainer.innerHTML = ''; // Clear loading text
 
             if (!professorsResponse || !professorsResponse.data || professorsResponse.data.length === 0) {
@@ -125,15 +131,30 @@ function setupModalEventListeners(modalElement, inviteModal, getThesis) {
                 return;
             }
 
-            // Populate the modal with a checkbox for each professor not already on the committee
             professorsResponse.data.forEach(professor => {
-                if (invitedProfessorIds.includes(professor.id)) return;
+                // Don't show professors who are already confirmed members
+                if (committeeMemberIds.has(professor.id)) {
+                    return;
+                }
 
+                const isAlreadyInvited = alreadyInvitedIds.has(professor.id);
                 const div = document.createElement('div');
                 div.className = 'form-check';
+                
                 div.innerHTML = `
-                    <input class="form-check-input" type="checkbox" value="${professor.id}" id="prof-${professor.id}">
-                    <label class="form-check-label" for="prof-${professor.id}">${professor.name}</label>
+                    <input 
+                        class="form-check-input" 
+                        type="checkbox" 
+                        value="${professor.id}" 
+                        id="prof-${professor.id}" 
+                        ${isAlreadyInvited ? 'disabled' : ''}
+                    >
+                    <label 
+                        class="form-check-label ${isAlreadyInvited ? 'text-muted' : ''}" 
+                        for="prof-${professor.id}"
+                    >
+                        ${professor.name} ${isAlreadyInvited ? '(Έχει ήδη προσκληθεί)' : ''}
+                    </label>
                 `;
                 professorListContainer.appendChild(div);
             });
@@ -177,6 +198,8 @@ function setupModalEventListeners(modalElement, inviteModal, getThesis) {
             // Re-assign the main 'thesis' variable in the outer scope with the new data.
             thesis = updatedThesisDetails.data; 
             const updatedInvitations = await getThesisInvitations(thesis.id);
+            // Also update the main invitations variable
+            invitationsResponse = updatedInvitations;
 
             const activeCard = document.querySelector('#state-assignment[style*="block"]') || 
                                document.querySelector('#state-examination[style*="block"]') || 

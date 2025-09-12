@@ -31,7 +31,6 @@ router.use("/notes", noteRoutes);
 router.use("/resources", resourceRoutes);
 router.use("/students", studentRoutes);
 router.use("/presentations", presentationRoutes);
-
 router.use(errorHandler); // Use error handler middleware, after all routes
 
 export default router;

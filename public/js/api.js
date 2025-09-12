@@ -32,13 +32,14 @@ async function request(method, url, object = null) {
 async function getProfile() {
   return await request("GET", `${BASE_URL}/v1/my/profile`);
 }
-
+async function inviteProfessor(thesisId, professorId) {
+  return await request("POST", `${BASE_URL}/v1/theses/${thesisId}/invitations`, { professorId });
+}
+async function getProfessors(){
+  return await request("GET", `${BASE_URL}/v1/users/professors`);
+}
 async function updateProfile(properties) {
   return await request("PATCH", `${BASE_URL}/v1/my/profile`, properties);
-}
-
-async function getAllProfessors() {
-  return await request("GET", `${BASE_URL}/v1/users?role=professor`);
 }
 
 async function getThesis(){

@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const stateAssignment = document.getElementById('state-assignment');
     const stateExamination = document.getElementById('state-examination');
     const stateCompleted = document.getElementById('state-completed');
+    const modalElement = document.getElementById('invite-modal');
 
     const hideAllStates = () => {
         if(stateAssignment) stateAssignment.style.display = 'none';
@@ -37,30 +38,137 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.log("Thesis details:", thesis);
 
     hideAllStates();
+
+    // --- SETUP EVENT LISTENERS ONCE ---
+    if (modalElement) {
+        const inviteModal = new bootstrap.Modal(modalElement);
+        setupModalEventListeners(modalElement, inviteModal, thesis);
+    }
+
+    let activeStateCard = null;
+
     switch (thesis.status) {
         case 'under_assignment':
             if(stateAssignment) {
                 stateAssignment.style.display = 'block';
                 populateAssignmentState(thesis);
+                activeStateCard = stateAssignment;
             }
             break;
         case 'under_examination':
             if(stateExamination) {
                 stateExamination.style.display = 'block';
                 populateExaminationState(thesis);
+                activeStateCard = stateExamination;
             }
             break;
         case 'completed':
             if(stateCompleted) {
                 stateCompleted.style.display = 'block';
                 populateCompletedState(thesis);
+                activeStateCard = stateCompleted;
             }
             break;
         default:
             populateAssignmentState(thesis);
             break;
     }
+
+    if (activeStateCard) {
+        populateCommitteeList(thesis, activeStateCard);
+    }
 });
+
+function setupModalEventListeners(modalElement, inviteModal, thesis) {
+    // --- Logic to populate the modal right before it's shown ---
+    modalElement.addEventListener('show.bs.modal', async () => {
+        const professorListContainer = document.getElementById('professor-list-container');
+        professorListContainer.innerHTML = '<p>Φόρτωση λίστας διδασκόντων...</p>';
+
+        try {
+            // Make the API call to get all professors
+            const professorsResponse = await getProfessors();
+            
+            // Console log the response as requested to check for errors
+            console.log("Professors fetched for modal:", professorsResponse);
+
+            const invitedProfessorIds = thesis.committeeMembers.map(member => member.professorId);
+            professorListContainer.innerHTML = ''; // Clear loading text
+
+            if (!professorsResponse || !professorsResponse.data || professorsResponse.data.length === 0) {
+                professorListContainer.innerHTML = '<p class="text-danger">Δεν βρέθηκαν διαθέσιμοι διδάσκοντες.</p>';
+                return;
+            }
+
+            // Populate the modal with a checkbox for each professor not already on the committee
+            professorsResponse.data.forEach(professor => {
+                if (invitedProfessorIds.includes(professor.id)) return;
+
+                const div = document.createElement('div');
+                div.className = 'form-check';
+                div.innerHTML = `
+                    <input class="form-check-input" type="checkbox" value="${professor.id}" id="prof-${professor.id}">
+                    <label class="form-check-label" for="prof-${professor.id}">${professor.name}</label>
+                `;
+                professorListContainer.appendChild(div);
+            });
+
+        } catch (error) {
+            console.error("Error fetching professors for modal:", error);
+            professorListContainer.innerHTML = '<p class="text-danger">Σφάλμα φόρτωσης διδασκόντων.</p>';
+        }
+    });
+
+    // --- Logic to handle submitting invitations from the modal ---
+    document.getElementById('submit-invitations-btn').onclick = async () => {
+        // This is a placeholder for now.
+        alert("Invitation logic needs to be implemented.");
+    };
+}
+
+
+/**
+ * Populates the committee list within a given state card.
+ * This function is used to repopulate the committee list in the active state card
+ * after an invitation is sent or when the modal is closed and reopened.
+ * @param {object} thesis - The detailed thesis object from the API.
+ * @param {HTMLElement} activeStateCard - The currently active state card element.
+ */
+function populateCommitteeList(thesis, activeStateCard) {
+    const committeeList = activeStateCard.querySelector('.list-group');
+    if (!committeeList) {
+        console.error('Committee list element not found in the active state card.');
+        return;
+    }
+    
+    committeeList.innerHTML = ''; // Clear existing list items
+
+    if (!thesis.committeeMembers || thesis.committeeMembers.length === 0) {
+        committeeList.innerHTML = '<li class="list-group-item">Δεν έχουν οριστεί μέλη επιτροπής.</li>';
+        return;
+    }
+
+    // Iterate over the committee members from the thesis object and display them
+    thesis.committeeMembers.forEach(member => {
+        const li = document.createElement('li');
+        li.className = 'list-group-item d-flex justify-content-between align-items-center';
+        
+        // Since the detailed API provides the role but not the invitation status,
+        // we display a generic "Μέλος" badge.
+        professor_role = member.role;
+        const statusBadge = `<span class="badge bg-success rounded-pill">${Name.ofMemberRole(professor_role)}</span>`;
+
+        li.innerHTML = `
+            <div>
+                ${member.name}
+                <br>
+            </div>
+            ${statusBadge}
+        `;
+        committeeList.appendChild(li);
+    });
+}
+
 
 /**
  * Populates the "Under Assignment" card with the list of committee members.

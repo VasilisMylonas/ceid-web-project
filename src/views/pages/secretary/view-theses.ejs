@@ -1,42 +1,27 @@
 <h2 class="mb-4">Διαχείριση Διπλωματικών Εργασιών</h2>
 
-<div class="row mb-4 g-4 align-items-center d-flex justify-content-between">
-  <div class="col-12 col-md-auto mb-2 mb-md-0">
-    <h5 class="card-title mb-0">
-      Ενεργές & Υπό Εξέταση Διπλωματικών Εργασίες
-    </h5>
-  </div>
-  <div class="col-12 col-md-auto">
-    <button class="btn btn-dark" id="export-theses-btn" type="button"
-        title="Εξαγωγή λίστας διπλωματικών σε αρχείο JSON">
-      <i class="bi bi-file-earmark-arrow-down-fill me-1"></i>
-      Εξαγωγή Λίστας
-    </button>
-  </div>
-</div>
-
 <form class="mb-4" id="filters">
   <legend class="visually-hidden">Φίλτρα Διπλωματικών</legend>
-  <div class="row g-2 align-items-center">
-    <div class="col-12 col-xl-8">
+  <div class="row g-2">
+    <div class="col-12 col-xxl-6">
       <label class="form-label" for="search-input">Αναζήτηση</label>
       <div class="input-group">
         <input type="text" class="form-control" id="search-input"
             placeholder="Όνομα θέματος ή φοιτητή...">
-        <button class="input-group-text" aria-label="Αναζήτηση">
+        <button class="input-group-text" aria-label="Αναζήτηση" type="button">
           <i class="bi bi-search" aria-hidden="true"></i>
         </button>
       </div>
     </div>
 
-    <div class="col-12 col-sm-6 col-xl-2">
+    <div class="col-12 col-md-6 col-xxl-3">
       <label for="status-select" class="form-label">Κατάσταση</label>
       <select class="form-select" id="status-select">
         <!-- Added dynamically -->
       </select>
     </div>
 
-    <div class="col-12 col-sm-6 col-xl-2">
+    <div class="col-12 col-md-6 col-xxl-3">
       <label for="supervisor-select" class="form-label">Επιβλέπων</label>
       <select class="form-select" id="supervisor-select">
         <!-- Added dynamically -->
@@ -45,9 +30,30 @@
   </div>
 </form>
 
-<p class="text-muted mb-4">
-  Επιλέξτε μια διπλωματική για περισσότερες λεπτομέρειες.
-</p>
+<div class="row g-2 mb-4">
+  <div class="col-12 col-xxl-6">
+    <p class="text-muted mb-4">
+      Επιλέξτε μια διπλωματική για περισσότερες λεπτομέρειες.
+    </p>
+  </div>
+
+  <div class="col-12 col-md-6 col-xxl-3">
+    <button type="button" class="btn btn-dark w-100" id="export-json-btn"
+        title="Εξαγωγή σε JSON">
+      <i class="bi bi-file-earmark-arrow-down-fill me-1"></i>
+      Εξαγωγή σε JSON
+    </button>
+  </div>
+
+  <div class="col-12 col-md-6 col-xxl-3">
+    <button type="button" class="btn btn-dark w-100" id="export-csv-btn"
+        title="Εξαγωγή σε CSV">
+      <i class="bi bi-file-earmark-spreadsheet-fill me-1"></i>
+      Εξαγωγή σε CSV
+    </button>
+  </div>
+</div>
+
 
 <select class="form-select form-select-sm w-auto mb-4" id="page-size-select">
   <option value="10">10 ανά σελίδα</option>

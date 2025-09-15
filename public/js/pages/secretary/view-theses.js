@@ -26,16 +26,6 @@ function getMemberRoleBootstrapBgClass(role) {
   }
 }
 
-let thesesData = null;
-
-// We need this here cause of bootstrap modal bug
-let thesisModal = null;
-document.addEventListener("DOMContentLoaded", () => {
-  thesisModal = new bootstrap.Modal(
-    document.getElementById("thesisDetailsModal")
-  );
-});
-
 /**
  * Session storage
  */
@@ -167,164 +157,6 @@ function renderThesisTableSpinner() {
   `;
 }
 
-function makeDaysSinceString(date) {
-  const now = new Date();
-  const diffTime = Math.abs(now - date);
-  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
-  const years = Math.floor(diffDays / 365);
-  const days = diffDays % 365;
-
-  let elapsedText = "";
-
-  if (years > 0) {
-    elapsedText += `πριν ${years} ${years === 1 ? "χρόνο" : "χρόνια"}`;
-    if (days > 0) {
-      elapsedText += ` και ${days} μέρες`;
-    }
-  } else {
-    elapsedText = `πριν ${days} μέρες`;
-    if (days == 0) {
-      elapsedText = "σήμερα";
-    }
-    if (days == 1) {
-      elapsedText = "χθες";
-    }
-  }
-
-  return elapsedText;
-}
-
-function renderThesisStatusProgress(status) {
-  const progressBar = document.getElementById("thesis-progress-bar");
-
-  progressBar.classList.remove("bg-warning");
-  progressBar.classList.remove("bg-danger");
-  progressBar.classList.remove("bg-success");
-  progressBar.classList.remove("bg-info");
-  progressBar.classList.remove("bg-dark");
-  progressBar.classList.add(getThesisStatusBootstrapBgClass(status));
-  progressBar.textContent = "";
-
-  switch (status) {
-    case "under_assignment":
-      progressBar.style.width = "5%";
-      break;
-    case "active":
-      progressBar.style.width = "50%";
-      break;
-    case "under_examination":
-      progressBar.style.width = "70%";
-      break;
-    case "completed":
-      progressBar.style.width = "100%";
-      break;
-    case "cancelled":
-      progressBar.style.width = "100%";
-      progressBar.textContent = "Ακυρώθηκε";
-      break;
-    case "pending":
-      progressBar.style.width = "30%";
-      break;
-    case "rejected":
-      progressBar.style.width = "100%";
-      progressBar.textContent = "Απορρίφθηκε";
-      break;
-  }
-}
-
-function renderThesisDetails(thesis) {
-  if (thesis.startDate == null) {
-    document.getElementById("thesis-assignment-time-elapsed").textContent = "";
-    document.getElementById("thesis-assignment-date").textContent = "-";
-  } else {
-    const startDate = new Date(thesis.startDate);
-    const elapsedText = makeDaysSinceString(startDate);
-    document.getElementById(
-      "thesis-assignment-time-elapsed"
-    ).textContent = `(${elapsedText})`;
-    document.getElementById("thesis-assignment-date").textContent =
-      startDate.toLocaleDateString("el-GR");
-  }
-
-  document.getElementById("thesis-topic").textContent = thesis.topic;
-  document.getElementById("thesis-student").textContent = thesis.student;
-  document.getElementById("thesis-summary").textContent = thesis.topicSummary;
-  document.getElementById("thesis-status").innerHTML = `
-    <span class="badge rounded-pill ${getThesisStatusBootstrapBgClass(
-      thesis.status
-    )}">
-        ${Name.ofThesisStatus(thesis.status)}
-    </span>
-    `;
-
-  const rejectCheckbox = document.getElementById("reject-checkbox");
-  const acceptCheckbox = document.getElementById("accept-checkbox");
-  acceptCheckbox.checked = true;
-  rejectCheckbox.checked = false;
-
-  rejectCheckbox.addEventListener("click", async () => {
-    const collapse = new bootstrap.Collapse("#rejection-reason-section", {
-      toggle: false,
-    });
-
-    if (rejectCheckbox.checked) {
-      collapse.show();
-    }
-  });
-
-  acceptCheckbox.addEventListener("click", async () => {
-    const collapse = new bootstrap.Collapse("#rejection-reason-section", {
-      toggle: false,
-    });
-
-    if (acceptCheckbox.checked) {
-      collapse.hide();
-    }
-  });
-
-  renderThesisStatusProgress(thesis.status);
-
-  const descriptionURL = `/api/v1/topics/${thesis.topicId}/description`;
-  const pdfDownloadBtn = document.getElementById("thesis-pdf-download-btn");
-  const pdfPreviewBtn = document.getElementById("thesis-pdf-preview-btn");
-
-  pdfDownloadBtn.href = descriptionURL;
-  pdfPreviewBtn.href = descriptionURL;
-
-  // Send HEAD request to check if the file exists
-  fetch(descriptionURL, { method: "HEAD" })
-    .then((response) => {
-      if (response.ok) {
-        pdfDownloadBtn.classList.remove("disabled");
-        pdfPreviewBtn.classList.remove("disabled");
-      }
-    })
-    .catch((error) => {
-      console.log(error);
-    });
-
-  const committeeList = document.getElementById("thesis-committee-members");
-  committeeList.innerHTML = "";
-
-  for (const member of thesis.committeeMembers) {
-    const li = document.createElement("li");
-    li.className =
-      "list-group-item d-flex justify-content-between align-items-center";
-    li.innerHTML = `
-        ${member.name}
-        <span class="badge rounded-pill ${getMemberRoleBootstrapBgClass(
-          member.role
-        )}">
-            ${Name.ofMemberRole(member.role)}
-        </span>
-    `;
-    committeeList.appendChild(li);
-  }
-
-  thesisModal.show();
-}
-
 function renderThesisTable(theses) {
   const tableBody = document.getElementById("theses-table-body");
   tableBody.innerHTML = ""; // Clear existing rows
@@ -433,6 +265,16 @@ function renderPageNav() {
   document.getElementById("item-count").textContent = itemCount;
 }
 
+let thesesData = null;
+
+// We need this here cause of bootstrap modal bug
+let thesisModal = null;
+document.addEventListener("DOMContentLoaded", () => {
+  thesisModal = new bootstrap.Modal(
+    document.getElementById("thesisDetailsModal")
+  );
+});
+
 async function reloadContent() {
   const page = getPage();
   const pageSize = getPageSize();
@@ -522,6 +364,8 @@ async function onShowDetailsClick(event) {
   const row = event.target.closest("tr");
   const res = await getThesisDetails(row.dataset.thesisId);
   renderThesisDetails(res.data);
+  renderThesisActions(res.data);
+  thesisModal.show();
 }
 
 function onExportJsonClick(event) {

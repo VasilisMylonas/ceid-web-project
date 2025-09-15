@@ -159,25 +159,66 @@ function renderThesisTableSpinner() {
 }
 
 function renderThesisDetails(thesis) {
-  document.getElementById("modal-thesis-topic").textContent = thesis.topic;
+  const startDate = new Date(thesis.startDate);
+  const now = new Date();
+  const diffTime = Math.abs(now - startDate);
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
-  const statusElement = document.getElementById("modal-thesis-status");
+  const years = Math.floor(diffDays / 365);
+  const days = diffDays % 365;
 
-  statusElement.innerHTML = `
-    Κατάσταση:
+  let elapsedText = "";
+
+  if (years > 0) {
+    elapsedText += `πριν ${years} ${years === 1 ? "χρόνο" : "χρόνια"}`;
+    if (days > 0) {
+      elapsedText += ` και ${days} μέρες`;
+    }
+  } else {
+    elapsedText = `πριν ${days} μέρες`;
+    if (days == 0) {
+      elapsedText = "σήμερα";
+    }
+    if (days == 1) {
+      elapsedText = "χθες";
+    }
+  }
+  document.getElementById(
+    "thesis-assignment-time-elapsed"
+  ).textContent = `(${elapsedText})`;
+
+  document.getElementById("thesis-topic").textContent = thesis.topic;
+  document.getElementById("thesis-student").textContent = thesis.student;
+  document.getElementById("thesis-assignment-date").textContent =
+    startDate.toLocaleDateString("el-GR");
+  document.getElementById("thesis-summary").textContent = thesis.topicSummary;
+  document.getElementById("thesis-status").innerHTML = `
     <span class="badge ${getThesisStatusBootstrapBgClass(thesis.status)}">
         ${Name.ofThesisStatus(thesis.status)}
     </span>
     `;
 
-  document.getElementById("modal-thesis-student").textContent = thesis.student;
-  document.getElementById("modal-thesis-assignment-date").textContent =
-    new Date(thesis.startDate).toLocaleDateString("el-GR");
-  document.getElementById("modal-thesis-description").textContent =
-    thesis.topicSummary;
+  const descriptionURL = `/api/v1/topics/${thesis.topicId}/description`;
+  document.getElementById("thesis-pdf-preview-btn").href = descriptionURL;
+  document.getElementById("thesis-pdf-download-btn").href = descriptionURL;
 
-  const committeeList = document.getElementById("modal-committee-list");
+  fetch(descriptionURL, { method: "HEAD" })
+    .then((response) => {
+      console.log(response);
+      if (response.ok) {
+        document
+          .getElementById("thesis-pdf-preview-btn")
+          .classList.remove("disabled");
+        document
+          .getElementById("thesis-pdf-download-btn")
+          .classList.remove("disabled");
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+    });
 
+  const committeeList = document.getElementById("thesis-committee-members");
   committeeList.innerHTML = "";
 
   for (const member of thesis.committeeMembers) {
@@ -410,7 +451,7 @@ function onExportCsvClick(event) {
   ]);
 
   const csvContent = [headers, ...rows].map((r) => r.join(",")).join("\r\n");
-  const today = new Date().toISOString().split("T")[0];
+  const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
   saveToFile(csvContent, `theses-${today}.csv`, "text/csv");
 }
 

@@ -186,6 +186,42 @@ function makeDaysSinceString(date) {
   return elapsedText;
 }
 
+function renderThesisStatusProgress(status) {
+  const progressBar = document.getElementById("thesis-progress-bar");
+
+  switch (status) {
+    case "under_assignment":
+      progressBar.style.width = "5%";
+      progressBar.classList.add("bg-warning");
+      break;
+    case "active":
+      progressBar.style.width = "35%";
+      progressBar.classList.add("bg-success");
+      break;
+    case "under_examination":
+      progressBar.style.width = "65%";
+      progressBar.classList.add("bg-success");
+      break;
+    case "completed":
+      progressBar.style.width = "100%";
+      progressBar.classList.add("bg-success");
+      break;
+    case "cancelled":
+      progressBar.style.width = "100%";
+      progressBar.textContent = "Ακυρώθηκε";
+      progressBar.classList.add("bg-danger");
+      break;
+    case "rejected":
+      progressBar.style.width = "100%";
+      progressBar.textContent = "Απορρίφθηκε";
+      progressBar.classList.add("bg-danger");
+      break;
+    default:
+      progressBar.style.width = "0%";
+      break;
+  }
+}
+
 function renderThesisDetails(thesis) {
   if (thesis.startDate == null) {
     document.getElementById("thesis-assignment-time-elapsed").textContent = "";
@@ -208,6 +244,33 @@ function renderThesisDetails(thesis) {
         ${Name.ofThesisStatus(thesis.status)}
     </span>
     `;
+
+  const rejectCheckbox = document.getElementById("reject-checkbox");
+  const acceptCheckbox = document.getElementById("accept-checkbox");
+  acceptCheckbox.checked = true;
+  rejectCheckbox.checked = false;
+
+  rejectCheckbox.addEventListener("click", async () => {
+    const collapse = new bootstrap.Collapse("#rejection-reason-section", {
+      toggle: false,
+    });
+
+    if (rejectCheckbox.checked) {
+      collapse.show();
+    }
+  });
+
+  acceptCheckbox.addEventListener("click", async () => {
+    const collapse = new bootstrap.Collapse("#rejection-reason-section", {
+      toggle: false,
+    });
+
+    if (acceptCheckbox.checked) {
+      collapse.hide();
+    }
+  });
+
+  renderThesisStatusProgress(thesis.status);
 
   const descriptionURL = `/api/v1/topics/${thesis.topicId}/description`;
   const pdfDownloadBtn = document.getElementById("thesis-pdf-download-btn");
@@ -244,10 +307,6 @@ function renderThesisDetails(thesis) {
     committeeList.appendChild(li);
   }
 
-  document
-    .getElementById("thesis-management-actions-pending")
-    .classList.remove("d-none");
-
   thesisModal.show();
 }
 
@@ -268,7 +327,11 @@ function renderThesisTable(theses) {
       ${Name.ofThesisStatus(thesis.status)}
       </span>
     </td>
-    <td>${new Date(thesis.startDate).toLocaleDateString("el-GR")}</td>
+    <td>${
+      thesis.startDate == null
+        ? "-"
+        : new Date(thesis.startDate).toLocaleDateString("el-GR")
+    }</td>
     <td>
       <button class="btn btn-sm btn-primary" aria-label="Προβολή λεπτομερειών διπλωματικής">
         <i class="bi bi-eye-fill"></i>
@@ -443,7 +506,7 @@ async function onShowDetailsClick(event) {
 function onExportJsonClick(event) {
   const jsonContent = JSON.stringify(thesesData, null, 2);
   const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
-  saveToFile(jsonContent`theses-${today}.json`, "application/json");
+  saveToFile(jsonContent, `theses-${today}.json`, "application/json");
 }
 
 function onExportCsvClick(event) {

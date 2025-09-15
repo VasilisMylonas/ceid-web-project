@@ -170,64 +170,90 @@
 <div class="modal fade" id="thesisDetailsModal" tabindex="-1"
     aria-labelledby="thesisDetailsModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="thesisDetailsModalLabel">Λεπτομέρειες
-          Διπλωματικής Εργασίας</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"
-            aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <h4 id="modal-thesis-topic"></h4>
-        <p class="text-muted" id="modal-thesis-status"></p>
-        <p>
-          <strong>Φοιτητής:</strong> <span id="modal-thesis-student"></span>
-        </p>
-        <p>
-          <strong>Ημερομηνία Ανάθεσης:</strong> <span
-              id="modal-thesis-assignment-date"></span>
-        </p>
-        <hr>
-        <h6>Περιγραφή</h6>
-        <p id="modal-thesis-description"></p>
-        <hr>
-        <h6>Εξεταστική Επιτροπή</h6>
-        <ul class="list-group" id="modal-committee-list">
-        </ul>
-        <hr>
-        <!-- Status Change Actions -->
-        <div id="thesis-status-actions" class="mt-4">
-          <!-- For "Ενεργή" status -->
-          <div id="active-actions">
-            <h6>Ενέργειες για Ενεργή Διπλωματική</h6>
-            <button type="button" class="btn btn-success mb-2"
-                id="accept-thesis-btn">
-              <i class="bi bi-check-circle"></i> Αποδοχή Ανάθεσης
-            </button>
-            <button type="button" class="btn btn-danger mb-2"
-                id="reject-thesis-btn" data-bs-toggle="modal"
-                data-bs-target="#rejectThesisModal">
-              <i class="bi bi-x-circle"></i> Ακύρωση Ανάθεσης
-            </button>
-          </div>
-          <!-- For "Υπό Εξέταση" status -->
-          <div id="under-examination-actions">
-            <h6>Ενέργειες για Υπό Εξέταση Διπλωματική</h6>
-            <button type="button" class="btn btn-primary mb-2"
-                id="complete-thesis-btn">
-              <i class="bi bi-check2-square"></i> Περατωμένη
-            </button>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-info fg-white"
-            data-bs-dismiss="modal">Κλείσιμο
+    <article class="modal-content">
+      <header class="modal-header">
+        <h4 class="modal-title fw-bold">
+          Λεπτομέρειες Διπλωματικής Εργασίας
+        </h4>
+        <button type="button" class="btn btn-close" data-bs-dismiss="modal"
+            aria-label="Κλείσιμο">
         </button>
-      </div>
-    </div>
+      </header>
+
+      <section class="modal-body">
+        <div class="mb-3">
+          <h5 id="thesis-topic" class="fw-bold text-primary mb-0">
+          </h5>
+        </div>
+
+        <div class="my-3 text-xl-end d-flex gap-2">
+          <a class="btn btn-sm btn-outline-primary disabled"
+              id="thesis-pdf-preview-btn" href="#" target="_blank"
+              title="Προεπισκόπηση Περιγραφής"
+              aria-label="Προεπισκόπηση Περιγραφής">
+            <i class="bi bi-eye-fill"></i>
+            <span>Προεπισκόπηση</span>
+          </a>
+
+          <a id="thesis-pdf-download-btn" href="#" target="_blank" download
+              class="btn btn-sm btn-outline-primary disabled"
+              title="Λήψη Περιγραφής" aria-label="Λήψη Περιγραφής">
+            <i class="bi bi-download"></i>
+            <span>Λήψη PDF</span>
+          </a>
+        </div>
+
+        <dl class="row">
+          <dt class="col-sm-4">Κατάσταση:</dt>
+          <dd class="col-sm-8" id="thesis-status"></dd>
+
+          <dt class="col-sm-4">Φοιτητής:</dt>
+          <dd class="col-sm-8" id="thesis-student"></dd>
+
+          <dt class="col-sm-4">Ημερομηνία Ανάθεσης:</dt>
+          <dd class="col-sm-8">
+            <span id="thesis-assignment-date"></span>
+            <span class="text-muted" id="thesis-assignment-time-elapsed"></span>
+          </dd>
+        </dl>
+
+        <h6 class="mt-3">Σύνοψη</h6>
+        <p id="thesis-summary" class="border-start ps-3 text-muted"></p>
+
+        <h6>Εξεταστική Επιτροπή</h6>
+        <ul class="list-group mb-3" id="thesis-committee-members"></ul>
+
+        <div id="thesis-management-actions" class="mt-4"></div>
+      </section>
+
+      <footer class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Κλείσιμο
+        </button>
+      </footer>
+    </article>
+
   </div>
 </div>
+
+<!-- <div id="thesis-status-actions" class="mt-4">
+  <div id="active-actions">
+    <h6>Ενέργειες για Ενεργή Διπλωματική</h6>
+    <button type="button" class="btn btn-success mb-2" id="accept-thesis-btn">
+      <i class="bi bi-check-circle"></i> Αποδοχή Ανάθεσης
+    </button>
+    <button type="button" class="btn btn-danger mb-2" id="reject-thesis-btn"
+        data-bs-toggle="modal" data-bs-target="#rejectThesisModal">
+      <i class="bi bi-x-circle"></i> Ακύρωση Ανάθεσης
+    </button>
+  </div>
+  <div id="under-examination-actions">
+    <h6>Ενέργειες για Υπό Εξέταση Διπλωματική</h6>
+    <button type="button" class="btn btn-primary mb-2" id="complete-thesis-btn">
+      <i class="bi bi-check2-square"></i> Περατωμένη
+    </button>
+  </div>
+</div> -->
 
 <!-- Modal for Reject Thesis (Cancel Assignment) -->
 <div class="modal fade" id="rejectThesisModal" tabindex="-1"

@@ -172,7 +172,7 @@
   <div class="modal-dialog modal-lg">
     <article class="modal-content">
       <header class="modal-header">
-        <h4 class="modal-title fw-bold">
+        <h4 class="modal-title">
           Λεπτομέρειες Διπλωματικής Εργασίας
         </h4>
         <button type="button" class="btn btn-close" data-bs-dismiss="modal"
@@ -182,23 +182,22 @@
 
       <section class="modal-body">
         <div class="mb-3">
-          <h5 id="thesis-topic" class="fw-bold text-primary mb-0">
+          <h5 id="thesis-topic" class="fw-bold mb-0">
           </h5>
         </div>
 
         <div class="my-3 text-xl-end d-flex gap-2">
-          <a class="btn btn-sm btn-outline-primary disabled"
-              id="thesis-pdf-preview-btn" href="#" target="_blank"
-              title="Προεπισκόπηση Περιγραφής"
+          <a class="btn btn-sm btn-primary disabled" id="thesis-pdf-preview-btn"
+              href="#" target="_blank" title="Προεπισκόπηση Περιγραφής"
               aria-label="Προεπισκόπηση Περιγραφής">
-            <i class="bi bi-eye-fill"></i>
+            <i class="bi bi-eye-fill me-1"></i>
             <span>Προεπισκόπηση</span>
           </a>
 
           <a id="thesis-pdf-download-btn" href="#" target="_blank" download
-              class="btn btn-sm btn-outline-primary disabled"
-              title="Λήψη Περιγραφής" aria-label="Λήψη Περιγραφής">
-            <i class="bi bi-download"></i>
+              class="btn btn-sm btn-primary disabled" title="Λήψη Περιγραφής"
+              aria-label="Λήψη Περιγραφής">
+            <i class="bi bi-download me-1"></i>
             <span>Λήψη PDF</span>
           </a>
         </div>
@@ -223,7 +222,71 @@
         <h6>Εξεταστική Επιτροπή</h6>
         <ul class="list-group mb-3" id="thesis-committee-members"></ul>
 
-        <div id="thesis-management-actions" class="mt-4"></div>
+        <div id="thesis-management-actions" class="mt-4">
+          <form id="thesis-approval-form" class="p-3">
+            <h5 class="mb-3">Καταχώρηση Απόφασης ΓΣ</h5>
+
+            <!-- Assignment Section -->
+            <div class="mb-3">
+              <label for="assignment-ap" class="form-label">Αριθμός Πρακτικού
+                Ανάθεσης (ΑΠ)</label>
+              <input type="text" class="form-control" id="assignment-ap"
+                  placeholder="π.χ. 15" required>
+            </div>
+
+            <div class="mb-3">
+              <label for="assignment-year" class="form-label">Έτος ΓΣ
+                Ανάθεσης</label>
+              <input type="number" class="form-control" id="assignment-year"
+                  placeholder="π.χ. 2025" required>
+            </div>
+
+            <hr>
+
+            <!-- Cancellation Section -->
+            <div class="form-check form-switch mb-3">
+              <input class="form-check-input" type="checkbox" role="switch"
+                  id="cancel-thesis">
+              <label class="form-check-label fw-bold" for="cancel-thesis">
+                Ακύρωση Ανάθεσης Θέματος
+              </label>
+            </div>
+
+            <div id="cancellation-section"
+                class="border rounded p-3 bg-light d-none">
+              <div class="mb-3">
+                <label for="cancellation-ap" class="form-label">Αριθμός
+                  Πρακτικού Ακύρωσης (ΑΠ)</label>
+                <input type="text" class="form-control" id="cancellation-ap"
+                    placeholder="π.χ. 22">
+              </div>
+
+              <div class="mb-3">
+                <label for="cancellation-year" class="form-label">Έτος ΓΣ
+                  Ακύρωσης</label>
+                <input type="number" class="form-control" id="cancellation-year"
+                    placeholder="π.χ. 2025">
+              </div>
+
+              <div class="mb-3">
+                <label for="cancellation-reason" class="form-label">Λόγος
+                  Ακύρωσης</label>
+                <textarea class="form-control" id="cancellation-reason" rows="2"
+                    placeholder="π.χ. κατόπιν αίτησης Φοιτητή/τριας"></textarea>
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2 mt-3">
+              <button type="reset"
+                  class="btn btn-outline-secondary rounded-pill">
+                Καθαρισμός
+              </button>
+              <button type="submit" class="btn btn-primary rounded-pill">
+                Καταχώρηση
+              </button>
+            </div>
+          </form>
+        </div>
       </section>
 
       <footer class="modal-footer">

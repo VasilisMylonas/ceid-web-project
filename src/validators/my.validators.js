@@ -41,4 +41,5 @@ export default {
   },
   deleteProfile: {},
   getThesis: {},
+  getStats: {},
 };

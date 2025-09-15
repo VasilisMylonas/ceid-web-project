@@ -27,6 +27,12 @@ router.get(
   MyController.getInvitations
 );
 router.get(
+  "/stats",
+  validate(myValidators.getStats),
+  requireRole(UserRole.PROFESSOR),
+  MyController.getStats
+);
+router.get(
   "/profile",
   validate(myValidators.getProfile),
   MyController.getProfile

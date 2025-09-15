@@ -5,10 +5,6 @@ import process from "process";
 
 export const fileLocation = path.join(process.cwd(), "files");
 
-function generateUniqueFileName(originalName) {
-  return btoa(`${Date.now()}-${originalName}`);
-}
-
 export function getFilePath(fileName) {
   return path.join(fileLocation, fileName);
 }
@@ -25,13 +21,16 @@ export function deleteIfExists(fileName) {
 }
 
 export const fileStorage = multer.diskStorage({
-  destination: (req, file, cb) => {
+  destination(req, file, cb) {
     if (!fs.existsSync(fileLocation)) {
+      console.info("Creating file storage directory:", fileLocation);
       fs.mkdirSync(fileLocation);
     }
     cb(null, fileLocation);
   },
-  filename: (req, file, cb) => {
-    cb(null, generateUniqueFileName(file.originalname));
+  filename(req, file, cb) {
+    const filename = `${Date.now()}${path.extname(file.originalname)}`;
+    console.info(`Saving uploaded file as ${filename}`);
+    cb(null, filename);
   },
 });

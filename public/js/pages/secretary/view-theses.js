@@ -2,18 +2,27 @@ function getThesisStatusBootstrapBgClass(status) {
   switch (status) {
     case "active":
       return "bg-success";
+    case "completed":
+      return "bg-success";
     case "rejected":
+      return "bg-danger";
+    case "cancelled":
       return "bg-danger";
     case "under_examination":
       return "bg-warning";
-    case "completed":
-      return "bg-dark";
-    case "cancelled":
-      return "bg-dark";
     case "pending":
-      return "bg-info";
-    case "under_assignment":
       return "bg-warning";
+    case "under_assignment":
+      return "bg-info";
+  }
+}
+
+function getMemberRoleBootstrapBgClass(role) {
+  switch (role) {
+    case "supervisor":
+      return "bg-primary";
+    case "committee_member":
+      return "bg-secondary";
   }
 }
 
@@ -189,35 +198,37 @@ function makeDaysSinceString(date) {
 function renderThesisStatusProgress(status) {
   const progressBar = document.getElementById("thesis-progress-bar");
 
+  progressBar.classList.remove("bg-warning");
+  progressBar.classList.remove("bg-danger");
+  progressBar.classList.remove("bg-success");
+  progressBar.classList.remove("bg-info");
+  progressBar.classList.remove("bg-dark");
+  progressBar.classList.add(getThesisStatusBootstrapBgClass(status));
+  progressBar.textContent = "";
+
   switch (status) {
     case "under_assignment":
       progressBar.style.width = "5%";
-      progressBar.classList.add("bg-warning");
       break;
     case "active":
-      progressBar.style.width = "35%";
-      progressBar.classList.add("bg-success");
+      progressBar.style.width = "50%";
       break;
     case "under_examination":
-      progressBar.style.width = "65%";
-      progressBar.classList.add("bg-success");
+      progressBar.style.width = "70%";
       break;
     case "completed":
       progressBar.style.width = "100%";
-      progressBar.classList.add("bg-success");
       break;
     case "cancelled":
       progressBar.style.width = "100%";
       progressBar.textContent = "Ακυρώθηκε";
-      progressBar.classList.add("bg-danger");
+      break;
+    case "pending":
+      progressBar.style.width = "30%";
       break;
     case "rejected":
       progressBar.style.width = "100%";
       progressBar.textContent = "Απορρίφθηκε";
-      progressBar.classList.add("bg-danger");
-      break;
-    default:
-      progressBar.style.width = "0%";
       break;
   }
 }
@@ -240,7 +251,9 @@ function renderThesisDetails(thesis) {
   document.getElementById("thesis-student").textContent = thesis.student;
   document.getElementById("thesis-summary").textContent = thesis.topicSummary;
   document.getElementById("thesis-status").innerHTML = `
-    <span class="badge ${getThesisStatusBootstrapBgClass(thesis.status)}">
+    <span class="badge rounded-pill ${getThesisStatusBootstrapBgClass(
+      thesis.status
+    )}">
         ${Name.ofThesisStatus(thesis.status)}
     </span>
     `;
@@ -300,7 +313,9 @@ function renderThesisDetails(thesis) {
       "list-group-item d-flex justify-content-between align-items-center";
     li.innerHTML = `
         ${member.name}
-        <span class="badge bg-primary">
+        <span class="badge rounded-pill ${getMemberRoleBootstrapBgClass(
+          member.role
+        )}">
             ${Name.ofMemberRole(member.role)}
         </span>
     `;
@@ -323,7 +338,9 @@ function renderThesisTable(theses) {
     <td>${thesis.student}</td>
     <td>${thesis.supervisor}</td>
     <td>
-      <span class="badge ${getThesisStatusBootstrapBgClass(thesis.status)}">
+      <span class="badge rounded-pill ${getThesisStatusBootstrapBgClass(
+        thesis.status
+      )}">
       ${Name.ofThesisStatus(thesis.status)}
       </span>
     </td>
@@ -371,6 +388,8 @@ function renderStatusFilter() {
     "completed",
     "cancelled",
     "rejected",
+    "pending",
+    "under_assignment",
   ];
 
   for (const status of statuses) {
@@ -379,6 +398,8 @@ function renderStatusFilter() {
     option.textContent = Name.ofThesisStatus(status);
     statusSelect.appendChild(option);
   }
+
+  statusSelect.value = getStatusFilter();
 }
 
 function renderPageNav() {

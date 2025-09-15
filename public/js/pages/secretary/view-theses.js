@@ -265,16 +265,6 @@ function renderPageNav() {
   document.getElementById("item-count").textContent = itemCount;
 }
 
-let thesesData = null;
-
-// We need this here cause of bootstrap modal bug
-let thesisModal = null;
-document.addEventListener("DOMContentLoaded", () => {
-  thesisModal = new bootstrap.Modal(
-    document.getElementById("thesisDetailsModal")
-  );
-});
-
 async function reloadContent() {
   const page = getPage();
   const pageSize = getPageSize();
@@ -360,6 +350,14 @@ async function onSearchInputChange(event) {
   await reloadContent();
 }
 
+// We need this here cause of bootstrap modal bug
+let thesisModal = null;
+document.addEventListener("DOMContentLoaded", () => {
+  thesisModal = new bootstrap.Modal(
+    document.getElementById("thesisDetailsModal")
+  );
+});
+
 async function onShowDetailsClick(event) {
   const row = event.target.closest("tr");
   const res = await getThesisDetails(row.dataset.thesisId);
@@ -368,13 +366,39 @@ async function onShowDetailsClick(event) {
   thesisModal.show();
 }
 
-function onExportJsonClick(event) {
-  const jsonContent = JSON.stringify(thesesData, null, 2);
+async function onExportJsonClick(event) {
+  const supervisorId = getSupervisorFilter();
+  const status = getStatusFilter();
+  const searchQuery = getSearchQuery();
+
+  // Apply filters and get data
+  const theses = await getThesesSecretary(
+    null,
+    null,
+    supervisorId < 0 ? undefined : supervisorId,
+    status === "all" ? undefined : status,
+    searchQuery === "" ? undefined : searchQuery
+  );
+
+  const jsonContent = JSON.stringify(theses.data, null, 2);
   const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
   saveToFile(jsonContent, `theses-${today}.json`, "application/json");
 }
 
-function onExportCsvClick(event) {
+async function onExportCsvClick(event) {
+  const supervisorId = getSupervisorFilter();
+  const status = getStatusFilter();
+  const searchQuery = getSearchQuery();
+
+  // Apply filters and get data
+  const theses = await getThesesSecretary(
+    null,
+    null,
+    supervisorId < 0 ? undefined : supervisorId,
+    status === "all" ? undefined : status,
+    searchQuery === "" ? undefined : searchQuery
+  );
+
   const headers = [
     "Θέμα",
     "Φοιτητής",
@@ -384,7 +408,7 @@ function onExportCsvClick(event) {
   ];
 
   // Escape double quotes according to CSV rules: " -> ""
-  const rows = thesesData.map((thesis) => [
+  const rows = theses.data.map((thesis) => [
     `"${thesis.topic.replace(/"/g, '""')}"`,
     `"${thesis.student.replace(/"/g, '""')}"`,
     `"${thesis.supervisor.replace(/"/g, '""')}"`,

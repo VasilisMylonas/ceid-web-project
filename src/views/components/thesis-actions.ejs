@@ -1,0 +1,52 @@
+<form id="thesis-approval-form">
+  <h5 class="mb-3">Καταχώρηση Απόφασης ΓΣ</h5>
+
+  <div class="mb-3">
+    <label for="protocol-number-input" class="form-label">
+      Αριθμός Πρωτοκόλλου (ΑΠ)
+    </label>
+    <input type="text" class="form-control" id="protocol-number-input" required>
+  </div>
+
+  <div class="mb-3">
+    <label for="assembly-year-input" class="form-label">
+      Έτος Γενικής Συνέλευσης
+    </label>
+    <input type="number" class="form-control" id="assembly-year-input" required>
+  </div>
+
+  <div class="mb-3">
+    <div class="btn-group w-100" role="group" aria-label="Απόφαση">
+      <input type="radio" class="btn-check" name="decision" id="accept-checkbox"
+          value="accept" checked>
+      <label class="btn btn-outline-success" for="accept-checkbox">
+        <i class="bi bi-check-circle me-1" aria-hidden="true"></i>
+        Έγκριση
+      </label>
+
+      <input type="radio" class="btn-check" name="decision" id="reject-checkbox"
+          value="reject">
+      <label class="btn btn-outline-danger" for="reject-checkbox">
+        <i class="bi bi-x-circle me-1" aria-hidden="true"></i>
+        Απόρριψη
+      </label>
+    </div>
+  </div>
+
+  <div id="rejection-reason-section" class="collapse">
+    <label for="rejection-reason" class="form-label">
+      Λόγος Απόρριψης
+    </label>
+    <textarea class="form-control mb-3" id="rejection-reason" rows="2"
+        placeholder="Κατόπιν αίτησης Φοιτητή/τριας"></textarea>
+  </div>
+
+  <div class="d-flex justify-content-end gap-2">
+    <button type="reset" class="btn btn-outline-secondary">
+      Επαναφορά
+    </button>
+    <button type="submit" class="btn btn-primary">
+      Καταχώρηση Απόφασης
+    </button>
+  </div>
+</form>

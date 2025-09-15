@@ -158,10 +158,9 @@ function renderThesisTableSpinner() {
   `;
 }
 
-function renderThesisDetails(thesis) {
-  const startDate = new Date(thesis.startDate);
+function makeDaysSinceString(date) {
   const now = new Date();
-  const diffTime = Math.abs(now - startDate);
+  const diffTime = Math.abs(now - date);
   const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
   const years = Math.floor(diffDays / 365);
@@ -183,14 +182,26 @@ function renderThesisDetails(thesis) {
       elapsedText = "χθες";
     }
   }
-  document.getElementById(
-    "thesis-assignment-time-elapsed"
-  ).textContent = `(${elapsedText})`;
+
+  return elapsedText;
+}
+
+function renderThesisDetails(thesis) {
+  if (thesis.startDate == null) {
+    document.getElementById("thesis-assignment-time-elapsed").textContent = "";
+    document.getElementById("thesis-assignment-date").textContent = "-";
+  } else {
+    const startDate = new Date(thesis.startDate);
+    const elapsedText = makeDaysSinceString(startDate);
+    document.getElementById(
+      "thesis-assignment-time-elapsed"
+    ).textContent = `(${elapsedText})`;
+    document.getElementById("thesis-assignment-date").textContent =
+      startDate.toLocaleDateString("el-GR");
+  }
 
   document.getElementById("thesis-topic").textContent = thesis.topic;
   document.getElementById("thesis-student").textContent = thesis.student;
-  document.getElementById("thesis-assignment-date").textContent =
-    startDate.toLocaleDateString("el-GR");
   document.getElementById("thesis-summary").textContent = thesis.topicSummary;
   document.getElementById("thesis-status").innerHTML = `
     <span class="badge ${getThesisStatusBootstrapBgClass(thesis.status)}">
@@ -199,19 +210,18 @@ function renderThesisDetails(thesis) {
     `;
 
   const descriptionURL = `/api/v1/topics/${thesis.topicId}/description`;
-  document.getElementById("thesis-pdf-preview-btn").href = descriptionURL;
-  document.getElementById("thesis-pdf-download-btn").href = descriptionURL;
+  const pdfDownloadBtn = document.getElementById("thesis-pdf-download-btn");
+  const pdfPreviewBtn = document.getElementById("thesis-pdf-preview-btn");
 
+  pdfDownloadBtn.href = descriptionURL;
+  pdfPreviewBtn.href = descriptionURL;
+
+  // Send HEAD request to check if the file exists
   fetch(descriptionURL, { method: "HEAD" })
     .then((response) => {
-      console.log(response);
       if (response.ok) {
-        document
-          .getElementById("thesis-pdf-preview-btn")
-          .classList.remove("disabled");
-        document
-          .getElementById("thesis-pdf-download-btn")
-          .classList.remove("disabled");
+        pdfDownloadBtn.classList.remove("disabled");
+        pdfPreviewBtn.classList.remove("disabled");
       }
     })
     .catch((error) => {
@@ -234,6 +244,10 @@ function renderThesisDetails(thesis) {
     committeeList.appendChild(li);
   }
 
+  document
+    .getElementById("thesis-management-actions-pending")
+    .classList.remove("d-none");
+
   thesisModal.show();
 }
 
@@ -247,8 +261,8 @@ function renderThesisTable(theses) {
     row.setAttribute("data-thesis-id", thesis.id);
     row.innerHTML = `
     <td>${thesis.topic}</td>
-    <td><a href="#">${thesis.student}</a></td>
-    <td><a href="#">${thesis.supervisor}</a></td>
+    <td>${thesis.student}</td>
+    <td>${thesis.supervisor}</td>
     <td>
       <span class="badge ${getThesisStatusBootstrapBgClass(thesis.status)}">
       ${Name.ofThesisStatus(thesis.status)}

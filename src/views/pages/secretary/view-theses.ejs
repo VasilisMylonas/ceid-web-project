@@ -7,7 +7,7 @@
     </h5>
   </div>
   <div class="col-12 col-md-auto">
-    <button class="btn btn-dark" id="export-theses"
+    <button class="btn btn-dark" id="export-theses-btn" type="button"
         title="Εξαγωγή λίστας διπλωματικών σε αρχείο JSON">
       <i class="bi bi-file-earmark-arrow-down-fill me-1"></i>
       Εξαγωγή Λίστας
@@ -18,38 +18,31 @@
 <form class="mb-4" id="filters">
   <legend class="visually-hidden">Φίλτρα Διπλωματικών</legend>
   <div class="row g-2 align-items-center">
-
-    <fieldset class="col-12 col-xl-8">
-      <label class="form-label" for="search">Αναζήτηση</label>
+    <div class="col-12 col-xl-8">
+      <label class="form-label" for="search-input">Αναζήτηση</label>
       <div class="input-group">
-        <input type="text" class="form-control" id="search" name="search"
+        <input type="text" class="form-control" id="search-input"
             placeholder="Όνομα θέματος ή φοιτητή...">
         <button class="input-group-text" aria-label="Αναζήτηση">
           <i class="bi bi-search" aria-hidden="true"></i>
         </button>
       </div>
-    </fieldset>
+    </div>
 
-    <fieldset class="col-12 col-sm-6 col-xl-2">
-      <label for="filter-status" class="form-label">Κατάσταση</label>
-      <select class="form-select" id="filter-status">
-        <option value="">Όλες</option>
-        <option value="active">Ενεργή</option>
-        <option value="under_examination">Υπό Εξέταση</option>
-        <option value="completed">Ολοκληρωμένη</option>
-      </select>
-    </fieldset>
-
-    <fieldset class="col-12 col-sm-6 col-xl-2">
-      <label for="filter-supervisor" class="form-label">Επιβλέπων</label>
-      <select class="form-select" id="filter-supervisor">
-        <option value="-1">Όλοι</option>
+    <div class="col-12 col-sm-6 col-xl-2">
+      <label for="status-select" class="form-label">Κατάσταση</label>
+      <select class="form-select" id="status-select">
         <!-- Added dynamically -->
       </select>
-    </fieldset>
+    </div>
 
+    <div class="col-12 col-sm-6 col-xl-2">
+      <label for="supervisor-select" class="form-label">Επιβλέπων</label>
+      <select class="form-select" id="supervisor-select">
+        <!-- Added dynamically -->
+      </select>
+    </div>
   </div>
-  </fieldset>
 </form>
 
 <p class="text-muted mb-4">
@@ -125,8 +118,7 @@
 <div
     class="row g-4 align-items-center justify-content-center justify-content-lg-between mb-3">
   <div class="col-12 col-lg-auto text-muted">
-    <span id="item-count">
-    </span> αποτελέσματα
+    <span id="item-count"></span> αποτελέσματα
   </div>
   <div class="col-12 col-lg-auto">
     <nav aria-label="Περιήγηση σελίδων">
@@ -148,7 +140,7 @@
             <span id="current-page" class="d-inline-block text-end"
                 style="width: 20px;"></span>
             από
-            <span id="total-pages" class="d-inline-block text-start"
+            <span id="page-count" class="d-inline-block text-start"
                 style="width: 20px;">
             </span></span>
         </li>

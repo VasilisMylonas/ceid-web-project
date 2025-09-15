@@ -222,84 +222,82 @@
         <h6>Εξεταστική Επιτροπή</h6>
         <ul class="list-group mb-3" id="thesis-committee-members"></ul>
 
+        <div id="thesis-progress" class="my-4 d-none d-md-block">
+          <div class="progress" style="height: 30px;" role="progressbar">
+            <div class="progress-bar fw-bold" style="width: 0%;"
+                id="thesis-progress-bar">
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-between text-muted small">
+            <span>Υπό Ανάθεση</span>
+            <span>Ενεργή</span>
+            <span>Υπό Εξέταση</span>
+            <span>Ολοκληρωμένη</span>
+          </div>
+        </div>
+
         <div id="thesis-management-actions" class="mt-4">
-          <form id="thesis-approval-form" class="p-3">
+          <form id="thesis-approval-form">
             <h5 class="mb-3">Καταχώρηση Απόφασης ΓΣ</h5>
 
-            <!-- Assignment Section -->
             <div class="mb-3">
-              <label for="assignment-ap" class="form-label">Αριθμός Πρακτικού
-                Ανάθεσης (ΑΠ)</label>
+              <label for="assignment-ap" class="form-label">
+                Αριθμός Πρωτοκόλλου (ΑΠ)
+              </label>
               <input type="text" class="form-control" id="assignment-ap"
                   placeholder="π.χ. 15" required>
             </div>
 
             <div class="mb-3">
-              <label for="assignment-year" class="form-label">Έτος ΓΣ
-                Ανάθεσης</label>
+              <label for="assignment-year" class="form-label">
+                Έτος ΓΣ Ανάθεσης
+              </label>
               <input type="number" class="form-control" id="assignment-year"
                   placeholder="π.χ. 2025" required>
             </div>
 
-            <hr>
+            <div class="mb-3">
+              <div class="btn-group w-100" role="group" aria-label="Απόφαση">
+                <input type="radio" class="btn-check" name="decision"
+                    id="accept-checkbox" value="accept" checked>
+                <label class="btn btn-outline-success" for="accept-checkbox">
+                  <i class="bi bi-check-circle me-1" aria-hidden="true"></i>
+                  Έγκριση
+                </label>
 
-            <!-- Cancellation Section -->
-            <div class="form-check form-switch mb-3">
-              <input class="form-check-input" type="checkbox" role="switch"
-                  id="cancel-thesis">
-              <label class="form-check-label fw-bold" for="cancel-thesis">
-                Ακύρωση Ανάθεσης Θέματος
+                <input type="radio" class="btn-check" name="decision"
+                    id="reject-checkbox" value="reject">
+                <label class="btn btn-outline-danger" for="reject-checkbox">
+                  <i class="bi bi-x-circle me-1" aria-hidden="true"></i>
+                  Απόρριψη
+                </label>
+              </div>
+            </div>
+
+            <div id="rejection-reason-section" class="mb-3 collapse">
+              <label for="rejection-reason" class="form-label">
+                Λόγος Απόρριψης
               </label>
-            </div>
-
-            <div id="cancellation-section"
-                class="border rounded p-3 bg-light d-none">
-              <div class="mb-3">
-                <label for="cancellation-ap" class="form-label">Αριθμός
-                  Πρακτικού Ακύρωσης (ΑΠ)</label>
-                <input type="text" class="form-control" id="cancellation-ap"
-                    placeholder="π.χ. 22">
-              </div>
-
-              <div class="mb-3">
-                <label for="cancellation-year" class="form-label">Έτος ΓΣ
-                  Ακύρωσης</label>
-                <input type="number" class="form-control" id="cancellation-year"
-                    placeholder="π.χ. 2025">
-              </div>
-
-              <div class="mb-3">
-                <label for="cancellation-reason" class="form-label">Λόγος
-                  Ακύρωσης</label>
-                <textarea class="form-control" id="cancellation-reason" rows="2"
-                    placeholder="π.χ. κατόπιν αίτησης Φοιτητή/τριας"></textarea>
-              </div>
-            </div>
-
-            <div class="d-flex justify-content-end gap-2 mt-3">
-              <button type="reset"
-                  class="btn btn-outline-secondary rounded-pill">
-                Καθαρισμός
-              </button>
-              <button type="submit" class="btn btn-primary rounded-pill">
-                Καταχώρηση
-              </button>
+              <textarea class="form-control" id="rejection-reason" rows="2"
+                  placeholder="Κατόπιν αίτησης Φοιτητή/τριας"></textarea>
             </div>
           </form>
         </div>
       </section>
-
       <footer class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
           Κλείσιμο
         </button>
+        <button type="submit" class="btn btn-primary"
+            form="thesis-approval-form" id="submit-thesis-decision-btn">
+          Καταχώρηση
+        </button>
       </footer>
     </article>
-
   </div>
-</div>
 
-<!-- <div id="thesis-status-actions" class="mt-4">
+  <!-- <div id="thesis-status-actions" class="mt-4">
   <div id="active-actions">
     <h6>Ενέργειες για Ενεργή Διπλωματική</h6>
     <button type="button" class="btn btn-success mb-2" id="accept-thesis-btn">
@@ -318,44 +316,44 @@
   </div>
 </div> -->
 
-<!-- Modal for Reject Thesis (Cancel Assignment) -->
-<div class="modal fade" id="rejectThesisModal" tabindex="-1"
-    aria-labelledby="rejectThesisModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <form class="modal-content" id="reject-thesis-form">
-      <div class="modal-header">
-        <h5 class="modal-title" id="rejectThesisModalLabel">Ακύρωση Ανάθεσης
-          Θέματος</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"
-            aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="mb-3">
-          <label for="cancel-gs-number" class="form-label">Αριθμός Γενικής
-            Συνέλευσης</label>
-          <input type="number" class="form-control" id="cancel-gs-number"
-              name="gs_number" required>
+  <!-- Modal for Reject Thesis (Cancel Assignment) -->
+  <div class="modal fade" id="rejectThesisModal" tabindex="-1"
+      aria-labelledby="rejectThesisModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <form class="modal-content" id="reject-thesis-form">
+        <div class="modal-header">
+          <h5 class="modal-title" id="rejectThesisModalLabel">Ακύρωση Ανάθεσης
+            Θέματος</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"
+              aria-label="Close"></button>
         </div>
-        <div class="mb-3">
-          <label for="cancel-gs-year" class="form-label">Έτος Γενικής
-            Συνέλευσης</label>
-          <input type="number" class="form-control" id="cancel-gs-year"
-              name="gs_year" required>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="cancel-gs-number" class="form-label">Αριθμός Γενικής
+              Συνέλευσης</label>
+            <input type="number" class="form-control" id="cancel-gs-number"
+                name="gs_number" required>
+          </div>
+          <div class="mb-3">
+            <label for="cancel-gs-year" class="form-label">Έτος Γενικής
+              Συνέλευσης</label>
+            <input type="number" class="form-control" id="cancel-gs-year"
+                name="gs_year" required>
+          </div>
+          <div class="mb-3">
+            <label for="cancel-reason" class="form-label">Λόγος Ακύρωσης</label>
+            <textarea class="form-control" id="cancel-reason" name="reason"
+                placeholder="π.χ. Κατόπιν αίτησης Φοιτητή/τριας"
+                required></textarea>
+          </div>
         </div>
-        <div class="mb-3">
-          <label for="cancel-reason" class="form-label">Λόγος Ακύρωσης</label>
-          <textarea class="form-control" id="cancel-reason" name="reason"
-              placeholder="π.χ. Κατόπιν αίτησης Φοιτητή/τριας"
-              required></textarea>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary"
+              data-bs-dismiss="modal">Άκυρο</button>
+          <button type="submit" class="btn btn-danger">Ακύρωση Ανάθεσης</button>
         </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary"
-            data-bs-dismiss="modal">Άκυρο</button>
-        <button type="submit" class="btn btn-danger">Ακύρωση Ανάθεσης</button>
-      </div>
-    </form>
+      </form>
+    </div>
   </div>
-</div>
 
-<script src="/js/pages/secretary/view-theses.js"></script>
+  <script src="/js/pages/secretary/view-theses.js"></script>

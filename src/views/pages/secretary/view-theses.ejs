@@ -181,25 +181,31 @@
       </header>
 
       <section class="modal-body">
-        <div class="mb-3">
-          <h5 id="thesis-topic" class="fw-bold mb-0">
-          </h5>
-        </div>
+        <div class="mb-3 row">
+          <div class="col">
+            <h5 id="thesis-topic" class="fw-bold mb-0"></h5>
+          </div>
+          <div class="col-auto d-flex justify-content-end align-items-start">
+            <div class="btn-toolbar" role="toolbar"
+                aria-label="Εργαλεία διπλωματικής">
+              <div class="btn-group btn-group-sm" role="group">
+                <a class="btn btn-outline-primary disabled"
+                    id="thesis-pdf-preview-btn" href="#" target="_blank"
+                    title="Προεπισκόπηση Περιγραφής"
+                    aria-label="Προεπισκόπηση Περιγραφής">
+                  <i class="bi bi-eye-fill me-md-1"></i>
+                  <span class="d-none d-md-inline">Προεπισκόπηση</span>
+                </a>
 
-        <div class="my-3 text-xl-end d-flex gap-2">
-          <a class="btn btn-sm btn-primary disabled" id="thesis-pdf-preview-btn"
-              href="#" target="_blank" title="Προεπισκόπηση Περιγραφής"
-              aria-label="Προεπισκόπηση Περιγραφής">
-            <i class="bi bi-eye-fill me-1"></i>
-            <span>Προεπισκόπηση</span>
-          </a>
-
-          <a id="thesis-pdf-download-btn" href="#" target="_blank" download
-              class="btn btn-sm btn-primary disabled" title="Λήψη Περιγραφής"
-              aria-label="Λήψη Περιγραφής">
-            <i class="bi bi-download me-1"></i>
-            <span>Λήψη PDF</span>
-          </a>
+                <a id="thesis-pdf-download-btn" href="#" target="_blank"
+                    download class="btn btn-outline-primary disabled"
+                    title="Λήψη Περιγραφής" aria-label="Λήψη Περιγραφής">
+                  <i class="bi bi-download me-md-1"></i>
+                  <span class="d-none d-md-inline">Λήψη</span>
+                </a>
+              </div>
+            </div>
+          </div>
         </div>
 
         <dl class="row">
@@ -231,13 +237,14 @@
 
           <div class="d-flex justify-content-between text-muted small">
             <span>Υπό Ανάθεση</span>
+            <span>Σε εκκρεμότητα</span>
             <span>Ενεργή</span>
             <span>Υπό Εξέταση</span>
             <span>Ολοκληρωμένη</span>
           </div>
         </div>
 
-        <div id="thesis-management-actions" class="mt-4">
+        <div id="thesis-management-actions" class="mt-4 d-none">
           <form id="thesis-approval-form">
             <h5 class="mb-3">Καταχώρηση Απόφασης ΓΣ</h5>
 

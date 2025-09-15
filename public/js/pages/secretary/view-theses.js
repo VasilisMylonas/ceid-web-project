@@ -34,6 +34,137 @@ document.addEventListener("DOMContentLoaded", () => {
   );
 });
 
+/**
+ * Session storage
+ */
+
+const STORAGE_KEY_SECRETARY_THESES_PAGE_SIZE = "sec_theses_page_size";
+const STORAGE_KEY_SECRETARY_THESES_PAGE = "sec_theses_page";
+const STORAGE_KEY_SECRETARY_THESES_PAGE_COUNT = "sec_theses_page_count";
+const STORAGE_KEY_SECRETARY_THESES_ITEM_COUNT = "sec_theses_item_count";
+const STORAGE_KEY_SECRETARY_THESES_SUPERVISOR_FILTER =
+  "sec_theses_supervisor_filter";
+const STORAGE_KEY_THESES_STATUS_FILTER = "sec_theses_status_filter";
+const STORAGE_KEY_THESES_SEARCH_QUERY = "sec_theses_search_query";
+
+function getPage() {
+  return parseInt(sessionStorage.getItem(STORAGE_KEY_SECRETARY_THESES_PAGE));
+}
+
+function getPageSize() {
+  return parseInt(
+    sessionStorage.getItem(STORAGE_KEY_SECRETARY_THESES_PAGE_SIZE)
+  );
+}
+
+function getPageCount() {
+  return parseInt(
+    sessionStorage.getItem(STORAGE_KEY_SECRETARY_THESES_PAGE_COUNT)
+  );
+}
+
+function getSearchQuery() {
+  return sessionStorage.getItem(STORAGE_KEY_THESES_SEARCH_QUERY);
+}
+
+function getSupervisorFilter() {
+  return parseInt(
+    sessionStorage.getItem(STORAGE_KEY_SECRETARY_THESES_SUPERVISOR_FILTER)
+  );
+}
+
+function getStatusFilter() {
+  return sessionStorage.getItem(STORAGE_KEY_THESES_STATUS_FILTER);
+}
+
+function getItemCount() {
+  return parseInt(
+    sessionStorage.getItem(STORAGE_KEY_SECRETARY_THESES_ITEM_COUNT)
+  );
+}
+
+function setItemCount(itemCount) {
+  sessionStorage.setItem(STORAGE_KEY_SECRETARY_THESES_ITEM_COUNT, itemCount);
+}
+
+function setPage(page) {
+  sessionStorage.setItem(STORAGE_KEY_SECRETARY_THESES_PAGE, page);
+}
+
+function setPageSize(pageSize) {
+  sessionStorage.setItem(STORAGE_KEY_SECRETARY_THESES_PAGE_SIZE, pageSize);
+}
+
+function setPageCount(pageCount) {
+  sessionStorage.setItem(STORAGE_KEY_SECRETARY_THESES_PAGE_COUNT, pageCount);
+}
+
+function setSupervisorFilter(supervisorId) {
+  sessionStorage.setItem(
+    STORAGE_KEY_SECRETARY_THESES_SUPERVISOR_FILTER,
+    supervisorId
+  );
+}
+
+function setSearchQuery(query) {
+  sessionStorage.setItem(STORAGE_KEY_THESES_SEARCH_QUERY, query);
+}
+
+function setStatusFilter(status) {
+  sessionStorage.setItem(STORAGE_KEY_THESES_STATUS_FILTER, status);
+}
+
+// Set default values if not present
+function initSessionStorage() {
+  if (
+    sessionStorage.getItem(STORAGE_KEY_SECRETARY_THESES_ITEM_COUNT) === null
+  ) {
+    sessionStorage.setItem(STORAGE_KEY_SECRETARY_THESES_ITEM_COUNT, 0);
+  }
+
+  if (sessionStorage.getItem(STORAGE_KEY_SECRETARY_THESES_PAGE) === null) {
+    sessionStorage.setItem(STORAGE_KEY_SECRETARY_THESES_PAGE, 1);
+  }
+
+  if (sessionStorage.getItem(STORAGE_KEY_SECRETARY_THESES_PAGE_SIZE) === null) {
+    sessionStorage.setItem(STORAGE_KEY_SECRETARY_THESES_PAGE_SIZE, 10);
+  }
+
+  if (
+    sessionStorage.getItem(STORAGE_KEY_SECRETARY_THESES_PAGE_COUNT) === null
+  ) {
+    sessionStorage.setItem(STORAGE_KEY_SECRETARY_THESES_PAGE_COUNT, 1);
+  }
+
+  if (
+    sessionStorage.getItem(STORAGE_KEY_SECRETARY_THESES_SUPERVISOR_FILTER) ===
+    null
+  ) {
+    sessionStorage.setItem(STORAGE_KEY_SECRETARY_THESES_SUPERVISOR_FILTER, -1);
+  }
+
+  if (sessionStorage.getItem(STORAGE_KEY_THESES_STATUS_FILTER) === null) {
+    sessionStorage.setItem(STORAGE_KEY_THESES_STATUS_FILTER, "all");
+  }
+
+  if (sessionStorage.getItem(STORAGE_KEY_THESES_SEARCH_QUERY) === null) {
+    sessionStorage.setItem(STORAGE_KEY_THESES_SEARCH_QUERY, "");
+  }
+}
+
+function renderThesisTableSpinner() {
+  const tableBody = document.getElementById("theses-table-body");
+  tableBody.innerHTML = `
+  <tr>
+    <td colspan="6" class="text-center" style="height: 300px;">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </td>
+  </tr>
+  `;
+}
+
 function renderThesisDetails(thesis) {
   document.getElementById("modal-thesis-topic").textContent = thesis.topic;
 
@@ -106,8 +237,8 @@ function renderThesisTable(theses) {
 }
 
 function renderSupervisorFilter(professors) {
-  const supervisorSelect = document.getElementById("filter-supervisor");
-  supervisorSelect.innerHTML = '<option value="-1">Όλοι</option>';
+  const supervisorSelect = document.getElementById("supervisor-select");
+  supervisorSelect.innerHTML = `<option value="-1">Όλοι</option>`;
 
   for (const professor of professors) {
     const option = document.createElement("option");
@@ -119,122 +250,37 @@ function renderSupervisorFilter(professors) {
   supervisorSelect.value = getSupervisorFilter();
 }
 
-const STORAGE_KEY_SECRETARY_THESES_PAGE_SIZE = "sec_theses_page_size";
-const STORAGE_KEY_SECRETARY_THESES_PAGE = "sec_theses_page";
-const STORAGE_KEY_SECRETARY_THESES_PAGE_COUNT = "sec_theses_page_count";
-const STORAGE_KEY_SECRETARY_THESES_SUPERVISOR_FILTER =
-  "sec_theses_supervisor_filter";
-const STORAGE_KEY_THESES_STATUS_FILTER = "sec_theses_status_filter";
-const STORAGE_KEY_THESES_SEARCH_QUERY = "sec_theses_search_query";
+function renderStatusFilter() {
+  const statusSelect = document.getElementById("status-select");
+  statusSelect.innerHTML = `<option value="all">Όλες</option>`;
 
-function getPage() {
-  return parseInt(sessionStorage.getItem(STORAGE_KEY_SECRETARY_THESES_PAGE));
-}
+  const statuses = [
+    "active",
+    "under_examination",
+    "completed",
+    "cancelled",
+    "rejected",
+  ];
 
-function getPageSize() {
-  return parseInt(
-    sessionStorage.getItem(STORAGE_KEY_SECRETARY_THESES_PAGE_SIZE)
-  );
-}
-
-function getPageCount() {
-  return parseInt(
-    sessionStorage.getItem(STORAGE_KEY_SECRETARY_THESES_PAGE_COUNT)
-  );
-}
-
-function setPage(page) {
-  sessionStorage.setItem(STORAGE_KEY_SECRETARY_THESES_PAGE, page);
-}
-
-function setPageSize(pageSize) {
-  sessionStorage.setItem(STORAGE_KEY_SECRETARY_THESES_PAGE_SIZE, pageSize);
-}
-
-function setPageCount(pageCount) {
-  sessionStorage.setItem(STORAGE_KEY_SECRETARY_THESES_PAGE_COUNT, pageCount);
-}
-
-function setSupervisorFilter(supervisorId) {
-  sessionStorage.setItem(
-    STORAGE_KEY_SECRETARY_THESES_SUPERVISOR_FILTER,
-    supervisorId
-  );
-}
-
-function setSearchQuery(query) {
-  sessionStorage.setItem(STORAGE_KEY_THESES_SEARCH_QUERY, query);
-}
-
-function getSearchQuery() {
-  return sessionStorage.getItem(STORAGE_KEY_THESES_SEARCH_QUERY);
-}
-
-function getSupervisorFilter() {
-  return parseInt(
-    sessionStorage.getItem(STORAGE_KEY_SECRETARY_THESES_SUPERVISOR_FILTER)
-  );
-}
-
-function setStatusFilter(status) {
-  sessionStorage.setItem(STORAGE_KEY_THESES_STATUS_FILTER, status);
-}
-
-function getStatusFilter() {
-  return sessionStorage.getItem(STORAGE_KEY_THESES_STATUS_FILTER);
-}
-
-function setDefaultValues() {
-  if (sessionStorage.getItem(STORAGE_KEY_SECRETARY_THESES_PAGE) === null) {
-    sessionStorage.setItem(STORAGE_KEY_SECRETARY_THESES_PAGE, 1);
-  }
-
-  if (sessionStorage.getItem(STORAGE_KEY_SECRETARY_THESES_PAGE_SIZE) === null) {
-    sessionStorage.setItem(STORAGE_KEY_SECRETARY_THESES_PAGE_SIZE, 10);
-  }
-
-  if (
-    sessionStorage.getItem(STORAGE_KEY_SECRETARY_THESES_PAGE_COUNT) === null
-  ) {
-    sessionStorage.setItem(STORAGE_KEY_SECRETARY_THESES_PAGE_COUNT, 1);
-  }
-
-  if (
-    sessionStorage.getItem(STORAGE_KEY_SECRETARY_THESES_SUPERVISOR_FILTER) ===
-    null
-  ) {
-    sessionStorage.setItem(STORAGE_KEY_SECRETARY_THESES_SUPERVISOR_FILTER, -1);
-  }
-
-  if (sessionStorage.getItem(STORAGE_KEY_THESES_STATUS_FILTER) === null) {
-    sessionStorage.setItem(STORAGE_KEY_THESES_STATUS_FILTER, "");
-  }
-
-  if (sessionStorage.getItem(STORAGE_KEY_THESES_SEARCH_QUERY) === null) {
-    sessionStorage.setItem(STORAGE_KEY_THESES_SEARCH_QUERY, "");
+  for (const status of statuses) {
+    const option = document.createElement("option");
+    option.value = status;
+    option.textContent = Name.ofThesisStatus(status);
+    statusSelect.appendChild(option);
   }
 }
 
-function renderThesisTableSpinner() {
-  const tableBody = document.getElementById("theses-table-body");
-  tableBody.innerHTML = `
-  <tr>
-    <td colspan="6" class="text-center" style="height: 300px;">
-      <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Loading...</span>
-      </div>
-    </td>
-  </tr>
-  `;
-}
+function renderPageNavButtons() {
+  const pageCount = getPageCount();
+  const page = getPage();
+  const itemCount = getItemCount();
 
-function renderPageNavButtons(page, totalPages, totalItems) {
   const nextPageBtn = document.getElementById("next-page-btn");
   const prevPageBtn = document.getElementById("prev-page-btn");
   const firstPageBtn = document.getElementById("first-page-btn");
   const lastPageBtn = document.getElementById("last-page-btn");
 
-  if (page >= totalPages) {
+  if (page >= pageCount) {
     nextPageBtn.classList.add("disabled");
     lastPageBtn.classList.add("disabled");
   } else {
@@ -251,14 +297,11 @@ function renderPageNavButtons(page, totalPages, totalItems) {
   }
 
   document.getElementById("current-page").textContent = page;
-  document.getElementById("total-pages").textContent = totalPages;
-  document.getElementById("item-count").textContent = totalItems;
+  document.getElementById("page-count").textContent = pageCount;
+  document.getElementById("item-count").textContent = itemCount;
 }
 
-async function onReload() {
-  // Set defaults if not set
-  setDefaultValues();
-
+async function reloadContent() {
   const page = getPage();
   const pageSize = getPageSize();
   const supervisorId = getSupervisorFilter();
@@ -267,27 +310,50 @@ async function onReload() {
 
   renderThesisTableSpinner();
 
+  // Apply filters and get data
   const theses = await getThesesSecretary(
     page,
     pageSize,
-    supervisorId < 0 ? undefined : parseInt(supervisorId),
-    status === "" ? undefined : status,
+    supervisorId < 0 ? undefined : supervisorId,
+    status === "all" ? undefined : status,
     searchQuery === "" ? undefined : searchQuery
   );
-  await delay(200);
 
+  // Show data
   renderThesisTable(theses.data);
 
+  // Update pagination
   setPageCount(Math.ceil(theses.meta.total / pageSize));
-  const totalPages = getPageCount();
-
-  renderPageNavButtons(page, totalPages, theses.meta.total);
+  setItemCount(theses.meta.total);
+  renderPageNavButtons();
 }
 
-async function onPageSizeChange() {
-  const pageSizeSelect = document.getElementById("page-size-select");
+/**
+ * Event handlers
+ */
 
-  const newPageSize = parseInt(pageSizeSelect.value);
+async function onPrevPageClick(event) {
+  setPage(getPage() - 1);
+  await reloadContent();
+}
+
+async function onNextPageClick(event) {
+  setPage(getPage() + 1);
+  await reloadContent();
+}
+
+async function onFirstPageClick(event) {
+  setPage(1);
+  await reloadContent();
+}
+
+async function onLastPageClick(event) {
+  setPage(getPageCount());
+  await reloadContent();
+}
+
+async function onPageSizeChange(event) {
+  const newPageSize = parseInt(event.target.value);
   const oldPageSize = getPageSize();
   const oldPage = getPage();
 
@@ -297,27 +363,25 @@ async function onPageSizeChange() {
   setPageSize(newPageSize);
   setPage(newPage);
 
-  await onReload();
+  await reloadContent();
 }
 
-async function onPrevPageClick(event) {
-  setPage(getPage() - 1);
-  await onReload();
-}
-
-async function onNextPageClick(event) {
-  setPage(getPage() + 1);
-  await onReload();
-}
-
-async function onFirstPageClick(event) {
+async function onSupervisorSelectChange(event) {
+  setSupervisorFilter(event.target.value);
   setPage(1);
-  await onReload();
+  await reloadContent();
 }
 
-async function onLastPageClick(event) {
-  setPage(getPageCount());
-  await onReload();
+async function onStatusSelectChange(event) {
+  setStatusFilter(event.target.value);
+  setPage(1);
+  await reloadContent();
+}
+
+async function onSearchInputChange(event) {
+  setSearchQuery(event.target.value);
+  setPage(1);
+  await reloadContent();
 }
 
 async function onShowDetailsClick(event) {
@@ -326,60 +390,47 @@ async function onShowDetailsClick(event) {
   renderThesisDetails(res.data);
 }
 
-async function onSupervisorSelectChange(event) {
-  setSupervisorFilter(event.target.value);
-  setPage(1);
-  await onReload();
-}
-
-async function onStatusSelectChange(event) {
-  setStatusFilter(event.target.value);
-  setPage(1);
-  await onReload();
-}
-
-async function onSearchInputChange(event) {
-  setSearchQuery(event.target.value);
-  setPage(1);
-  await onReload();
-}
-
-async function onFilterFormSubmit(event) {
-  event.preventDefault();
-  setPage(1);
-  setSearchQuery(event.target.search.value);
-  await onReload();
-}
+/**
+ * Entry point
+ */
 
 document.addEventListener("DOMContentLoaded", async () => {
-  const exportThesesButton = document.getElementById("export-theses");
+  // These are all the inputs in the page
+  const exportThesesBtn = document.getElementById("export-theses-btn");
   const pageSizeSelect = document.getElementById("page-size-select");
   const prevPageBtn = document.getElementById("prev-page-btn");
   const nextPageBtn = document.getElementById("next-page-btn");
   const firstPageBtn = document.getElementById("first-page-btn");
   const lastPageBtn = document.getElementById("last-page-btn");
-  const filterSupervisor = document.getElementById("filter-supervisor");
-  const filterStatus = document.getElementById("filter-status");
-  const searchInput = document.getElementById("search");
-  const filters = document.getElementById("filters");
+  const supervisorSelect = document.getElementById("supervisor-select");
+  const statusSelect = document.getElementById("status-select");
+  const searchInput = document.getElementById("search-input");
+
+  initSessionStorage();
+
+  // Set values for inputs
+  searchInput.value = getSearchQuery();
+  pageSizeSelect.value = getPageSize();
 
   const professors = await getAllProfessors();
   renderSupervisorFilter(professors.data);
+  renderStatusFilter();
 
-  filterStatus.status = getStatusFilter();
-  filterSupervisor.value = getSupervisorFilter();
-  searchInput.value = getSearchQuery();
+  await reloadContent();
 
-  await onReload();
-
-  exportThesesButton.addEventListener("click", () => exportTheses(theses));
+  // Setup event handlers
+  exportThesesBtn.addEventListener("click", () => exportTheses(theses));
   pageSizeSelect.addEventListener("change", onPageSizeChange);
   prevPageBtn.addEventListener("click", onPrevPageClick);
   nextPageBtn.addEventListener("click", onNextPageClick);
   firstPageBtn.addEventListener("click", onFirstPageClick);
   lastPageBtn.addEventListener("click", onLastPageClick);
-  filterSupervisor.addEventListener("change", onSupervisorSelectChange);
-  filterStatus.addEventListener("change", onStatusSelectChange);
+  supervisorSelect.addEventListener("change", onSupervisorSelectChange);
+  statusSelect.addEventListener("change", onStatusSelectChange);
   searchInput.addEventListener("input", onSearchInputChange);
-  filters.addEventListener("submit", onFilterFormSubmit);
+
+  // Prevent browser from submitting the form
+  document.getElementById("filters").addEventListener("submit", (event) => {
+    event.preventDefault();
+  });
 });

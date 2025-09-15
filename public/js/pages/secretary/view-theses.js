@@ -17,14 +17,7 @@ function getThesisStatusBootstrapBgClass(status) {
   }
 }
 
-function exportTheses(theses) {
-  const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
-  saveToFile(
-    JSON.stringify(theses),
-    `theses-${today}.json`,
-    "application/json"
-  );
-}
+let thesesData = null;
 
 // We need this here cause of bootstrap modal bug
 let thesisModal = null;
@@ -270,7 +263,7 @@ function renderStatusFilter() {
   }
 }
 
-function renderPageNavButtons() {
+function renderPageNav() {
   const pageCount = getPageCount();
   const page = getPage();
   const itemCount = getItemCount();
@@ -322,10 +315,12 @@ async function reloadContent() {
   // Show data
   renderThesisTable(theses.data);
 
+  thesesData = theses.data;
+
   // Update pagination
-  setPageCount(Math.ceil(theses.meta.total / pageSize));
+  setPageCount(Math.max(Math.ceil(theses.meta.total / pageSize), 1));
   setItemCount(theses.meta.total);
-  renderPageNavButtons();
+  renderPageNav();
 }
 
 /**
@@ -390,13 +385,41 @@ async function onShowDetailsClick(event) {
   renderThesisDetails(res.data);
 }
 
+function onExportJsonClick(event) {
+  const jsonContent = JSON.stringify(thesesData, null, 2);
+  const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+  saveToFile(jsonContent`theses-${today}.json`, "application/json");
+}
+
+function onExportCsvClick(event) {
+  const headers = [
+    "Θέμα",
+    "Φοιτητής",
+    "Επιβλέπων",
+    "Κατάσταση",
+    "Ημ/νία Ανάθεσης",
+  ];
+
+  // Escape double quotes according to CSV rules: " -> ""
+  const rows = thesesData.map((thesis) => [
+    `"${thesis.topic.replace(/"/g, '""')}"`,
+    `"${thesis.student.replace(/"/g, '""')}"`,
+    `"${thesis.supervisor.replace(/"/g, '""')}"`,
+    `"${Name.ofThesisStatus(thesis.status).replace(/"/g, '""')}"`,
+    `"${new Date(thesis.startDate).toLocaleDateString("el-GR")}"`,
+  ]);
+
+  const csvContent = [headers, ...rows].map((r) => r.join(",")).join("\r\n");
+  const today = new Date().toISOString().split("T")[0];
+  saveToFile(csvContent, `theses-${today}.csv`, "text/csv");
+}
+
 /**
  * Entry point
  */
 
 document.addEventListener("DOMContentLoaded", async () => {
   // These are all the inputs in the page
-  const exportThesesBtn = document.getElementById("export-theses-btn");
   const pageSizeSelect = document.getElementById("page-size-select");
   const prevPageBtn = document.getElementById("prev-page-btn");
   const nextPageBtn = document.getElementById("next-page-btn");
@@ -405,6 +428,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   const supervisorSelect = document.getElementById("supervisor-select");
   const statusSelect = document.getElementById("status-select");
   const searchInput = document.getElementById("search-input");
+  const exportJsonBtn = document.getElementById("export-json-btn");
+  const exportCsvBtn = document.getElementById("export-csv-btn");
 
   initSessionStorage();
 
@@ -419,7 +444,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   await reloadContent();
 
   // Setup event handlers
-  exportThesesBtn.addEventListener("click", () => exportTheses(theses));
   pageSizeSelect.addEventListener("change", onPageSizeChange);
   prevPageBtn.addEventListener("click", onPrevPageClick);
   nextPageBtn.addEventListener("click", onNextPageClick);
@@ -428,6 +452,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   supervisorSelect.addEventListener("change", onSupervisorSelectChange);
   statusSelect.addEventListener("change", onStatusSelectChange);
   searchInput.addEventListener("input", onSearchInputChange);
+  exportJsonBtn.addEventListener("click", onExportJsonClick);
+  exportCsvBtn.addEventListener("click", onExportCsvClick);
 
   // Prevent browser from submitting the form
   document.getElementById("filters").addEventListener("submit", (event) => {

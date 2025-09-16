@@ -57,6 +57,29 @@ document.addEventListener('DOMContentLoaded', async () => {
         setupModalEventListeners(modalElement, inviteModal, () => thesis, () => invitationsResponse);
     }
 
+    // Add event listener for saving examination links
+    const saveExamBtn = document.getElementById('save-examination-btn');
+    if (saveExamBtn) {
+        saveExamBtn.addEventListener('click', async () => {
+            if (!thesis) return;
+
+            const linksText = document.getElementById('links').value;
+            // Split by newline, trim whitespace, and filter out empty lines
+            const linksArray = linksText.split('\n').map(link => link.trim()).filter(link => link);
+
+            // Format for the API: [{link: "...", kind: "other"}]
+            const resources = linksArray.map(link => ({ link: link, kind: 'other' }));
+
+            try {
+                await addThesisResources(thesis.id, resources);
+                alert('Οι σύνδεσμοι αποθηκεύτηκαν με επιτυχία.');
+            } catch (error) {
+                console.error('Failed to save links:', error);
+                alert('Προέκυψε σφάλμα κατά την αποθήκευση των συνδέσμων.');
+            }
+        });
+    }
+
     let activeStateCard = null;
 
     switch (thesis.status) {

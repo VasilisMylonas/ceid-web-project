@@ -32,7 +32,9 @@ async function request(method, url, object = null) {
 async function getProfile() {
   return await request("GET", `${BASE_URL}/v1/my/profile`);
 }
-
+async function addThesisResources(thesisId, resources) {
+  return await request("POST", `${BASE_URL}/v1/theses/${thesisId}/links`, { links: resources });
+}
 async function getProfessors(){
   return await request("GET", `${BASE_URL}/v1/users/professors`);
 }

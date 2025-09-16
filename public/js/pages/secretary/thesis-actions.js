@@ -39,27 +39,25 @@ async function onAcceptCheckboxChange(event) {
 }
 
 function renderThesisActions(thesis) {
-  const thesisActionsPending = document.getElementById(
-    "thesis-actions-pending"
-  );
+  const thesisActionsActive = document.getElementById("thesis-actions-active");
   const thesisActionsNone = document.getElementById("thesis-actions-none");
   const thesisActionsUnderExam = document.getElementById(
     "thesis-actions-under_examination"
   );
 
   switch (thesis.status) {
-    case "pending":
-      thesisActionsPending.classList.remove("d-none");
+    case "active":
+      thesisActionsActive.classList.remove("d-none");
       thesisActionsNone.classList.add("d-none");
       thesisActionsUnderExam.classList.add("d-none");
       break;
     case "under_examination":
-      thesisActionsPending.classList.add("d-none");
+      thesisActionsActive.classList.add("d-none");
       thesisActionsNone.classList.add("d-none");
       thesisActionsUnderExam.classList.remove("d-none");
       break;
     default:
-      thesisActionsPending.classList.add("d-none");
+      thesisActionsActive.classList.add("d-none");
       thesisActionsNone.classList.remove("d-none");
       thesisActionsUnderExam.classList.add("d-none");
   }

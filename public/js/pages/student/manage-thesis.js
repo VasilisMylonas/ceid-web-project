@@ -37,16 +37,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     let thesis = thesisDetailsResponse.data;
     console.log("Thesis details:", thesis);
 
-    let invitationsResponse;
-    try {
-        // Use thesis.id as the argument for getThesisInvitations
-        invitationsResponse = await getThesisInvitations(thesis.id);
-        console.log("Thesis invitations:", invitationsResponse);
-    } catch (error) {
-        console.error("Failed to fetch thesis invitations:", error);
-        // It's not critical, so we can continue. Ensure it's an array.
-        invitationsResponse = []; 
-    }
+    let invitationsResponse = []; // Initialize as an empty array
 
     hideAllStates();
 
@@ -116,17 +107,23 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (activeStateCard) {
         activeStateCard.style.display = 'block';
-        // populateCommitteeList handles the member list for all relevant states.
-        // We only need to call specific state functions for unique elements, like the exam form.
-        if (thesis.status === 'under_examination') {
-            populateExaminationState(thesis);
-        }
-        // These should run for all states that have these lists
+        
+        // Populate lists common to most states
         populateCommitteeList(thesis, activeStateCard);
-        // Check for the array itself, not its .data property
-        if (invitationsResponse) {
-            // Pass the invitations array directly
-            populateInvitationsList(invitationsResponse, activeStateCard);
+
+        // --- Conditional Logic for States ---
+        if (thesis.status === 'under_assignment') {
+            try {
+                // Fetch and populate invitations ONLY for this state
+                invitationsResponse = await getThesisInvitations(thesis.id);
+                populateInvitationsList(invitationsResponse, activeStateCard);
+            } catch (error) {
+                console.error("Failed to fetch or populate invitations:", error);
+                const invitationList = activeStateCard.querySelector('.invitation-list');
+                if(invitationList) invitationList.innerHTML = '<li class="list-group-item text-danger">Σφάλμα φόρτωσης προσκλήσεων.</li>';
+            }
+        } else if (thesis.status === 'under_examination') {
+            populateExaminationState(thesis);
         }
     }
 });

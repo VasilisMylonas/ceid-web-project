@@ -44,8 +44,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.log("Thesis invitations:", invitationsResponse);
     } catch (error) {
         console.error("Failed to fetch thesis invitations:", error);
-        // It's not critical, so we can continue, maybe show a message in the list
-        invitationsResponse = { data: [] }; // Ensure it's an array to avoid errors
+        // It's not critical, so we can continue. Ensure it's an array.
+        invitationsResponse = []; 
     }
 
     hideAllStates();
@@ -71,7 +71,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             const resources = linksArray.map(link => ({ link: link, kind: 'other' }));
 
             try {
-                await addThesisResources(thesis.id, resources);
+                // The API likely expects one resource per call.
+                // We create an array of promises, one for each resource to be added.
+                const resourcePromises = resources.map(resource => addThesisResources(thesis.id, resource));
+                
+                // Wait for all the individual requests to complete.
+                await Promise.all(resourcePromises);
+
                 alert('Οι σύνδεσμοι αποθηκεύτηκαν με επιτυχία.');
             } catch (error) {
                 console.error('Failed to save links:', error);
@@ -140,7 +146,7 @@ function setupModalEventListeners(modalElement, inviteModal, getThesis, getInvit
             // Set of professors already on the committee
             const committeeMemberIds = new Set(thesis.committeeMembers.map(member => member.professorId));
             
-            // Set of professors with pending or declined invitations
+            // Set of professors with pending, rejected, or accepted invitations
             const alreadyInvitedIds = new Set(
                 invitations
                     .filter(inv => inv.response === 'pending' || inv.response === 'declined')
@@ -221,7 +227,7 @@ function setupModalEventListeners(modalElement, inviteModal, getThesis, getInvit
             // Re-assign the main 'thesis' variable in the outer scope with the new data.
             thesis = updatedThesisDetails.data; 
             const updatedInvitations = await getThesisInvitations(thesis.id);
-            // Also update the main invitations variable
+            // Also update the main invitations variable in the outer scope.
             invitationsResponse = updatedInvitations;
 
             const activeCard = document.querySelector('#state-assignment[style*="block"]') || 
@@ -256,7 +262,7 @@ async function populateInvitationsList(invitations, activeStateCard) {
     
     invitationList.innerHTML = ''; // Clear existing list
 
-    const relevantInvitations = invitations.filter(inv => inv.response === 'pending' || inv.response === 'declined');
+    const relevantInvitations = invitations.filter(inv => inv.response === 'pending' || inv.response === 'rejected');
 
     if (relevantInvitations.length === 0) {
         invitationList.innerHTML = '<li class="list-group-item">Δεν υπάρχουν εκκρεμείς ή απορριφθείσες προσκλήσεις.</li>';
@@ -275,7 +281,7 @@ async function populateInvitationsList(invitations, activeStateCard) {
             let statusBadge;
             if (invitation.response === 'pending') {
                 statusBadge = `<span class="badge bg-warning rounded-pill">Εκκρεμεί</span>`;
-            } else if (invitation.response === 'declined') {
+            } else if (invitation.response === 'rejected') {
                 statusBadge = `<span class="badge bg-danger rounded-pill">Απορρίφθηκε</span>`;
             }
 

@@ -4,13 +4,9 @@ function getThesisStatusBootstrapBgClass(status) {
       return "bg-success";
     case "completed":
       return "bg-success";
-    case "rejected":
-      return "bg-danger";
     case "cancelled":
       return "bg-danger";
     case "under_examination":
-      return "bg-warning";
-    case "pending":
       return "bg-warning";
     case "under_assignment":
       return "bg-info";
@@ -219,8 +215,6 @@ function renderStatusFilter() {
     "under_examination",
     "completed",
     "cancelled",
-    "rejected",
-    "pending",
     "under_assignment",
   ];
 

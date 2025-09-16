@@ -14,10 +14,10 @@ function renderThesisStatusProgress(status) {
       progressBar.style.width = "5%";
       break;
     case "active":
-      progressBar.style.width = "50%";
+      progressBar.style.width = "35%";
       break;
     case "under_examination":
-      progressBar.style.width = "70%";
+      progressBar.style.width = "65%";
       break;
     case "completed":
       progressBar.style.width = "100%";
@@ -25,13 +25,6 @@ function renderThesisStatusProgress(status) {
     case "cancelled":
       progressBar.style.width = "100%";
       progressBar.textContent = "Ακυρώθηκε";
-      break;
-    case "pending":
-      progressBar.style.width = "30%";
-      break;
-    case "rejected":
-      progressBar.style.width = "100%";
-      progressBar.textContent = "Απορρίφθηκε";
       break;
   }
 }

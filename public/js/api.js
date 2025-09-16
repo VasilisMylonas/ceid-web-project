@@ -98,10 +98,6 @@ class Name {
         return "Ολοκληρωμένη";
       case "cancelled":
         return "Ακυρωμένη";
-      case "rejected":
-        return "Απορριφθείσα";
-      case "pending":
-        return "Σε Εκκρεμότητα";
       case "under_assignment":
         return "Υπό Ανάθεση";
     }

@@ -32,8 +32,7 @@ export default class ThesisController {
   }
 
   static async patchGrading(req, res) {
-    req.thesis.grading = req.body.grading;
-    await req.thesis.save();
+    await req.thesis.update({ grading: req.body.grading });
     res.status(StatusCodes.OK).json(req.thesis);
   }
 
@@ -379,6 +378,18 @@ WHERE theses.id = '${req.thesis.id}'
     });
 
     res.success(thesis);
+  }
+
+  static async putNemertesLink(req, res) {
+    if (req.thesis.status !== ThesisStatus.ACTIVE) {
+      return res.error("Thesis is not active.");
+    }
+
+    await req.thesis.update({ nemertesLink: req.body.nemertesLink });
+
+    res.success({
+      nemertesLink: req.thesis.nemertesLink,
+    });
   }
 
   static async getResources(req, res) {

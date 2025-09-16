@@ -79,6 +79,15 @@ router.patch(
   requireThesisRoleOrSecretary(ThesisRole.SUPERVISOR),
   ThesisController.patchStatus
 );
+
+router.put(
+  "/:id/nemertes-link",
+  validate(thesisValidator.putNemertesLink),
+  model(db.Thesis, "thesis"),
+  requireThesisRole(ThesisRole.STUDENT),
+  ThesisController.putNemertesLink
+);
+
 router.get(
   "/:id/draft",
   validate(thesisValidator.getDraft),

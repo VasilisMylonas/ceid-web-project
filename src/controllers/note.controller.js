@@ -10,7 +10,6 @@ export default class NoteController {
 
   static async put(req, res) {
     req.note.update(req.body);
-    await req.note.save();
     res.success(req.note);
   }
 }

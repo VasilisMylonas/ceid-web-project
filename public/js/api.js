@@ -101,3 +101,38 @@ class Name {
     }
   }
 }
+
+//Professor APIs
+
+//Topic Management
+async function getMyUnassignedTopics() {
+  return await request("GET", `${BASE_URL}/v1/my/topics?status=unassigned`);
+}
+
+async function createThesisTopic({ title, summary }) {
+  return await request("POST", `${BASE_URL}/v1/topics`, { title, summary });
+}
+
+async function updateThesisTopic(id, { title, summary }) {
+  return await request("PUT", `${BASE_URL}/v1/topics/${id}`, { title, summary });
+}
+
+
+async function putTopicDescription(topicId, file) {
+  const form = new FormData();
+  form.append("file", file);
+
+  const res = await fetch(`/topics/${topicId}/description`, {
+    method: "PUT",
+    body: form,
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Failed with ${res.status}: ${text}`);
+  }
+
+  return res;
+}
+
+//Assignments

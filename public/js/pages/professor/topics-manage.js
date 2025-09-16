@@ -1,16 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-  // === Ρύθμιση: βάση URL για τα αρχεία PDF (άλλαξέ το ανάλογα με το backend σου) ===
-  const FILE_BASE_URL = '/uploads/';
-
-  // Δείγμα δεδομένων (θα έρθει από backend)
-  const sampleData = {
-    allMyTopics: [
-      { id: 1, title: 'Ανάλυση Μεγάλων Δεδομένων με Spark', summary: 'Αυτή είναι η περιγραφή για την ανάλυση μεγάλων δεδομένων.', status: 'Ελεύθερο', descriptionFile: null },
-      { id: 3, title: 'Τεχνητή Νοημοσύνη στην Ιατρική', summary: 'Αυτή είναι η περιγραφή για την ΤΝ στην ιατρική.', status: 'Ελεύθερο', descriptionFile: null },
-      { id: 5, title: 'Μηχανική Μάθηση για Ενσωματωμένα Συστήματα', summary: 'Αυτή είναι η περιγραφή για την μηχανική μάθηση.', status: 'Ελεύθερο', descriptionFile: 'ml_embedded.pdf' }
-    ]
-  };
-
   // --- Επιλογείς στοιχείων ---
   const myTopicsTableBody = document.getElementById('my-topics-table-body');
 
@@ -28,6 +16,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const editBtn = document.getElementById('edit-topic-btn');
   const saveBtn = document.getElementById('save-topic-btn');
 
+  // === Local state (αντί για sampleData) ===
+  /** @type {Array<{id:number|string,title:string,summary:string,status:string,descriptionFile:string|null}>} */
+  let allMyTopics = [];
+
   // Δημιουργούμε θέση προεπισκόπησης/συνδέσμου για το τρέχον αρχείο (δεν αλλάζουμε HTML)
   let modalFilePreview = document.getElementById('modal-file-preview');
   if (!modalFilePreview) {
@@ -37,20 +29,70 @@ document.addEventListener('DOMContentLoaded', () => {
     modalTopicFile.insertAdjacentElement('afterend', modalFilePreview);
   }
 
-  // --- Συναρτήσεις ---
+  // --- Βοηθητικές συναρτήσεις mapping/status/file ---
+  const normalizeTopic = (raw) => {
+    // Προσπάθησε να “διαβάσεις” εύλογα πεδία από το backend
+    const id = raw.id ?? raw.topicId ?? raw.uuid ?? Date.now();
+    const title = raw.title ?? raw.name ?? 'Χωρίς τίτλο';
+    const summary = raw.summary ?? raw.description ?? '';
+    // Αν το API γυρίζει status = 'unassigned' -> το χαρτογραφούμε σε 'Ελεύθερο'
+    const statusApi = (raw.status ?? '').toString().toLowerCase();
+    let status = 'Ελεύθερο';
+    if (statusApi.includes('unassigned') || statusApi.includes('free')) status = 'Ελεύθερο';
+    else if (statusApi.includes('pending') || statusApi.includes('assign')) status = 'Υπό Ανάθεση';
+
+    // Διαφορετικές πιθανές θέσεις για το αρχείο
+    const fileName =
+      raw.descriptionFile ??
+      raw.fileName ??
+      raw.description_file ??
+      raw.file ??
+      null;
+
+    return { id, title, summary, status, descriptionFile: fileName || null };
+  };
+
+const fileHref = (topic) => {
+  // Your API serves the file at /topics/:id/description
+  if (!topic?.id) return null;
+  return `/topics/${encodeURIComponent(topic.id)}/description`;
+};
+
+  // --- Renderers ---
+  const renderLoadingRow = (text = 'Φόρτωση...') => {
+    myTopicsTableBody.innerHTML = `
+      <tr><td colspan="3" class="text-center text-muted py-4">
+        <div class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></div>${text}
+      </td></tr>`;
+  };
+
+  const renderErrorRow = (msg = 'Κάτι πήγε στραβά κατά τη φόρτωση.') => {
+    myTopicsTableBody.innerHTML = `
+      <tr><td colspan="3" class="text-center text-danger py-4">
+        <i class="bi bi-exclamation-triangle me-2"></i>${msg}
+      </td></tr>`;
+  };
+
+  const renderEmptyRow = () => {
+    myTopicsTableBody.innerHTML = `
+      <tr><td colspan="3" class="text-center text-muted py-4">
+        Δεν βρέθηκαν θέματα.
+      </td></tr>`;
+  };
+
   const renderTopicsTable = () => {
+    if (!allMyTopics.length) return renderEmptyRow();
     myTopicsTableBody.innerHTML = ''; // Καθαρισμός πίνακα
-    sampleData.allMyTopics.forEach(topic => {
+
+    allMyTopics.forEach(topic => {
       const row = document.createElement('tr');
       row.setAttribute('data-topic-id', topic.id);
 
-      let statusBadge;
-      if (topic.status === 'Ελεύθερο') statusBadge = `<span class="badge bg-success">Ελεύθερο</span>`;
-      else if (topic.status === 'Υπό Ανάθεση') statusBadge = `<span class="badge bg-warning text-dark">Υπό Ανάθεση</span>`;
-      else statusBadge = `<span class="badge bg-primary">Ενεργή</span>`;
+      let statusBadge = `<span class="badge bg-success">Ελεύθερο</span>`;
 
-      const fileBtn = topic.descriptionFile
-        ? `<a class="btn btn-sm btn-outline-secondary" href="${FILE_BASE_URL}${encodeURIComponent(topic.descriptionFile)}" target="_blank" rel="noopener" title="Περιγραφή (PDF)">
+      const url = fileHref(topic);
+      const fileBtn = url
+        ? `<a class="btn btn-sm btn-outline-secondary" href="${url}" target="_blank" rel="noopener" title="Περιγραφή (PDF)">
              <i class="bi bi-file-earmark-pdf"></i>
            </a>`
         : '';
@@ -63,7 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
 
       row.innerHTML = `
-        <td>${topic.title}</td>
+        <td>${escapeHtml(topic.title)}</td>
         <td>${statusBadge}</td>
         <td>${actions}</td>
       `;
@@ -79,46 +121,72 @@ document.addEventListener('DOMContentLoaded', () => {
     saveBtn.style.display = isEditing ? 'block' : 'none';
   };
 
-  const renderModalFilePreview = (topic) => {
-    if (topic.descriptionFile) {
-      const url = FILE_BASE_URL + encodeURIComponent(topic.descriptionFile);
-      modalFilePreview.innerHTML = `
-        <div class="mt-2">
-          <small class="text-muted d-block mb-1">Τρέχον αρχείο περιγραφής:</small>
-          <a href="${url}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-secondary">
-            <i class="bi bi-file-earmark-pdf me-1"></i>${topic.descriptionFile}
-          </a>
-        </div>
-      `;
-    } else {
-      modalFilePreview.innerHTML = `<small class="text-muted">Δεν υπάρχει αρχείο περιγραφής.</small>`;
+const renderModalFilePreview = (topic) => {
+  const url = fileHref(topic);
+  if (url) {
+    modalFilePreview.innerHTML = `
+      <div class="mt-2">
+        <small class="text-muted d-block mb-1">Αρχείο περιγραφής:</small>
+        <a href="${url}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-secondary">
+          <i class="bi bi-file-earmark-pdf me-1"></i> Άνοιγμα περιγραφής
+        </a>
+      </div>
+    `;
+  } else {
+    modalFilePreview.innerHTML = `<small class="text-muted">Δεν υπάρχει αρχείο περιγραφής.</small>`;
+  }
+};
+
+  // --- API: φόρτωση θεμάτων (αντικαθιστά το sampleData) ---
+  const loadMyUnassignedTopics = async () => {
+    try {
+      renderLoadingRow();
+      // Χρήση της συναρτησης που μου έδωσες
+      const res = await getMyUnassignedTopics(); // αναμένει π.χ. array ή { data: [...] }
+      const list = Array.isArray(res) ? res : (res?.data ?? res?.items ?? []);
+      allMyTopics = list.map(normalizeTopic);
+      renderTopicsTable();
+    } catch (err) {
+      console.error(err);
+      renderErrorRow('Αποτυχία φόρτωσης θεμάτων. Δοκίμασε ανανέωση.');
     }
   };
 
   // --- Event Listeners ---
-  createTopicForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const newTopic = {
-      id: Date.now(), // προσωρινό unique ID
-      title: formData.get('title'),
-      summary: formData.get('description'),
-      status: 'Ελεύθερο',
-      // αποθηκεύουμε μόνο το όνομα αρχείου για το demo (στο πραγματικό backend θα λάβεις URL)
-      descriptionFile: createPdfInput.files && createPdfInput.files[0] ? createPdfInput.files[0].name : null
-    };
-    sampleData.allMyTopics.unshift(newTopic); // Προσθήκη αρχής
+createTopicForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const formData = new FormData(e.target);
+  const title = formData.get('title')?.trim();
+  const summary = formData.get('description')?.trim();
+  const file = createPdfInput.files?.[0] ?? null;
+
+  try {
+    // 1) create topic
+    const created = await createThesisTopic({ title, summary });
+
+    // 2) upload file if present (don’t reassign `created`)
+    if (file) await updateThesisDescriptionFile(created.id, file);
+
+    // 3) push to state & render
+    allMyTopics.unshift(normalizeTopic(created));
     renderTopicsTable();
+
     createTopicModal.hide();
     e.target.reset();
-  });
+  } catch (err) {
+    console.error('Αποτυχία δημιουργίας:', err);
+    alert('Σφάλμα κατά τη δημιουργία θέματος.');
+  }
+});
+
+
 
   myTopicsTableBody.addEventListener('click', (e) => {
     const row = e.target.closest('tr');
     const topicId = row?.dataset.topicId;
     if (!topicId) return;
 
-    const topic = sampleData.allMyTopics.find(t => t.id == topicId);
+    const topic = allMyTopics.find(t => String(t.id) === String(topicId));
     if (!topic) return;
 
     if (e.target.closest('.view-details-btn')) {
@@ -134,25 +202,48 @@ document.addEventListener('DOMContentLoaded', () => {
 
   editBtn.addEventListener('click', () => setModalState(true));
 
-  saveBtn.addEventListener('click', () => {
-    const id = Number(modalTopicId.value);
-    const topic = sampleData.allMyTopics.find(t => t.id === id);
-    if (topic) {
-      topic.title = modalTopicTitle.value.trim();
-      topic.summary = modalTopicDescription.value.trim();
+saveBtn.addEventListener('click', async () => {
+  const id = modalTopicId.value;
+  const title = modalTopicTitle.value.trim();
+  const summary = modalTopicDescription.value.trim();
+  const file = modalTopicFile.files?.[0] ?? null;
 
-      // Αν επιλέχθηκε νέο αρχείο, ενημερώνουμε το όνομα
-      if (modalTopicFile.files && modalTopicFile.files[0]) {
-        topic.descriptionFile = modalTopicFile.files[0].name;
-      }
+  try {
+    // update title/summary
+    const updatedTopic = await updateThesisTopic(id, { title, summary });
 
-      renderModalFilePreview(topic);
+    // upload file if user picked one
+    if (file) await updateThesisDescriptionFile(id, file);
+
+    // update local state
+    const index = allMyTopics.findIndex(t => String(t.id) === String(id));
+    if (index !== -1) {
+      allMyTopics[index] = { ...allMyTopics[index], ...normalizeTopic(updatedTopic) };
     }
+
+    // refresh preview/link (now points to /topics/:id/description)
+    renderModalFilePreview({ id, ...updatedTopic });
+
     setModalState(false);
     topicDetailsModal.hide();
     renderTopicsTable();
-  });
+  } catch (err) {
+    console.error('Αποτυχία ενημέρωσης:', err);
+    alert('Σφάλμα κατά την ενημέρωση θέματος.');
+  }
+});
 
-  // --- Αρχικό render ---
-  renderTopicsTable();
+
+  // --- Utils ---
+  function escapeHtml(str) {
+    return (str ?? '').toString()
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#39;');
+  }
+
+  // --- Αρχικό load από API ---
+  loadMyUnassignedTopics();
 });

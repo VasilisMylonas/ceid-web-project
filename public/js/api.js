@@ -41,12 +41,12 @@ async function getAllProfessors() {
   return await request("GET", `${BASE_URL}/v1/users?role=professor`);
 }
 
-async function getThesis(){
+async function getThesis() {
   return await request("GET", `${BASE_URL}/v1/my/thesis`);
 }
 
-async function getTopic(id){
-  return await request ("GET", `${BASE_URL}/v1/topics/${id}`);
+async function getTopic(id) {
+  return await request("GET", `${BASE_URL}/v1/topics/${id}`);
 }
 
 async function getThesesSecretary(
@@ -56,15 +56,22 @@ async function getThesesSecretary(
   status = null,
   query = null
 ) {
-  page = parseInt(page, 10);
-  pageSize = parseInt(pageSize, 10);
+  let offset;
+  let limit;
 
-  const offset = (page - 1) * pageSize;
-  const limit = pageSize;
+  if (page == null || pageSize == null) {
+    offset = 0;
+    limit = null;
+  } else {
+    page = parseInt(page, 10);
+    pageSize = parseInt(pageSize, 10);
+    offset = (page - 1) * pageSize;
+    limit = pageSize;
+  }
 
   return await request(
     "GET",
-    `${BASE_URL}/v1/theses?&offset=${offset}&limit=${limit}${
+    `${BASE_URL}/v1/theses?&offset=${offset}${limit ? `&limit=${limit}` : ""}${
       supervisorId ? `&professorId=${supervisorId}&role=supervisor` : ""
     }${status ? `&status=${status}` : ""}${
       query ? `&q=${encodeURIComponent(query)}` : ""
@@ -80,6 +87,24 @@ async function importUsers(users) {
   return await request("POST", `${BASE_URL}/v1/users/batch`, users);
 }
 
+async function approveThesis(thesisId, assemblyNumber, protocolNumber) {
+  return await request("POST", `${BASE_URL}/v1/theses/${thesisId}/approve`, {
+    assemblyNumber,
+    protocolNumber,
+  });
+}
+
+async function cancelThesis(thesisId, assemblyNumber, reason) {
+  return await request("POST", `${BASE_URL}/v1/theses/${thesisId}/cancel`, {
+    assemblyNumber,
+    reason,
+  });
+}
+
+async function completeThesis(thesisId) {
+  return await request("POST", `${BASE_URL}/v1/theses/${thesisId}/complete`);
+}
+
 class Name {
   static ofThesisStatus(status) {
     switch (status) {
@@ -91,10 +116,6 @@ class Name {
         return "Ολοκληρωμένη";
       case "cancelled":
         return "Ακυρωμένη";
-      case "rejected":
-        return "Απορριφθείσα";
-      case "pending":
-        return "Σε Αναμονή";
       case "under_assignment":
         return "Υπό Ανάθεση";
     }

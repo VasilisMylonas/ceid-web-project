@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         setupModalEventListeners(modalElement, inviteModal, () => thesis, () => invitationsResponse);
     }
 
-    // Add event listener for saving examination links
+    // Event listener for saving examination details and links
     const saveExamBtn = document.getElementById('save-examination-btn');
     if (saveExamBtn) {
         saveExamBtn.addEventListener('click', async () => {
@@ -95,6 +95,20 @@ document.addEventListener('DOMContentLoaded', async () => {
                 } catch (error) {
                     console.error('Failed to save links:', error);
                     alert('Σφάλμα κατά την αποθήκευση των συνδέσμων.');
+                }
+            }
+
+             // --- Handle Nimertis Link ---
+            const nimertisUrl = document.getElementById('nimertisLink').value.trim();
+            console.log("Nimertis link saved:", nimertisUrl);
+            if (nimertisUrl) {
+                try {
+                    await setNymertesLink(thesis.id, nimertisUrl);
+                    
+                    alert('Ο σύνδεσμος Νημερτής αποθηκεύτηκε.');
+                } catch (error) {
+                    console.error('Failed to save Nimertis link:', error);
+                    alert('Προέκυψε σφάλμα κατά την αποθήκευση του συνδέσμου Νημερτής.');
                 }
             }
 

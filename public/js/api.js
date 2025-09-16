@@ -90,7 +90,7 @@ async function uploadThesisDraft(thesisId, formData) {
   return await requestWithFile("PUT", `${BASE_URL}/v1/theses/${thesisId}/draft`, formData );
 }
 async function setNymertesLink(thesisId, link) {
-  return await request("PUT", `${BASE_URL}/v1/theses/${thesisId}/nemertes-link`, { link });
+  return await request("PUT", `${BASE_URL}/v1/theses/${thesisId}/nemertes-link`, { nemertesLink: link });
 }
 async function getThesisResources(thesisId) {
   return await request("GET", `${BASE_URL}/v1/theses/${thesisId}/resources`);

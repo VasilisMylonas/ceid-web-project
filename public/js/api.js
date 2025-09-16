@@ -29,17 +29,55 @@ async function request(method, url, object = null) {
   throw new Error(`${response.statusText}: ${json.error.message}`);
 }
 
+/**
+ * A special request function for handling file uploads using FormData.
+ * It does not set Content-Type, allowing the browser to set it to multipart/form-data.
+ */
+async function requestWithFile(method, url, formData) {
+  const response = await fetch(url, {
+    method: method,
+    body: formData, // Pass FormData directly
+  });
+
+  if (response.status === 204) { // No Content
+    return;
+  }
+
+  // Try to parse JSON, but handle cases where the body might not be JSON
+  let errorPayload;
+  try {
+    errorPayload = await response.json();
+    console.debug("API File Response:", errorPayload);
+  } catch (e) {
+    // If parsing fails, use the raw text of the response
+    errorPayload = await response.text();
+  }
+
+  if (response.ok) {
+    return errorPayload;
+  }
+
+  // Improved error message creation
+  const errorMessage = (typeof errorPayload === 'object' && errorPayload?.error?.message) 
+    ? errorPayload.error.message 
+    : JSON.stringify(errorPayload);
+    
+  throw new Error(`${response.statusText}: ${errorMessage}`);
+}
+
 async function getProfile() {
   return await request("GET", `${BASE_URL}/v1/my/profile`);
-}
-async function uploadThesisDraft(thesisId, file) {
-  return await request("POST", `${BASE_URL}/v1/theses/${thesisId}/draft`, file );
 }
 
 async function addThesisResources(thesisId, resources) {
 
   return await request("POST", `${BASE_URL}/v1/theses/${thesisId}/resources`, resources);
 }
+
+async function uploadThesisDraft(thesisId, formData) {
+  return await requestWithFile("PUT", `${BASE_URL}/v1/theses/${thesisId}/draft`, formData );
+}
+
 async function getThesisResources(thesisId) {
   return await request("GET", `${BASE_URL}/v1/theses/${thesisId}/resources`);
 }

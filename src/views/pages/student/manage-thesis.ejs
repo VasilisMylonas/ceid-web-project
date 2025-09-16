@@ -43,11 +43,14 @@
             προς υποστηρικτικό υλικό.</p>
           <div class="mb-3">
             <label for="thesisFile" class="form-label">Κείμενο Διπλωματικής (PDF)</label>
-            <input class="form-control" type="file" id="thesisFile" accept=".pdf">
+            <div class="input-group">
+              <input class="form-control" type="file" id="thesisFile" accept=".pdf">
+              <button class="btn btn-outline-secondary" type="button" id="upload-draft-btn">Ανέβασμα Αρχείου</button>
+            </div>
           </div>
           <div class="form-floating">
             <!-- This textarea is now only for ADDING new links -->
-            <textarea class="form-control" placeholder="Προσθήκη νέων συνδεσμών" id="links-to-add" rows="4" aria-label="Προσθήκη νέων συνδέσμων"></textarea>
+            <textarea class="form-control" placeholder="Προσθήκη νέων συνδέσμων" id="links-to-add" rows="4" aria-label="Προσθήκη νέων συνδέσμων"></textarea>
             <label for="links-to-add">Προσθήκη νέων συνδέσμων (ένας ανά γραμμή)</label>
           </div>
         </div>

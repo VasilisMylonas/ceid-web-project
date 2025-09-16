@@ -85,6 +85,34 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+    // Add event listener for uploading the thesis draft
+    const uploadDraftBtn = document.getElementById('upload-draft-btn');
+    if (uploadDraftBtn) {
+        uploadDraftBtn.addEventListener('click', async () => {
+            if (!thesis) return;
+
+            const fileInput = document.getElementById('thesisFile');
+            const file = fileInput.files[0];
+
+            if (!file) {
+                alert('Παρακαλώ επιλέξτε ένα αρχείο PDF για ανέβασμα.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                await uploadThesisDraft(thesis.id, formData);
+                alert('Το αρχείο της διπλωματικής ανέβηκε με επιτυχία.');
+                fileInput.value = ''; // Clear the file input
+            } catch (error) {
+                console.error('Failed to upload thesis draft:', error);
+                alert('Προέκυψε σφάλμα κατά το ανέβασμα του αρχείου.');
+            }
+        });
+    }
+
     let activeStateCard = null;
 
     switch (thesis.status) {

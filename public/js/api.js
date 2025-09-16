@@ -87,6 +87,20 @@ async function importUsers(users) {
   return await request("POST", `${BASE_URL}/v1/users/batch`, users);
 }
 
+async function approveThesis(thesisId, assemblyNumber, protocolNumber) {
+  return await request("POST", `${BASE_URL}/v1/theses/${thesisId}/approve`, {
+    assemblyNumber,
+    protocolNumber,
+  });
+}
+
+async function cancelThesis(thesisId, assemblyNumber, reason) {
+  return await request("POST", `${BASE_URL}/v1/theses/${thesisId}/cancel`, {
+    assemblyNumber,
+    reason,
+  });
+}
+
 class Name {
   static ofThesisStatus(status) {
     switch (status) {

@@ -5,16 +5,9 @@ import pages from "./pages.js";
 import db from "./models/index.js";
 import seedDatabase from "./seeders/index.js";
 import morgan from "morgan";
-import path from "path";
 import process from "process";
 
-const __dirname = path.dirname(new URL(import.meta.url).pathname);
-
 const app = express();
-
-// EJS templates
-app.set("view engine", "ejs");
-app.set("views", path.join(__dirname, "views"));
 
 app.use(morgan("dev")); // Logging middleware
 app.use("/api", api);

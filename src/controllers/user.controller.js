@@ -25,7 +25,7 @@ export default class UserController {
       return res.error("No such user", StatusCodes.NOT_FOUND);
     }
 
-    res.success(user);
+    res.success(omit(user, "password"));
   }
 
   static async patch(req, res) {
@@ -35,7 +35,7 @@ export default class UserController {
       return res.error("No such user", StatusCodes.NOT_FOUND);
     }
 
-    res.success(user);
+    res.success(omit(user, "password"));
   }
 
   static async delete(req, res) {

@@ -11,6 +11,10 @@ export async function errorHandler(err, req, res, next) {
     return res.error(err.errors[0].message, StatusCodes.CONFLICT);
   }
 
+  if (err instanceof SyntaxError) {
+    return res.error(err.message, StatusCodes.BAD_REQUEST);
+  }
+
   console.error(err);
 
   return res.error("Internal Server Error", StatusCodes.INTERNAL_SERVER_ERROR);

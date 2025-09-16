@@ -73,6 +73,10 @@ export default (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      grade: {
+        type: DataTypes.FLOAT,
+        allowNull: true,
+      },
       nemertesLink: {
         type: DataTypes.STRING,
         allowNull: true,

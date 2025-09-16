@@ -61,6 +61,8 @@ export default class MyController {
     SELECT
     AVG(theses.end_date - theses.start_date) FILTER (WHERE cm.role = 'supervisor') AS "avgCompletionDaysSupervised",
     AVG(theses.end_date - theses.start_date) AS "avgCompletionDays",
+    AVG(theses.grade) FILTER (WHERE cm.role = 'supervisor') AS "avgGradeSupervised",
+    AVG(theses.grade) AS "avgGrade",
     COUNT(*) FILTER (WHERE cm.role = 'supervisor') AS "totalSupervised",
     COUNT(*) AS "total"
     FROM theses

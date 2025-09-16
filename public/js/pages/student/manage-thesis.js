@@ -37,6 +37,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     let thesis = thesisDetailsResponse.data;
     console.log("Thesis details:", thesis);
 
+    // --- Check for preliminary or terminal statuses ---
+    const preliminaryStatuses = {
+        pending: 'Η αίτησή σας για τη διπλωματική εργασία εκκρεμεί για έγκριση από την γραμματεία.',
+        rejected: 'Η αίτησή σας για τη διπλωματική εργασία απορρίφθηκε. Παρακαλώ επικοινωνήστε με την γραμματεία για περισσότερες πληροφορίες.',
+        active: 'Η διπλωματική σας εργασία έχει εγκριθεί και είναι σε κατάσταση ενεργή.',
+        cancelled: 'Η διπλωματική εργασία έχει ακυρωθεί.'
+    };
+
+    if (Object.keys(preliminaryStatuses).includes(thesis.status)) {
+        container.innerHTML = `
+            <div class="alert alert-info text-center">
+                <h3>Ενημέρωση Κατάστασης</h3>
+                <p class="lead">${preliminaryStatuses[thesis.status]}</p>
+            </div>
+        `;
+        return; // Stop further execution
+    }
+
+
     let invitationsResponse = []; // Initialize as an empty array
 
     hideAllStates();
@@ -479,4 +498,4 @@ async function populateExaminationState(thesis) {
     if (radio) {
         radio.checked = true;
     }
-}
+   }

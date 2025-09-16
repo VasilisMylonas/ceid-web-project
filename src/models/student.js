@@ -14,6 +14,7 @@ export default (sequelize) => {
           status: {
             [Op.in]: [
               ThesisStatus.UNDER_ASSIGNMENT,
+              ThesisStatus.PENDING,
               ThesisStatus.ACTIVE,
               ThesisStatus.COMPLETED,
               ThesisStatus.UNDER_EXAMINATION,

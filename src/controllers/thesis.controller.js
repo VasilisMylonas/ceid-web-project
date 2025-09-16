@@ -381,8 +381,8 @@ WHERE theses.id = '${req.thesis.id}'
   }
 
   static async putNemertesLink(req, res) {
-    if (req.thesis.status !== ThesisStatus.ACTIVE) {
-      return res.error("Thesis is not active.");
+    if (req.thesis.status !== ThesisStatus.UNDER_EXAMINATION) {
+      return res.error("Thesis is not under examination.");
     }
 
     await req.thesis.update({ nemertesLink: req.body.nemertesLink });

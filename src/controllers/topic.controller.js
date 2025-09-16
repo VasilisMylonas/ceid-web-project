@@ -31,6 +31,7 @@ export default class TopicController {
         Sequelize.where(Sequelize.col("Theses.status"), {
           [req.query.status === "assigned" ? Op.in : Op.notIn]: [
             ThesisStatus.UNDER_ASSIGNMENT,
+            ThesisStatus.PENDING,
             ThesisStatus.ACTIVE,
             ThesisStatus.COMPLETED,
             ThesisStatus.UNDER_EXAMINATION,

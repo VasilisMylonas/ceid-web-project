@@ -1,6 +1,45 @@
+let thesisId;
+
 async function onThesisApprovalFormSubmit(event) {
   event.preventDefault();
 
+  const assemblyNumber = event.target.assemblyNumber.value;
+
+  if (event.target.decision.value == "accept") {
+    const protocolNumber = event.target.protocolNumber.value;
+
+    if (protocolNumber == null || protocolNumber.trim() === "") {
+      alert("Παρακαλώ συμπληρώστε τον Αριθμό Πρωτοκόλλου (ΑΠ).");
+      return;
+    }
+
+    try {
+      await approveThesis(thesisId, assemblyNumber, protocolNumber);
+      window.location.reload();
+    } catch (error) {
+      console.error("Error approving thesis:", error);
+      alert(
+        "Παρουσιάστηκε σφάλμα κατά την έγκριση της εργασίας. Παρακαλώ δοκιμάστε ξανά."
+      );
+    }
+  } else {
+    const reason = event.target.reason.value;
+
+    if (reason == null || reason.trim() === "") {
+      alert("Παρακαλώ συμπληρώστε τον λόγο απόρριψης.");
+      return;
+    }
+
+    try {
+      await cancelThesis(thesisId, assemblyNumber, reason);
+      window.location.reload();
+    } catch (error) {
+      console.error("Error rejecting thesis:", error);
+      alert(
+        "Παρουσιάστηκε σφάλμα κατά την απόρριψη της εργασίας. Παρακαλώ δοκιμάστε ξανά."
+      );
+    }
+  }
   // TODO
 }
 
@@ -9,36 +48,52 @@ async function onThesisApprovalFormReset(event) {
 
   const rejectCheckbox = document.getElementById("reject-checkbox");
   const acceptCheckbox = document.getElementById("accept-checkbox");
+  const assemblyNumberInput = document.getElementById("assembly-number-input");
+  const protocolNumberInput = document.getElementById("protocol-number-input");
+  const reasonInput = document.getElementById("reason-input");
 
+  protocolNumberInput.value = "";
+  reasonInput.value = "";
   acceptCheckbox.checked = true;
   rejectCheckbox.checked = false;
-  const collapse = new bootstrap.Collapse("#rejection-reason-section", {
-    toggle: false,
-  });
-  collapse.hide();
+  assemblyNumberInput.value = "";
+
+  const protocolNumberSection = document.getElementById(
+    "protocol-number-section"
+  );
+  const reasonSection = document.getElementById("reason-section");
+
+  protocolNumberSection.classList.remove("d-none");
+  reasonSection.classList.add("d-none");
 }
 
 async function onRejectCheckboxChange(event) {
-  const collapse = new bootstrap.Collapse("#rejection-reason-section", {
-    toggle: false,
-  });
+  const protocolNumberSection = document.getElementById(
+    "protocol-number-section"
+  );
+  const reasonSection = document.getElementById("reason-section");
 
   if (event.target.checked) {
-    collapse.show();
+    protocolNumberSection.classList.add("d-none");
+    reasonSection.classList.remove("d-none");
   }
 }
 
 async function onAcceptCheckboxChange(event) {
-  const collapse = new bootstrap.Collapse("#rejection-reason-section", {
-    toggle: false,
-  });
+  const protocolNumberSection = document.getElementById(
+    "protocol-number-section"
+  );
+  const reasonSection = document.getElementById("reason-section");
 
   if (event.target.checked) {
-    collapse.hide();
+    protocolNumberSection.classList.remove("d-none");
+    reasonSection.classList.add("d-none");
   }
 }
 
 function renderThesisActions(thesis) {
+  thesisId = thesis.id;
+
   const thesisActionsActive = document.getElementById("thesis-actions-active");
   const thesisActionsNone = document.getElementById("thesis-actions-none");
   const thesisActionsUnderExam = document.getElementById(
@@ -87,10 +142,8 @@ function renderThesisActions(thesis) {
 
   thesisApprovalForm.addEventListener("submit", onThesisApprovalFormSubmit);
   thesisApprovalForm.addEventListener("reset", onThesisApprovalFormReset);
-
-  acceptCheckbox.checked = true;
-  rejectCheckbox.checked = false;
-
   acceptCheckbox.addEventListener("change", onAcceptCheckboxChange);
   rejectCheckbox.addEventListener("change", onRejectCheckboxChange);
+
+  thesisApprovalForm.reset();
 }

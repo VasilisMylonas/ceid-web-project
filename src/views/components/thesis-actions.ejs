@@ -34,19 +34,11 @@
     <h5 class="mb-3">Καταχώρηση Απόφασης ΓΣ</h5>
 
     <div class="mb-3">
-      <label for="protocol-number-input" class="form-label">
-        Αριθμός Πρωτοκόλλου (ΑΠ)
+      <label for="assembly-number-input" class="form-label">
+        Αριθμός Γενικής Συνέλευσης (π.χ. 2023/1)
       </label>
-      <input type="text" class="form-control" id="protocol-number-input"
-          required>
-    </div>
-
-    <div class="mb-3">
-      <label for="assembly-year-input" class="form-label">
-        Έτος Γενικής Συνέλευσης
-      </label>
-      <input type="number" class="form-control" id="assembly-year-input"
-          required>
+      <input type="text" class="form-control" id="assembly-number-input"
+          name="assemblyNumber" required>
     </div>
 
     <div class="mb-3">
@@ -67,11 +59,19 @@
       </div>
     </div>
 
-    <div id="rejection-reason-section" class="collapse">
-      <label for="rejection-reason" class="form-label">
+    <div id="protocol-number-section" class="mb-4">
+      <label for="protocol-number-input" class="form-label">
+        Αριθμός Πρωτοκόλλου (ΑΠ)
+      </label>
+      <input type="text" class="form-control" id="protocol-number-input"
+          name="protocolNumber">
+    </div>
+
+    <div id="reason-section" class="d-none mb-4">
+      <label for="reason-input" class="form-label">
         Λόγος Απόρριψης
       </label>
-      <textarea class="form-control mb-3" id="rejection-reason" rows="2"
+      <textarea class="form-control" rows="2" id="reason-input" name="reason"
           placeholder="Κατόπιν αίτησης Φοιτητή/τριας"></textarea>
     </div>
 

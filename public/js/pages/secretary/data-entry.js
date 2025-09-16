@@ -1,13 +1,16 @@
-function handleDataEntrySubmit(e) {
-  e.preventDefault();
+function onDataEntryFormSubmit(event) {
+  event.preventDefault();
 
-  const dataFile = document.getElementById("data-file");
-  const file = dataFile.files[0];
+  const file = event.target.file.files[0];
+
+  console.log(file);
 
   const fileReader = new FileReader();
   fileReader.readAsText(file);
 
   fileReader.onload = async () => {
+    console.log("ONLOAD");
+
     try {
       showSpinner("result");
       await delay(250); // allow spinner to render
@@ -24,11 +27,14 @@ function handleDataEntrySubmit(e) {
         "Παρουσιάστηκε πρόβλημα κατά την εισαγωγή. Ελέγξτε το αρχείο JSON και προσπαθήστε ξανά.",
         error.message
       );
+    } finally {
+      // 👇 Clear input so same file can be chosen again
+      event.target.file.value = "";
     }
   };
 }
 
 document.addEventListener("DOMContentLoaded", () => {
   const dataEntryForm = document.getElementById("data-entry-form");
-  dataEntryForm.addEventListener("submit", handleDataEntrySubmit);
+  dataEntryForm.addEventListener("submit", onDataEntryFormSubmit);
 });

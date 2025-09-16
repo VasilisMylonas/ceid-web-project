@@ -4,7 +4,8 @@
         "password": "imported_1_password",
         "name": "imported_1_name",
         "email": "imported_1_email@email.com",
-        "phone": "000-000-000",
+        "phone": "0000000000",
+        "address": "imported_1_address",
         "role": "professor",
         "division": "imported_1_division"
     }

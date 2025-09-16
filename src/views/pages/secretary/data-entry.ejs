@@ -1,23 +1,19 @@
 <h2 class="mb-4">Εισαγωγή Δεδομένων</h2>
-<div class="card shadow-sm">
-  <div class="card-body">
-    <h5 class="card-title">Εισαγωγή Δεδομένων Χρηστών</h5>
-    <p class="card-text text-muted">Επιλέξτε ένα αρχείο JSON για να εισάγετε
-      τα δεδομένα των φοιτητών και των διδασκόντων.</p>
-    <form id="data-entry-form" class="needs-validation">
-      <fieldset class="mb-4">
-        <label for="data-file" class="form-label">Επιλογή Αρχείου JSON</label>
-        <input class="form-control" type="file" id="data-file" accept=".json"
-            required>
-      </fieldset>
 
-      <div id="result"></div>
+<p class="card-text text-muted">Επιλέξτε ένα αρχείο JSON για να εισάγετε
+  τα δεδομένα των φοιτητών και των διδασκόντων.</p>
+<form id="data-entry-form" class="needs-validation">
+  <fieldset class="mb-4">
+    <label for="data-file" class="form-label">Επιλογή Αρχείου JSON</label>
+    <input class="form-control" type="file" name="file" accept=".json" required>
+  </fieldset>
 
-      <button type="submit" class="btn btn-dark w-100">
-        <i class="bi bi-upload me-2" aria-hidden="true"></i>
-        Ανέβασμα Αρχείου
-      </button>
-    </form>
-  </div>
-</div>
+  <div id="result"></div>
+
+  <button type="submit" class="btn btn-dark w-100">
+    <i class="bi bi-upload me-2" aria-hidden="true"></i>
+    Ανέβασμα Αρχείου
+  </button>
+</form>
+
 <script src="/js/pages/secretary/data-entry.js"></script>

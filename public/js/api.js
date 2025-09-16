@@ -40,6 +40,9 @@ async function addThesisResources(thesisId, resources) {
 
   return await request("POST", `${BASE_URL}/v1/theses/${thesisId}/resources`, resources);
 }
+async function getThesisResources(thesisId) {
+  return await request("GET", `${BASE_URL}/v1/theses/${thesisId}/resources`);
+}
 async function getThesisInvitations(thesisId){
   return await request("GET", `${BASE_URL}/v1/theses/${thesisId}/invitations`);
 }

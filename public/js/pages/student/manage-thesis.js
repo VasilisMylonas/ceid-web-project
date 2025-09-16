@@ -54,9 +54,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         saveExamBtn.addEventListener('click', async () => {
             if (!thesis) return;
 
-            const linksText = document.getElementById('links').value;
+            const linksText = document.getElementById('links-to-add').value;
             // Split by newline, trim whitespace, and filter out empty lines
             const linksArray = linksText.split('\n').map(link => link.trim()).filter(link => link);
+
+            if (linksArray.length === 0) {
+                alert('Παρακαλώ εισάγετε τουλάχιστον έναν σύνδεσμο για αποθήκευση.');
+                return;
+            }
 
             // Format for the API: [{link: "...", kind: "other"}]
             const resources = linksArray.map(link => ({ link: link, kind: 'other' }));
@@ -70,6 +75,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 await Promise.all(resourcePromises);
 
                 alert('Οι σύνδεσμοι αποθηκεύτηκαν με επιτυχία.');
+                document.getElementById('links-to-add').value = ''; // Clear the textarea
+                await populateExaminationState(thesis); // Refresh the list of links
+
             } catch (error) {
                 console.error('Failed to save links:', error);
                 alert('Προέκυψε σφάλμα κατά την αποθήκευση των συνδέσμων.');
@@ -123,7 +131,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if(invitationList) invitationList.innerHTML = '<li class="list-group-item text-danger">Σφάλμα φόρτωσης προσκλήσεων.</li>';
             }
         } else if (thesis.status === 'under_examination') {
-            populateExaminationState(thesis);
+            await populateExaminationState(thesis);
         }
     }
 });
@@ -343,17 +351,37 @@ function populateCommitteeList(thesis, activeStateCard) {
 
 
 
-function populateExaminationState(thesis) {
-    // The API doesn't provide these details yet. This populates with placeholders or empty values.
-    // When the 'thesis' object contains these details, they will be filled in.
-    document.getElementById('links').value = thesis.notes || '';
+async function populateExaminationState(thesis) {
+    const linksList = document.getElementById('existing-links-list');
+    linksList.innerHTML = ''; // Clear current list
+
+    try {
+        const resourcesResponse = await getThesisResources(thesis.id);
+        if (resourcesResponse && resourcesResponse.data && resourcesResponse.data.length > 0) {
+            resourcesResponse.data.forEach(resource => {
+                const li = document.createElement('li');
+                li.className = 'list-group-item';
+                li.innerHTML = `<a href="${resource.link}" target="_blank" rel="noopener noreferrer">${resource.link}</a>`;
+                linksList.appendChild(li);
+            });
+        } else {
+            linksList.innerHTML = '<li class="list-group-item">Δεν υπάρχουν αποθηκευμένοι σύνδεσμοι.</li>';
+        }
+    } catch (error) {
+        console.error("Failed to load thesis resources:", error);
+        linksList.innerHTML = '<li class="list-group-item text-danger">Σφάλμα φόρτωσης συνδέσμων.</li>';
+    }
+
+    // Populate other fields
     document.getElementById('examDate').value = thesis.presentationDate ? new Date(thesis.presentationDate).toISOString().split('T')[0] : '';
     document.getElementById('examTime').value = thesis.presentationTime || '';
     document.getElementById('examLocation').value = thesis.presentationLocation || '';
     document.getElementById('nimertisLink').value = thesis.nimertisUrl || '';
 
     const examType = thesis.presentationType || 'online';
-    if (document.getElementById(`examType${examType.charAt(0).toUpperCase() + examType.slice(1)}`)) {
-        document.getElementById(`examType${examType.charAt(0).toUpperCase() + examType.slice(1)}`).checked = true;
+    const radioId = `examType${examType.charAt(0).toUpperCase() + examType.slice(1)}`;
+    const radio = document.getElementById(radioId);
+    if (radio) {
+        radio.checked = true;
     }
 }

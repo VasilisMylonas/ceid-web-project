@@ -34,20 +34,31 @@
         και το σύνδεσμο της διπλωματικής.</p>
       <hr>
       <div class="d-flex flex-column gap-3">
+        <!-- Section for displaying existing links -->
+       
+
         <div class="upload-section p-3 border rounded">
-          <h6>Ανάρτηση κειμένου και υλικού</h6>
-          <p class="text-muted">Ανεβάστε το κείμενο της διπλωματικής σας (PDF) και συνδέσμους
+          <h6>Ανάρτηση κειμένου και νέων συνδέσμων</h6>
+          <p class="text-muted">Ανεβάστε το κείμενο της διπλωματικής σας (PDF) και προσθέστε νέους συνδέσμους
             προς υποστηρικτικό υλικό.</p>
           <div class="mb-3">
             <label for="thesisFile" class="form-label">Κείμενο Διπλωματικής (PDF)</label>
             <input class="form-control" type="file" id="thesisFile" accept=".pdf">
           </div>
           <div class="form-floating">
-            <!-- Textarea content will be set by manage-thesis.js -->
-            <textarea class="form-control" placeholder="Σύνδεσμοι προς υποστηρικτικό υλικό" id="links" rows="4" aria-label="Σύνδεσμοι προς υλικό"></textarea>
-            <label for="links">Σύνδεσμοι (GitHub, Google Drive, YouTube κλπ.)</label>
+            <!-- This textarea is now only for ADDING new links -->
+            <textarea class="form-control" placeholder="Προσθήκη νέων συνδεσμών" id="links-to-add" rows="4" aria-label="Προσθήκη νέων συνδέσμων"></textarea>
+            <label for="links-to-add">Προσθήκη νέων συνδέσμων (ένας ανά γραμμή)</label>
           </div>
         </div>
+         <div class="existing-links-section p-3 border rounded">
+          <h6>Αποθηκευμένοι Σύνδεσμοι</h6>
+          <p class="text-muted">Οι σύνδεσμοι που έχετε ήδη αναρτήσει.</p>
+          <ul class="list-group" id="existing-links-list">
+            <!-- Links will be populated here by JavaScript -->
+          </ul>
+        </div>
+
         <div class="presentation-section p-3 border rounded">
           <h6>Λεπτομέρειες Εξέτασης</h6>
           <p class="text-muted">Καταχωρήστε τον τύπο, την ημερομηνία, ώρα και τόπο της
@@ -139,6 +150,3 @@
 <script src="/js/pages/student/manage-thesis.js"></script>
   </div>
 </div>
-
-
-<script src="/js/pages/student/manage-thesis.js"></script>

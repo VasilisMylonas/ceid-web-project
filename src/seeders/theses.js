@@ -13,17 +13,13 @@ export default async function seedTheses(count) {
 
     let endDate = faker.date.future();
     let statusReason = null;
-    if (status === ThesisStatus.REJECTED) {
-      statusReason = "APO GRAMMATEIA";
-      endDate = faker.date.past();
-    }
 
     if (status === ThesisStatus.CANCELLED) {
       statusReason = "Cancelled by student";
-      faker.date.past();
+      endDate = faker.date.past();
     }
 
-    if (status == ThesisStatus.PENDING) {
+    if (status == ThesisStatus.UNDER_ASSIGNMENT) {
       endDate = null;
     }
 

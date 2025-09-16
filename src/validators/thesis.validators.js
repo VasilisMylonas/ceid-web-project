@@ -21,7 +21,6 @@ export default {
       status: Joi.string()
         .valid(
           ThesisStatus.ACTIVE,
-          ThesisStatus.REJECTED,
           ThesisStatus.UNDER_EXAMINATION,
           ThesisStatus.COMPLETED
         )

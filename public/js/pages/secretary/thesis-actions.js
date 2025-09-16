@@ -5,42 +5,27 @@ async function onThesisApprovalFormSubmit(event) {
 
   const assemblyNumber = event.target.assemblyNumber.value;
 
-  if (event.target.decision.value == "accept") {
-    const protocolNumber = event.target.protocolNumber.value;
-
-    if (protocolNumber == null || protocolNumber.trim() === "") {
-      alert("Παρακαλώ συμπληρώστε τον Αριθμό Πρωτοκόλλου (ΑΠ).");
-      return;
-    }
-
-    try {
+  try {
+    if (event.target.decision.value == "accept") {
+      const protocolNumber = event.target.protocolNumber.value;
+      if (protocolNumber == null || protocolNumber.trim() === "") {
+        alert("Παρακαλώ συμπληρώστε τον Αριθμό Πρωτοκόλλου (ΑΠ).");
+        return;
+      }
       await approveThesis(thesisId, assemblyNumber, protocolNumber);
-      window.location.reload();
-    } catch (error) {
-      console.error("Error approving thesis:", error);
-      alert(
-        "Παρουσιάστηκε σφάλμα κατά την έγκριση της εργασίας. Παρακαλώ δοκιμάστε ξανά."
-      );
-    }
-  } else {
-    const reason = event.target.reason.value;
-
-    if (reason == null || reason.trim() === "") {
-      alert("Παρακαλώ συμπληρώστε τον λόγο απόρριψης.");
-      return;
-    }
-
-    try {
+    } else {
+      const reason = event.target.reason.value;
+      if (reason == null || reason.trim() === "") {
+        alert("Παρακαλώ συμπληρώστε τον λόγο απόρριψης.");
+        return;
+      }
       await cancelThesis(thesisId, assemblyNumber, reason);
-      window.location.reload();
-    } catch (error) {
-      console.error("Error rejecting thesis:", error);
-      alert(
-        "Παρουσιάστηκε σφάλμα κατά την απόρριψη της εργασίας. Παρακαλώ δοκιμάστε ξανά."
-      );
     }
+    window.location.reload();
+  } catch (error) {
+    console.error(error);
+    alert("Παρουσιάστηκε σφάλμα. Παρακαλώ δοκιμάστε ξανά.");
   }
-  // TODO
 }
 
 async function onThesisApprovalFormReset(event) {
@@ -91,6 +76,19 @@ async function onAcceptCheckboxChange(event) {
   }
 }
 
+async function onCompleteThesisButtonClick(event) {
+  event.preventDefault();
+
+  try {
+    await completeThesis(thesisId);
+    window.location.reload();
+  } catch (error) {
+    console.error(error);
+    alert("Παρουσιάστηκε σφάλμα. Παρακαλώ δοκιμάστε ξανά.");
+    return;
+  }
+}
+
 function renderThesisActions(thesis) {
   thesisId = thesis.id;
 
@@ -120,7 +118,7 @@ function renderThesisActions(thesis) {
   const completeThesisButton = document.getElementById("complete-thesis-btn");
   const nemertesLink = document.getElementById("nemertes-link");
 
-  // TODO: grading-status, and button press
+  // TODO: grading-status
 
   if (thesis.nemertesLink == null) {
     completeThesisButton.classList.add("disabled");
@@ -135,6 +133,8 @@ function renderThesisActions(thesis) {
     nemertesLink.innerHTML = "Αναμένεται από φοιτητή/τρια...";
     nemertesLink.href = "#";
   }
+
+  completeThesisButton.addEventListener("click", onCompleteThesisButtonClick);
 
   const thesisApprovalForm = document.getElementById("thesis-approval-form");
   const rejectCheckbox = document.getElementById("reject-checkbox");

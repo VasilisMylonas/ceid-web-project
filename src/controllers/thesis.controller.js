@@ -111,6 +111,7 @@ export default class ThesisController {
   }
 
   static async cancel(req, res) {
+    // TODO: this is wrong
     const thesis = req.thesis;
 
     if (thesis.status !== ThesisStatus.ACTIVE) {
@@ -138,6 +139,8 @@ export default class ThesisController {
   }
 
   static async patchStatus(req, res) {
+    // TODO: this is wrong
+
     switch (req.body.status) {
       case ThesisStatus.UNDER_EXAMINATION: {
         if (req.user.role !== UserRole.PROFESSOR) {

@@ -1,9 +1,9 @@
 import request from "supertest";
 import bcrypt from "bcrypt";
 
-import db from "../models/index.js";
-import api from "../index.js";
-import { UserRole } from "../constants.js";
+import db from "../src/models/index.js";
+import api from "../src/api.js";
+import { UserRole } from "../src/constants.js";
 
 export async function createProfessorAgent(namepass) {
   const agent = request.agent(api);
@@ -15,7 +15,7 @@ export async function createProfessorAgent(namepass) {
     })
     .set("Accept", "application/json");
 
-  agent.set("Authorization", `Bearer ${response.body.token}`);
+  agent.set("Authorization", `Bearer ${response.body.data.token}`);
   agent.set("Accept", "application/json");
   return agent;
 }
@@ -29,7 +29,7 @@ export async function createStudentAgent() {
       password: "student",
     })
     .set("Accept", "application/json");
-  agent.set("Authorization", `Bearer ${response.body.token}`);
+  agent.set("Authorization", `Bearer ${response.body.data.token}`);
   agent.set("Accept", "application/json");
   return agent;
 }
@@ -37,11 +37,12 @@ export async function createStudentAgent() {
 export async function createProfessor(namepass) {
   const user = await db.User.create({
     username: namepass,
-    name: "Name",
+    name: `${namepass}-name`,
     password: await bcrypt.hash(namepass, 10),
     role: UserRole.PROFESSOR,
     email: `${namepass}@upatras.gr`,
     phone: "000",
+    address: `${namepass}-address`,
   });
 
   const professor = await db.Professor.create({
@@ -49,7 +50,7 @@ export async function createProfessor(namepass) {
     division: "Computer Science",
   });
 
-  return professor.id;
+  return professor;
 }
 
 export async function createStudent() {

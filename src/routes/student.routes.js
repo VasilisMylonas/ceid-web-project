@@ -1,12 +1,18 @@
 import express from "express";
-import { requireAuth } from "../middleware/authentication.js";
+import { requireAuth, requireRole } from "../middleware/authentication.js";
 import { validate } from "../middleware/validation.js";
-import { queryStudentsValidator } from "../validators/student.validators.js";
+import studentValidators from "../validators/student.validators.js";
 import { queryStudents } from "../controllers/student.controller.js";
+import { UserRole } from "../constants.js";
 
 const router = express.Router();
 router.use(requireAuth);
 
-router.get("/", validate(queryStudentsValidator), queryStudents);
+router.get(
+  "/",
+  validate(studentValidators.query),
+  requireRole(UserRole.PROFESSOR),
+  queryStudents
+);
 
 export default router;

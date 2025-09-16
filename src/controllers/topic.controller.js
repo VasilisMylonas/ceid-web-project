@@ -49,31 +49,57 @@ export default class TopicController {
       }
     }
 
-    const topics = await db.Topic.findAll(query);
-    res.status(StatusCodes.OK).json(topics);
+    const topics = await db.Topic.findAndCountAll(query);
+
+    res.success(topics.rows, {
+      count: topics.rows.length,
+      total: topics.count,
+    });
   }
 
   static async post(req, res) {
     const { title, summary } = req.body;
-    const professor = await req.user.getProfessor();
 
-    const thesisTopic = await db.Topic.create({
+    const professor = await req.user.getProfessor();
+    const topic = await professor.createTopic({
       title,
       summary,
-      professorId: professor.id,
     });
 
-    res.status(StatusCodes.CREATED).json(thesisTopic);
+    res.success(omit(topic.get(), "descriptionFile"));
   }
 
   static async get(req, res) {
-    // TODO: does not omit descriptionFile
-    res.status(StatusCodes.OK).json(omit(req.topic.get(), "descriptionFile"));
+    res.success(omit(req.topic.get(), "descriptionFile"));
+  }
+
+  static async put(req, res) {
+    if (await req.topic.isAssigned()) {
+      return res.error(
+        "Cannot modify an assigned topic",
+        StatusCodes.BAD_REQUEST
+      );
+    }
+
+    await req.topic.update(req.body);
+    res.success(omit(req.topic.get(), "descriptionFile"));
+  }
+
+  static async delete(req, res) {
+    if (await req.topic.isAssigned()) {
+      return res.error(
+        "Cannot delete an assigned topic",
+        StatusCodes.BAD_REQUEST
+      );
+    }
+
+    await req.topic.destroy();
+    res.success();
   }
 
   static async getDescription(req, res) {
     if (!req.topic.descriptionFile) {
-      return res.status(StatusCodes.NOT_FOUND).json();
+      return res.error("No description file", StatusCodes.NOT_FOUND);
     }
 
     res.status(StatusCodes.OK).sendFile(getFilePath(req.topic.descriptionFile));
@@ -81,37 +107,39 @@ export default class TopicController {
 
   static async putDescription(req, res) {
     if (!req.file) {
-      return res.status(StatusCodes.BAD_REQUEST).json();
+      return res.error("No file uploaded", StatusCodes.BAD_REQUEST);
     }
 
-    if (req.topic.isAssigned()) {
-      return res.status(StatusCodes.BAD_REQUEST).json();
+    if (await req.topic.isAssigned()) {
+      return res.error(
+        "Cannot modify description of an assigned topic",
+        StatusCodes.BAD_REQUEST
+      );
     }
 
     deleteIfExists(req.topic.descriptionFile);
     req.topic.descriptionFile = req.file.filename;
     await req.topic.save();
 
-    res.status(StatusCodes.NO_CONTENT).json();
+    res.success();
   }
 
-  static async put(req, res) {
-    const { title, summary } = req.body;
-
-    if (req.topic.isAssigned()) {
-      return res.status(StatusCodes.BAD_REQUEST).json();
+  static async deleteDescription(req, res) {
+    if (!req.topic.descriptionFile) {
+      return res.error("No description file", StatusCodes.NOT_FOUND);
     }
 
-    await req.topic.update({ title, summary });
-    res.status(StatusCodes.OK).json(req.topic);
-  }
-
-  static async delete(req, res) {
-    if (req.topic.isAssigned()) {
-      return res.status(StatusCodes.BAD_REQUEST).json();
+    if (await req.topic.isAssigned()) {
+      return res.error(
+        "Cannot delete description of an assigned topic",
+        StatusCodes.BAD_REQUEST
+      );
     }
 
-    await req.topic.destroy();
-    res.status(StatusCodes.NO_CONTENT).json();
+    deleteIfExists(req.topic.descriptionFile);
+    req.topic.descriptionFile = null;
+    await req.topic.save();
+
+    res.success();
   }
 }

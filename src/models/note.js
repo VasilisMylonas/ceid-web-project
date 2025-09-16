@@ -16,7 +16,7 @@ export default (sequelize) => {
         autoIncrement: true,
       },
       content: {
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
         allowNull: false,
       },
       thesisId: {

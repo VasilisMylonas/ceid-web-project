@@ -1,5 +1,5 @@
 import { StatusCodes } from "http-status-codes";
-import db from "../models/index.js";
+import db from "../src/models/index.js";
 import {
   createProfessorAgent,
   createStudentAgent,

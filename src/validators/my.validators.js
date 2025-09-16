@@ -36,6 +36,7 @@ export default {
       email: Joi.string().email().optional(),
       name: Joi.string().min(1).optional(),
       password: Joi.string().min(1).optional(),
+      address: Joi.string().min(1).optional(),
     }).unknown(false),
   },
   deleteProfile: {},

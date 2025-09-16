@@ -1,39 +1,65 @@
-document.addEventListener('DOMContentLoaded', () => {
-    // Sample data that would be fetched from a backend
-    const profileData = {
-        name: 'Γιάννης',
-        surname: 'Παπαδόπουλος',
-        studentId: '1234567',
-        address: 'Οδός Πανεπιστημίου 1, Πάτρα, 26504',
-        email: 'student@upatras.gr',
-        mobilePhone: '6901234567',
-        homePhone: '2610987654'
-    };
+document.addEventListener('DOMContentLoaded', async () => {
+    /**
+     * Fetches profile data from the backend.
+     * @returns {Promise<object|null>} The user profile data or null on error.
+     */
+    async function getProfileData() {
+        try {
+            // The response IS the profile object
+            const profile = await getProfile();
+
+            if (!profile) {
+                console.error("getProfileData: Received null or undefined profile from API.");
+                return null;
+            }
+
+            let name = '';
+            let surname = '';
+            if (profile.name) {
+                const nameParts = profile.name.split(' ');
+                name = nameParts[0];
+                surname = nameParts.slice(1).join(' ');
+            }
+
+            return {
+                ...profile,
+                name: name,
+                surname: surname,
+                // Extract the student ID from the nested Student object
+                studentId: profile.Student ? profile.Student.am : '',
+            };
+        } catch (error) {
+            console.error('Error fetching profile data:', error);
+            return null;
+        }
+    }
 
     /**
      * Populates the form with user profile data.
      * @param {object} data - The user profile data.
      */
     function populateProfileData(data) {
+        if (!data) return;
         // Populate static info
-        document.getElementById('student-name').textContent = data.name;
-        document.getElementById('student-surname').textContent = data.surname;
-        document.getElementById('student-id').textContent = data.studentId;
+        document.getElementById('student-name').textContent = data.name || '';
+        document.getElementById('student-surname').textContent = data.surname || '';
+        document.getElementById('student-id').textContent = data.studentId || '';
 
         // Populate editable info
-        document.getElementById('address').value = data.address;
-        document.getElementById('email').value = data.email;
-        document.getElementById('mobilePhone').value = data.mobilePhone;
-        document.getElementById('homePhone').value = data.homePhone;
+        document.getElementById('address').value = data.address || '';
+        document.getElementById('email').value = data.email || '';
+        document.getElementById('mobilePhone').value = data.phone || '';
+        document.getElementById('homePhone').value = data.homePhone || '';
     }
 
     // Load the initial data into the form
+    const profileData = await getProfileData();
     populateProfileData(profileData);
 
     const form = document.getElementById('profile-form');
     if (!form) return;
 
-    form.addEventListener('click', (e) => {
+    form.addEventListener('click', async (e) => {
         const button = e.target.closest('.edit-btn');
         if (!button) return;
 
@@ -49,19 +75,27 @@ document.addEventListener('DOMContentLoaded', () => {
             input.focus();
             input.select();
 
-            button.innerHTML = '<i class="bi bi-save"></i>'; // Change icon to save
+            button.innerHTML = '<i class="bi bi-save"></i>';
             button.classList.remove('btn-outline-secondary');
             button.classList.add('btn-success');
         } else {
             // Switch to save mode
             input.setAttribute('readonly', true);
 
-            button.innerHTML = '<i class="bi bi-pencil"></i>'; // Change icon back to pencil
+            button.innerHTML = '<i class="bi bi-pencil"></i>';
             button.classList.remove('btn-success');
             button.classList.add('btn-outline-secondary');
 
-            // Here you would typically send the data to a server
-            console.log(`"Saved" ${targetInputId}: ${input.value}`);
+            // Send the data to the server
+            const fieldName = targetInputId === 'mobilePhone' ? 'phone' : targetInputId;
+            const body = { [fieldName]: input.value };
+
+            try {
+                await updateProfile(body);
+                console.log(`Saved ${targetInputId}: ${input.value}`);
+            } catch (error) {
+                console.error(`Error saving ${targetInputId}:`, error);
+            }
         }
     });
 });

@@ -25,12 +25,6 @@ export default (sequelize) => {
 
       return theses.length > 0;
     }
-
-    async canModify() {
-      return !(await this.isAssigned());
-    }
-
-    async canCancelAssignment() {}
   }
 
   Topic.init(

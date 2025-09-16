@@ -30,8 +30,11 @@ export function wrapResponse() {
             res.status(StatusCodes.CREATED);
             break;
           default: // PUT, PATCH
-            // TODO: OK or NO_CONTENT prefer OK
-            res.status(StatusCodes.OK);
+            if (data === undefined) {
+              res.status(StatusCodes.NO_CONTENT);
+            } else {
+              res.status(StatusCodes.OK);
+            }
             break;
         }
       }
@@ -48,39 +51,16 @@ export function wrapResponse() {
 
     // Add custom error function
     // BAD_REQUEST, NOT_FOUND, INTERNAL_SERVER_ERROR, UNAUTHORIZED, FORBIDDEN, CONFLICT, NOT_IMPLEMENTED
-    res.error = (message, status = StatusCodes.BAD_REQUEST, meta = {}) => {
+    res.error = (message, status = StatusCodes.BAD_REQUEST) => {
       res.status(status);
       return originalJsonMethod({
         success: false,
         error: { message },
         meta: {
           ...req.context,
-          ...meta,
         },
       });
     };
-
-    // TODO: remove this
-    // res.json = (payload = {}) => {
-    //   if (res.statusCode === StatusCodes.NO_CONTENT) {
-    //     // Respect NO_CONTENT
-    //     return originalJsonMethod();
-    //   }
-
-    //   const isSuccess = res.statusCode >= 200 && res.statusCode < 300;
-
-    //   if (isSuccess) {
-    //     return originalJsonMethod({
-    //       success: true,
-    //       data: payload,
-    //     });
-    //   }
-
-    //   return originalJsonMethod({
-    //     success: false,
-    //     error: payload,
-    //   });
-    // };
 
     next();
   };

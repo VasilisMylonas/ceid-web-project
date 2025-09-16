@@ -10,7 +10,7 @@ export default class UserController {
 
   static async postBatch(req, res) {
     const created = await UserService.createMany(req.body);
-    return res.success(created.map((user) => omit(user.get(), "password")));
+    res.success(created.map((user) => omit(user.get(), "password")));
   }
 
   static async post(req, res) {

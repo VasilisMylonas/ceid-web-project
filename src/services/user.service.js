@@ -29,8 +29,9 @@ export default class UserService {
     return user;
   }
 
+
   static async query({ limit, offset, role }) {
-    const users = await db.User.findAll({
+    const users = await db.User.findAndCountAll({
       attributes: ["id", "name", "email", "role"],
       limit,
       offset,
@@ -41,9 +42,7 @@ export default class UserService {
       raw: true,
     });
 
-    const total = await db.User.count();
-
-    return { users, total, count: users.length };
+    return { users: users.rows, total: users.count };
   }
 
   static async createMany(users) {

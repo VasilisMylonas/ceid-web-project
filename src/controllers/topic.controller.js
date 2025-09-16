@@ -74,10 +74,7 @@ export default class TopicController {
 
   static async put(req, res) {
     if (await req.topic.isAssigned()) {
-      return res.error(
-        "Cannot modify an assigned topic",
-        StatusCodes.BAD_REQUEST
-      );
+      return res.error("Cannot modify an assigned topic", StatusCodes.CONFLICT);
     }
 
     await req.topic.update(req.body);
@@ -86,10 +83,7 @@ export default class TopicController {
 
   static async delete(req, res) {
     if (await req.topic.isAssigned()) {
-      return res.error(
-        "Cannot delete an assigned topic",
-        StatusCodes.BAD_REQUEST
-      );
+      return res.error("Cannot delete an assigned topic", StatusCodes.CONFLICT);
     }
 
     await req.topic.destroy();
@@ -112,7 +106,7 @@ export default class TopicController {
     if (await req.topic.isAssigned()) {
       return res.error(
         "Cannot modify description of an assigned topic",
-        StatusCodes.BAD_REQUEST
+        StatusCodes.CONFLICT
       );
     }
 
@@ -131,7 +125,7 @@ export default class TopicController {
     if (await req.topic.isAssigned()) {
       return res.error(
         "Cannot delete description of an assigned topic",
-        StatusCodes.BAD_REQUEST
+        StatusCodes.CONFLICT
       );
     }
 

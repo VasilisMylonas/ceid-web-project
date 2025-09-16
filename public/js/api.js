@@ -113,6 +113,10 @@ async function cancelThesis(thesisId, assemblyNumber, reason) {
   });
 }
 
+async function completeThesis(thesisId) {
+  return await request("POST", `${BASE_URL}/v1/theses/${thesisId}/complete`);
+}
+
 class Name {
   static ofThesisStatus(status) {
     switch (status) {

@@ -1,5 +1,6 @@
 import { ThesisRole, ThesisStatus } from "../constants.js";
 import Joi from "joi";
+import userValidators from "./user.validators.js";
 
 export default {
   getTopics: {
@@ -29,15 +30,7 @@ export default {
   },
   getProfile: {},
   patchProfile: {
-    body: Joi.object({
-      phone: Joi.string()
-        .regex(/^[0-9]{10}$/)
-        .optional(),
-      email: Joi.string().email().optional(),
-      name: Joi.string().min(1).optional(),
-      password: Joi.string().min(1).optional(),
-      address: Joi.string().min(1).optional(),
-    }).unknown(false),
+    body: userValidators.patch.body,
   },
   deleteProfile: {},
   getThesis: {},

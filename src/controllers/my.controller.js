@@ -45,7 +45,7 @@ export default class MyController {
       return res.error("No such user", StatusCodes.NOT_FOUND);
     }
 
-    res.success(omit(user, "password"));
+    res.success(omit(user.get(), "password"));
   }
 
   static async patchProfile(req, res) {
@@ -55,7 +55,7 @@ export default class MyController {
       return res.error("No such user", StatusCodes.NOT_FOUND);
     }
 
-    res.success(omit(user, "password"));
+    res.success(omit(user.get(), "password"));
   }
 
   static async deleteProfile(req, res) {

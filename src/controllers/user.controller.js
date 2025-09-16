@@ -10,12 +10,12 @@ export default class UserController {
 
   static async postBatch(req, res) {
     const created = await UserService.createMany(req.body);
-    return res.success(created.map((user) => omit(user, "password")));
+    return res.success(created.map((user) => omit(user.get(), "password")));
   }
 
   static async post(req, res) {
     const created = await UserService.createOne(req.body);
-    res.success(omit(created, "password"));
+    res.success(omit(created.get(), "password"));
   }
 
   static async get(req, res) {
@@ -25,7 +25,7 @@ export default class UserController {
       return res.error("No such user", StatusCodes.NOT_FOUND);
     }
 
-    res.success(omit(user, "password"));
+    res.success(omit(user.get(), "password"));
   }
 
   static async patch(req, res) {
@@ -35,7 +35,7 @@ export default class UserController {
       return res.error("No such user", StatusCodes.NOT_FOUND);
     }
 
-    res.success(omit(user, "password"));
+    res.success(omit(user.get(), "password"));
   }
 
   static async delete(req, res) {

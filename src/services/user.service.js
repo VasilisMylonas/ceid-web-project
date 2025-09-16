@@ -18,7 +18,7 @@ export default class UserService {
       data.password = await bcrypt.hash(data.password, 10);
     }
 
-    const user = await this.getById(id);
+    const user = await UserService.getById(id);
 
     if (!user) {
       return null;

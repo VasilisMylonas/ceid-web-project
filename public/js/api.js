@@ -82,10 +82,16 @@ async function getThesisDraft(thesisId) {
   return await response.blob();
 }
 
+async function createThesisPresentation(thesisId, presentationData) {
+  return await request("POST", `${BASE_URL}/v1/theses/${thesisId}/presentations`, presentationData);
+}
+
 async function uploadThesisDraft(thesisId, formData) {
   return await requestWithFile("PUT", `${BASE_URL}/v1/theses/${thesisId}/draft`, formData );
 }
-
+async function setNymertesLink(thesisId, link) {
+  return await request("PUT", `${BASE_URL}/v1/theses/${thesisId}/nemertes-link`, { link });
+}
 async function getThesisResources(thesisId) {
   return await request("GET", `${BASE_URL}/v1/theses/${thesisId}/resources`);
 }

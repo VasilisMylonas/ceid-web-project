@@ -54,34 +54,50 @@ document.addEventListener('DOMContentLoaded', async () => {
         saveExamBtn.addEventListener('click', async () => {
             if (!thesis) return;
 
-            const linksText = document.getElementById('links-to-add').value;
-            // Split by newline, trim whitespace, and filter out empty lines
-            const linksArray = linksText.split('\n').map(link => link.trim()).filter(link => link);
-
-            if (linksArray.length === 0) {
-                alert('Παρακαλώ εισάγετε τουλάχιστον έναν σύνδεσμο για αποθήκευση.');
-                return;
-            }
-
-            // Format for the API: [{link: "...", kind: "other"}]
-            const resources = linksArray.map(link => ({ link: link, kind: 'other' }));
-
+            // --- Handle Presentation Data ---
             try {
-                // The API likely expects one resource per call.
-                // We create an array of promises, one for each resource to be added.
-                const resourcePromises = resources.map(resource => addThesisResources(thesis.id, resource));
-                
-                // Wait for all the individual requests to complete.
-                await Promise.all(resourcePromises);
+                const date = document.getElementById('examDate').value;
+                const time = document.getElementById('examTime').value;
+                const kind = document.querySelector('input[name="examType"]:checked').value;
+                const location = document.getElementById('examLocation').value;
 
-                alert('Οι σύνδεσμοι αποθηκεύτηκαν με επιτυχία.');
-                document.getElementById('links-to-add').value = ''; // Clear the textarea
-                await populateExaminationState(thesis); // Refresh the list of links
+                if (date && time && kind && location) {
+                    const presentationData = {
+                        date: date, // Combine and format as ISO string
+                        kind: kind === 'online' ? 'online' : 'in_person',
+                    };
 
+                    if (presentationData.kind === 'online') {
+                        presentationData.link = location;
+                    } else {
+                        presentationData.hall = location;
+                    }
+                    console.log("Saving presentation data:", presentationData);
+                    //await createThesisPresentation(thesis.id, presentationData);
+                    alert('Οι λεπτομέρειες της εξέτασης αποθηκεύτηκαν.');
+                }
             } catch (error) {
-                console.error('Failed to save links:', error);
-                alert('Προέκυψε σφάλμα κατά την αποθήκευση των συνδέσμων.');
+                console.error('Failed to save presentation details:', error);
+                alert('Σφάλμα κατά την αποθήκευση των λεπτομερειών της εξέτασης.');
             }
+
+            // --- Handle Links Data ---
+            const linksText = document.getElementById('links-to-add').value;
+            const linksArray = linksText.split('\n').map(link => link.trim()).filter(link => link);
+            
+            if (linksArray.length > 0) {
+                const resources = linksArray.map(link => ({ link: link, kind: 'other' }));
+                try {
+                    const promises = resources.map(res => addThesisResources(thesis.id, res));
+                    await Promise.all(promises);
+                    alert('Οι σύνδεσμοι αποθηκεύτηκαν.');
+                    document.getElementById('links-to-add').value = '';
+                } catch (error) {
+                    console.error('Failed to save links:', error);
+                    alert('Σφάλμα κατά την αποθήκευση των συνδέσμων.');
+                }
+            }
+
         });
     }
 

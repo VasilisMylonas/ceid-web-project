@@ -69,9 +69,17 @@ async function getProfile() {
   return await request("GET", `${BASE_URL}/v1/my/profile`);
 }
 
-async function addThesisResources(thesisId, resources) {
+async function addThesisResources(thesisId, resource) { // Expects a single resource object
+  return await request("POST", `${BASE_URL}/v1/theses/${thesisId}/resources`, resource);
+}
 
-  return await request("POST", `${BASE_URL}/v1/theses/${thesisId}/resources`, resources);
+// This function is special because it returns a Blob, not JSON.
+async function getThesisDraft(thesisId) {
+  const response = await fetch(`${BASE_URL}/v1/theses/${thesisId}/draft`);
+  if (!response.ok) {
+    throw new Error(`Failed to download file: ${response.statusText}`);
+  }
+  return await response.blob();
 }
 
 async function uploadThesisDraft(thesisId, formData) {

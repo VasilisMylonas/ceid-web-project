@@ -113,6 +113,40 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+    // --- Display Current Draft Button ---
+    const downloadDraftBtn = document.getElementById('download-draft-btn');
+    
+    downloadDraftBtn.innerHTML = `
+        <i class="fas fa-file-download me-2"></i>Λήψη Τρέχοντος Αρχείου 
+    `;
+    downloadDraftBtn.style.display = 'block';
+
+   
+    if (downloadDraftBtn) {
+        downloadDraftBtn.addEventListener('click', async () => {
+            if (thesis) {
+                try {
+                    const blob = await getThesisDraft(thesis.id);
+                    
+                    // Create a temporary link to trigger the download
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = url;
+                    a.download = 'current_draft.pdf'; 
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    a.remove();
+
+                } catch (error) {
+                    console.error('Failed to download thesis draft:', error);
+                    alert('Προέκυψε σφάλμα κατά τη λήψη του αρχείου.');
+                }
+            }
+        });
+    }
+
     let activeStateCard = null;
 
     switch (thesis.status) {
@@ -399,6 +433,9 @@ async function populateExaminationState(thesis) {
         console.error("Failed to load thesis resources:", error);
         linksList.innerHTML = '<li class="list-group-item text-danger">Σφάλμα φόρτωσης συνδέσμων.</li>';
     }
+
+
+
 
     // Populate other fields
     document.getElementById('examDate').value = thesis.presentationDate ? new Date(thesis.presentationDate).toISOString().split('T')[0] : '';

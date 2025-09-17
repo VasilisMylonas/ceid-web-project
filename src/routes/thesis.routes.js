@@ -18,6 +18,12 @@ const router = express.Router();
 router.use(requireAuth);
 
 // TODO: perms
+router.get(
+  "/",
+  validate(thesisValidator.query),
+  requireRole(UserRole.SECRETARY),
+  ThesisController.query
+);
 router.post(
   "/",
   validate(thesisValidator.post),
@@ -42,58 +48,14 @@ router.delete(
   requireThesisRole(ThesisRole.SUPERVISOR),
   ThesisController.delete
 );
-
 router.patch(
-  "/:id/grading",
-  validate(thesisValidator.patchGrading),
-  model(db.Thesis, "thesis"),
-  requireThesisRole(ThesisRole.SUPERVISOR),
-  requireThesisStatus(ThesisStatus.UNDER_EXAMINATION),
-  ThesisController.patchGrading
-);
-router.get(
-  "/:id/invitations",
-  validate(thesisValidator.getInvitations),
-  model(db.Thesis, "thesis"),
-  requireThesisRole(ThesisRole.SUPERVISOR, ThesisRole.STUDENT),
-  ThesisController.getInvitations
-);
-router.post(
-  "/:id/invitations",
-  validate(thesisValidator.postInvitation),
-  model(db.Thesis, "thesis"),
-  requireThesisRole(ThesisRole.STUDENT),
-  ThesisController.postInvitation
-);
-router.post(
-  "/:id/notes",
-  validate(thesisValidator.postNote),
-  model(db.Thesis, "thesis"),
-  requireThesisRole(ThesisRole.COMMITTEE_MEMBER, ThesisRole.SUPERVISOR),
-  ThesisController.postNote
-);
-router.get(
-  "/:id/notes",
-  validate(thesisValidator.getNotes),
-  model(db.Thesis, "thesis"),
-  requireThesisRole(ThesisRole.COMMITTEE_MEMBER, ThesisRole.SUPERVISOR),
-  ThesisController.getNotes
-);
-router.post(
-  "/:id/cancel",
-  validate(thesisValidator.cancel),
-  model(db.Thesis, "thesis"),
-  requireThesisRole(ThesisRole.SUPERVISOR),
-  ThesisController.cancel
-);
-router.patch(
+  // TODO: patch for historical reasons, should be put
   "/:id/status",
-  validate(thesisValidator.patchStatus),
+  validate(thesisValidator.putStatus),
   model(db.Thesis, "thesis"),
   requireThesisRoleOrSecretary(ThesisRole.SUPERVISOR),
-  ThesisController.patchStatus
+  ThesisController.putStatus
 );
-
 router.put(
   "/:id/nemertes-link",
   validate(thesisValidator.putNemertesLink),
@@ -101,7 +63,15 @@ router.put(
   requireThesisRole(ThesisRole.STUDENT),
   ThesisController.putNemertesLink
 );
-
+router.patch(
+  // TODO: patch for historical reasons, should be put
+  "/:id/grading",
+  validate(thesisValidator.putGrading),
+  model(db.Thesis, "thesis"),
+  requireThesisRole(ThesisRole.SUPERVISOR),
+  requireThesisStatus(ThesisStatus.UNDER_EXAMINATION),
+  ThesisController.putGrading
+);
 router.get(
   "/:id/draft",
   validate(thesisValidator.getDraft),
@@ -121,13 +91,44 @@ router.put(
   requireThesisRole(ThesisRole.STUDENT),
   ThesisController.putDraft
 );
-router.get(
-  "/",
-  validate(thesisValidator.query),
-  requireRole(UserRole.SECRETARY),
-  ThesisController.query
+
+// TODO
+router.post(
+  "/:id/cancel",
+  validate(thesisValidator.cancel),
+  model(db.Thesis, "thesis"),
+  requireThesisRole(ThesisRole.SUPERVISOR),
+  ThesisController.cancel
 );
 
+router.get(
+  "/:id/invitations",
+  validate(thesisValidator.getInvitations),
+  model(db.Thesis, "thesis"),
+  requireThesisRole(ThesisRole.SUPERVISOR, ThesisRole.STUDENT),
+  ThesisController.getInvitations
+);
+router.post(
+  "/:id/invitations",
+  validate(thesisValidator.postInvitation),
+  model(db.Thesis, "thesis"),
+  requireThesisRole(ThesisRole.STUDENT),
+  ThesisController.postInvitation
+);
+router.get(
+  "/:id/notes",
+  validate(thesisValidator.getNotes),
+  model(db.Thesis, "thesis"),
+  requireThesisRole(ThesisRole.COMMITTEE_MEMBER, ThesisRole.SUPERVISOR),
+  ThesisController.getNotes
+);
+router.post(
+  "/:id/notes",
+  validate(thesisValidator.postNote),
+  model(db.Thesis, "thesis"),
+  requireThesisRole(ThesisRole.COMMITTEE_MEMBER, ThesisRole.SUPERVISOR),
+  ThesisController.postNote
+);
 router.get(
   "/:id/resources",
   validate(thesisValidator.getResources),
@@ -139,6 +140,13 @@ router.get(
   ),
   ThesisController.getResources
 );
+router.post(
+  "/:id/resources",
+  validate(thesisValidator.postResource),
+  model(db.Thesis, "thesis"),
+  requireThesisRole(ThesisRole.STUDENT, ThesisRole.SUPERVISOR),
+  ThesisController.postResource
+);
 router.get(
   "/:id/presentations",
   validate(thesisValidator.getPresentations),
@@ -149,13 +157,6 @@ router.get(
     ThesisRole.COMMITTEE_MEMBER
   ),
   ThesisController.getPresentations
-);
-router.post(
-  "/:id/resources",
-  validate(thesisValidator.postResource),
-  model(db.Thesis, "thesis"),
-  requireThesisRole(ThesisRole.STUDENT, ThesisRole.SUPERVISOR),
-  ThesisController.postResource
 );
 router.post(
   "/:id/presentations",

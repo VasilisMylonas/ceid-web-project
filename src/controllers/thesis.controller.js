@@ -37,57 +37,45 @@ export default class ThesisController {
     res.success();
   }
 
-  static async patchGrading(req, res) {
-    await req.thesis.update({ grading: req.body.grading });
-    res.status(StatusCodes.OK).json(req.thesis);
+  static async putNemertesLink(req, res) {
+    const nemertesLink = await ThesisService.setNemertesLink(
+      req.params.id,
+      req.body.nemertesLink
+    );
+    res.success({ nemertesLink });
   }
 
-  static async getNotes(req, res) {
-    const professor = await req.user.getProfessor();
-    const notes = await req.thesis.getNotes({
-      where: { professorId: professor.id },
-      order: [["id", "ASC"]],
-    });
-
-    res.success(notes, { count: notes.length, total: notes.length });
+  static async putGrading(req, res) {
+    const grading = await ThesisService.setGrading(
+      req.params.id,
+      req.body.grading
+    );
+    res.success({ grading });
   }
 
-  static async postNote(req, res) {
-    const professor = await req.user.getProfessor();
-    const note = await db.Note.create({
-      thesisId: req.thesis.id,
-      professorId: professor.id,
-      content: req.body.content,
-    });
-    res.success(note);
+  static async getDraft(req, res) {
+    if (!req.thesis.documentFile) {
+      return res.status(StatusCodes.NOT_FOUND).json();
+    }
+    res.status(StatusCodes.OK).sendFile(getFilePath(req.thesis.documentFile));
   }
 
-  static async getInvitations(req, res) {
-    const invitations = await req.thesis.getInvitations({
-      order: [["id", "ASC"]],
-    });
-    res.status(StatusCodes.OK).json(invitations);
-  }
-
-  static async postInvitation(req, res) {
-    const invitations = await db.Invitation.findAll({
-      where: {
-        thesisId: req.thesis.id,
-        professorId: req.body.professorId,
-      },
-    });
-
-    if (invitations.length > 0) {
-      return res.status(StatusCodes.CONFLICT).json({
-        message: "An identical invitation already exists.",
-      });
+  static async putDraft(req, res) {
+    if (!req.file) {
+      return res.status(StatusCodes.BAD_REQUEST).json();
     }
 
-    const invitation = await db.Invitation.create({
-      thesisId: req.thesis.id,
-      professorId: req.body.professorId,
-    });
-    res.status(StatusCodes.CREATED).json(invitation);
+    if (!req.thesis.status === ThesisStatus.ACTIVE) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: "Thesis is not active." });
+    }
+
+    deleteIfExists(req.thesis.documentFile);
+    req.thesis.documentFile = req.file.filename;
+    await req.thesis.save();
+
+    res.status(StatusCodes.NO_CONTENT).json();
   }
 
   static async cancel(req, res) {
@@ -118,7 +106,7 @@ export default class ThesisController {
     return res.status(StatusCodes.OK).json(req.thesis);
   }
 
-  static async patchStatus(req, res) {
+  static async putStatus(req, res) {
     // TODO: this is wrong
 
     switch (req.body.status) {
@@ -201,41 +189,52 @@ export default class ThesisController {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json();
   }
 
-  static async getDraft(req, res) {
-    if (!req.thesis.documentFile) {
-      return res.status(StatusCodes.NOT_FOUND).json();
-    }
-    res.status(StatusCodes.OK).sendFile(getFilePath(req.thesis.documentFile));
-  }
-
-  static async putDraft(req, res) {
-    if (!req.file) {
-      return res.status(StatusCodes.BAD_REQUEST).json();
-    }
-
-    if (!req.thesis.status === ThesisStatus.ACTIVE) {
-      return res
-        .status(StatusCodes.BAD_REQUEST)
-        .json({ message: "Thesis is not active." });
-    }
-
-    deleteIfExists(req.thesis.documentFile);
-    req.thesis.documentFile = req.file.filename;
-    await req.thesis.save();
-
-    res.status(StatusCodes.NO_CONTENT).json();
-  }
-
-  static async putNemertesLink(req, res) {
-    if (req.thesis.status !== ThesisStatus.UNDER_EXAMINATION) {
-      return res.error("Thesis is not under examination.");
-    }
-
-    await req.thesis.update({ nemertesLink: req.body.nemertesLink });
-
-    res.success({
-      nemertesLink: req.thesis.nemertesLink,
+  static async getNotes(req, res) {
+    const professor = await req.user.getProfessor();
+    const notes = await req.thesis.getNotes({
+      where: { professorId: professor.id },
+      order: [["id", "ASC"]],
     });
+
+    res.success(notes, { count: notes.length, total: notes.length });
+  }
+
+  static async postNote(req, res) {
+    const professor = await req.user.getProfessor();
+    const note = await db.Note.create({
+      thesisId: req.thesis.id,
+      professorId: professor.id,
+      content: req.body.content,
+    });
+    res.success(note);
+  }
+
+  static async getInvitations(req, res) {
+    const invitations = await req.thesis.getInvitations({
+      order: [["id", "ASC"]],
+    });
+    res.status(StatusCodes.OK).json(invitations);
+  }
+
+  static async postInvitation(req, res) {
+    const invitations = await db.Invitation.findAll({
+      where: {
+        thesisId: req.thesis.id,
+        professorId: req.body.professorId,
+      },
+    });
+
+    if (invitations.length > 0) {
+      return res.status(StatusCodes.CONFLICT).json({
+        message: "An identical invitation already exists.",
+      });
+    }
+
+    const invitation = await db.Invitation.create({
+      thesisId: req.thesis.id,
+      professorId: req.body.professorId,
+    });
+    res.status(StatusCodes.CREATED).json(invitation);
   }
 
   static async getResources(req, res) {

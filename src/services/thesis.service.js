@@ -1,5 +1,6 @@
 import db from "../models/index.js";
 import { ConflictError, NotFoundError, SecurityError } from "../errors.js";
+import { ThesisStatus } from "../constants.js";
 
 export default class ThesisService {
   static async create({ topicId, studentId }) {
@@ -173,5 +174,23 @@ ${offset ? `OFFSET ${offset}` : ""}
     const total = results.length > 0 ? parseInt(results[0].total) : 0;
     results.forEach((r) => delete r.total);
     return { results, total };
+  }
+
+  static async setNemertesLink(id, nemertesLink) {
+    const thesis = await ThesisService.get(id);
+    if (thesis.status !== ThesisStatus.UNDER_EXAMINATION) {
+      throw new ConflictError("Thesis is not under examination.");
+    }
+    await thesis.update({ nemertesLink });
+    return thesis.nemertesLink;
+  }
+
+  static async setGrading(id, grading) {
+    const thesis = await ThesisService.get(id);
+    if (thesis.status !== ThesisStatus.UNDER_EXAMINATION) {
+      throw new ConflictError("Thesis is not under examination.");
+    }
+    await thesis.update({ grading });
+    return thesis.grading;
   }
 }

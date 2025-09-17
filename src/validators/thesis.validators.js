@@ -13,7 +13,7 @@ export default {
       assemblyNumber: Joi.number().integer().min(1).required(),
     }),
   },
-  patchStatus: {
+  putStatus: {
     params: Joi.object({
       id: Joi.number().integer().min(1).required(),
     }).unknown(false),
@@ -84,7 +84,7 @@ export default {
       nemertesLink: Joi.string().uri().required(),
     }).unknown(false),
   },
-  patchGrading: {
+  putGrading: {
     params: Joi.object({
       id: Joi.number().integer().min(1).required(),
     }).unknown(false),

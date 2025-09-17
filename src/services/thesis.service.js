@@ -144,7 +144,7 @@ JOIN users AS supervisor_users ON supervisors.user_id = supervisor_users.id
 JOIN committee_members ON theses.id = committee_members.thesis_id
 JOIN professors ON committee_members.professor_id = professors.id
 JOIN users AS professor_users ON professors.user_id = professor_users.id
-WHERE theses.id = :id'
+WHERE theses.id = :id
     `;
 
     const [results] = await db.sequelize.query(rawQuery, {
@@ -164,7 +164,7 @@ WHERE theses.id = :id'
       FROM committee_members
       JOIN professors ON committee_members.professor_id = professors.id
       JOIN users ON professors.user_id = users.id
-      WHERE committee_members.thesis_id = :id'
+      WHERE committee_members.thesis_id = :id
     `;
 
     const [committeeMembers] = await db.sequelize.query(rawQuery2, {
@@ -358,5 +358,102 @@ ${offset ? `OFFSET ${offset}` : ""}
 
     await thesis.save();
     return thesis;
+  }
+
+  static async getResources(id, user) {
+    const thesis = await ThesisService._assertUserHasThesisRoles(id, user, [
+      ThesisRole.SUPERVISOR,
+      ThesisRole.STUDENT,
+      ThesisRole.COMMITTEE_MEMBER,
+    ]);
+
+    return await thesis.getResources({ order: [["id", "ASC"]] });
+  }
+
+  static async createResource(id, user, { link, type }) {
+    const thesis = await ThesisService._assertUserHasThesisRoles(id, user, [
+      ThesisRole.STUDENT,
+    ]);
+
+    return await thesis.createResource({
+      link,
+      type,
+    });
+  }
+
+  static async getPresentations(id, user) {
+    const thesis = await ThesisService._assertUserHasThesisRoles(id, user, [
+      ThesisRole.SUPERVISOR,
+      ThesisRole.STUDENT,
+      ThesisRole.COMMITTEE_MEMBER,
+    ]);
+
+    return await thesis.getPresentations({ order: [["id", "ASC"]] });
+  }
+
+  static async createPresentation(id, user, { date, kind, hall, link }) {
+    const thesis = await ThesisService._assertUserHasThesisRoles(id, user, [
+      ThesisRole.STUDENT,
+    ]);
+
+    // TODO: maybe check for overlapping presentations?
+    return await thesis.createPresentation({
+      date,
+      kind,
+      hall,
+      link,
+    });
+  }
+
+  static async getInvitations(id, user) {
+    const thesis = await ThesisService._assertUserHasThesisRoles(id, user, [
+      ThesisRole.SUPERVISOR,
+      ThesisRole.STUDENT,
+    ]);
+
+    return await thesis.getInvitations({ order: [["id", "ASC"]] });
+  }
+
+  static async createInvitation(id, user, professorId) {
+    const thesis = await ThesisService._assertUserHasThesisRoles(id, user, [
+      ThesisRole.STUDENT,
+    ]);
+
+    const invitations = await thesis.getInvitations({
+      where: { professorId },
+    });
+
+    if (invitations.length > 0) {
+      throw new ConflictError("An identical invitation already exists.");
+    }
+
+    return await thesis.createInvitation({ professorId });
+  }
+
+  static async getNotes(id, user) {
+    const thesis = await ThesisService._assertUserHasThesisRoles(id, user, [
+      ThesisRole.SUPERVISOR,
+      ThesisRole.COMMITTEE_MEMBER,
+    ]);
+
+    const professor = await user.getProfessor();
+    return await thesis.getNotes({
+      where: { professorId: professor.id },
+      order: [["id", "ASC"]],
+    });
+  }
+
+  static async createNote(id, user, content) {
+    const thesis = await ThesisService._assertUserHasThesisRoles(id, user, [
+      ThesisRole.SUPERVISOR,
+      ThesisRole.COMMITTEE_MEMBER,
+    ]);
+
+    const professor = await user.getProfessor();
+    return await db.Note.create({
+      thesisId: thesis.id,
+      professorId: professor.id,
+      content,
+    });
   }
 }

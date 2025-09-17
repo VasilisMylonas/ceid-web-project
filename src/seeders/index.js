@@ -30,6 +30,28 @@ export default async function seedDatabase() {
     division: "Software Engineering",
   });
 
+  const professor2 = await UserService.create({
+    username: "professor2",
+    password: "professor2",
+    email: "professor2@example.com",
+    name: "Test Professor 2",
+    role: UserRole.PROFESSOR,
+    phone: "6942023594",
+    address: "ADDRESS",
+    division: "Software Engineering",
+  });
+
+  const professor3 = await UserService.create({
+    username: "professor3",
+    password: "professor3",
+    email: "professor3@example.com",
+    name: "Test Professor 3",
+    role: UserRole.PROFESSOR,
+    phone: "6942023594",
+    address: "ADDRESS",
+    division: "Software Engineering",
+  });
+
   const student = await UserService.create({
     username: "student",
     password: "student",

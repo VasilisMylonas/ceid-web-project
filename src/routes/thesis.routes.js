@@ -2,10 +2,7 @@ import express from "express";
 import multer from "multer";
 import { fileStorage } from "../config/file-storage.js";
 import { requireAuth, requireRole } from "../middleware/authentication.js";
-import {
-  requireThesisRole,
-  requireThesisRoleOrSecretary,
-} from "../middleware/thesis.js";
+import { requireThesisRoleOrSecretary } from "../middleware/thesis.js";
 import { validate } from "../middleware/validation.js";
 import { UserRole, ThesisRole } from "../constants.js";
 import thesisValidator from "../validators/thesis.validators.js";
@@ -76,69 +73,44 @@ router.post(
   requireRole(UserRole.SECRETARY),
   ThesisController.complete
 );
-
 router.get(
   "/:id/invitations",
   validate(thesisValidator.getInvitations),
-  model(db.Thesis, "thesis"),
-  requireThesisRole(ThesisRole.SUPERVISOR, ThesisRole.STUDENT),
   ThesisController.getInvitations
 );
 router.post(
   "/:id/invitations",
   validate(thesisValidator.postInvitation),
-  model(db.Thesis, "thesis"),
-  requireThesisRole(ThesisRole.STUDENT),
   ThesisController.postInvitation
 );
 router.get(
   "/:id/notes",
   validate(thesisValidator.getNotes),
-  model(db.Thesis, "thesis"),
-  requireThesisRole(ThesisRole.COMMITTEE_MEMBER, ThesisRole.SUPERVISOR),
   ThesisController.getNotes
 );
 router.post(
   "/:id/notes",
   validate(thesisValidator.postNote),
-  model(db.Thesis, "thesis"),
-  requireThesisRole(ThesisRole.COMMITTEE_MEMBER, ThesisRole.SUPERVISOR),
   ThesisController.postNote
 );
 router.get(
   "/:id/resources",
   validate(thesisValidator.getResources),
-  model(db.Thesis, "thesis"),
-  requireThesisRole(
-    ThesisRole.STUDENT,
-    ThesisRole.SUPERVISOR,
-    ThesisRole.COMMITTEE_MEMBER
-  ),
   ThesisController.getResources
 );
 router.post(
   "/:id/resources",
   validate(thesisValidator.postResource),
-  model(db.Thesis, "thesis"),
-  requireThesisRole(ThesisRole.STUDENT, ThesisRole.SUPERVISOR),
   ThesisController.postResource
 );
 router.get(
   "/:id/presentations",
   validate(thesisValidator.getPresentations),
-  model(db.Thesis, "thesis"),
-  requireThesisRole(
-    ThesisRole.STUDENT,
-    ThesisRole.SUPERVISOR,
-    ThesisRole.COMMITTEE_MEMBER
-  ),
   ThesisController.getPresentations
 );
 router.post(
   "/:id/presentations",
   validate(thesisValidator.postPresentation),
-  model(db.Thesis, "thesis"),
-  requireThesisRole(ThesisRole.STUDENT, ThesisRole.SUPERVISOR),
   ThesisController.postPresentation
 );
 

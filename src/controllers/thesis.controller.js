@@ -90,57 +90,38 @@ export default class ThesisController {
   }
 
   static async getNotes(req, res) {
-    const professor = await req.user.getProfessor();
-    const notes = await req.thesis.getNotes({
-      where: { professorId: professor.id },
-      order: [["id", "ASC"]],
-    });
-
+    const notes = await ThesisService.getNotes(req.params.id, req.user);
     res.success(notes, { count: notes.length, total: notes.length });
   }
 
   static async postNote(req, res) {
-    const professor = await req.user.getProfessor();
-    const note = await db.Note.create({
-      thesisId: req.thesis.id,
-      professorId: professor.id,
-      content: req.body.content,
-    });
+    const note = await ThesisService.createNote(
+      req.params.id,
+      req.user,
+      req.body.content
+    );
     res.success(note);
   }
 
   static async getInvitations(req, res) {
-    const invitations = await req.thesis.getInvitations({
-      order: [["id", "ASC"]],
-    });
+    const invitations = await ThesisService.getInvitations(
+      req.params.id,
+      req.user
+    );
     res.status(StatusCodes.OK).json(invitations);
   }
 
   static async postInvitation(req, res) {
-    const invitations = await db.Invitation.findAll({
-      where: {
-        thesisId: req.thesis.id,
-        professorId: req.body.professorId,
-      },
-    });
-
-    if (invitations.length > 0) {
-      return res.status(StatusCodes.CONFLICT).json({
-        message: "An identical invitation already exists.",
-      });
-    }
-
-    const invitation = await db.Invitation.create({
-      thesisId: req.thesis.id,
-      professorId: req.body.professorId,
-    });
+    const invitation = await ThesisService.createInvitation(
+      req.params.id,
+      req.user,
+      req.body.professorId
+    );
     res.status(StatusCodes.CREATED).json(invitation);
   }
 
   static async getResources(req, res) {
-    const resources = await req.thesis.getResources({
-      order: [["id", "ASC"]],
-    });
+    const resources = await ThesisService.getResources(req.params.id, req.user);
     res.success(resources, {
       count: resources.length,
       total: resources.length,
@@ -148,9 +129,10 @@ export default class ThesisController {
   }
 
   static async getPresentations(req, res) {
-    const presentations = await req.thesis.getPresentations({
-      order: [["id", "ASC"]],
-    });
+    const presentations = await ThesisService.getPresentations(
+      req.params.id,
+      req.user
+    );
     res.success(presentations, {
       count: presentations.length,
       total: presentations.length,
@@ -158,26 +140,28 @@ export default class ThesisController {
   }
 
   static async postResource(req, res) {
-    const resource = await db.Resource.create({
-      thesisId: req.thesis.id,
-      link: req.body.link,
-      type: req.body.type,
-    });
-
+    const resource = await ThesisService.createResource(
+      req.params.id,
+      req.user,
+      {
+        link: req.body.link,
+        type: req.body.type,
+      }
+    );
     res.success(resource);
   }
 
   static async postPresentation(req, res) {
-    // TODO: maybe check for overlapping presentations?
-
-    const presentation = await db.Presentation.create({
-      thesisId: req.thesis.id,
-      date: req.body.date,
-      kind: req.body.kind,
-      hall: req.body.hall,
-      link: req.body.link,
-    });
-
+    const presentation = await ThesisService.createPresentation(
+      req.params.id,
+      req.user,
+      {
+        date: req.body.date,
+        kind: req.body.kind,
+        hall: req.body.hall,
+        link: req.body.link,
+      }
+    );
     res.success(presentation);
   }
 }

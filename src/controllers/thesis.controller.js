@@ -1,5 +1,4 @@
 import { StatusCodes } from "http-status-codes";
-import db from "../models/index.js";
 import ThesisService from "../services/thesis.service.js";
 
 export default class ThesisController {

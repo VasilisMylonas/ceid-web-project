@@ -49,7 +49,7 @@ export default class MyController {
   }
 
   static async deleteProfile(req, res) {
-    // TODO WONTFIX: delete user dependencies (professor, secretary, student)
+    // WONTFIX: delete user dependencies (professor, secretary, student)
     res.error("Not implemented", StatusCodes.NOT_IMPLEMENTED);
   }
 

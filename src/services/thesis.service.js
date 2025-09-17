@@ -375,6 +375,10 @@ ${offset ? `OFFSET ${offset}` : ""}
       ThesisRole.STUDENT,
     ]);
 
+    if (thesis.status !== ThesisStatus.UNDER_EXAMINATION) {
+      throw new ConflictError("Thesis is not under examination.");
+    }
+
     return await thesis.createResource({
       link,
       type,
@@ -395,6 +399,10 @@ ${offset ? `OFFSET ${offset}` : ""}
     const thesis = await ThesisService._assertUserHasThesisRoles(id, user, [
       ThesisRole.STUDENT,
     ]);
+
+    if (thesis.status !== ThesisStatus.UNDER_EXAMINATION) {
+      throw new ConflictError("Thesis is not under examination.");
+    }
 
     // TODO: maybe check for overlapping presentations?
     return await thesis.createPresentation({
@@ -418,6 +426,10 @@ ${offset ? `OFFSET ${offset}` : ""}
     const thesis = await ThesisService._assertUserHasThesisRoles(id, user, [
       ThesisRole.STUDENT,
     ]);
+
+    if (thesis.status !== ThesisStatus.UNDER_ASSIGNMENT) {
+      throw new ConflictError("Thesis is not under assignment.");
+    }
 
     const invitations = await thesis.getInvitations({
       where: { professorId },
@@ -448,6 +460,10 @@ ${offset ? `OFFSET ${offset}` : ""}
       ThesisRole.SUPERVISOR,
       ThesisRole.COMMITTEE_MEMBER,
     ]);
+
+    if (thesis.status !== ThesisStatus.ACTIVE) {
+      throw new ConflictError("Thesis is not active.");
+    }
 
     const professor = await user.getProfessor();
     return await db.Note.create({

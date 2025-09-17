@@ -70,23 +70,27 @@ export default class ThesisController {
     res.success();
   }
 
+  static async examine(req, res) {
+    const status = await ThesisService.examine(req.params.id, req.user);
+    res.success({ status }, {}, StatusCodes.OK);
+  }
+
   static async cancel(req, res) {
-    await ThesisService.cancel(req.params.id, req.user, {
+    const status = await ThesisService.cancel(req.params.id, req.user, {
       assemblyYear: req.body.assemblyYear,
       assemblyNumber: req.body.assemblyNumber,
       cancellationReason: req.body.cancellationReason,
     });
-    res.success(null, {}, StatusCodes.OK);
+    res.success({ status }, {}, StatusCodes.OK);
   }
 
   static async complete(req, res) {
-    await ThesisService.complete(req.params.id, req.user);
-    res.success(null, {}, StatusCodes.OK);
+    const status = await ThesisService.complete(req.params.id, req.user);
+    res.success({ status }, {}, StatusCodes.OK);
   }
 
-  static async putStatus(req, res) {
-    // TODO: this is wrong
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json();
+  static async patchStatus(req, res) {
+    res.error("This API endpoint is deprecated.", StatusCodes.GONE);
   }
 
   static async getNotes(req, res) {

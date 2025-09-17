@@ -314,10 +314,25 @@ ${offset ? `OFFSET ${offset}` : ""}
       );
     }
 
-    thesis.status = ThesisStatus.COMPLETED;
-    thesis.endDate = new Date();
-    await thesis.save();
-    return thesis;
+    await thesis.update({
+      status: ThesisStatus.COMPLETED,
+      endDate: new Date(),
+    });
+
+    return thesis.status;
+  }
+
+  static async examine(id, user) {
+    const thesis = await ThesisService._assertUserHasThesisRoles(id, user, [
+      ThesisRole.SUPERVISOR,
+    ]);
+
+    if (thesis.status !== ThesisStatus.ACTIVE) {
+      throw new ConflictError("Thesis cannot be set under examination.");
+    }
+
+    await thesis.update({ status: ThesisStatus.UNDER_EXAMINATION });
+    return thesis.status;
   }
 
   static async cancel(
@@ -350,14 +365,14 @@ ${offset ? `OFFSET ${offset}` : ""}
       }
     }
 
-    thesis.status = ThesisStatus.CANCELLED;
-    thesis.assemblyYear = assemblyYear;
-    thesis.assemblyNumber = assemblyNumber;
-    thesis.cancellationReason = cancellationReason;
-    thesis.endDate = now;
-
-    await thesis.save();
-    return thesis;
+    await thesis.update({
+      status: ThesisStatus.CANCELLED,
+      assemblyYear,
+      assemblyNumber,
+      cancellationReason,
+      endDate: now,
+    });
+    return thesis.status;
   }
 
   static async getResources(id, user) {

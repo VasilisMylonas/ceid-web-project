@@ -13,7 +13,6 @@ import db from "../models/index.js";
 const router = express.Router();
 router.use(requireAuth);
 
-// TODO: perms
 router.get(
   "/",
   validate(thesisValidator.query),
@@ -32,20 +31,18 @@ router.delete(
   validate(thesisValidator.delete),
   ThesisController.delete
 );
-router.patch(
-  // TODO: patch for historical reasons, should be put
-  "/:id/status",
-  validate(thesisValidator.putStatus),
-  requireThesisRoleOrSecretary(ThesisRole.SUPERVISOR),
-  ThesisController.putStatus
+router.patch("/:id/status", ThesisController.patchStatus);
+router.post(
+  "/:id/examine",
+  validate(thesisValidator.examine),
+  ThesisController.examine
 );
 router.put(
   "/:id/nemertes-link",
   validate(thesisValidator.putNemertesLink),
   ThesisController.putNemertesLink
 );
-router.patch(
-  // TODO: patch for historical reasons, should be put
+router.put(
   "/:id/grading",
   validate(thesisValidator.putGrading),
   ThesisController.putGrading

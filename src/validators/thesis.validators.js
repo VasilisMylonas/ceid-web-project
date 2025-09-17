@@ -14,26 +14,15 @@ export default {
       cancellationReason: Joi.string().min(1).max(200).required(),
     }),
   },
-  complete: {
+  examine: {
     params: Joi.object({
       id: Joi.number().integer().min(1).required(),
     }).unknown(false),
   },
-  putStatus: {
+  complete: {
     params: Joi.object({
       id: Joi.number().integer().min(1).required(),
     }).unknown(false),
-    body: Joi.object({
-      status: Joi.string()
-        .valid(
-          ...Object.values(
-            ThesisStatus.ACTIVE,
-            ThesisStatus.UNDER_EXAMINATION,
-            ThesisStatus.COMPLETED
-          )
-        )
-        .required(),
-    }),
   },
   delete: {
     params: Joi.object({

@@ -29,7 +29,7 @@ export default class InvitationController {
       });
     }
 
-    // If there are at least 3 committee members and the thesis is still under assignment, set it to pending (awaiting approval from secretary)
+    // If there are at least 3 committee members and the thesis is still under assignment, set it to active
     const thesis = await req.invitation.getThesis();
     const committeeMembers = await thesis.getCommitteeMembers({
       where: { professorId: professor.id },
@@ -39,7 +39,7 @@ export default class InvitationController {
       committeeMembers.length >= 3 &&
       thesis.status === ThesisStatus.UNDER_ASSIGNMENT
     ) {
-      thesis.status = ThesisStatus.PENDING;
+      thesis.status = ThesisStatus.ACTIVE;
       await thesis.save();
     }
 

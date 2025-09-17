@@ -3,26 +3,15 @@ import multer from "multer";
 import TopicController from "../controllers/topic.controller.js";
 import topicValidators from "../validators/topic.validators.js";
 import { validate } from "../middleware/validation.js";
-import {
-  requireProfessorOwner,
-  requireAuth,
-  requireRole,
-} from "../middleware/authentication.js";
+import { requireAuth, requireRole } from "../middleware/authentication.js";
 import { fileStorage } from "../config/file-storage.js";
-import db from "../models/index.js";
-import { model } from "../middleware/model.js";
 import { UserRole } from "../constants.js";
 
 const router = express.Router();
 router.use(requireAuth);
 
 router.get("/", validate(topicValidators.query), TopicController.query);
-router.get(
-  "/:id",
-  validate(topicValidators.get),
-  model(db.Topic, "topic"),
-  TopicController.get
-);
+router.get("/:id", validate(topicValidators.get), TopicController.get);
 router.post(
   "/",
   validate(topicValidators.post),
@@ -32,36 +21,31 @@ router.post(
 router.put(
   "/:id",
   validate(topicValidators.put),
-  model(db.Topic, "topic"),
-  requireProfessorOwner(),
+  requireRole(UserRole.PROFESSOR),
   TopicController.put
 );
 router.delete(
   "/:id",
   validate(topicValidators.delete),
-  model(db.Topic, "topic"),
-  requireProfessorOwner(),
+  requireRole(UserRole.PROFESSOR),
   TopicController.delete
 );
 router.get(
   "/:id/description",
   validate(topicValidators.getDescription),
-  model(db.Topic, "topic"),
   TopicController.getDescription
 );
 router.put(
   "/:id/description",
   validate(topicValidators.putDescription),
   multer({ storage: fileStorage }).single("file"),
-  model(db.Topic, "topic"),
-  requireProfessorOwner(),
+  requireRole(UserRole.PROFESSOR),
   TopicController.putDescription
 );
 router.delete(
   "/:id/description",
   validate(topicValidators.deleteDescription),
-  model(db.Topic, "topic"),
-  requireProfessorOwner(),
+  requireRole(UserRole.PROFESSOR),
   TopicController.deleteDescription
 );
 

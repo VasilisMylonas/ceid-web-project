@@ -20,10 +20,11 @@ export default {
     body: Joi.object({
       status: Joi.string()
         .valid(
-          ThesisStatus.ACTIVE,
-          ThesisStatus.REJECTED,
-          ThesisStatus.UNDER_EXAMINATION,
-          ThesisStatus.COMPLETED
+          ...Object.values(
+            ThesisStatus.ACTIVE,
+            ThesisStatus.UNDER_EXAMINATION,
+            ThesisStatus.COMPLETED
+          )
         )
         .required(),
     }),

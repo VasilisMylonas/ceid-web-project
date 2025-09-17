@@ -1,5 +1,4 @@
 import db from "../models/index.js";
-import bcrypt from "bcrypt";
 import { UserRole } from "../constants.js";
 import seedProfessors from "./professors.js";
 import seedStudents from "./students.js";
@@ -18,7 +17,7 @@ export default async function seedDatabase() {
 
   const professorUser = await db.User.create({
     username: "professor",
-    password: await bcrypt.hash("professor", 10),
+    password: "professor",
     email: "professor@example.com",
     name: "Test Professor",
     role: UserRole.PROFESSOR,
@@ -27,7 +26,7 @@ export default async function seedDatabase() {
   });
   const studentUser = await db.User.create({
     username: "student",
-    password: await bcrypt.hash("student", 10),
+    password: "student",
     email: "student@example.com",
     name: "Test Student",
     role: UserRole.STUDENT,
@@ -36,7 +35,7 @@ export default async function seedDatabase() {
   });
   const secretaryUser = await db.User.create({
     username: "secretary",
-    password: await bcrypt.hash("secretary", 10),
+    password: "secretary",
     email: "secretary@example.com",
     name: "Test Secretary",
     role: UserRole.SECRETARY,

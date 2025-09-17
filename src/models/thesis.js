@@ -9,9 +9,14 @@ export default (sequelize) => {
       Thesis.hasMany(models.Note, { foreignKey: "thesisId" });
       Thesis.hasMany(models.Presentation, { foreignKey: "thesisId" });
       Thesis.hasMany(models.Resource, { foreignKey: "thesisId" });
-      Thesis.hasMany(models.Grade, { foreignKey: "thesisId" });
       Thesis.hasMany(models.CommitteeMember, { foreignKey: "thesisId" });
       Thesis.hasMany(models.Invitation, { foreignKey: "thesisId" });
+
+      Thesis.belongsToMany(models.Professor, {
+        through: models.CommitteeMember,
+        foreignKey: "thesisId",
+        otherKey: "professorId",
+      });
     }
 
     static async createFrom(params) {
@@ -67,6 +72,10 @@ export default (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      grade: {
+        type: DataTypes.FLOAT,
+        allowNull: true,
+      },
       nemertesLink: {
         type: DataTypes.STRING,
         allowNull: true,
@@ -76,11 +85,11 @@ export default (sequelize) => {
         allowNull: true,
       },
       startDate: {
-        type: DataTypes.DATE,
-        allowNull: true,
+        type: DataTypes.DATEONLY,
+        allowNull: false,
       },
       endDate: {
-        type: DataTypes.DATE,
+        type: DataTypes.DATEONLY,
         allowNull: true,
       },
       statusReason: {
@@ -100,7 +109,6 @@ export default (sequelize) => {
     },
     {
       sequelize,
-      modelName: "Thesis",
       underscored: true,
       indexes: [
         {

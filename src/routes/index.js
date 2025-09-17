@@ -11,16 +11,7 @@ import invitationRoutes from "./invitation.routes.js";
 import studentRoutes from "./student.routes.js";
 import myRoutes from "./my.routes.js";
 
-import { errorHandler } from "../middleware/errorHandler.js";
-import { expressJoiValidations } from "express-joi-validations";
-import cookieParser from "cookie-parser";
-import { wrapResponse } from "../middleware/responses.js";
-
 const router = express.Router();
-router.use(express.json()); // JSON middleware
-router.use(cookieParser()); // Parse cookies, for cookie-based login
-router.use(wrapResponse()); // Wrap all responses in a standard format
-router.use(expressJoiValidations({ throwErrors: true })); // Request validation
 router.use("/auth", authRoutes);
 router.use("/topics", topicRoutes);
 router.use("/users", userRoutes);
@@ -31,6 +22,5 @@ router.use("/notes", noteRoutes);
 router.use("/resources", resourceRoutes);
 router.use("/students", studentRoutes);
 router.use("/presentations", presentationRoutes);
-router.use(errorHandler); // Use error handler middleware, after all routes
 
 export default router;

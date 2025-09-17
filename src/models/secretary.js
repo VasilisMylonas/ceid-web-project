@@ -22,7 +22,6 @@ export default (sequelize) => {
     },
     {
       sequelize,
-      modelName: "Secretary",
       underscored: true,
     }
   );

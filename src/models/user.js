@@ -55,7 +55,6 @@ export default (sequelize) => {
     },
     {
       sequelize,
-      modelName: "User",
       underscored: true,
       indexes: [
         {
@@ -70,6 +69,18 @@ export default (sequelize) => {
           fields: ["email"],
         },
       ],
+      hooks: {
+        async beforeCreate(user) {
+          if (user.password) {
+            user.password = await bcrypt.hash(user.password, 10);
+          }
+        },
+        async beforeUpdate(user) {
+          if (user.changed("password")) {
+            user.password = await bcrypt.hash(user.password, 10);
+          }
+        },
+      },
     }
   );
 

@@ -10,9 +10,6 @@ export function wrapResponse() {
       path: req.originalUrl,
     };
 
-    // Keep original res.json()
-    const originalJsonMethod = res.json.bind(res);
-
     // Add custom success function
     res.success = (data, meta = {}, status = null) => {
       if (status) {
@@ -39,7 +36,7 @@ export function wrapResponse() {
         }
       }
 
-      return originalJsonMethod({
+      return res.json({
         success: true,
         data,
         meta: {
@@ -50,10 +47,9 @@ export function wrapResponse() {
     };
 
     // Add custom error function
-    // BAD_REQUEST, NOT_FOUND, INTERNAL_SERVER_ERROR, UNAUTHORIZED, FORBIDDEN, CONFLICT, NOT_IMPLEMENTED
-    res.error = (message, status = StatusCodes.BAD_REQUEST) => {
+    res.error = (message, status) => {
       res.status(status);
-      return originalJsonMethod({
+      return res.json({
         success: false,
         error: { message },
         meta: {

@@ -32,6 +32,10 @@ export default (sequelize) => {
         type: DataTypes.DATE,
         allowNull: true,
       },
+      grade: {
+        type: DataTypes.FLOAT,
+        allowNull: true,
+      },
       role: {
         type: DataTypes.ENUM(
           ThesisRole.COMMITTEE_MEMBER,
@@ -43,7 +47,6 @@ export default (sequelize) => {
     },
     {
       sequelize,
-      modelName: "CommitteeMember",
       underscored: true,
       indexes: [
         {

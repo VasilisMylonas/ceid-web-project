@@ -36,7 +36,6 @@ export default (sequelize) => {
     },
     {
       sequelize,
-      modelName: "Invitation",
       underscored: true,
     }
   );

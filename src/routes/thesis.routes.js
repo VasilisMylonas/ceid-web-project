@@ -16,6 +16,33 @@ import db from "../models/index.js";
 
 const router = express.Router();
 router.use(requireAuth);
+
+// TODO: perms
+router.post(
+  "/",
+  validate(thesisValidator.post),
+  requireRole(UserRole.PROFESSOR),
+  ThesisController.post
+);
+router.get(
+  "/:id",
+  validate(thesisValidator.get),
+  model(db.Thesis, "thesis"),
+  requireThesisRoleOrSecretary(
+    ThesisRole.STUDENT,
+    ThesisRole.SUPERVISOR,
+    ThesisRole.COMMITTEE_MEMBER
+  ),
+  ThesisController.get
+);
+router.delete(
+  "/:id",
+  validate(thesisValidator.delete),
+  model(db.Thesis, "thesis"),
+  requireThesisRole(ThesisRole.SUPERVISOR),
+  ThesisController.delete
+);
+
 router.patch(
   "/:id/grading",
   validate(thesisValidator.patchGrading),
@@ -23,19 +50,6 @@ router.patch(
   requireThesisRole(ThesisRole.SUPERVISOR),
   requireThesisStatus(ThesisStatus.UNDER_EXAMINATION),
   ThesisController.patchGrading
-);
-router.post(
-  "/",
-  validate(thesisValidator.post),
-  requireRole(UserRole.PROFESSOR),
-  ThesisController.post
-);
-router.delete(
-  "/:id",
-  validate(thesisValidator.delete),
-  model(db.Thesis, "thesis"),
-  requireThesisRole(ThesisRole.STUDENT, ThesisRole.SUPERVISOR),
-  ThesisController.delete
 );
 router.get(
   "/:id/invitations",
@@ -112,17 +126,6 @@ router.get(
   validate(thesisValidator.query),
   requireRole(UserRole.SECRETARY),
   ThesisController.query
-);
-router.get(
-  "/:id",
-  validate(thesisValidator.get),
-  model(db.Thesis, "thesis"),
-  requireThesisRoleOrSecretary(
-    ThesisRole.STUDENT,
-    ThesisRole.SUPERVISOR,
-    ThesisRole.COMMITTEE_MEMBER
-  ),
-  ThesisController.get
 );
 
 router.get(

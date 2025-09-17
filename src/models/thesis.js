@@ -19,6 +19,7 @@ export default (sequelize) => {
       });
     }
 
+    // TODO
     static async createFrom(params) {
       const { topic, student } = params;
 

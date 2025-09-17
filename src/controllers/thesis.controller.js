@@ -2,63 +2,44 @@ import { StatusCodes } from "http-status-codes";
 import db from "../models/index.js";
 import { getFilePath, deleteIfExists } from "../config/file-storage.js";
 import { ThesisStatus, UserRole } from "../constants.js";
+import ThesisService from "../services/thesis.service.js";
 
 export default class ThesisController {
   static async post(req, res) {
-    const topic = await db.Topic.findByPk(req.body.topicId);
-    const student = await db.Student.findByPk(req.body.studentId);
+    const thesis = await ThesisService.create({
+      topicId: req.body.topicId,
+      studentId: req.body.studentId,
+    });
+    res.success(thesis);
+  }
 
-    if (!topic) {
-      return res
-        .status(StatusCodes.NOT_FOUND)
-        .json({ message: "No such topic." });
-    }
+  static async query(req, res) {
+    const { results, total } = await ThesisService.query({
+      studentId: req.query.studentId,
+      status: req.query.status,
+      topicId: req.query.topicId,
+      professorId: req.query.professorId,
+      role: req.query.role,
+      q: req.query.q,
+      limit: req.query.limit,
+      offset: req.query.offset,
+    });
+    res.success(results, { count: results.length, total });
+  }
 
-    if (!student) {
-      return res
-        .status(StatusCodes.NOT_FOUND)
-        .json({ message: "No such student." });
-    }
+  static async get(req, res) {
+    const thesis = await ThesisService.getExtra(req.params.id);
+    res.success(thesis);
+  }
 
-    try {
-      const thesis = await db.Thesis.createFrom({
-        topic: topic,
-        student: student,
-      });
-      res.status(StatusCodes.CREATED).json(thesis);
-    } catch (error) {
-      res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
-    }
+  static async delete(req, res) {
+    await ThesisService.delete(req.params.id);
+    res.success();
   }
 
   static async patchGrading(req, res) {
     await req.thesis.update({ grading: req.body.grading });
     res.status(StatusCodes.OK).json(req.thesis);
-  }
-
-  static async delete(req, res) {
-    if (!req.isSupervisor) {
-      // TODO: secretary can also delete
-      return res.status(StatusCodes.FORBIDDEN).json({
-        message: "Only the supervisor can delete the thesis.",
-      });
-    }
-
-    if (!(await req.thesis.canBeDeleted())) {
-      return res.status(StatusCodes.BAD_REQUEST).json({
-        message: "Thesis cannot be deleted at this stage.",
-      });
-    }
-
-    db.CommitteeMember.destroy({
-      where: { thesisId: req.thesis.id },
-    });
-    db.Invitation.destroy({
-      where: { thesisId: req.thesis.id },
-    });
-
-    await req.thesis.destroy();
-    return res.status(StatusCodes.NO_CONTENT).json();
   }
 
   static async getNotes(req, res) {
@@ -243,144 +224,6 @@ export default class ThesisController {
     await req.thesis.save();
 
     res.status(StatusCodes.NO_CONTENT).json();
-  }
-
-  static async query(req, res) {
-    let wherePairs = {
-      "students.id": req.query.studentId,
-      "theses.status": req.query.status,
-      "topics.id": req.query.topicId,
-      "professors.id": req.query.professorId,
-      "committee_members.role": req.query.role,
-    };
-
-    const whereTemp = Object.entries(wherePairs)
-      .filter(([key, value]) => value !== undefined) // Remove undefined values
-      .map(([key, value]) => {
-        if (Array.isArray(value)) {
-          return `(${key} IN (${value.map((v) => `'${v}'`).join(", ")}))`;
-        }
-
-        return `${key} = '${value}'`; // Create condition strings
-      });
-
-    if (req.query.q) {
-      const q = req.query.q.toLowerCase().replace(/'/g, "''");
-      const searchCondition = `(LOWER(topics.title) LIKE '%${q}%' OR LOWER(topics.summary) LIKE '%${q}%' OR LOWER(student_users.name) LIKE '%${q}%' OR LOWER(supervisor_users.name) LIKE '%${q}%' OR LOWER(professor_users.name) LIKE '%${q}%')`;
-      whereTemp.push(searchCondition);
-    }
-
-    const where = whereTemp.join(" AND "); // Join conditions with AND
-
-    // This query is complicated due to the need to join multiple tables and filter based on various criteria.
-    // So we use a raw SQL query here.
-    // Nothing beats raw SQL for complex queries...
-    const raw_query = `
-    SELECT
-theses.id AS "id",
-theses.status AS "status",
-theses.start_date AS "startDate",
-topics.id AS "topicId",
-topics.title AS "topic",
-student_users.name AS "student",
-students.id AS "studentId",
-supervisor_users.name AS "supervisor",
-supervisors.id AS "supervisorId",
-
-COUNT(*) OVER() AS "total"
-
-FROM theses
-JOIN topics ON theses.topic_id = topics.id
-
-JOIN students ON theses.student_id = students.id
-JOIN users AS student_users ON students.user_id = student_users.id
-
-JOIN committee_members AS supervisor_members ON theses.id = supervisor_members.thesis_id AND supervisor_members.role = 'supervisor'
-JOIN professors AS supervisors ON supervisor_members.professor_id = supervisors.id
-JOIN users AS supervisor_users ON supervisors.user_id = supervisor_users.id
-
-JOIN committee_members ON theses.id = committee_members.thesis_id
-JOIN professors ON committee_members.professor_id = professors.id
-JOIN users AS professor_users ON professors.user_id = professor_users.id
-
-${where ? `WHERE ${where}` : ""}
-GROUP BY theses.id, topics.id, supervisor_users.id, supervisors.id, student_users.id, students.id
-ORDER BY theses.id ASC
-${req.query.limit ? `LIMIT ${req.query.limit}` : ""}
-${req.query.offset ? `OFFSET ${req.query.offset}` : ""}
-`;
-
-    console.log(raw_query);
-
-    const [results, _] = await db.sequelize.query(raw_query);
-
-    // console.log(results);
-
-    // Get the count and remove it from the records
-    const total = results.length > 0 ? parseInt(results[0].total) : 0;
-    results.forEach((r) => delete r.total);
-
-    res.success(results, { count: results.length, total });
-  }
-
-  static async get(req, res) {
-    const raw_query = `
-  SELECT
-theses.id AS "id",
-theses.status AS "status",
-theses.start_date AS "startDate",
-topics.id AS "topicId",
-topics.title AS "topic",
-student_users.name AS "student",
-students.id AS "studentId",
-supervisor_users.name AS "supervisor",
-supervisors.id AS "supervisorId",
-
-theses.status_reason AS "statusReason",
-theses.end_date AS "endDate",
-theses.protocol_number AS "protocolNumber",
-theses.grading AS "grading",
-topics.summary AS "topicSummary"
-
-FROM theses
-JOIN topics ON theses.topic_id = topics.id
-
-JOIN students ON theses.student_id = students.id
-JOIN users AS student_users ON students.user_id = student_users.id
-
-JOIN committee_members AS supervisor_members ON theses.id = supervisor_members.thesis_id AND supervisor_members.role = 'supervisor'
-JOIN professors AS supervisors ON supervisor_members.professor_id = supervisors.id
-JOIN users AS supervisor_users ON supervisors.user_id = supervisor_users.id
-
-JOIN committee_members ON theses.id = committee_members.thesis_id
-JOIN professors ON committee_members.professor_id = professors.id
-JOIN users AS professor_users ON professors.user_id = professor_users.id
-WHERE theses.id = '${req.thesis.id}'
-    `;
-
-    const [results, _] = await db.sequelize.query(raw_query);
-    const thesis = results[0];
-
-    // Get committee members
-    thesis.committeeMembers = await req.thesis.getCommitteeMembers({
-      raw: true,
-      attributes: [
-        "professorId",
-        "role",
-        "startDate",
-        "endDate",
-        [db.sequelize.col("Professor.User.name"), "name"],
-      ],
-      include: [
-        {
-          model: db.Professor,
-          attributes: [],
-          include: [{ model: db.User, attributes: [] }],
-        },
-      ],
-    });
-
-    res.success(thesis);
   }
 
   static async putNemertesLink(req, res) {

@@ -1,6 +1,7 @@
 import db from "../models/index.js";
 import { ConflictError, NotFoundError, SecurityError } from "../errors.js";
 import { ThesisStatus } from "../constants.js";
+import { getFilePath, deleteIfExists } from "../config/file-storage.js";
 
 export default class ThesisService {
   static async create({ topicId, studentId }) {
@@ -192,5 +193,22 @@ ${offset ? `OFFSET ${offset}` : ""}
     }
     await thesis.update({ grading });
     return thesis.grading;
+  }
+
+  static async getDraftFile(id) {
+    const thesis = await ThesisService.get(id);
+    if (!thesis.documentFile) {
+      throw new NotFoundError("No draft file");
+    }
+    return getFilePath(thesis.documentFile);
+  }
+
+  static async setDraftFile(id, filename) {
+    const thesis = await ThesisService.get(id);
+    if (thesis.status !== ThesisStatus.ACTIVE) {
+      throw new ConflictError("Thesis is not active.");
+    }
+    deleteIfExists(thesis.documentFile);
+    await thesis.update({ documentFile: filename });
   }
 }

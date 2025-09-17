@@ -54,28 +54,16 @@ export default class ThesisController {
   }
 
   static async getDraft(req, res) {
-    if (!req.thesis.documentFile) {
-      return res.status(StatusCodes.NOT_FOUND).json();
-    }
-    res.status(StatusCodes.OK).sendFile(getFilePath(req.thesis.documentFile));
+    const filePath = await ThesisService.getDraftFile(req.params.id);
+    res.status(StatusCodes.OK).sendFile(filePath);
   }
 
   static async putDraft(req, res) {
     if (!req.file) {
-      return res.status(StatusCodes.BAD_REQUEST).json();
+      return res.error("No file uploaded", StatusCodes.BAD_REQUEST);
     }
-
-    if (!req.thesis.status === ThesisStatus.ACTIVE) {
-      return res
-        .status(StatusCodes.BAD_REQUEST)
-        .json({ message: "Thesis is not active." });
-    }
-
-    deleteIfExists(req.thesis.documentFile);
-    req.thesis.documentFile = req.file.filename;
-    await req.thesis.save();
-
-    res.status(StatusCodes.NO_CONTENT).json();
+    await ThesisService.setDraftFile(req.params.id, req.file.filename);
+    res.success();
   }
 
   static async cancel(req, res) {

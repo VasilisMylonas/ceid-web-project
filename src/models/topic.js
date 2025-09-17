@@ -66,18 +66,14 @@ export default (sequelize) => {
       ],
       hooks: {
         async beforeDestroy(topic) {
-          if (await this.isAssigned()) {
+          if (await topic.isAssigned()) {
             throw new ConflictError("Cannot delete an assigned topic");
           }
           deleteIfExists(topic.descriptionFile);
         },
         async beforeUpdate(topic) {
-          if (await this.isAssigned()) {
+          if (await topic.isAssigned()) {
             throw new ConflictError("Cannot modify an assigned topic");
-          }
-
-          if (topic.changed("descriptionFile")) {
-            deleteIfExists(topic.previous("descriptionFile"));
           }
         },
       },

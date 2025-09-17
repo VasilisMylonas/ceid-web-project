@@ -2,7 +2,7 @@ import db from "../models/index.js";
 import { Op, Sequelize } from "sequelize";
 import { ThesisStatus } from "../constants.js";
 import { NotFoundError, SecurityError } from "../errors.js";
-import { getFilePath } from "../config/file-storage.js";
+import { getFilePath, deleteIfExists } from "../config/file-storage.js";
 
 export default class TopicService {
   static async query({ limit, offset, professorId, status }) {
@@ -92,6 +92,7 @@ export default class TopicService {
       topicId,
       user,
     });
+    deleteIfExists(topic.descriptionFile);
     await topic.update({ descriptionFile: filename });
   }
 
@@ -100,6 +101,7 @@ export default class TopicService {
       topicId,
       user,
     });
+    deleteIfExists(topic.descriptionFile);
     await topic.update({ descriptionFile: null });
   }
 

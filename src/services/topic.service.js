@@ -1,7 +1,7 @@
 import db from "../models/index.js";
 import { Op, Sequelize } from "sequelize";
 import { ThesisStatus } from "../constants.js";
-import { NotFoundError } from "../errors.js";
+import { NotFoundError, SecurityError } from "../errors.js";
 import { getFilePath } from "../config/file-storage.js";
 
 export default class TopicService {
@@ -56,10 +56,51 @@ export default class TopicService {
     return topic;
   }
 
-  static async update(topicId, data) {
+  static async create({ title, summary, user }) {
+    const professor = await user.getProfessor();
+    return professor.createTopic({ title, summary });
+  }
+
+  static async _assertProfessorOwnsTopic({ topicId, user }) {
     const topic = await TopicService.get(topicId);
+    const professor = await user.getProfessor();
+    if (!professor || topic.professorId !== professor.id) {
+      throw new SecurityError("You are not the owner of this topic");
+    }
+    return topic;
+  }
+
+  static async update({ topicId, user, data }) {
+    const topic = await TopicService._assertProfessorOwnsTopic({
+      topicId,
+      user,
+    });
     await topic.update(data);
     return topic;
+  }
+
+  static async delete({ topicId, user }) {
+    const topic = await TopicService._assertProfessorOwnsTopic({
+      topicId,
+      user,
+    });
+    await topic.destroy();
+  }
+
+  static async setDescriptionFile({ topicId, user, filename }) {
+    const topic = await TopicService._assertProfessorOwnsTopic({
+      topicId,
+      user,
+    });
+    await topic.update({ descriptionFile: filename });
+  }
+
+  static async clearDescriptionFile({ topicId, user }) {
+    const topic = await TopicService._assertProfessorOwnsTopic({
+      topicId,
+      user,
+    });
+    await topic.update({ descriptionFile: null });
   }
 
   static async getDescription(topicId) {

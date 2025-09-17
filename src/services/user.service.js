@@ -1,5 +1,6 @@
 import db from "../models/index.js";
 import { NotFoundError } from "../errors.js";
+import { UserRole } from "../constants.js";
 
 export default class UserService {
   static async get(id) {
@@ -70,21 +71,19 @@ export default class UserService {
   static async _create(user, transaction) {
     const created = await db.User.create(user, { transaction });
 
+    // TODO: This used to attach these as properties but it was causing problems
     switch (user.role) {
-      case "PROFESSOR":
-        created.Professor = await db.Professor.create(
+      case UserRole.PROFESSOR:
+        await db.Professor.create(
           { userId: created.id, division: user.division },
           { transaction }
         );
         break;
-      case "SECRETARY":
-        created.Secretary = await db.Secretary.create(
-          { userId: created.id },
-          { transaction }
-        );
+      case UserRole.SECRETARY:
+        await db.Secretary.create({ userId: created.id }, { transaction });
         break;
-      case "STUDENT":
-        created.Student = await db.Student.create(
+      case UserRole.STUDENT:
+        await db.Student.create(
           { userId: created.id, am: user.am },
           { transaction }
         );

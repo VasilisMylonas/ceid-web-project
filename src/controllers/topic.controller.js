@@ -1,7 +1,6 @@
 import { StatusCodes } from "http-status-codes";
 import TopicService from "../services/topic.service.js";
 import { omit } from "../util.js";
-import { SecurityError } from "../errors.js";
 
 export default class TopicController {
   static async query(req, res) {
@@ -19,9 +18,11 @@ export default class TopicController {
 
   static async post(req, res) {
     const { title, summary } = req.body;
-
-    const professor = await req.user.getProfessor();
-    const topic = await professor.createTopic({ title, summary });
+    const topic = await TopicService.create({
+      title,
+      summary,
+      user: req.user,
+    });
     res.success(omit(topic.get(), "descriptionFile"));
   }
 
@@ -30,24 +31,20 @@ export default class TopicController {
     res.success(omit(topic.get(), "descriptionFile"));
   }
 
-  static async _assertProfessorOwnsTopic(req) {
-    const topic = await TopicService.get(req.params.id);
-    const professor = await req.user.getProfessor();
-    if (!professor || topic.professorId !== professor.id) {
-      throw new SecurityError("You are not the owner of this topic");
-    }
-    return topic;
-  }
-
   static async put(req, res) {
-    const topic = await TopicController._assertProfessorOwnsTopic(req);
-    await topic.update(req.body);
+    const topic = await TopicService.update({
+      topicId: req.params.id,
+      user: req.user,
+      data: req.body,
+    });
     res.success(omit(topic.get(), "descriptionFile"));
   }
 
   static async delete(req, res) {
-    const topic = await TopicController._assertProfessorOwnsTopic(req);
-    await topic.destroy();
+    await TopicService.delete({
+      topicId: req.params.id,
+      user: req.user,
+    });
     res.success();
   }
 
@@ -60,17 +57,19 @@ export default class TopicController {
     if (!req.file) {
       return res.error("No file uploaded", StatusCodes.BAD_REQUEST);
     }
-
-    const topic = await TopicController._assertProfessorOwnsTopic(req);
-    topic.descriptionFile = req.file.filename;
-    await topic.save();
+    await TopicService.setDescriptionFile({
+      topicId: req.params.id,
+      user: req.user,
+      filename: req.file.filename,
+    });
     res.success();
   }
 
   static async deleteDescription(req, res) {
-    const topic = await TopicController._assertProfessorOwnsTopic(req);
-    topic.descriptionFile = null;
-    await topic.save();
+    await TopicService.clearDescriptionFile({
+      topicId: req.params.id,
+      user: req.user,
+    });
     res.success();
   }
 }

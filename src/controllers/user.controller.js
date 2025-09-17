@@ -14,7 +14,7 @@ export default class UserController {
   }
 
   static async post(req, res) {
-    const created = await UserService.createOne(req.body);
+    const created = await UserService.create(req.body);
     res.success(omit(created.get(), "password"));
   }
 
@@ -24,8 +24,7 @@ export default class UserController {
   }
 
   static async patch(req, res) {
-    const user = await UserService.get(req.params.id);
-    await user.update(req.body);
+    const user = await UserService.update(req.params.id, req.body);
     res.success(omit(user.get(), "password"));
   }
 

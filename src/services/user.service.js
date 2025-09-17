@@ -48,17 +48,23 @@ export default class UserService {
     }
   }
 
-  static async createOne(user) {
+  static async create(data) {
     const transaction = await db.sequelize.transaction();
 
     try {
-      const created = await UserService._create(user, transaction);
+      const created = await UserService._create(data, transaction);
       await transaction.commit();
       return created;
     } catch (error) {
       await transaction.rollback();
       throw error;
     }
+  }
+
+  static async update(id, data) {
+    const user = await UserService.get(id);
+    await user.update(data);
+    return user;
   }
 
   static async _create(user, transaction) {

@@ -56,6 +56,12 @@ export default class TopicService {
     return topic;
   }
 
+  static async update(topicId, data) {
+    const topic = await TopicService.get(topicId);
+    await topic.update(data);
+    return topic;
+  }
+
   static async getDescription(topicId) {
     const topic = await TopicService.get(topicId);
     if (!topic.descriptionFile) {

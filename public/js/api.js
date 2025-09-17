@@ -65,42 +65,6 @@ async function requestWithFile(method, url, formData) {
   throw new Error(`${response.statusText}: ${errorMessage}`);
 }
 
-/**
- * A special request function for handling file uploads using FormData.
- * It does not set Content-Type, allowing the browser to set it to multipart/form-data.
- */
-async function requestWithFile(method, url, formData) {
-  const response = await fetch(url, {
-    method: method,
-    body: formData, // Pass FormData directly
-  });
-
-  if (response.status === 204) { // No Content
-    return;
-  }
-
-  // Try to parse JSON, but handle cases where the body might not be JSON
-  let errorPayload;
-  try {
-    errorPayload = await response.json();
-    console.debug("API File Response:", errorPayload);
-  } catch (e) {
-    // If parsing fails, use the raw text of the response
-    errorPayload = await response.text();
-  }
-
-  if (response.ok) {
-    return errorPayload;
-  }
-
-  // Improved error message creation
-  const errorMessage = (typeof errorPayload === 'object' && errorPayload?.error?.message) 
-    ? errorPayload.error.message 
-    : JSON.stringify(errorPayload);
-    
-  throw new Error(`${response.statusText}: ${errorMessage}`);
-}
-
 async function getProfile() {
   return await request("GET", `${BASE_URL}/v1/my/profile`);
 }
@@ -124,6 +88,8 @@ async function getTopicDescription(topicId) {
   }
   return await response.blob();
 }
+
+
 async function createThesisPresentation(thesisId, presentationData) {
   return await request("POST", `${BASE_URL}/v1/theses/${thesisId}/presentations`, presentationData);
 }
@@ -264,26 +230,6 @@ async function updateThesisTopic(id, { title, summary }) {
 }
 
 
-
-async function getDescription(topicId) {
-  const res= await request("GET",`${BASE_URL}/v1/topics/${id}/description`);
-    
-  const contentType = res.headers.get('content-type') || '';
-    const contentDisposition = res.headers.get('content-disposition') || '';
-    const filename = getFilenameFromDisposition(contentDisposition);
-
-    if (contentType.includes('application/json')) {
-        const data = await res.json();
-        return { exists: true, type: 'json', contentType, data, filename };
-    }
-
-    const blob = await res.blob();
-    return { exists: true, type: 'blob', contentType, blob, filename };
-}
-
-
-
-
 async function putDescription(topicId,file) {
     const formData = new FormData();
     formData.append('file', file);
@@ -306,5 +252,25 @@ async function getStudents() {
 }
 
 async function getAssignedThesis(){
-  return await request("GET", `${BASE_URL}/v1/my/thesis`);
+  return await request("GET", `${BASE_URL}/v1/my/thesis/`);
+}
+
+async function getUnderAssignementThesis() {
+  return await request("GET", `${BASE_URL}/v1/my/thesis?status=under_assignment`);
+} 
+
+async function getThesisInvitations(thesisId) {
+  return await request("GET", `${BASE_URL}/v1/thesis/${thesisId}/invitations`);
+}
+
+async function unassignThesis(thesisId) {
+  return await request("DELETE", `${BASE_URL}/v1/theses/${thesisId}`);
+}
+
+async function assignTopic(topicId, studentId) {
+  return await request("POST", `${BASE_URL}/v1/theses`, { studentId,topicId });
+}
+
+async function activateThesis(thesisId) {
+  return await request("PATCH", `${BASE_URL}/v1/theses/${thesisId}/status`, { status: "active" });
 }

@@ -135,24 +135,6 @@ export default class ThesisController {
 
         return res.status(StatusCodes.OK).json(req.thesis);
       }
-      case ThesisStatus.REJECTED: {
-        if (req.user.role !== UserRole.SECRETARY) {
-          return res
-            .status(StatusCodes.FORBIDDEN)
-            .json({ message: "Only secretaries can review theses." });
-        }
-
-        if (req.thesis.status !== ThesisStatus.PENDING) {
-          return res.status(StatusCodes.BAD_REQUEST).json({
-            message: "Thesis is not pending review.",
-          });
-        }
-
-        req.thesis.status = ThesisStatus.REJECTED;
-        await req.thesis.save();
-
-        return res.status(StatusCodes.OK).json(req.thesis);
-      }
       case ThesisStatus.ACTIVE: {
         if (req.user.role !== UserRole.SECRETARY) {
           return res

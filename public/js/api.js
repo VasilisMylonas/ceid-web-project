@@ -85,7 +85,9 @@ async function getThesisDraft(thesisId) {
 async function createThesisPresentation(thesisId, presentationData) {
   return await request("POST", `${BASE_URL}/v1/theses/${thesisId}/presentations`, presentationData);
 }
-
+async function getThesisPresentations(thesisId) {
+  return await request("GET", `${BASE_URL}/v1/theses/${thesisId}/presentations`);
+}
 async function uploadThesisDraft(thesisId, formData) {
   return await requestWithFile("PUT", `${BASE_URL}/v1/theses/${thesisId}/draft`, formData );
 }

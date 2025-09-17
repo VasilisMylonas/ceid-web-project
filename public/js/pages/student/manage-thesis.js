@@ -490,7 +490,7 @@ async function populateExaminationState(thesis) {
 
     try {
         const resourcesResponse = await getThesisResources(thesis.id);
-        if (resourcesResponse && resourcesResponse.data && resourcesResponse.data.length > 0) {
+        if (resourcesResponse?.data?.length > 0) {
             resourcesResponse.data.forEach(resource => {
                 const li = document.createElement('li');
                 li.className = 'list-group-item';
@@ -505,19 +505,46 @@ async function populateExaminationState(thesis) {
         linksList.innerHTML = '<li class="list-group-item text-danger">Σφάλμα φόρτωσης συνδέσμων.</li>';
     }
 
+    // --- Populate Presentation Details from the latest presentation entry ---
+    try {
+        const presentationsResponse = await getThesisPresentations(thesis.id);
+        if (presentationsResponse?.data?.length > 0) {
+            const lastPresentation = presentationsResponse.data[presentationsResponse.data.length - 1]; //get the last presentation
+            
+            const presentationDate = new Date(lastPresentation.date);
+            
+            // Format date as YYYY-MM-DD
+            document.getElementById('examDate').value = presentationDate.toISOString().split('T')[0];
+            
+            // Format time as HH:MM
+            const hours = String(presentationDate.getUTCHours()).padStart(2, '0');
+            const minutes = String(presentationDate.getUTCMinutes()).padStart(2, '0');
+            document.getElementById('examTime').value = `${hours}:${minutes}`;
 
+            document.getElementById('examLocation').value = lastPresentation.hall || '';
+            document.getElementById('examLink').value = lastPresentation.link || '';
 
-
-    // Populate other fields
-    document.getElementById('examDate').value = thesis.presentationDate ? new Date(thesis.presentationDate).toISOString().split('T')[0] : '';
-    document.getElementById('examTime').value = thesis.presentationTime || '';
-    document.getElementById('examLocation').value = thesis.presentationLocation || '';
-    document.getElementById('nimertisLink').value = thesis.nimertisUrl || '';
-
-    const examType = thesis.presentationType || 'online';
-    const radioId = `examType${examType.charAt(0).toUpperCase() + examType.slice(1)}`;
-    const radio = document.getElementById(radioId);
-    if (radio) {
-        radio.checked = true;
+            const examType = lastPresentation.kind || 'in_person';
+            const radio = document.getElementById(examType);
+            if (radio) {
+                radio.checked = true;
+            }
+        } else {
+            // Fallback if no presentations are found
+            document.getElementById('examDate').value = '';
+            document.getElementById('examTime').value = '';
+            document.getElementById('examLocation').value = '';
+            document.getElementById('examLink').value = '';
+        }
+    } catch (error) {
+        console.error("Failed to load thesis presentations:", error);
+        // Clear fields on error to avoid showing stale data
+        document.getElementById('examDate').value = '';
+        document.getElementById('examTime').value = '';
+        document.getElementById('examLocation').value = '';
+        document.getElementById('examLink').value = '';
     }
-   }
+
+    // Populate Nimertis link from the main thesis object, dont have get for nimertis link
+   // document.getElementById('nimertisLink').value =
+}

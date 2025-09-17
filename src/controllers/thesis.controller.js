@@ -8,7 +8,7 @@ export default class ThesisController {
       topicId: req.body.topicId,
       studentId: req.body.studentId,
     });
-    res.success(thesis);
+    res.success(thesis, {}, StatusCodes.CREATED);
   }
 
   static async query(req, res) {
@@ -72,7 +72,7 @@ export default class ThesisController {
 
   static async examine(req, res) {
     const status = await ThesisService.examine(req.params.id, req.user);
-    res.success({ status }, {}, StatusCodes.OK);
+    res.success({ status });
   }
 
   static async cancel(req, res) {
@@ -81,12 +81,12 @@ export default class ThesisController {
       assemblyNumber: req.body.assemblyNumber,
       cancellationReason: req.body.cancellationReason,
     });
-    res.success({ status }, {}, StatusCodes.OK);
+    res.success({ status });
   }
 
   static async complete(req, res) {
     const status = await ThesisService.complete(req.params.id, req.user);
-    res.success({ status }, {}, StatusCodes.OK);
+    res.success({ status });
   }
 
   static async patchStatus(req, res) {
@@ -104,7 +104,7 @@ export default class ThesisController {
       req.user,
       req.body.content
     );
-    res.success(note);
+    res.success(note, {}, StatusCodes.CREATED);
   }
 
   static async getInvitations(req, res) {
@@ -112,7 +112,10 @@ export default class ThesisController {
       req.params.id,
       req.user
     );
-    res.status(StatusCodes.OK).json(invitations);
+    res.success(invitations, {
+      count: invitations.length,
+      total: invitations.length,
+    });
   }
 
   static async postInvitation(req, res) {
@@ -121,7 +124,7 @@ export default class ThesisController {
       req.user,
       req.body.professorId
     );
-    res.status(StatusCodes.CREATED).json(invitation);
+    res.success(invitation, {}, StatusCodes.CREATED);
   }
 
   static async getResources(req, res) {
@@ -152,7 +155,7 @@ export default class ThesisController {
         type: req.body.type,
       }
     );
-    res.success(resource);
+    res.success(resource, {}, StatusCodes.CREATED);
   }
 
   static async postPresentation(req, res) {

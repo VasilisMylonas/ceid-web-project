@@ -22,7 +22,7 @@ export default class TopicController {
       title,
       summary,
     });
-    res.success(omit(topic.get(), "descriptionFile"));
+    res.success(omit(topic.get(), "descriptionFile"), {}, StatusCodes.CREATED);
   }
 
   static async get(req, res) {

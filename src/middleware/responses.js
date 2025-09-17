@@ -11,31 +11,8 @@ export function wrapResponse() {
     };
 
     // Add custom success function
-    res.success = (data, meta = {}, status = null) => {
-      if (status) {
-        res.status(status);
-      } else {
-        switch (req.method) {
-          case "DELETE":
-            res.status(StatusCodes.NO_CONTENT);
-            break;
-          case "GET":
-            res.status(StatusCodes.OK);
-            break;
-          case "POST":
-            // TODO: OK or CREATED prefer CREATED
-            res.status(StatusCodes.CREATED);
-            break;
-          default: // PUT, PATCH
-            if (data === undefined) {
-              res.status(StatusCodes.NO_CONTENT);
-            } else {
-              res.status(StatusCodes.OK);
-            }
-            break;
-        }
-      }
-
+    res.success = (data, meta = {}, status = StatusCodes.OK) => {
+      res.status(status);
       return res.json({
         success: true,
         data,

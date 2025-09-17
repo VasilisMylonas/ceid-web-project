@@ -1,5 +1,5 @@
 import { DataTypes, Model } from "sequelize";
-import { ThesisRole, ThesisStatus } from "../constants.js";
+import { ThesisStatus } from "../constants.js";
 import { deleteIfExists } from "../config/file-storage.js";
 
 export default (sequelize) => {

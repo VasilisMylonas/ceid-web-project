@@ -246,7 +246,7 @@ ${limit ? `LIMIT ${limit}` : ""}
 ${offset ? `OFFSET ${offset}` : ""}
 `;
 
-    const [results, _] = await db.sequelize.query(rawQuery);
+    const [results] = await db.sequelize.query(rawQuery);
     const total = results.length > 0 ? parseInt(results[0].total) : 0;
     results.forEach((r) => delete r.total);
     return { results, total };

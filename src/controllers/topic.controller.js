@@ -18,18 +18,16 @@ export default class TopicController {
   }
 
   static async post(req, res) {
+    const { title, summary } = req.body;
+
     const professor = await req.user.getProfessor();
-    const topic = await TopicService.create({
-      title: req.body.title,
-      summary: req.body.summary,
-      professor,
-    });
-    res.success(omit(topic.get(), "descriptionPath"));
+    const topic = await professor.createTopic({ title, summary });
+    res.success(omit(topic.get(), "descriptionFile"));
   }
 
   static async get(req, res) {
     const topic = await TopicService.get(req.params.id);
-    res.success(omit(topic.get(), "descriptionPath"));
+    res.success(omit(topic.get(), "descriptionFile"));
   }
 
   static async _assertProfessorOwnsTopic(req) {
@@ -44,7 +42,7 @@ export default class TopicController {
   static async put(req, res) {
     const topic = await TopicController._assertProfessorOwnsTopic(req);
     await topic.update(req.body);
-    res.success(omit(topic.get(), "descriptionPath"));
+    res.success(omit(topic.get(), "descriptionFile"));
   }
 
   static async delete(req, res) {

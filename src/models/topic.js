@@ -1,6 +1,6 @@
 import { DataTypes, Model, Op } from "sequelize";
 import { ThesisStatus } from "../constants.js";
-import { ConflictError, NotFoundError } from "../errors.js";
+import { ConflictError } from "../errors.js";
 import { deleteIfExists } from "../config/file-storage.js";
 
 export default (sequelize) => {

@@ -2,6 +2,7 @@ import db from "../models/index.js";
 import { Op, Sequelize } from "sequelize";
 import { ThesisStatus } from "../constants.js";
 import { NotFoundError } from "../errors.js";
+import { getFilePath } from "../config/file-storage.js";
 
 export default class TopicService {
   static async query({ limit, offset, professorId, status }) {
@@ -57,5 +58,17 @@ export default class TopicService {
       throw new NotFoundError("Topic not found");
     }
     return topic;
+  }
+
+  static async getDescription(topicId) {
+    const topic = await db.Topic.findByPk(topicId);
+    if (!topic) {
+      throw new NotFoundError("Topic not found");
+    }
+    if (!topic.descriptionFile) {
+      throw new NotFoundError("No description file");
+    }
+
+    return getFilePath(topic.descriptionFile);
   }
 }

@@ -57,14 +57,10 @@ export default class TopicService {
   }
 
   static async getDescription(topicId) {
-    const topic = await db.Topic.findByPk(topicId);
-    if (!topic) {
-      throw new NotFoundError("Topic not found");
-    }
+    const topic = await TopicService.get(topicId);
     if (!topic.descriptionFile) {
       throw new NotFoundError("No description file");
     }
-
     return getFilePath(topic.descriptionFile);
   }
 }

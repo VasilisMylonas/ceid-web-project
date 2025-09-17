@@ -46,12 +46,13 @@ export default class MyController {
   }
 
   static async getProfile(req, res) {
-    const user = await UserService.getById(req.user.id);
+    const user = await UserService.get(req.user.id);
     res.success(omit(user.get(), "password"));
   }
 
   static async patchProfile(req, res) {
-    const user = await UserService.updateById(req.user.id, req.body);
+    const user = await UserService.get(req.user.id);
+    user.update(req.body);
     res.success(omit(user.get(), "password"));
   }
 

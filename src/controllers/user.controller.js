@@ -19,12 +19,13 @@ export default class UserController {
   }
 
   static async get(req, res) {
-    const user = await UserService.getById(req.params.id);
+    const user = await UserService.get(req.params.id);
     res.success(omit(user.get(), "password"));
   }
 
   static async patch(req, res) {
-    const user = await UserService.updateById(req.params.id, req.body);
+    const user = await UserService.get(req.params.id);
+    await user.update(req.body);
     res.success(omit(user.get(), "password"));
   }
 

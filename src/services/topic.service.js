@@ -58,6 +58,7 @@ export default class TopicService {
 
   static async create(user, { title, summary }) {
     const professor = await user.getProfessor();
+    // We do not check role here, cause we have middleware
     return professor.createTopic({ title, summary });
   }
 

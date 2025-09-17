@@ -114,18 +114,18 @@ export default {
       professorId: Joi.number().integer().min(1).optional(),
       topicId: Joi.number().integer().min(1).optional(),
       q: Joi.string().min(1).optional(),
-      status: Joi.alternatives().try(
-        Joi.string()
-          .valid(...Object.values(ThesisStatus))
-          .optional(),
-        Joi.array()
-          .items(
+      status: Joi.alternatives()
+        .try(
+          Joi.string()
+            .valid(...Object.values(ThesisStatus))
+            .optional(),
+          Joi.array().items(
             Joi.string()
               .valid(...Object.values(ThesisStatus))
               .required()
           )
-          .optional()
-      ),
+        )
+        .optional(),
     })
       .unknown(false)
       .with("role", "professorId"),

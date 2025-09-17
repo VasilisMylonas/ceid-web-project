@@ -14,13 +14,25 @@ export default {
     query: Joi.object({
       limit: Joi.number().integer().min(0).optional(),
       offset: Joi.number().integer().min(0).optional(),
-      status: Joi.string()
-        .valid(...Object.keys(ThesisStatus))
-        .optional(),
       role: Joi.string()
-        .valid(...Object.keys(ThesisRole))
+        .valid(ThesisRole.SUPERVISOR, ThesisRole.COMMITTEE_MEMBER)
         .optional(),
-    }).unknown(false),
+      studentId: Joi.number().integer().min(1).optional(),
+      topicId: Joi.number().integer().min(1).optional(),
+      q: Joi.string().min(1).optional(),
+      status: Joi.alternatives().try(
+        Joi.string().valid(...Object.values(ThesisStatus)),
+        Joi.array()
+          .items(
+            Joi.string()
+              .valid(...Object.values(ThesisStatus))
+              .required()
+          )
+          .optional()
+      ),
+    })
+      .unknown(false)
+      .with("role", "professorId"),
   },
   getInvitations: {
     query: Joi.object({

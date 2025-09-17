@@ -6,6 +6,7 @@ import db from "../models/index.js";
 import UserService from "../services/user.service.js";
 import { StatusCodes } from "http-status-codes";
 import TopicService from "../services/topic.service.js";
+import ThesisService from "../services/thesis.service.js";
 
 export default class MyController {
   static async getTopics(req, res) {
@@ -24,26 +25,16 @@ export default class MyController {
     });
   }
 
-  // TODO: Theses mainly forward to appropriate controllers with patched queries
   static async getTheses(req, res) {
     const professor = await req.user.getProfessor();
-    req = patchQuery(req, { professorId: professor.id });
-    await ThesisController.query(req, res);
-  }
-
-  static async getThesis(req, res) {
-    const student = await req.user.getStudent();
-    req = patchQuery(req, { studentId: student.id });
-    await ThesisController.query(req, res);
-  }
-
-  static async getInvitations(req, res) {
-    const professor = await req.user.getProfessor();
-    req = patchQuery(req, {
+    const theses = await ThesisService.query({
       professorId: professor.id,
-      response: InvitationResponse.PENDING,
+      ...req.query,
     });
-    await InvitationController.query(req, res);
+    res.success(theses.results, {
+      count: theses.results.length,
+      total: theses.total,
+    });
   }
 
   static async getProfile(req, res) {
@@ -84,5 +75,21 @@ export default class MyController {
     });
 
     return res.success(results);
+  }
+
+  // TODO: Theses mainly forward to appropriate controllers with patched queries
+  static async getThesis(req, res) {
+    const student = await req.user.getStudent();
+    req = patchQuery(req, { studentId: student.id });
+    await ThesisController.query(req, res);
+  }
+
+  static async getInvitations(req, res) {
+    const professor = await req.user.getProfessor();
+    req = patchQuery(req, {
+      professorId: professor.id,
+      response: InvitationResponse.PENDING,
+    });
+    await InvitationController.query(req, res);
   }
 }

@@ -115,6 +115,7 @@ router.post(
 // Who should be able to post/put/delete resources/presentations?
 
 // TODO: grades timeline, announcement, these are missing completely
+// Bathmos, epi merous kritiria
 // router.get(
 //   "/:id/timeline",
 //   validate(thesisValidator.getTimeline),

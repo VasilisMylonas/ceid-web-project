@@ -88,13 +88,22 @@ export default (sequelize) => {
       },
       startDate: {
         type: DataTypes.DATEONLY,
-        allowNull: false,
+        allowNull: true,
       },
       endDate: {
         type: DataTypes.DATEONLY,
         allowNull: true,
       },
-      statusReason: {
+      // TODO: cancellation data maybe should be in JSON column
+      assemblyYear: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+      },
+      assemblyNumber: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+      },
+      cancellationReason: {
         type: DataTypes.STRING,
         allowNull: true,
       },

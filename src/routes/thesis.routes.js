@@ -89,14 +89,19 @@ router.put(
   requireThesisRole(ThesisRole.STUDENT),
   ThesisController.putDraft
 );
-
-// TODO
 router.post(
   "/:id/cancel",
   validate(thesisValidator.cancel),
   model(db.Thesis, "thesis"),
-  requireThesisRole(ThesisRole.SUPERVISOR),
+  requireThesisRoleOrSecretary(ThesisRole.SUPERVISOR),
   ThesisController.cancel
+);
+router.post(
+  "/:id/complete",
+  validate(thesisValidator.complete),
+  model(db.Thesis, "thesis"),
+  requireRole(ThesisRole.SUPERVISOR),
+  ThesisController.complete
 );
 
 router.get(

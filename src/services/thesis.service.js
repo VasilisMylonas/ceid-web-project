@@ -2,6 +2,7 @@ import db from "../models/index.js";
 import { ConflictError, NotFoundError, SecurityError } from "../errors.js";
 import { ThesisStatus } from "../constants.js";
 import { getFilePath, deleteIfExists } from "../config/file-storage.js";
+import { UserRole } from "../constants.js";
 
 export default class ThesisService {
   static async create({ topicId, studentId }) {
@@ -210,5 +211,59 @@ ${offset ? `OFFSET ${offset}` : ""}
     }
     deleteIfExists(thesis.documentFile);
     await thesis.update({ documentFile: filename });
+  }
+
+  static async complete(id) {
+    const thesis = await ThesisService.get(id);
+
+    if (thesis.status !== ThesisStatus.UNDER_EXAMINATION) {
+      throw new ConflictError("Thesis cannot be completed at this stage.");
+    }
+
+    if (thesis.grade === null || thesis.nemertesLink === null) {
+      throw new ConflictError(
+        "Thesis cannot be completed without grade and nemertes link."
+      );
+    }
+
+    thesis.status = ThesisStatus.COMPLETED;
+    thesis.endDate = new Date();
+    await thesis.save();
+    return thesis;
+  }
+
+  static async cancel(
+    id,
+    user,
+    { assemblyYear, assemblyNumber, cancellationReason }
+  ) {
+    const thesis = await ThesisService.get(id);
+
+    if (thesis.status !== ThesisStatus.ACTIVE) {
+      throw new ConflictError("Thesis cannot be cancelled at this stage.");
+    }
+
+    const now = new Date();
+
+    // Secretary can also cancel and doesnt need to check the 2 years condition
+    if (user.role == UserRole.PROFESSOR) {
+      const startDate = thesis.startDate;
+      const diffYears = (now - startDate) / (1000 * 60 * 60 * 24 * 365.25);
+
+      if (diffYears < 2) {
+        throw new ConflictError(
+          "Cannot cancel thesis before 2 years from start date."
+        );
+      }
+    }
+
+    thesis.status = ThesisStatus.CANCELLED;
+    thesis.assemblyYear = assemblyYear;
+    thesis.assemblyNumber = assemblyNumber;
+    thesis.cancellationReason = cancellationReason;
+    thesis.endDate = now;
+
+    await thesis.save();
+    return thesis;
   }
 }

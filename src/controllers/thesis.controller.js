@@ -1,6 +1,5 @@
 import { StatusCodes } from "http-status-codes";
 import db from "../models/index.js";
-import { getFilePath, deleteIfExists } from "../config/file-storage.js";
 import { ThesisStatus, UserRole } from "../constants.js";
 import ThesisService from "../services/thesis.service.js";
 
@@ -67,95 +66,21 @@ export default class ThesisController {
   }
 
   static async cancel(req, res) {
-    // TODO: this is wrong
-    const thesis = req.thesis;
+    await ThesisService.cancel(req.params.id, req.user, {
+      assemblyYear: req.body.assemblyYear,
+      assemblyNumber: req.body.assemblyNumber,
+      cancellationReason: req.body.cancellationReason,
+    });
+    res.success(null, {}, StatusCodes.OK);
+  }
 
-    if (thesis.status !== ThesisStatus.ACTIVE) {
-      return res
-        .status(StatusCodes.BAD_REQUEST)
-        .json({ message: "Thesis cannot be cancelled at this stage." });
-    }
-
-    const startDate = thesis.startDate;
-    const now = new Date();
-    const diffYears = (now - startDate) / (1000 * 60 * 60 * 24 * 365.25);
-
-    if (diffYears < 2) {
-      return res.status(StatusCodes.BAD_REQUEST).json({
-        message: "Cannot cancel thesis before 2 years from start date.",
-      });
-    }
-
-    thesis.status = ThesisStatus.CANCELLED;
-    thesis.endDate = now;
-
-    await thesis.save();
-
-    return res.status(StatusCodes.OK).json(req.thesis);
+  static async complete(req, res) {
+    await ThesisService.complete(req.params.id);
+    res.success(null, {}, StatusCodes.OK);
   }
 
   static async putStatus(req, res) {
     // TODO: this is wrong
-
-    switch (req.body.status) {
-      case ThesisStatus.UNDER_EXAMINATION: {
-        if (req.user.role !== UserRole.PROFESSOR) {
-          return res.status(StatusCodes.FORBIDDEN).json({
-            message: "Only professors can set thesis under examination.",
-          });
-        }
-
-        if (req.thesis.status !== ThesisStatus.ACTIVE) {
-          return res
-            .status(StatusCodes.BAD_REQUEST)
-            .json({ message: "Thesis is not active." });
-        }
-
-        req.thesis.status = ThesisStatus.UNDER_EXAMINATION;
-        await req.thesis.save();
-
-        return res.status(StatusCodes.OK).json(req.thesis);
-      }
-      case ThesisStatus.COMPLETED: {
-        if (req.user.role !== UserRole.SECRETARY) {
-          return res
-            .status(StatusCodes.FORBIDDEN)
-            .json({ message: "Only secretaries can complete theses." });
-        }
-
-        if (req.thesis.status !== ThesisStatus.UNDER_EXAMINATION) {
-          return res.status(StatusCodes.BAD_REQUEST).json({
-            message: "Thesis is not under examination.",
-          });
-        }
-
-        req.thesis.status = ThesisStatus.COMPLETED;
-        req.thesis.endDate = new Date();
-        await req.thesis.save();
-
-        return res.status(StatusCodes.OK).json(req.thesis);
-      }
-      case ThesisStatus.ACTIVE: {
-        if (req.user.role !== UserRole.SECRETARY) {
-          return res
-            .status(StatusCodes.FORBIDDEN)
-            .json({ message: "Only secretaries can review theses." });
-        }
-
-        if (req.thesis.status !== ThesisStatus.PENDING) {
-          return res.status(StatusCodes.BAD_REQUEST).json({
-            message: "Thesis is not pending review.",
-          });
-        }
-
-        req.thesis.status = ThesisStatus.ACTIVE;
-        req.thesis.startDate = new Date();
-        await req.thesis.save();
-
-        return res.status(StatusCodes.OK).json(req.thesis);
-      }
-    }
-
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json();
   }
 

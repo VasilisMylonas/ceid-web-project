@@ -8,6 +8,7 @@ import seedTheses from "./theses.js";
 import seedCommitteeMembers from "./committee-members.js";
 import UserService from "../services/user.service.js";
 import TopicService from "../services/topic.service.js";
+import ThesisService from "../services/thesis.service.js";
 
 export default async function seedDatabase() {
   await db.sequelize.sync({ force: true });
@@ -29,7 +30,7 @@ export default async function seedDatabase() {
     division: "Software Engineering",
   });
 
-  await UserService.create({
+  const student = await UserService.create({
     username: "student",
     password: "student",
     email: "student@example.com",
@@ -50,23 +51,26 @@ export default async function seedDatabase() {
     address: "ADDRESS",
   });
 
-  TopicService.create({
+  const topic = await TopicService.create({
     title: "Sample Topic 1",
     summary: "This is a sample topic for testing.",
     user: professor,
   });
 
-  TopicService.create({
+  await TopicService.create({
     title: "Sample Topic 2",
     summary: "This is a sample topic for testing.",
     user: professor,
   });
 
-  TopicService.create({
+  await TopicService.create({
     title: "Sample Topic 3",
     summary: "This is a sample topic for testing.",
     user: professor,
   });
+
+  const studentId = (await student.getStudent()).id;
+  await ThesisService.create({ topicId: topic.id, studentId });
 
   // await seedTopics(400);
   // await seedTheses(300);

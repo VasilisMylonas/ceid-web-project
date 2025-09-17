@@ -11,7 +11,13 @@ export default {
     body: Joi.object({
       assemblyYear: Joi.number().integer().min(2000).required(),
       assemblyNumber: Joi.number().integer().min(1).required(),
+      cancellationReason: Joi.string().min(1).max(200).required(),
     }),
+  },
+  complete: {
+    params: Joi.object({
+      id: Joi.number().integer().min(1).required(),
+    }).unknown(false),
   },
   putStatus: {
     params: Joi.object({

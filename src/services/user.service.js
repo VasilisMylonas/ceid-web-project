@@ -1,5 +1,6 @@
 import db from "../models/index.js";
 import bcrypt from "bcrypt";
+import { NotFoundError } from "../errors.js";
 
 export default class UserService {
   /**
@@ -8,13 +9,17 @@ export default class UserService {
    * @returns {Promise<Object|null>} The user object or null if not found.
    */
   static async getById(id) {
-    return db.User.findByPk(id, {
+    const user = await db.User.findByPk(id, {
       include: [
         { model: db.Professor },
         { model: db.Student },
         { model: db.Secretary },
       ],
     });
+    if (!user) {
+      throw new NotFoundError("No such user");
+    }
+    return user;
   }
 
   /**
@@ -29,13 +34,7 @@ export default class UserService {
     }
 
     const user = await UserService.getById(id);
-
-    if (!user) {
-      return null;
-    }
-
     await user.update(data);
-
     return user;
   }
 

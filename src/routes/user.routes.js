@@ -26,8 +26,6 @@ router.post(
   requireRole(UserRole.SECRETARY),
   UserController.postBatch
 );
-
-// NOTE Conflict with model(db.User) and requireAuth user
 router.get(
   "/:id",
   validate(userValidator.get),

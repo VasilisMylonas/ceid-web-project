@@ -40,21 +40,11 @@ export default class MyController {
 
   static async getProfile(req, res) {
     const user = await UserService.getById(req.user.id);
-
-    if (!user) {
-      return res.error("No such user", StatusCodes.NOT_FOUND);
-    }
-
     res.success(omit(user.get(), "password"));
   }
 
   static async patchProfile(req, res) {
     const user = await UserService.updateById(req.user.id, req.body);
-
-    if (!user) {
-      return res.error("No such user", StatusCodes.NOT_FOUND);
-    }
-
     res.success(omit(user.get(), "password"));
   }
 

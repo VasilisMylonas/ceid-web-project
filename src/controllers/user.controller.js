@@ -20,21 +20,11 @@ export default class UserController {
 
   static async get(req, res) {
     const user = await UserService.getById(req.params.id);
-
-    if (!user) {
-      return res.error("No such user", StatusCodes.NOT_FOUND);
-    }
-
     res.success(omit(user.get(), "password"));
   }
 
   static async patch(req, res) {
     const user = await UserService.updateById(req.params.id, req.body);
-
-    if (!user) {
-      return res.error("No such user", StatusCodes.NOT_FOUND);
-    }
-
     res.success(omit(user.get(), "password"));
   }
 

@@ -1,7 +1,7 @@
 import { NotFoundError } from "adminjs";
 import { InvitationResponse, ThesisStatus } from "../constants.js";
 import db from "../models/index.js";
-import { ConflictError, SecurityError } from "src/errors.js";
+import { ConflictError, SecurityError } from "../errors.js";
 
 export default class InvitationService {
   static async respond(id, user, response) {
@@ -31,7 +31,7 @@ export default class InvitationService {
     }
 
     const thesis = await invitation.getThesis();
-    const committeeMemberCount = await db.CommitteeMembers.count({
+    const committeeMemberCount = await db.CommitteeMember.count({
       where: { thesisId: thesis.id },
     });
 

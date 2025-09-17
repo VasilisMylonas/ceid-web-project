@@ -48,10 +48,6 @@ export default class TopicService {
     return db.Topic.findAndCountAll(query);
   }
 
-  static async create({ title, summary, professor }) {
-    return await professor.createTopic({ title, summary });
-  }
-
   static async get(topicId) {
     const topic = await db.Topic.findByPk(topicId);
     if (!topic) {

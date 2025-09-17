@@ -34,7 +34,7 @@ export default class TopicController {
     const topic = await TopicService.get(req.params.id);
     const professor = await req.user.getProfessor();
     if (!professor || topic.professorId !== professor.id) {
-      throw new SecurityError("Forbidden");
+      throw new SecurityError("You are not the owner of this topic");
     }
     return topic;
   }

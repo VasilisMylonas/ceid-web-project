@@ -1,20 +1,27 @@
 import { omit, patchQuery } from "../util.js";
-import TopicController from "./topic.controller.js";
 import ThesisController from "./thesis.controller.js";
 import InvitationController from "./invitation.controller.js";
-import UserController from "./user.controller.js";
 import { InvitationResponse } from "../constants.js";
 import db from "../models/index.js";
 import UserService from "../services/user.service.js";
 import { StatusCodes } from "http-status-codes";
+import TopicService from "../services/topic.service.js";
 
 export default class MyController {
   // Theses mainly forward to appropriate controllers with patched queries
 
   static async getTopics(req, res) {
     const professor = await req.user.getProfessor();
-    req = patchQuery(req, { professorId: professor.id });
-    await TopicController.query(req, res);
+    const topics = await TopicService.query({
+      professorId: professor.id,
+      limit: req.query.limit,
+      offset: req.query.offset,
+      status: req.query.status,
+    });
+    res.success(topics.rows, {
+      count: topics.rows.length,
+      total: topics.count,
+    });
   }
 
   static async getTheses(req, res) {

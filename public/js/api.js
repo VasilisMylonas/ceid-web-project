@@ -81,7 +81,13 @@ async function getThesisDraft(thesisId) {
   }
   return await response.blob();
 }
-
+async function getTopicDescription(topicId) {
+    const response = await fetch(`${BASE_URL}/v1/topics/${topicId}/description`);
+  if (!response.ok) {
+    throw new Error(`Failed to download file: ${response.statusText}`);
+  }
+  return await response.blob();
+}
 async function createThesisPresentation(thesisId, presentationData) {
   return await request("POST", `${BASE_URL}/v1/theses/${thesisId}/presentations`, presentationData);
 }

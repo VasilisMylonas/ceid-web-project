@@ -45,13 +45,36 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Fill in thesis details using the correct property names
     document.getElementById("thesis-title").textContent = thesis.topic || "Χωρίς Τίτλο";
-    // 'description' is not in the response, so we show a placeholder.
-    document.getElementById("thesis-description").textContent = topic.summary || "Χωρίς Περιγραφή";
-    const attachmentLink = document.getElementById("thesis-attachment");
-    // 'attachment' is not in the response.
-    attachmentLink.textContent = "Χωρίς συνημμένο αρχείο";
-    attachmentLink.href = "#";
-    attachmentLink.classList.add('disabled');
+    document.getElementById("thesis-summary").textContent = topic.summary || "Χωρίς Περίληψη";
+    
+    const descriptionLink = document.getElementById("thesis-description");
+ 
+    descriptionLink.textContent = "Λήψη Περιγραφής";
+    descriptionLink.href = "#"; // Keep it as a clickable link
+    descriptionLink.classList.remove('disabled');
+
+    descriptionLink.addEventListener('click', async (e) => {
+        e.preventDefault(); // Prevent the link from navigating
+        try {
+            const blob = await getTopicDescription(thesis.topicId);
+            
+            // Create a temporary link to trigger the download
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            // Use the original filename from the topic or a default
+            a.download = topic.description || 'description.pdf'; 
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            a.remove();
+        } catch (error) {
+            console.error('Failed to download topic description:', error);
+            alert('Δεν υπάρχει διαθέσιμη περιγραφή για αυτό το θέμα.');
+        }
+    });
+   
 
     // Status badge
     const statusSpan = document.getElementById("thesis-status");

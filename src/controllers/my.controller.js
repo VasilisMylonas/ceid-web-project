@@ -8,22 +8,23 @@ import { StatusCodes } from "http-status-codes";
 import TopicService from "../services/topic.service.js";
 
 export default class MyController {
-  // Theses mainly forward to appropriate controllers with patched queries
-
   static async getTopics(req, res) {
     const professor = await req.user.getProfessor();
+
     const topics = await TopicService.query({
-      professorId: professor.id,
       limit: req.query.limit,
       offset: req.query.offset,
       status: req.query.status,
+      professorId: professor.professorId,
     });
+
     res.success(topics.rows, {
       count: topics.rows.length,
       total: topics.count,
     });
   }
 
+  // TODO: Theses mainly forward to appropriate controllers with patched queries
   static async getTheses(req, res) {
     const professor = await req.user.getProfessor();
     req = patchQuery(req, { professorId: professor.id });

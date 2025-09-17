@@ -6,9 +6,13 @@ export default (sequelize) => {
       Professor.belongsTo(models.User, { foreignKey: "userId" });
       Professor.hasMany(models.Topic, { foreignKey: "professorId" });
       Professor.hasMany(models.Note, { foreignKey: "professorId" });
-      Professor.hasMany(models.Grade, { foreignKey: "professorId" });
       Professor.hasMany(models.Invitation, { foreignKey: "professorId" });
       Professor.hasMany(models.CommitteeMember, { foreignKey: "professorId" });
+      Professor.belongsToMany(models.Thesis, {
+        through: models.CommitteeMember,
+        foreignKey: "professorId",
+        otherKey: "thesisId",
+      });
     }
   }
 
@@ -31,7 +35,6 @@ export default (sequelize) => {
     },
     {
       sequelize,
-      modelName: "Professor",
       underscored: true,
     }
   );

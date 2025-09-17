@@ -4,17 +4,16 @@ import { requireAuth, requireRole } from "../middleware/authentication.js";
 import userValidator from "../validators/user.validators.js";
 import UserController from "../controllers/user.controller.js";
 import { UserRole } from "../constants.js";
-import db from "../models/index.js";
-import { model } from "../middleware/model.js";
 
 const router = express.Router();
 router.use(requireAuth);
 
+// TODO: perms?
 router.get(
   "/professors",
   validate(userValidator.getProfessors),
   UserController.getProfessors
-)
+);
 router.get(
   "/",
   validate(userValidator.query),
@@ -32,26 +31,21 @@ router.post(
   requireRole(UserRole.SECRETARY),
   UserController.postBatch
 );
-
-// NOTE Conflict with model(db.User) and requireAuth user
 router.get(
   "/:id",
   validate(userValidator.get),
-  model(db.User, "targetUser"),
   requireRole(UserRole.SECRETARY),
   UserController.get
 );
 router.patch(
   "/:id",
   validate(userValidator.patch),
-  model(db.User, "targetUser"),
   requireRole(UserRole.SECRETARY),
   UserController.patch
 );
 router.delete(
   "/:id",
   validate(userValidator.delete),
-  model(db.User, "targetUser"),
   requireRole(UserRole.SECRETARY),
   UserController.delete
 );

@@ -38,7 +38,7 @@ export async function createProfessor(namepass) {
   const user = await db.User.create({
     username: namepass,
     name: `${namepass}-name`,
-    password: await bcrypt.hash(namepass, 10),
+    password: namepass,
     role: UserRole.PROFESSOR,
     email: `${namepass}@upatras.gr`,
     phone: "000",
@@ -57,7 +57,7 @@ export async function createStudent() {
   const user = await db.User.create({
     username: "student",
     name: "Makis",
-    password: await bcrypt.hash("student", 10),
+    password: "student",
     role: UserRole.STUDENT,
     email: "student@upatras.gr",
     phone: "000",

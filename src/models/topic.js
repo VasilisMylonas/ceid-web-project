@@ -1,5 +1,7 @@
 import { DataTypes, Model, Op } from "sequelize";
 import { ThesisStatus } from "../constants.js";
+import { ConflictError } from "../errors.js";
+import { deleteIfExists } from "../config/file-storage.js";
 
 export default (sequelize) => {
   class Topic extends Model {
@@ -14,7 +16,6 @@ export default (sequelize) => {
           status: {
             [Op.in]: [
               ThesisStatus.UNDER_ASSIGNMENT,
-              ThesisStatus.PENDING,
               ThesisStatus.ACTIVE,
               ThesisStatus.COMPLETED,
               ThesisStatus.UNDER_EXAMINATION,
@@ -53,7 +54,6 @@ export default (sequelize) => {
     },
     {
       sequelize,
-      modelName: "Topic",
       underscored: true,
       indexes: [
         {
@@ -64,6 +64,17 @@ export default (sequelize) => {
           type: "FULLTEXT",
         },
       ],
+      hooks: {
+        async beforeDestroy(topic) {
+          deleteIfExists(topic.descriptionFile);
+        },
+        async beforeUpdate(topic) {
+          // TODO: this should be in topic.service.js
+          if (await topic.isAssigned()) {
+            throw new ConflictError("Cannot modify an assigned topic");
+          }
+        },
+      },
     }
   );
 

@@ -11,22 +11,18 @@ export default {
     body: Joi.object({
       assemblyYear: Joi.number().integer().min(2000).required(),
       assemblyNumber: Joi.number().integer().min(1).required(),
+      cancellationReason: Joi.string().min(1).max(200).required(),
     }),
   },
-  patchStatus: {
+  examine: {
     params: Joi.object({
       id: Joi.number().integer().min(1).required(),
     }).unknown(false),
-    body: Joi.object({
-      status: Joi.string()
-        .valid(
-          ThesisStatus.ACTIVE,
-          ThesisStatus.REJECTED,
-          ThesisStatus.UNDER_EXAMINATION,
-          ThesisStatus.COMPLETED
-        )
-        .required(),
-    }),
+  },
+  complete: {
+    params: Joi.object({
+      id: Joi.number().integer().min(1).required(),
+    }).unknown(false),
   },
   delete: {
     params: Joi.object({
@@ -83,7 +79,7 @@ export default {
       nemertesLink: Joi.string().uri().required(),
     }).unknown(false),
   },
-  patchGrading: {
+  putGrading: {
     params: Joi.object({
       id: Joi.number().integer().min(1).required(),
     }).unknown(false),
@@ -107,18 +103,18 @@ export default {
       professorId: Joi.number().integer().min(1).optional(),
       topicId: Joi.number().integer().min(1).optional(),
       q: Joi.string().min(1).optional(),
-      status: Joi.alternatives().try(
-        Joi.string()
-          .valid(...Object.values(ThesisStatus))
-          .optional(),
-        Joi.array()
-          .items(
+      status: Joi.alternatives()
+        .try(
+          Joi.string()
+            .valid(...Object.values(ThesisStatus))
+            .optional(),
+          Joi.array().items(
             Joi.string()
               .valid(...Object.values(ThesisStatus))
               .required()
           )
-          .optional()
-      ),
+        )
+        .optional(),
     })
       .unknown(false)
       .with("role", "professorId"),

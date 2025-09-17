@@ -31,7 +31,6 @@ export default (sequelize) => {
     },
     {
       sequelize,
-      modelName: "Resource",
       underscored: true,
     }
   );

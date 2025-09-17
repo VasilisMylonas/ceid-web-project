@@ -1,5 +1,4 @@
 import db from "../models/index.js";
-import bcrypt from "bcrypt";
 import { UserRole } from "../constants.js";
 import seedProfessors from "./professors.js";
 import seedStudents from "./students.js";
@@ -7,36 +6,66 @@ import seedSecretaries from "./secretaries.js";
 import seedTopics from "./topics.js";
 import seedTheses from "./theses.js";
 import seedCommitteeMembers from "./committee-members.js";
+import UserService from "../services/user.service.js";
+import TopicService from "../services/topic.service.js";
+import ThesisService from "../services/thesis.service.js";
 
 export default async function seedDatabase() {
   await db.sequelize.sync({ force: true });
-  await Promise.all([
-    seedProfessors(30),
-    seedStudents(500),
-    seedSecretaries(4),
-  ]);
 
-  const professorUser = await db.User.create({
+  // await Promise.all([
+  //   seedProfessors(30),
+  //   seedStudents(500),
+  //   seedSecretaries(4),
+  // ]);
+
+  const professor = await UserService.create({
     username: "professor",
-    password: await bcrypt.hash("professor", 10),
+    password: "professor",
     email: "professor@example.com",
     name: "Test Professor",
     role: UserRole.PROFESSOR,
     phone: "6942023594",
     address: "ADDRESS",
+    division: "Software Engineering",
   });
-  const studentUser = await db.User.create({
+
+  const professor2 = await UserService.create({
+    username: "professor2",
+    password: "professor2",
+    email: "professor2@example.com",
+    name: "Test Professor 2",
+    role: UserRole.PROFESSOR,
+    phone: "6942023594",
+    address: "ADDRESS",
+    division: "Software Engineering",
+  });
+
+  const professor3 = await UserService.create({
+    username: "professor3",
+    password: "professor3",
+    email: "professor3@example.com",
+    name: "Test Professor 3",
+    role: UserRole.PROFESSOR,
+    phone: "6942023594",
+    address: "ADDRESS",
+    division: "Software Engineering",
+  });
+
+  const student = await UserService.create({
     username: "student",
-    password: await bcrypt.hash("student", 10),
+    password: "student",
     email: "student@example.com",
     name: "Test Student",
     role: UserRole.STUDENT,
     phone: "6942023594",
     address: "ADDRESS",
+    am: "0",
   });
-  const secretaryUser = await db.User.create({
+
+  await UserService.create({
     username: "secretary",
-    password: await bcrypt.hash("secretary", 10),
+    password: "secretary",
     email: "secretary@example.com",
     name: "Test Secretary",
     role: UserRole.SECRETARY,
@@ -44,19 +73,25 @@ export default async function seedDatabase() {
     address: "ADDRESS",
   });
 
-  await db.Professor.create({
-    userId: professorUser.id,
-    division: "Software Engineering",
-  });
-  await db.Student.create({
-    userId: studentUser.id,
-    am: "0",
-  });
-  await db.Secretary.create({
-    userId: secretaryUser.id,
+  const topic = await TopicService.create(professor, {
+    title: "Sample Topic 1",
+    summary: "This is a sample topic for testing.",
   });
 
-  await seedTopics(400);
-  await seedTheses(300);
-  await seedCommitteeMembers();
+  await TopicService.create(professor, {
+    title: "Sample Topic 2",
+    summary: "This is a sample topic for testing.",
+  });
+
+  await TopicService.create(professor, {
+    title: "Sample Topic 3",
+    summary: "This is a sample topic for testing.",
+  });
+
+  const studentId = (await student.getStudent()).id;
+  await ThesisService.create({ topicId: topic.id, studentId });
+
+  // await seedTopics(400);
+  // await seedTheses(300);
+  // await seedCommitteeMembers();
 }

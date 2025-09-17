@@ -8,20 +8,18 @@ export async function login(req, res) {
     return res.status(StatusCodes.UNAUTHORIZED).json();
   }
 
-  res.success({ token }, {}, StatusCodes.OK);
+  res.success({ token });
 }
 
 export async function logout(req, res) {
-  // TODO WONTFIX
-  res.status(StatusCodes.NOT_IMPLEMENTED).json({
-    message:
-      "Logout not implemented, please clear the token on the client side. See https://jwt.io/ for more information.",
-  });
+  // WONTFIX
+  res.error(
+    "Logout not implemented, please clear the token on the client side. See https://jwt.io/ for more information.",
+    StatusCodes.NOT_IMPLEMENTED
+  );
 }
 
 export async function refresh(req, res) {
-  // TODO WONTFIX: Implement refresh token logic
-  res.status(StatusCodes.NOT_IMPLEMENTED).json({
-    message: "Refresh token not implemented yet.",
-  });
+  // WONTFIX: Implement refresh token logic
+  res.error("Refresh token not implemented yet.", StatusCodes.NOT_IMPLEMENTED);
 }

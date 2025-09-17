@@ -35,6 +35,10 @@ export default (sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      landlinePhone: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       email: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -55,7 +59,6 @@ export default (sequelize) => {
     },
     {
       sequelize,
-      modelName: "User",
       underscored: true,
       indexes: [
         {
@@ -70,6 +73,18 @@ export default (sequelize) => {
           fields: ["email"],
         },
       ],
+      hooks: {
+        async beforeCreate(user) {
+          if (user.password) {
+            user.password = await bcrypt.hash(user.password, 10);
+          }
+        },
+        async beforeUpdate(user) {
+          if (user.changed("password")) {
+            user.password = await bcrypt.hash(user.password, 10);
+          }
+        },
+      },
     }
   );
 

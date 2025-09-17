@@ -1,5 +1,6 @@
 import { DataTypes, Model } from "sequelize";
 import { ThesisRole, ThesisStatus } from "../constants.js";
+import { deleteIfExists } from "../config/file-storage.js";
 
 export default (sequelize) => {
   class Thesis extends Model {
@@ -9,38 +10,14 @@ export default (sequelize) => {
       Thesis.hasMany(models.Note, { foreignKey: "thesisId" });
       Thesis.hasMany(models.Presentation, { foreignKey: "thesisId" });
       Thesis.hasMany(models.Resource, { foreignKey: "thesisId" });
-      Thesis.hasMany(models.Grade, { foreignKey: "thesisId" });
       Thesis.hasMany(models.CommitteeMember, { foreignKey: "thesisId" });
       Thesis.hasMany(models.Invitation, { foreignKey: "thesisId" });
-    }
 
-    static async createFrom(params) {
-      const { topic, student } = params;
-
-      if (await topic.isAssigned()) {
-        throw new Error("Topic is already assigned to a student.");
-      }
-
-      if (await student.isAssigned()) {
-        throw new Error("Student is already assigned to a thesis.");
-      }
-
-      const thesis = await Thesis.create({
-        topicId: topic.id,
-        studentId: student.id,
-        status: ThesisStatus.UNDER_ASSIGNMENT,
+      Thesis.belongsToMany(models.Professor, {
+        through: models.CommitteeMember,
+        foreignKey: "thesisId",
+        otherKey: "professorId",
       });
-
-      const { CommitteeMember } = sequelize.models;
-
-      // Automatically assign the professor as a supervisor
-      await CommitteeMember.create({
-        thesisId: thesis.id,
-        professorId: topic.professorId,
-        role: ThesisRole.SUPERVISOR,
-      });
-
-      return thesis;
     }
 
     async canBeDeleted() {
@@ -67,6 +44,10 @@ export default (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      grade: {
+        type: DataTypes.FLOAT,
+        allowNull: true,
+      },
       nemertesLink: {
         type: DataTypes.STRING,
         allowNull: true,
@@ -76,14 +57,23 @@ export default (sequelize) => {
         allowNull: true,
       },
       startDate: {
-        type: DataTypes.DATE,
+        type: DataTypes.DATEONLY,
         allowNull: true,
       },
       endDate: {
-        type: DataTypes.DATE,
+        type: DataTypes.DATEONLY,
         allowNull: true,
       },
-      statusReason: {
+      // TODO: cancellation data maybe should be in JSON column, make sure to check custom queries in thesis.service.js
+      assemblyYear: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+      },
+      assemblyNumber: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+      },
+      cancellationReason: {
         type: DataTypes.STRING,
         allowNull: true,
       },
@@ -100,7 +90,6 @@ export default (sequelize) => {
     },
     {
       sequelize,
-      modelName: "Thesis",
       underscored: true,
       indexes: [
         {
@@ -113,6 +102,11 @@ export default (sequelize) => {
           fields: ["status"],
         },
       ],
+      hooks: {
+        async beforeDestroy(thesis) {
+          deleteIfExists(thesis.documentFile);
+        },
+      },
     }
   );
 

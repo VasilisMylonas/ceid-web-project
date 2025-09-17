@@ -23,13 +23,8 @@ export default (sequelize) => {
         primaryKey: true,
         allowNull: false,
       },
-      startDate: {
-        type: DataTypes.DATE,
-        allowNull: false,
-        defaultValue: DataTypes.NOW,
-      },
-      endDate: {
-        type: DataTypes.DATE,
+      grade: {
+        type: DataTypes.FLOAT,
         allowNull: true,
       },
       role: {
@@ -43,7 +38,6 @@ export default (sequelize) => {
     },
     {
       sequelize,
-      modelName: "CommitteeMember",
       underscored: true,
       indexes: [
         {

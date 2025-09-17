@@ -53,17 +53,3 @@ export function requireThesisRole(...roles) {
     next();
   };
 }
-
-export function requireThesisStatus(...status) {
-  return async (req, res, next) => {
-    const thesis =
-      req.thesis instanceof db.Thesis ? req.model : await req.model.getThesis();
-
-    if (!status.includes(thesis.status)) {
-      return res.status(StatusCodes.BAD_REQUEST).json();
-    }
-
-    req.thesis = thesis;
-    next();
-  };
-}

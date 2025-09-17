@@ -29,6 +29,10 @@ services:
       - DATABASE_URL=postgres://postgres:postgres@theseus-db:5432/postgres
       - JWT_SECRET=my_jwt_secret
       - PORT=3000
+      - ADMINJS_COOKIE_PASSWORD=secret_theseus_adminjs_cookie_password
+      - ADMINJS_COOKIE_NAME=theseus_adminjs
+      - ADMIN_EMAIL=admin
+      - ADMIN_PASSWORD=admin
     ports:
       - "3000:3000"
     depends_on:
@@ -44,6 +48,10 @@ services:
       - DATABASE_URL=postgres://postgres:postgres@theseus-db:5432/postgres
       - JWT_SECRET=my_jwt_secret
       - PORT=3000
+      - ADMINJS_COOKIE_PASSWORD=secret_theseus_adminjs_cookie_password
+      - ADMINJS_COOKIE_NAME=theseus_adminjs
+      - ADMIN_EMAIL=admin
+      - ADMIN_PASSWORD=admin
     volumes:
       - .:/usr/src/app:Z
     ports:

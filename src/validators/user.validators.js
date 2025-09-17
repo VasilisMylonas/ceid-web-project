@@ -82,4 +82,12 @@ export default {
       })
     ),
   },
+
+  getProfessors: {},
+
+  get: {
+    params: Joi.object({
+      id: Joi.number().integer().min(1).required(),
+    }).unknown(false),
+  },
 };

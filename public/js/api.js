@@ -29,10 +29,92 @@ async function request(method, url, object = null) {
   throw new Error(`${response.statusText}: ${json.error.message}`);
 }
 
+/**
+ * A special request function for handling file uploads using FormData.
+ * It does not set Content-Type, allowing the browser to set it to multipart/form-data.
+ */
+async function requestWithFile(method, url, formData) {
+  const response = await fetch(url, {
+    method: method,
+    body: formData, // Pass FormData directly
+  });
+
+  if (response.status === 204) { // No Content
+    return;
+  }
+
+  // Try to parse JSON, but handle cases where the body might not be JSON
+  let errorPayload;
+  try {
+    errorPayload = await response.json();
+    console.debug("API File Response:", errorPayload);
+  } catch (e) {
+    // If parsing fails, use the raw text of the response
+    errorPayload = await response.text();
+  }
+
+  if (response.ok) {
+    return errorPayload;
+  }
+
+  // Improved error message creation
+  const errorMessage = (typeof errorPayload === 'object' && errorPayload?.error?.message) 
+    ? errorPayload.error.message 
+    : JSON.stringify(errorPayload);
+    
+  throw new Error(`${response.statusText}: ${errorMessage}`);
+}
+
 async function getProfile() {
   return await request("GET", `${BASE_URL}/v1/my/profile`);
 }
 
+async function addThesisResources(thesisId, resource) { // Expects a single resource object
+  return await request("POST", `${BASE_URL}/v1/theses/${thesisId}/resources`, resource);
+}
+
+// This function is special because it returns a Blob, not JSON.
+async function getThesisDraft(thesisId) {
+  const response = await fetch(`${BASE_URL}/v1/theses/${thesisId}/draft`);
+  if (!response.ok) {
+    throw new Error(`Failed to download file: ${response.statusText}`);
+  }
+  return await response.blob();
+}
+async function getTopicDescription(topicId) {
+    const response = await fetch(`${BASE_URL}/v1/topics/${topicId}/description`);
+  if (!response.ok) {
+    throw new Error(`Failed to download file: ${response.statusText}`);
+  }
+  return await response.blob();
+}
+async function createThesisPresentation(thesisId, presentationData) {
+  return await request("POST", `${BASE_URL}/v1/theses/${thesisId}/presentations`, presentationData);
+}
+async function getThesisPresentations(thesisId) {
+  return await request("GET", `${BASE_URL}/v1/theses/${thesisId}/presentations`);
+}
+async function uploadThesisDraft(thesisId, formData) {
+  return await requestWithFile("PUT", `${BASE_URL}/v1/theses/${thesisId}/draft`, formData );
+}
+async function setNymertesLink(thesisId, link) {
+  return await request("PUT", `${BASE_URL}/v1/theses/${thesisId}/nemertes-link`, { nemertesLink: link });
+}
+async function getThesisResources(thesisId) {
+  return await request("GET", `${BASE_URL}/v1/theses/${thesisId}/resources`);
+}
+async function getThesisInvitations(thesisId){
+  return await request("GET", `${BASE_URL}/v1/theses/${thesisId}/invitations`);
+}
+async function sendThesisInvitation(thesisId, professorId) {
+  return await request("POST", `${BASE_URL}/v1/theses/${thesisId}/invitations`, { professorId });
+}
+async function inviteProfessor(thesisId, professorId) {
+  return await request("POST", `${BASE_URL}/v1/theses/${thesisId}/invitations`, { professorId });
+}
+async function getProfessors(){
+  return await request("GET", `${BASE_URL}/v1/users/professors`);
+}
 async function updateProfile(properties) {
   return await request("PATCH", `${BASE_URL}/v1/my/profile`, properties);
 }

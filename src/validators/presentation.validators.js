@@ -21,16 +21,16 @@ export default {
       kind: Joi.string()
         .valid(...Object.values(PresentationKind))
         .required(),
-    })
-      .unknown(false)
-      .when("kind", {
+      link: Joi.string().uri().when("kind", {
         is: PresentationKind.ONLINE,
-        then: Joi.object({
-          link: Joi.string().uri().required(),
-        }),
-        otherwise: Joi.object({
-          hall: Joi.string().min(1).required(),
-        }),
+        then: Joi.required(),
+        otherwise: Joi.optional(),
       }),
+      hall: Joi.string().min(1).when("kind", {
+        is: PresentationKind.IN_PERSON,
+        then: Joi.required(),
+        otherwise: Joi.forbidden(),
+      }),
+    }).unknown(false),
   },
 };

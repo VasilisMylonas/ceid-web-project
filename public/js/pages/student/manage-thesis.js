@@ -56,11 +56,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
 
-    let invitationsResponse = []; // Initialize as an empty array
+    
 
     hideAllStates();
-
+    
     // --- SETUP EVENT LISTENERS ONCE ---
+
+    let invitationsResponse = []; // Initialize as an empty array
     if (modalElement) {
         const inviteModal = new bootstrap.Modal(modalElement);
         // Pass functions to get the current thesis and invitations data.
@@ -79,25 +81,46 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const time = document.getElementById('examTime').value;
                 const kind = document.querySelector('input[name="examType"]:checked').value;
                 const location = document.getElementById('examLocation').value;
+                const link = document.getElementById('examLink').value; 
+                
+                console.log("Presentation details to save:", { date, time, kind, location, link });
 
+                if (kind === 'in_person' && !location) {
+                    alert('Παρακαλώ εισάγετε την τοποθεσία της εξέτασης.');
+                    return;
+                }
+                if (kind === 'online' && !link) {
+                    alert('Παρακαλώ εισάγετε τον σύνδεσμο της τηλεδιάσκεψης.');
+                    return;
+                }
                 if (date && time && kind && location) {
+                    // Format date and time as "YYYY-MM-DDTHH:mm:00"
+                    const formattedDateTime = `${date}T${time}:00`;
                     const presentationData = {
-                        date: date, // Combine and format as ISO string
+                        date: formattedDateTime,
                         kind: kind === 'online' ? 'online' : 'in_person',
                     };
-
-                    if (presentationData.kind === 'online') {
-                        presentationData.link = location;
-                    } else {
-                        presentationData.hall = location;
+                    if (kind === 'online') {
+                        presentationData.link = link;
+                        if (location) {
+                            presentationData.hall = location; // Optional, if provided
+                        }
                     }
-                    console.log("Saving presentation data:", presentationData);
-                    //await createThesisPresentation(thesis.id, presentationData);
+                    if (kind === 'in_person') {
+                       
+                        presentationData.hall = location;
+                        if (link) {
+                            presentationData.link = link; // Optional, if provided
+                        }
+
+                    }
+                    await createThesisPresentation(thesis.id, presentationData);
+                    console.log("Saved presentation data:", presentationData);
                     alert('Οι λεπτομέρειες της εξέτασης αποθηκεύτηκαν.');
                 }
             } catch (error) {
                 console.error('Failed to save presentation details:', error);
-                alert('Σφάλμα κατά την αποθήκευση των λεπτομερειών της εξέτασης.');
+                alert(error);
             }
 
             // --- Handle Links Data ---
@@ -119,7 +142,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
              // --- Handle Nimertis Link ---
             const nimertisUrl = document.getElementById('nimertisLink').value.trim();
-            console.log("Nimertis link saved:", nimertisUrl);
             if (nimertisUrl) {
                 try {
                     await setNymertesLink(thesis.id, nimertisUrl);

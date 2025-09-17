@@ -62,35 +62,3 @@ docker compose up theseus-dev
 The server should now be running at <http://localhost:3000>.
 
 The API is documented using Postman. You can import the provided Postman collection to explore and test the API endpoints. You can access it [here](https://vasilismylonas-6137673.postman.co/workspace/Vasilis-Mylonas's-Workspace~bdb1c1e8-077b-415a-8162-22e0b9bd75ec/collection/44259023-63d0ae2b-e09c-49fe-a222-e0101989a819?action=share&creator=44259023&active-environment=44259023-a78b3f97-8acb-4fdb-8ac2-2b5e6e229a23)
-
-## TODOs
-
-- Check /src/routes/theses.routes.js for TODOs
-- Refresh button in thesis-manage
-- Public announcements API
-
-- Ignore below
-- Maybe autoIncrement should be autoIncrementIdentity for postgres (see models)
-- Authentication middleware should attach role info/id
-
-## Workflow
-
-Professor:
-
-- Create Topic:
-  - POST /topics (PROFESSOR ONLY)
-- Manage Topic:
-  - GET /topics/:id (ANY)
-  - PUT /topics/:id (OWNER ONLY, UNASSIGNED ONLY)
-  - DELETE /topics/:id (OWNER ONLY, UNASSIGNED ONLY)
-- Manage Description:
-  - GET /topics/:id/description (ANY)
-  - PUT /topics/:id/description (OWNER ONLY, UNASSIGNED ONLY)
-  - DELETE /topics/:id/description (OWNER ONLY, UNASSIGNED ONLY)
-- View topics:
-  - GET /my/topics (PROF ONLY)
-  - GET /topics&professorId=id (ANY)
-- Search student:
-  - GET /students?q=search (PROF ONLY)
-- Assign topic:
-  - POST /theses (PROF ONLY)

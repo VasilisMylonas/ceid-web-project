@@ -13,7 +13,6 @@ router.use(requireAuth);
 router.get(
   "/",
   validate(userValidator.query),
-  requireRole(UserRole.SECRETARY),
   UserController.query
 );
 router.post(

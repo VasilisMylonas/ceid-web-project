@@ -29,10 +29,84 @@ async function request(method, url, object = null) {
   throw new Error(`${response.statusText}: ${json.error.message}`);
 }
 
+/**
+ * A special request function for handling file uploads using FormData.
+ * It does not set Content-Type, allowing the browser to set it to multipart/form-data.
+ */
+async function requestWithFile(method, url, formData) {
+  const response = await fetch(url, {
+    method: method,
+    body: formData, // Pass FormData directly
+  });
+
+  if (response.status === 204) { // No Content
+    return;
+  }
+
+  // Try to parse JSON, but handle cases where the body might not be JSON
+  let errorPayload;
+  try {
+    errorPayload = await response.json();
+    console.debug("API File Response:", errorPayload);
+  } catch (e) {
+    // If parsing fails, use the raw text of the response
+    errorPayload = await response.text();
+  }
+
+  if (response.ok) {
+    return errorPayload;
+  }
+
+  // Improved error message creation
+  const errorMessage = (typeof errorPayload === 'object' && errorPayload?.error?.message) 
+    ? errorPayload.error.message 
+    : JSON.stringify(errorPayload);
+    
+  throw new Error(`${response.statusText}: ${errorMessage}`);
+}
+
 async function getProfile() {
   return await request("GET", `${BASE_URL}/v1/my/profile`);
 }
 
+async function addThesisResources(thesisId, resource) { // Expects a single resource object
+  return await request("POST", `${BASE_URL}/v1/theses/${thesisId}/resources`, resource);
+}
+
+// This function is special because it returns a Blob, not JSON.
+async function getThesisDraft(thesisId) {
+  const response = await fetch(`${BASE_URL}/v1/theses/${thesisId}/draft`);
+  if (!response.ok) {
+    throw new Error(`Failed to download file: ${response.statusText}`);
+  }
+  return await response.blob();
+}
+
+async function createThesisPresentation(thesisId, presentationData) {
+  return await request("POST", `${BASE_URL}/v1/theses/${thesisId}/presentations`, presentationData);
+}
+
+async function uploadThesisDraft(thesisId, formData) {
+  return await requestWithFile("PUT", `${BASE_URL}/v1/theses/${thesisId}/draft`, formData );
+}
+async function setNymertesLink(thesisId, link) {
+  return await request("PUT", `${BASE_URL}/v1/theses/${thesisId}/nemertes-link`, { nemertesLink: link });
+}
+async function getThesisResources(thesisId) {
+  return await request("GET", `${BASE_URL}/v1/theses/${thesisId}/resources`);
+}
+async function getThesisInvitations(thesisId){
+  return await request("GET", `${BASE_URL}/v1/theses/${thesisId}/invitations`);
+}
+async function sendThesisInvitation(thesisId, professorId) {
+  return await request("POST", `${BASE_URL}/v1/theses/${thesisId}/invitations`, { professorId });
+}
+async function inviteProfessor(thesisId, professorId) {
+  return await request("POST", `${BASE_URL}/v1/theses/${thesisId}/invitations`, { professorId });
+}
+async function getProfessors(){
+  return await request("GET", `${BASE_URL}/v1/users/professors`);
+}
 async function updateProfile(properties) {
   return await request("PATCH", `${BASE_URL}/v1/my/profile`, properties);
 }
@@ -45,8 +119,8 @@ async function getThesis(){
   return await request("GET", `${BASE_URL}/v1/my/thesis`);
 }
 
-async function getTopic(id){
-  return await request ("GET", `${BASE_URL}/v1/topics/${id}`);
+async function getTopic(id) {
+  return await request("GET", `${BASE_URL}/v1/topics/${id}`);
 }
 
 async function getThesesSecretary(
@@ -56,15 +130,22 @@ async function getThesesSecretary(
   status = null,
   query = null
 ) {
-  page = parseInt(page, 10);
-  pageSize = parseInt(pageSize, 10);
+  let offset;
+  let limit;
 
-  const offset = (page - 1) * pageSize;
-  const limit = pageSize;
+  if (page == null || pageSize == null) {
+    offset = 0;
+    limit = null;
+  } else {
+    page = parseInt(page, 10);
+    pageSize = parseInt(pageSize, 10);
+    offset = (page - 1) * pageSize;
+    limit = pageSize;
+  }
 
   return await request(
     "GET",
-    `${BASE_URL}/v1/theses?&offset=${offset}&limit=${limit}${
+    `${BASE_URL}/v1/theses?&offset=${offset}${limit ? `&limit=${limit}` : ""}${
       supervisorId ? `&professorId=${supervisorId}&role=supervisor` : ""
     }${status ? `&status=${status}` : ""}${
       query ? `&q=${encodeURIComponent(query)}` : ""
@@ -80,6 +161,24 @@ async function importUsers(users) {
   return await request("POST", `${BASE_URL}/v1/users/batch`, users);
 }
 
+async function approveThesis(thesisId, assemblyNumber, protocolNumber) {
+  return await request("POST", `${BASE_URL}/v1/theses/${thesisId}/approve`, {
+    assemblyNumber,
+    protocolNumber,
+  });
+}
+
+async function cancelThesis(thesisId, assemblyNumber, reason) {
+  return await request("POST", `${BASE_URL}/v1/theses/${thesisId}/cancel`, {
+    assemblyNumber,
+    reason,
+  });
+}
+
+async function completeThesis(thesisId) {
+  return await request("POST", `${BASE_URL}/v1/theses/${thesisId}/complete`);
+}
+
 class Name {
   static ofThesisStatus(status) {
     switch (status) {
@@ -91,10 +190,6 @@ class Name {
         return "Ολοκληρωμένη";
       case "cancelled":
         return "Ακυρωμένη";
-      case "rejected":
-        return "Απορριφθείσα";
-      case "pending":
-        return "Σε Αναμονή";
       case "under_assignment":
         return "Υπό Ανάθεση";
     }
@@ -109,7 +204,6 @@ class Name {
     }
   }
 }
-
 //Professor APIs
 
 //Topic Management
@@ -126,21 +220,47 @@ async function updateThesisTopic(id, { title, summary }) {
 }
 
 
-async function putTopicDescription(topicId, file) {
-  const form = new FormData();
-  form.append("file", file);
 
-  const res = await fetch(`/topics/${topicId}/description`, {
-    method: "PUT",
-    body: form,
-  });
+async function getDescription(topicId) {
+  const res= await request("GET",`${BASE_URL}/v1/topics/${id}/description`);
+    
+  const contentType = res.headers.get('content-type') || '';
+    const contentDisposition = res.headers.get('content-disposition') || '';
+    const filename = getFilenameFromDisposition(contentDisposition);
 
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`Failed with ${res.status}: ${text}`);
-  }
+    if (contentType.includes('application/json')) {
+        const data = await res.json();
+        return { exists: true, type: 'json', contentType, data, filename };
+    }
 
-  return res;
+    const blob = await res.blob();
+    return { exists: true, type: 'blob', contentType, blob, filename };
+}
+
+
+
+
+async function putDescription(topicId,file) {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+        const response = await request("PUT",`${BASE_URL}/v1/topics/${topicId}/description`,formData)
+        const data = await response.json();
+        console.log('Upload successful:', data);
+        // Handle success (e.g., show a message to the user)
+    } catch (error) {
+        console.error('Error uploading file:', error);
+        // Handle error (e.g., show an error message)
+    }
 }
 
 //Assignments
+
+async function getStudents() {
+  return await request("GET", `${BASE_URL}/v1/users/?role=student` );
+}
+
+async function getAssignedThesis(){
+  return await request("GET", `${BASE_URL}/v1/my/thesis`);
+}

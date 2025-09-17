@@ -29,34 +29,41 @@ document.addEventListener('DOMContentLoaded', () => {
     modalTopicFile.insertAdjacentElement('afterend', modalFilePreview);
   }
 
+  // === Viewer για inline PDF ===
+  let modalFileViewer = document.getElementById('modal-file-viewer');
+  if (!modalFileViewer) {
+    modalFileViewer = document.createElement('div');
+    modalFileViewer.id = 'modal-file-viewer';
+    modalFileViewer.className = 'mt-3';
+    modalTopicFile.insertAdjacentElement('afterend', modalFileViewer);
+  }
+  let currentPdfUrl = null;
+  const clearViewer = () => {
+    if (currentPdfUrl) URL.revokeObjectURL(currentPdfUrl);
+    currentPdfUrl = null;
+    modalFileViewer.innerHTML = '';
+  };
+  document.getElementById('topic-details-modal')
+    .addEventListener('hidden.bs.modal', clearViewer);
+
   // --- Βοηθητικές συναρτήσεις mapping/status/file ---
   const normalizeTopic = (raw) => {
-    // Προσπάθησε να “διαβάσεις” εύλογα πεδία από το backend
     const id = raw.id ?? raw.topicId ?? raw.uuid ?? Date.now();
     const title = raw.title ?? raw.name ?? 'Χωρίς τίτλο';
     const summary = raw.summary ?? raw.description ?? '';
-    // Αν το API γυρίζει status = 'unassigned' -> το χαρτογραφούμε σε 'Ελεύθερο'
     const statusApi = (raw.status ?? '').toString().toLowerCase();
     let status = 'Ελεύθερο';
     if (statusApi.includes('unassigned') || statusApi.includes('free')) status = 'Ελεύθερο';
     else if (statusApi.includes('pending') || statusApi.includes('assign')) status = 'Υπό Ανάθεση';
-
-    // Διαφορετικές πιθανές θέσεις για το αρχείο
     const fileName =
       raw.descriptionFile ??
       raw.fileName ??
       raw.description_file ??
       raw.file ??
       null;
-
     return { id, title, summary, status, descriptionFile: fileName || null };
   };
 
-const fileHref = (topic) => {
-  // Your API serves the file at /topics/:id/description
-  if (!topic?.id) return null;
-  return `/topics/${encodeURIComponent(topic.id)}/description`;
-};
 
   // --- Renderers ---
   const renderLoadingRow = (text = 'Φόρτωση...') => {
@@ -88,24 +95,16 @@ const fileHref = (topic) => {
       const row = document.createElement('tr');
       row.setAttribute('data-topic-id', topic.id);
 
-      let statusBadge = `<span class="badge bg-success">Ελεύθερο</span>`;
-
-      const url = fileHref(topic);
-      const fileBtn = url
-        ? `<a class="btn btn-sm btn-outline-secondary" href="${url}" target="_blank" rel="noopener" title="Περιγραφή (PDF)">
-             <i class="bi bi-file-earmark-pdf"></i>
-           </a>`
-        : '';
+      const statusBadge = `<span class="badge bg-success">Ελεύθερο</span>`;
 
       const actions = `
         <div class="d-flex justify-content-center gap-2">
           <button class="btn btn-sm btn-info view-details-btn" title="Λεπτομέρειες"><i class="bi bi-eye"></i></button>
-          ${fileBtn}
         </div>
       `;
 
       row.innerHTML = `
-        <td>${escapeHtml(topic.title)}</td>
+        <td>${topic.title}</td>
         <td>${statusBadge}</td>
         <td>${actions}</td>
       `;
@@ -121,28 +120,27 @@ const fileHref = (topic) => {
     saveBtn.style.display = isEditing ? 'block' : 'none';
   };
 
-const renderModalFilePreview = (topic) => {
-  const url = fileHref(topic);
-  if (url) {
-    modalFilePreview.innerHTML = `
-      <div class="mt-2">
-        <small class="text-muted d-block mb-1">Αρχείο περιγραφής:</small>
-        <a href="${url}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-secondary">
-          <i class="bi bi-file-earmark-pdf me-1"></i> Άνοιγμα περιγραφής
-        </a>
-      </div>
-    `;
-  } else {
-    modalFilePreview.innerHTML = `<small class="text-muted">Δεν υπάρχει αρχείο περιγραφής.</small>`;
-  }
-};
+  const renderModalFilePreview = (topic) => {
+    clearViewer(); // reset old inline preview
+    if (topic) {
+      modalFilePreview.innerHTML = `
+        <div class="mt-2 d-flex flex-wrap align-items-center gap-2">
+          <small class="text-muted d-block">Αρχείο περιγραφής:</small>
+          <button type="button" class="btn btn-sm btn-outline-primary preview-description-btn" data-topic-id="${topic.id}">
+            <i class="bi bi-eye me-1"></i> Προβολή στο παράθυρο
+          </button>
+        </div>
+      `;
+    } else {
+      modalFilePreview.innerHTML = `<small class="text-muted">Δεν υπάρχει αρχείο περιγραφής.</small>`;
+    }
+  };
 
   // --- API: φόρτωση θεμάτων (αντικαθιστά το sampleData) ---
   const loadMyUnassignedTopics = async () => {
     try {
       renderLoadingRow();
-      // Χρήση της συναρτησης που μου έδωσες
-      const res = await getMyUnassignedTopics(); // αναμένει π.χ. array ή { data: [...] }
+      const res = await getMyUnassignedTopics();
       const list = Array.isArray(res) ? res : (res?.data ?? res?.items ?? []);
       allMyTopics = list.map(normalizeTopic);
       renderTopicsTable();
@@ -153,33 +151,39 @@ const renderModalFilePreview = (topic) => {
   };
 
   // --- Event Listeners ---
-createTopicForm.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const formData = new FormData(e.target);
-  const title = formData.get('title')?.trim();
-  const summary = formData.get('description')?.trim();
-  const file = createPdfInput.files?.[0] ?? null;
+  createTopicForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const title = formData.get('title')?.trim();
+    const summary = formData.get('description')?.trim();
+    const file = createPdfInput.files?.[0] ?? null;
 
-  try {
-    // 1) create topic
-    const created = await createThesisTopic({ title, summary });
+    try {
+      // 1) create topic (returns the new topic, including its id)
+      const created = await createThesisTopic({ title, summary });
 
-    // 2) upload file if present (don’t reassign `created`)
-    if (file) await updateThesisDescriptionFile(created.id, file);
+      // 2) upload description file if present
+      if (file) {
+        try {
+          await putDescription(created.id, file);
+          alert('Το θέμα δημιουργήθηκε με επιτυχία.');
+        } catch (err) {
+          console.error('Αποτυχία upload περιγραφής:', err);
+          alert('Το θέμα δημιουργήθηκε, αλλά το αρχείο περιγραφής δεν ανέβηκε.');
+        }
+      }
 
-    // 3) push to state & render
-    allMyTopics.unshift(normalizeTopic(created));
-    renderTopicsTable();
+      // 3) push to state & render
+      allMyTopics.unshift(normalizeTopic(created));
+      renderTopicsTable();
 
-    createTopicModal.hide();
-    e.target.reset();
-  } catch (err) {
-    console.error('Αποτυχία δημιουργίας:', err);
-    alert('Σφάλμα κατά τη δημιουργία θέματος.');
-  }
-});
-
-
+      createTopicModal.hide();
+      e.target.reset();
+    } catch (err) {
+      console.error('Αποτυχία δημιουργίας:', err);
+      alert('Σφάλμα κατά τη δημιουργία θέματος.');
+    }
+  });
 
   myTopicsTableBody.addEventListener('click', (e) => {
     const row = e.target.closest('tr');
@@ -193,7 +197,7 @@ createTopicForm.addEventListener('submit', async (e) => {
       modalTopicId.value = topic.id;
       modalTopicTitle.value = topic.title;
       modalTopicDescription.value = topic.summary;
-      modalTopicFile.value = ''; // καθαρίζουμε το file input (ασφάλεια browser)
+      modalTopicFile.value = ''; // καθαρίζουμε το file input
       renderModalFilePreview(topic);
       setModalState(false);
       topicDetailsModal.show();
@@ -202,47 +206,87 @@ createTopicForm.addEventListener('submit', async (e) => {
 
   editBtn.addEventListener('click', () => setModalState(true));
 
-saveBtn.addEventListener('click', async () => {
-  const id = modalTopicId.value;
-  const title = modalTopicTitle.value.trim();
-  const summary = modalTopicDescription.value.trim();
-  const file = modalTopicFile.files?.[0] ?? null;
+  saveBtn.addEventListener('click', async () => {
+    const id = modalTopicId.value;
+    const title = modalTopicTitle.value.trim();
+    const summary = modalTopicDescription.value.trim();
+    const file = modalTopicFile.files?.[0] ?? null;
 
-  try {
-    // update title/summary
-    const updatedTopic = await updateThesisTopic(id, { title, summary });
+    try {
+      // 1) update topic main data
+      const updatedTopic = await updateThesisTopic(id, { title, summary });
 
-    // upload file if user picked one
-    if (file) await updateThesisDescriptionFile(id, file);
+      // 2) if a new file is chosen, upload/replace the description
+      if (file) {
+        try {
+          await putDescription(id, file);
+        } catch (err) {
+          console.error('Αποτυχία upload περιγραφής:', err);
+          alert('Το θέμα ενημερώθηκε, αλλά το αρχείο περιγραφής δεν ανέβηκε.');
+        }
+      }
 
-    // update local state
-    const index = allMyTopics.findIndex(t => String(t.id) === String(id));
-    if (index !== -1) {
-      allMyTopics[index] = { ...allMyTopics[index], ...normalizeTopic(updatedTopic) };
+      // 3) update local state
+      const index = allMyTopics.findIndex(t => String(t.id) === String(id));
+      if (index !== -1) {
+        allMyTopics[index] = { ...allMyTopics[index], ...normalizeTopic(updatedTopic) };
+      }
+
+      // 4) refresh preview/link
+      renderModalFilePreview({ id, ...updatedTopic });
+
+      setModalState(false);
+      topicDetailsModal.hide();
+      renderTopicsTable();
+    } catch (err) {
+      console.error('Αποτυχία ενημέρωσης:', err);
+      alert('Σφάλμα κατά την ενημέρωση θέματος.');
     }
+  });
 
-    // refresh preview/link (now points to /topics/:id/description)
-    renderModalFilePreview({ id, ...updatedTopic });
+  // --- Inline PDF preview handler (USES getDescription) ---
+  modalFilePreview.addEventListener('click', async (e) => {
+    const btn = e.target.closest('.preview-description-btn');
+    if (!btn) return;
 
-    setModalState(false);
-    topicDetailsModal.hide();
-    renderTopicsTable();
-  } catch (err) {
-    console.error('Αποτυχία ενημέρωσης:', err);
-    alert('Σφάλμα κατά την ενημέρωση θέματος.');
-  }
-});
+    const topicId = btn.getAttribute('data-topic-id');
+    if (!topicId) return;
 
+    btn.disabled = true;
+    modalFileViewer.innerHTML = `
+      <div class="text-center py-3">
+        <div class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></div>
+        Φόρτωση PDF...
+      </div>`;
 
-  // --- Utils ---
-  function escapeHtml(str) {
-    return (str ?? '').toString()
-      .replaceAll('&', '&amp;')
-      .replaceAll('<', '&lt;')
-      .replaceAll('>', '&gt;')
-      .replaceAll('"', '&quot;')
-      .replaceAll("'", '&#39;');
-  }
+    try {
+      // Call your helper
+      const res = await getDescription(topicId);
+
+      // If your request() returns a fetch Response:
+      const response = res && typeof res.blob === 'function' ? res : null;
+      if (!response || (response.ok === false)) {
+        throw new Error('Failed to load PDF');
+      }
+
+      const pdfBlob = await response.blob();
+      clearViewer();
+
+      currentPdfUrl = URL.createObjectURL(pdfBlob);
+      const iframe = document.createElement('iframe');
+      iframe.src = currentPdfUrl;
+      iframe.style.width = '100%';
+      iframe.style.height = '60vh';
+      iframe.title = 'Προεπισκόπηση PDF';
+      iframe.className = 'border rounded';
+      modalFileViewer.appendChild(iframe);
+    } catch (err) {
+      console.error(err);
+      modalFileViewer.innerHTML = `<div class="text-danger small">Αποτυχία φόρτωσης PDF.</div>`;
+    } finally {
+      btn.disabled = false;
+    }
+  });
 
   // --- Αρχικό load από API ---
   loadMyUnassignedTopics();

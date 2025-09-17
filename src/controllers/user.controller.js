@@ -22,6 +22,18 @@ export default class UserController {
     res.success(users, { total, count: users.length });
   }
 
+  static async getProfessors(req, res) {
+    const professors = await db.User.findAll({
+      where: {
+        role: UserRole.PROFESSOR,
+      },
+      attributes: ["id", "name"], // Return only ID and name
+      order: [["name", "ASC"]],   // Order alphabetically by name
+    });
+
+    res.success(professors);
+  }
+
   static async _createUser(user, transaction) {
     // Hash password before storing
     user.password = JSON.stringify(bcrypt.hash(user.password, 10));

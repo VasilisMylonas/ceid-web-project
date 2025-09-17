@@ -75,6 +75,14 @@ export default {
       professorId: Joi.number().integer().min(1).required(),
     }).unknown(false),
   },
+  putNemertesLink: {
+    params: Joi.object({
+      id: Joi.number().integer().min(1).required(),
+    }).unknown(false),
+    body: Joi.object({
+      nemertesLink: Joi.string().uri().required(),
+    }).unknown(false),
+  },
   patchGrading: {
     params: Joi.object({
       id: Joi.number().integer().min(1).required(),

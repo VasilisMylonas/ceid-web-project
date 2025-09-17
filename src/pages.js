@@ -5,8 +5,15 @@ import { UserRole } from "./constants.js";
 import { extractTokenFromRequest } from "./util.js";
 import cookieParser from "cookie-parser";
 import process from "process";
+import path from "path";
 
-const pages = express.Router();
+const __dirname = path.dirname(new URL(import.meta.url).pathname);
+
+const pages = express();
+
+// EJS templates
+pages.set("view engine", "ejs");
+pages.set("views", path.join(__dirname, "views"));
 
 // Middleware to set ejs `page` variable
 function setPage() {
@@ -107,19 +114,14 @@ pages.get("/secretary/:page", async (req, res) => {
       title: "Αρχική",
     },
     {
-      href: "/secretary/view-theses",
+      href: "/secretary/theses",
       icon: "bi-journal-text",
-      title: "Προβολή Διπλωματικών",
+      title: "Διπλωματικές",
     },
     {
       href: "/secretary/data-entry",
       icon: "bi-pencil-square",
       title: "Καταχώρηση Δεδομένων",
-    },
-    {
-      href: "/secretary/manage-theses",
-      icon: "bi-file-earmark-check",
-      title: "Διαχείριση Διπλωματικών",
     },
   ];
 

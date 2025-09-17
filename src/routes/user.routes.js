@@ -11,6 +11,11 @@ const router = express.Router();
 router.use(requireAuth);
 
 router.get(
+  "/professors",
+  validate(userValidator.getProfessors),
+  UserController.getProfessors
+)
+router.get(
   "/",
   validate(userValidator.query),
   UserController.query

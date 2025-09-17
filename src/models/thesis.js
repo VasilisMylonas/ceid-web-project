@@ -28,7 +28,6 @@ export default (sequelize) => {
       const thesis = await Thesis.create({
         topicId: topic.id,
         studentId: student.id,
-        startDate: new Date(),
         status: ThesisStatus.UNDER_ASSIGNMENT,
       });
 
@@ -78,7 +77,7 @@ export default (sequelize) => {
       },
       startDate: {
         type: DataTypes.DATE,
-        allowNull: false,
+        allowNull: true,
       },
       endDate: {
         type: DataTypes.DATE,

@@ -5,105 +5,136 @@
 
   <!-- State 1: Under Assignment -->
   <div id="state-assignment" class="card shadow-sm mb-4" style="display: none;">
-    <div class="card-body">
-      <h5 class="card-title text-center">Κατάσταση: Υπό ανάθεση</h5>
-      <p class="text-center text-muted">Επιλέξτε τους υπόλοιπους διδάσκοντες για να σχηματιστεί
-        η τριμελής επιτροπή.</p>
-      <hr>
-      <div class="d-grid gap-2 col-6 mx-auto">
-        <!-- FIX: Add data-bs-toggle and data-bs-target to the button -->
-        <button class="btn btn-dark" type="button" data-bs-toggle="modal" data-bs-target="#invite-modal">Πρόσκληση Μελών Επιτροπής</button>
+    <div class="card-body p-4">
+      <h5 class="card-title text-center">Κατάσταση: Υπό Ανάθεση</h5>
+      <p class="text-center text-muted">Επιλέξτε τους υπόλοιπους διδάσκοντες για να σχηματιστεί η τριμελής επιτροπή.</p>
+      <hr class="my-4">
+      <div class="d-grid gap-2 col-sm-8 col-md-6 mx-auto">
+        <button class="btn btn-dark" type="button" data-bs-toggle="modal" data-bs-target="#invite-modal">
+          <i class="fas fa-user-plus me-2"></i>Πρόσκληση Μελών Επιτροπής
+        </button>
       </div>
-      <div class="mt-4">
-        <h6>Επιλεγμένα μέλη και κατάσταση προσκλήσεων:</h6>
-        <!-- This list will be populated by manage-thesis.js -->
-        <ul class="list-group mt-2"></ul>
+      <div class="row mt-4 gx-5">
+        <div class="col-lg-6">
+          <h6>Μέλη Επιτροπής</h6>
+          <ul class="list-group mt-2 committee-member-list"></ul>
+        </div>
+        <div class="col-lg-6 mt-4 mt-lg-0">
+          <h6>Εκκρεμείς Προσκλήσεις</h6>
+          <ul class="list-group mt-2 invitation-list"></ul>
+        </div>
       </div>
     </div>
   </div>
 
   <!-- State 2: Under Examination -->
   <div id="state-examination" class="card shadow-sm mb-4" style="display: none;">
-    <div class="card-body">
-      <h5 class="card-title text-center">Κατάσταση: Υπό εξέταση</h5>
-      <p class="text-center text-muted">Ανεβάστε το κείμενο, καταχωρήστε την ημερομηνία εξέτασης
-        και το σύνδεσμο της διπλωματικής.</p>
-      <hr>
-      <div class="d-flex flex-column gap-3">
-        <div class="upload-section p-3 border rounded">
-          <h6>Ανάρτηση κειμένου και υλικού</h6>
-          <p class="text-muted">Ανεβάστε το κείμενο της διπλωματικής σας (PDF) και συνδέσμους
-            προς υποστηρικτικό υλικό.</p>
-          <div class="mb-3">
-            <label for="thesisFile" class="form-label">Κείμενο Διπλωματικής (PDF)</label>
-            <input class="form-control" type="file" id="thesisFile" accept=".pdf">
-          </div>
-          <div class="form-floating">
-            <!-- Textarea content will be set by manage-thesis.js -->
-            <textarea class="form-control" placeholder="Σύνδεσμοι προς υποστηρικτικό υλικό" id="links" rows="4" aria-label="Σύνδεσμοι προς υλικό"></textarea>
-            <label for="links">Σύνδεσμοι (GitHub, Google Drive, YouTube κλπ.)</label>
-          </div>
-        </div>
-        <div class="presentation-section p-3 border rounded">
-          <h6>Λεπτομέρειες Εξέτασης</h6>
-          <p class="text-muted">Καταχωρήστε τον τύπο, την ημερομηνία, ώρα και τόπο της
-            εξέτασης.</p>
-          <div class="row g-3">
-            <div class="col-12">
-              <label class="form-label">Τύπος Εξέτασης</label>
-              <div>
-                <div class="form-check form-check-inline">
-                  <input class="form-check-input" type="radio" name="examType" id="examTypeOnline" value="online" checked>
-                  <label class="form-check-label" for="examTypeOnline">Εξ
-                    αποστάσεως</label>
-                </div>
-                <div class="form-check form-check-inline">
-                  <input class="form-check-input" type="radio" name="examType" id="examTypeInPerson" value="in-person">
-                  <label class="form-check-label" for="examTypeInPerson">Δια
-                    ζώσης</label>
-                </div>
+    <div class="card-body p-4">
+      <h5 class="card-title text-center">Κατάσταση: Υπό Εξέταση</h5>
+      <p class="text-center text-muted">Διαχειριστείτε τα αρχεία, τους συνδέσμους και τις λεπτομέρειες της εξέτασης.</p>
+      <hr class="my-4">
+
+      <div class="row g-4">
+        <!-- Left Column -->
+        <div class="col-lg-6 d-flex flex-column gap-4">
+          <!-- File Management Card -->
+          <div class="card">
+            <div class="card-body">
+              <h6 class="card-title">Διαχείριση Αρχείου</h6>
+              <p class="card-text text-muted small">Ανεβάστε ή κατεβάστε το τρέχον αρχείο της διπλωματικής σας.</p>
+              <button type="button" id="download-draft-btn" class="btn btn-secondary w-100 mb-3" style="display: none;"></button>
+              <label for="thesisFile" class="form-label">Ανέβασμα νέου αρχείου (PDF)</label>
+              <div class="input-group">
+                <input class="form-control" type="file" id="thesisFile" accept=".pdf">
+                <button class="btn btn-outline-primary" type="button" id="upload-draft-btn">Ανέβασμα</button>
               </div>
             </div>
-            <div class="col-md-6">
-              <label for="examDate" class="form-label">Ημερομηνία</label>
-              <!-- Value will be set by manage-thesis.js -->
-              <input type="date" class="form-control" id="examDate" aria-label="Ημερομηνία εξέτασης">
-            </div>
-            <div class="col-md-6">
-              <label for="examTime" class="form-label">Ώρα</label>
-              <!-- Value will be set by manage-thesis.js -->
-              <input type="time" class="form-control" id="examTime" aria-label="Ώρα εξέτασης">
-            </div>
-            <div class="col-12">
-              <label for="examLocation" class="form-label">Σύνδεσμος Τηλεδιάσκεψης</label>
-              <!-- Value will be set by manage-thesis.js -->
-              <input type="text" class="form-control" id="examLocation" placeholder="Σύνδεσμος τηλεδιάσκεψης" aria-label="Χώρος ή σύνδεσμος">
+          </div>
+          <!-- Links Management Card -->
+          <div class="card">
+            <div class="card-body">
+              <h6 class="card-title">Διαχείριση Συνδέσμων</h6>
+              <p class="card-text text-muted small">Προσθέστε νέους συνδέσμους ή δείτε τους υπάρχοντες.</p>
+              <div class="form-floating mb-3">
+                <textarea class="form-control" placeholder="Προσθήκη νέων συνδέσμων" id="links-to-add" style="height: 100px"></textarea>
+                <label for="links-to-add">Προσθήκη νέων συνδέσμων (ένας ανά γραμμή)</label>
+              </div>
+              <h6>Αποθηκευμένοι Σύνδεσμοι</h6>
+              <ul class="list-group" id="existing-links-list"></ul>
             </div>
           </div>
         </div>
-        <div class="final-submission-section p-3 border rounded">
-          <h6>Τελική Υποβολή</h6>
-          <p class="text-muted">Καταχωρήστε το σύνδεσμο προς το αποθετήριο της βιβλιοθήκης
-            (Νημερτής) μετά την επιτυχή εξέταση.</p>
-          <div class="form-floating">
-            <!-- Value will be set by manage-thesis.js -->
-            <input type="url" class="form-control" id="nimertisLink" placeholder="URL Νημερτής" aria-label="URL Νημερτής">
-            <label for="nimertisLink">Σύνδεσμος Νημερτής</label>
+
+        <!-- Right Column -->
+        <div class="col-lg-6 d-flex flex-column gap-4">
+          <!-- Presentation Details Card -->
+          <div class="card">
+            <div class="card-body">
+              <h6 class="card-title">Λεπτομέρειες Εξέτασης</h6>
+              <div class="row g-3">
+                <div class="col-12">
+                  <label class="form-label">Τύπος Εξέτασης</label>
+                  <div>
+                    <div class="form-check form-check-inline">
+                      <input class="form-check-input" type="radio" name="examType" id="online" value="online" checked>
+                      <label class="form-check-label" for="online">Εξ αποστάσεως</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                      <input class="form-check-input" type="radio" name="examType" id="in_person" value="in_person">
+                      <label class="form-check-label" for="in_person">Δια ζώσης</label>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label for="examDate" class="form-label">Ημερομηνία</label>
+                  <input type="date" class="form-control" id="examDate">
+                </div>
+                <div class="col-md-6">
+                  <label for="examTime" class="form-label">Ώρα</label>
+                  <input type="time" class="form-control" id="examTime">
+                </div>
+                <div class="col-12">
+                  <label for="examLocation" class="form-label">Τοποθεσία</label>
+                  <input type="text" class="form-control" id="examLocation" placeholder="Αίθουσα">
+                </div>
+                <div class="col-12">
+                  <label for="examComments" class="form-label">Σύνδεσμος τηλεδιάσκεψης</label>
+                  <input type="url" class="form-control" id="examLink" placeholder="URL τηλεδιάσκεψης">
+              </div>
+            </div>
+          </div>
+          <!-- Final Submission Card -->
+          <div class="card">
+            <div class="card-body">
+              <h6 class="card-title">Σύνδεσμος Νημερτής</h6>
+              <div class="form-floating">
+                <input type="url" class="form-control" id="nimertisLink">
+                <label for="nimertisLink">URL Νημερτής</label>
+              </div>
+            </div>
           </div>
         </div>
+      </div>
+
+      <hr class="my-4">
+      <div class="d-grid gap-2 col-sm-8 col-md-6 mx-auto">
+        <button class="btn btn-primary" id="save-examination-btn" type="button">
+          <i class="fas fa-save me-2"></i>Αποθήκευση Αλλαγών
+        </button>
       </div>
     </div>
   </div>
 
   <!-- State 3: Completed -->
   <div id="state-completed" class="card shadow-sm" style="display: none;">
-    <div class="card-body">
+    <div class="card-body p-4">
       <h5 class="card-title text-center">Κατάσταση: Περατωμένη</h5>
-      <p class="text-center text-muted">Η διπλωματική εργασία έχει ολοκληρωθεί και βαθμολογηθεί.
-        Μπορείτε να δείτε το πρακτικό εξέτασης.</p>
-      <hr>
-      <div class="d-grid gap-2 col-6 mx-auto">
-        <button class="btn btn-dark" type="button">Προβολή Πρακτικού Εξέτασης</button>
+      <p class="text-center text-muted">Η διπλωματική εργασία έχει ολοκληρωθεί και βαθμολογηθεί.</p>
+      <hr class="my-4">
+      <div class="d-grid gap-2 col-sm-8 col-md-6 mx-auto">
+        <button class="btn btn-dark" type="button">
+          <i class="fas fa-award me-2"></i>Προβολή Πρακτικού Εξέτασης
+        </button>
       </div>
     </div>
   </div>
@@ -119,7 +150,6 @@
       </div>
       <div class="modal-body">
         <p class="text-muted">Επιλέξτε τους διδάσκοντες που θέλετε να προσκαλέσετε ως μέλη της εξεταστικής επιτροπής.</p>
-        <!-- Professor list will be populated here -->
         <div id="professor-list-container">
           <p>Φόρτωση λίστας διδασκόντων...</p>
         </div>
@@ -132,5 +162,4 @@
   </div>
 </div>
 
-
-<script src="/js/pages/manage-thesis.js"></script>
+<script src="/js/pages/student/manage-thesis.js"></script>

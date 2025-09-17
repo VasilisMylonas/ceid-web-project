@@ -32,8 +32,7 @@ export default class ThesisController {
   }
 
   static async patchGrading(req, res) {
-    req.thesis.grading = req.body.grading;
-    await req.thesis.save();
+    await req.thesis.update({ grading: req.body.grading });
     res.status(StatusCodes.OK).json(req.thesis);
   }
 
@@ -381,6 +380,18 @@ WHERE theses.id = '${req.thesis.id}'
     res.success(thesis);
   }
 
+  static async putNemertesLink(req, res) {
+    if (req.thesis.status !== ThesisStatus.UNDER_EXAMINATION) {
+      return res.error("Thesis is not under examination.");
+    }
+
+    await req.thesis.update({ nemertesLink: req.body.nemertesLink });
+
+    res.success({
+      nemertesLink: req.thesis.nemertesLink,
+    });
+  }
+
   static async getResources(req, res) {
     const resources = await req.thesis.getResources({
       order: [["id", "ASC"]],
@@ -402,10 +413,6 @@ WHERE theses.id = '${req.thesis.id}'
   }
 
   static async postResource(req, res) {
-    if (!req.file) {
-      return res.error("No file uploaded", StatusCodes.BAD_REQUEST);
-    }
-
     const resource = await db.Resource.create({
       thesisId: req.thesis.id,
       link: req.body.link,

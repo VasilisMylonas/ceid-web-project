@@ -1,7 +1,7 @@
 import db from "../models/index.js";
 import { Op, Sequelize } from "sequelize";
 import { ThesisStatus } from "../constants.js";
-import { NotFoundError, SecurityError } from "../errors.js";
+import { NotFoundError, SecurityError, ConflictError } from "../errors.js";
 import { getFilePath, deleteIfExists } from "../config/file-storage.js";
 
 export default class TopicService {
@@ -84,6 +84,9 @@ export default class TopicService {
       topicId,
       user,
     });
+    if (await topic.isAssigned()) {
+      throw new ConflictError("Cannot delete an assigned topic");
+    }
     await topic.destroy();
   }
 

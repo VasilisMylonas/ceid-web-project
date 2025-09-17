@@ -66,12 +66,10 @@ export default (sequelize) => {
       ],
       hooks: {
         async beforeDestroy(topic) {
-          if (await topic.isAssigned()) {
-            throw new ConflictError("Cannot delete an assigned topic");
-          }
           deleteIfExists(topic.descriptionFile);
         },
         async beforeUpdate(topic) {
+          // TODO: this should be in topic.service.js
           if (await topic.isAssigned()) {
             throw new ConflictError("Cannot modify an assigned topic");
           }

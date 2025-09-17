@@ -1,5 +1,6 @@
 import { DataTypes, Model } from "sequelize";
 import { ThesisRole, ThesisStatus } from "../constants.js";
+import { deleteIfExists } from "../config/file-storage.js";
 
 export default (sequelize) => {
   class Thesis extends Model {
@@ -122,6 +123,11 @@ export default (sequelize) => {
           fields: ["status"],
         },
       ],
+      hooks: {
+        async beforeDestroy(thesis) {
+          deleteIfExists(thesis.documentFile);
+        },
+      },
     }
   );
 

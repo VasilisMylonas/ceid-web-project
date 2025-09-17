@@ -48,11 +48,6 @@ export default class MyController {
     res.success(omit(user.get(), "password"));
   }
 
-  static async deleteProfile(req, res) {
-    // WONTFIX: delete user dependencies (professor, secretary, student)
-    res.error("Not implemented", StatusCodes.NOT_IMPLEMENTED);
-  }
-
   static async getStats(req, res) {
     const professor = await req.user.getProfessor();
 
@@ -74,9 +69,7 @@ export default class MyController {
       replacements: { professorId: professor.id },
     });
 
-    // TODO
-
-    return res.success(results);
+    return res.success(results[0]);
   }
 
   static async getThesis(req, res) {
@@ -91,13 +84,18 @@ export default class MyController {
     });
   }
 
-  // TODO: These mainly forward to appropriate controllers with patched queries
   static async getInvitations(req, res) {
     const professor = await req.user.getProfessor();
-    req = patchQuery(req, {
-      professorId: professor.id,
-      response: InvitationResponse.PENDING,
+    const invitations = await professor.getInvitations({
+      where: {
+        professorId: professor.id,
+        response: InvitationResponse.PENDING,
+      },
     });
-    await InvitationController.query(req, res);
+
+    res.success(invitations, {
+      count: invitations.length,
+      total: invitations.length,
+    });
   }
 }

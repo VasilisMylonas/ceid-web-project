@@ -113,7 +113,6 @@ function renderThesisDetails(thesis) {
 
   // Add committee members
   committeeList.innerHTML = "";
-<<<<<<< HEAD
 
   // Sort committee members (supervisor first, then others)
   const sortedMembers = [...thesis.committeeMembers].sort((a, b) => {
@@ -123,9 +122,6 @@ function renderThesisDetails(thesis) {
   });
 
   for (const member of sortedMembers) {
-=======
-  for (const member of thesis.committeeMembers) {
->>>>>>> student-api-intergation-new
     const li = document.createElement("li");
     li.className =
       "list-group-item d-flex justify-content-between align-items-center";
@@ -138,15 +134,8 @@ function renderThesisDetails(thesis) {
         </span>
     `;
     committeeList.appendChild(li);
-<<<<<<< HEAD
   }
 
   // Progress bar
   renderThesisStatusProgress(thesis.status);
-=======
-
-    // Progress bar
-    renderThesisStatusProgress(thesis.status);
-  }
->>>>>>> student-api-intergation-new
 }

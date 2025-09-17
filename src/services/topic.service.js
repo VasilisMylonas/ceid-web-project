@@ -48,8 +48,8 @@ export default class TopicService {
     return db.Topic.findAndCountAll(query);
   }
 
-  static async get(topicId) {
-    const topic = await db.Topic.findByPk(topicId);
+  static async get(id) {
+    const topic = await db.Topic.findByPk(id);
     if (!topic) {
       throw new NotFoundError("Topic not found");
     }
@@ -103,8 +103,8 @@ export default class TopicService {
     await topic.update({ descriptionFile: null });
   }
 
-  static async getDescription(topicId) {
-    const topic = await TopicService.get(topicId);
+  static async getDescription(id) {
+    const topic = await TopicService.get(id);
     if (!topic.descriptionFile) {
       throw new NotFoundError("No description file");
     }

@@ -8,11 +8,12 @@ import { UserRole } from "../constants.js";
 const router = express.Router();
 router.use(requireAuth);
 
+// TODO
 router.get(
   "/professors",
   validate(userValidator.getProfessors),
   UserController.getProfessors
-)
+);
 router.get(
   "/",
   validate(userValidator.query),

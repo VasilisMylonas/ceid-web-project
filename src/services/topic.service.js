@@ -56,13 +56,13 @@ export default class TopicService {
     return topic;
   }
 
-  static async create({ title, summary, user }) {
+  static async create(user, { title, summary }) {
     const professor = await user.getProfessor();
     return professor.createTopic({ title, summary });
   }
 
-  static async _assertProfessorOwnsTopic({ topicId, user }) {
-    const topic = await TopicService.get(topicId);
+  static async _assertProfessorOwnsTopic(id, user) {
+    const topic = await TopicService.get(id);
     const professor = await user.getProfessor();
     if (!professor || topic.professorId !== professor.id) {
       throw new SecurityError("You are not the owner of this topic");
@@ -70,40 +70,28 @@ export default class TopicService {
     return topic;
   }
 
-  static async update({ topicId, user, data }) {
-    const topic = await TopicService._assertProfessorOwnsTopic({
-      topicId,
-      user,
-    });
+  static async update(id, user, data) {
+    const topic = await TopicService._assertProfessorOwnsTopic(id, user);
     await topic.update(data);
     return topic;
   }
 
-  static async delete({ topicId, user }) {
-    const topic = await TopicService._assertProfessorOwnsTopic({
-      topicId,
-      user,
-    });
+  static async delete(id, user) {
+    const topic = await TopicService._assertProfessorOwnsTopic(id, user);
     if (await topic.isAssigned()) {
       throw new ConflictError("Cannot delete an assigned topic");
     }
     await topic.destroy();
   }
 
-  static async setDescriptionFile({ topicId, user, filename }) {
-    const topic = await TopicService._assertProfessorOwnsTopic({
-      topicId,
-      user,
-    });
+  static async setDescriptionFile(id, user, filename) {
+    const topic = await TopicService._assertProfessorOwnsTopic(id, user);
     deleteIfExists(topic.descriptionFile);
     await topic.update({ descriptionFile: filename });
   }
 
-  static async clearDescriptionFile({ topicId, user }) {
-    const topic = await TopicService._assertProfessorOwnsTopic({
-      topicId,
-      user,
-    });
+  static async clearDescriptionFile(id, user) {
+    const topic = await TopicService._assertProfessorOwnsTopic(id, user);
     deleteIfExists(topic.descriptionFile);
     await topic.update({ descriptionFile: null });
   }

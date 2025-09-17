@@ -18,10 +18,9 @@ export default class TopicController {
 
   static async post(req, res) {
     const { title, summary } = req.body;
-    const topic = await TopicService.create({
+    const topic = await TopicService.create(req.user, {
       title,
       summary,
-      user: req.user,
     });
     res.success(omit(topic.get(), "descriptionFile"));
   }
@@ -32,19 +31,12 @@ export default class TopicController {
   }
 
   static async put(req, res) {
-    const topic = await TopicService.update({
-      topicId: req.params.id,
-      user: req.user,
-      data: req.body,
-    });
+    const topic = await TopicService.update(req.params.id, req.user, req.body);
     res.success(omit(topic.get(), "descriptionFile"));
   }
 
   static async delete(req, res) {
-    await TopicService.delete({
-      topicId: req.params.id,
-      user: req.user,
-    });
+    await TopicService.delete(req.params.id, req.user);
     res.success();
   }
 
@@ -57,19 +49,16 @@ export default class TopicController {
     if (!req.file) {
       return res.error("No file uploaded", StatusCodes.BAD_REQUEST);
     }
-    await TopicService.setDescriptionFile({
-      topicId: req.params.id,
-      user: req.user,
-      filename: req.file.filename,
-    });
+    await TopicService.setDescriptionFile(
+      req.params.id,
+      req.user,
+      req.file.filename
+    );
     res.success();
   }
 
   static async deleteDescription(req, res) {
-    await TopicService.clearDescriptionFile({
-      topicId: req.params.id,
-      user: req.user,
-    });
+    await TopicService.clearDescriptionFile(req.params.id, req.user);
     res.success();
   }
 }

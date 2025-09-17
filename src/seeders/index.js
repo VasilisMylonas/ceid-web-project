@@ -51,22 +51,19 @@ export default async function seedDatabase() {
     address: "ADDRESS",
   });
 
-  const topic = await TopicService.create({
+  const topic = await TopicService.create(professor, {
     title: "Sample Topic 1",
     summary: "This is a sample topic for testing.",
-    user: professor,
   });
 
-  await TopicService.create({
+  await TopicService.create(professor, {
     title: "Sample Topic 2",
     summary: "This is a sample topic for testing.",
-    user: professor,
   });
 
-  await TopicService.create({
+  await TopicService.create(professor, {
     title: "Sample Topic 3",
     summary: "This is a sample topic for testing.",
-    user: professor,
   });
 
   const studentId = (await student.getStudent()).id;

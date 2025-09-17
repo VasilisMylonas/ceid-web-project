@@ -1,5 +1,7 @@
 import { DataTypes, Model, Op } from "sequelize";
 import { ThesisStatus } from "../constants.js";
+import { ConflictError, NotFoundError } from "../errors.js";
+import { deleteIfExists } from "../config/file-storage.js";
 
 export default (sequelize) => {
   class Topic extends Model {
@@ -62,6 +64,17 @@ export default (sequelize) => {
           type: "FULLTEXT",
         },
       ],
+      hooks: {
+        beforeUpdate: async (topic) => {
+          if (await this.isAssigned()) {
+            throw new ConflictError("Cannot modify an assigned topic");
+          }
+
+          if (topic.changed("descriptionFile")) {
+            deleteIfExists(topic.previous("descriptionFile"));
+          }
+        },
+      },
     }
   );
 

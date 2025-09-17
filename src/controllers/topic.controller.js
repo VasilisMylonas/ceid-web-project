@@ -1,55 +1,16 @@
 import { StatusCodes } from "http-status-codes";
-import db from "../models/index.js";
-import { deleteIfExists, getFilePath } from "../config/file-storage.js";
-import { Op, Sequelize } from "sequelize";
-import { ThesisStatus } from "../constants.js";
+import TopicService from "../services/topic.service.js";
 import { omit } from "../util.js";
+import { SecurityError } from "../errors.js";
 
 export default class TopicController {
   static async query(req, res) {
-    let query = {
-      attributes: ["id", "professorId", "title", "summary"],
+    const topics = await TopicService.query({
       limit: req.query.limit,
       offset: req.query.offset,
-      order: [["id", "ASC"]],
-      where: {
-        ...(req.query.professorId && { professorId: req.query.professorId }),
-      },
-    };
-
-    // Filter by status
-    if (req.query.status) {
-      query.include = [
-        {
-          model: db.Thesis,
-          attributes: [],
-          required: false,
-        },
-      ];
-
-      query.where[Op.or] = [
-        Sequelize.where(Sequelize.col("Theses.status"), {
-          [req.query.status === "assigned" ? Op.in : Op.notIn]: [
-            ThesisStatus.UNDER_ASSIGNMENT,
-            ThesisStatus.ACTIVE,
-            ThesisStatus.COMPLETED,
-            ThesisStatus.UNDER_EXAMINATION,
-          ],
-        }),
-      ];
-
-      // Unassigned topics may also have no theses at all
-      if (req.query.status === "unassigned") {
-        query.where[Op.or].push(
-          Sequelize.where(Sequelize.col("Theses.status"), {
-            [Op.is]: null,
-          })
-        );
-      }
-    }
-
-    const topics = await db.Topic.findAndCountAll(query);
-
+      professorId: req.query.professorId,
+      status: req.query.status,
+    });
     res.success(topics.rows, {
       count: topics.rows.length,
       total: topics.count,
@@ -57,45 +18,44 @@ export default class TopicController {
   }
 
   static async post(req, res) {
-    const { title, summary } = req.body;
-
     const professor = await req.user.getProfessor();
-    const topic = await professor.createTopic({
-      title,
-      summary,
+    const topic = await TopicService.create({
+      title: req.body.title,
+      summary: req.body.summary,
+      professor,
     });
-
-    res.success(omit(topic.get(), "descriptionFile"));
+    res.success(omit(topic.get(), "descriptionPath"));
   }
 
   static async get(req, res) {
-    res.success(omit(req.topic.get(), "descriptionFile"));
+    const topic = await TopicService.get(req.params.id);
+    res.success(omit(topic.get(), "descriptionPath"));
+  }
+
+  static async _assertProfessorOwnsTopic(req) {
+    const topic = await TopicService.get(req.params.id);
+    const professor = await req.user.getProfessor();
+    if (!professor || topic.professorId !== professor.id) {
+      throw new SecurityError("Forbidden");
+    }
+    return topic;
   }
 
   static async put(req, res) {
-    if (await req.topic.isAssigned()) {
-      return res.error("Cannot modify an assigned topic", StatusCodes.CONFLICT);
-    }
-
-    await req.topic.update(req.body);
-    res.success(omit(req.topic.get(), "descriptionFile"));
+    const topic = await TopicController._assertProfessorOwnsTopic(req);
+    await topic.update(req.body);
+    res.success(omit(topic.get(), "descriptionPath"));
   }
 
   static async delete(req, res) {
-    if (await req.topic.isAssigned()) {
-      return res.error("Cannot delete an assigned topic", StatusCodes.CONFLICT);
-    }
-
-    await req.topic.destroy();
+    const topic = await TopicController._assertProfessorOwnsTopic(req);
+    await topic.destroy();
     res.success();
   }
 
   static async getDescription(req, res) {
-    if (!req.topic.descriptionFile) {
-      return res.error("No description file", StatusCodes.NOT_FOUND);
-    }
-
-    res.status(StatusCodes.OK).sendFile(getFilePath(req.topic.descriptionFile));
+    const filePath = await TopicService.getDescription(req.params.id);
+    res.status(StatusCodes.OK).sendFile(filePath);
   }
 
   static async putDescription(req, res) {
@@ -103,36 +63,16 @@ export default class TopicController {
       return res.error("No file uploaded", StatusCodes.BAD_REQUEST);
     }
 
-    if (await req.topic.isAssigned()) {
-      return res.error(
-        "Cannot modify description of an assigned topic",
-        StatusCodes.CONFLICT
-      );
-    }
-
-    deleteIfExists(req.topic.descriptionFile);
-    req.topic.descriptionFile = req.file.filename;
-    await req.topic.save();
-
+    const topic = await TopicController._assertProfessorOwnsTopic(req);
+    topic.descriptionFile = req.file.filename;
+    await topic.save();
     res.success();
   }
 
   static async deleteDescription(req, res) {
-    if (!req.topic.descriptionFile) {
-      return res.error("No description file", StatusCodes.NOT_FOUND);
-    }
-
-    if (await req.topic.isAssigned()) {
-      return res.error(
-        "Cannot delete description of an assigned topic",
-        StatusCodes.CONFLICT
-      );
-    }
-
-    deleteIfExists(req.topic.descriptionFile);
-    req.topic.descriptionFile = null;
-    await req.topic.save();
-
+    const topic = await TopicController._assertProfessorOwnsTopic(req);
+    topic.descriptionFile = null;
+    await topic.save();
     res.success();
   }
 }

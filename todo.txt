@@ -1,0 +1,2 @@
+/my/invitations
+/my/theses filters

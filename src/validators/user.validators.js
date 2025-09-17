@@ -1,6 +1,36 @@
 import { UserRole } from "../constants.js";
 import Joi from "joi";
 
+const postBody = Joi.object({
+  username: Joi.string().trim().min(1).required(),
+  name: Joi.string().trim().min(1).required(),
+  email: Joi.string().trim().email().required(),
+  password: Joi.string().min(1).required(),
+  address: Joi.string().trim().min(1).required(),
+  role: Joi.string()
+    .trim()
+    .valid(...Object.values(UserRole))
+    .required(),
+  landlinePhone: Joi.string()
+    .trim()
+    .regex(/^[0-9]{10}$/)
+    .optional(),
+  phone: Joi.string()
+    .trim()
+    .regex(/^[0-9]{10}$/)
+    .required(),
+  am: Joi.number().integer().min(1).when("role", {
+    is: UserRole.STUDENT,
+    then: Joi.required(),
+    otherwise: Joi.forbidden(),
+  }),
+  division: Joi.string().trim().min(1).when("role", {
+    is: UserRole.PROFESSOR,
+    then: Joi.required(),
+    otherwise: Joi.forbidden(),
+  }),
+}).unknown(false);
+
 export default {
   query: {
     query: Joi.object({
@@ -26,6 +56,10 @@ export default {
         .trim()
         .regex(/^[0-9]{10}$/)
         .optional(),
+      landlinePhone: Joi.string()
+        .trim()
+        .regex(/^[0-9]{10}$/)
+        .optional(),
       email: Joi.string().trim().email().optional(),
       name: Joi.string().trim().min(1).optional(),
       password: Joi.string().min(1).optional(),
@@ -38,67 +72,11 @@ export default {
     }).unknown(false),
   },
   post: {
-    body: Joi.object({
-      username: Joi.string().trim().min(1).required(),
-      name: Joi.string().trim().min(1).required(),
-      email: Joi.string().trim().email().required(),
-      password: Joi.string().min(1).required(),
-      address: Joi.string().trim().min(1).required(),
-      role: Joi.string()
-        .trim()
-        .valid(...Object.values(UserRole))
-        .required(),
-      phone: Joi.string()
-        .trim()
-        .regex(/^[0-9]{10}$/)
-        .required(),
-      am: Joi.number().integer().min(1).when("role", {
-        is: UserRole.STUDENT,
-        then: Joi.required(),
-        otherwise: Joi.forbidden(),
-      }),
-      division: Joi.string().trim().min(1).when("role", {
-        is: UserRole.PROFESSOR,
-        then: Joi.required(),
-        otherwise: Joi.forbidden(),
-      }),
-    }).unknown(false),
+    body: postBody,
   },
   postBatch: {
-    body: Joi.array().items(
-      Joi.object({
-        username: Joi.string().trim().min(1).required(),
-        name: Joi.string().trim().min(1).required(),
-        email: Joi.string().trim().email().required(),
-        password: Joi.string().min(1).required(),
-        address: Joi.string().trim().min(1).required(),
-        role: Joi.string()
-          .trim()
-          .valid(...Object.values(UserRole))
-          .required(),
-        phone: Joi.string()
-          .trim()
-          .regex(/^[0-9]{10}$/)
-          .required(),
-        am: Joi.number().integer().min(1).when("role", {
-          is: UserRole.STUDENT,
-          then: Joi.required(),
-          otherwise: Joi.forbidden(),
-        }),
-        division: Joi.string().trim().min(1).when("role", {
-          is: UserRole.PROFESSOR,
-          then: Joi.required(),
-          otherwise: Joi.forbidden(),
-        }),
-      })
-    ),
+    body: Joi.array().items(postBody).required(),
   },
 
   getProfessors: {},
-
-  get: {
-    params: Joi.object({
-      id: Joi.number().integer().min(1).required(),
-    }).unknown(false),
-  },
 };

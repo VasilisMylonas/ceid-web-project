@@ -23,15 +23,6 @@ export default (sequelize) => {
         primaryKey: true,
         allowNull: false,
       },
-      startDate: {
-        type: DataTypes.DATE,
-        allowNull: false,
-        defaultValue: DataTypes.NOW,
-      },
-      endDate: {
-        type: DataTypes.DATE,
-        allowNull: true,
-      },
       grade: {
         type: DataTypes.FLOAT,
         allowNull: true,

@@ -20,36 +20,6 @@ export default (sequelize) => {
       });
     }
 
-    // TODO
-    static async createFrom(params) {
-      const { topic, student } = params;
-
-      if (await topic.isAssigned()) {
-        throw new Error("Topic is already assigned to a student.");
-      }
-
-      if (await student.isAssigned()) {
-        throw new Error("Student is already assigned to a thesis.");
-      }
-
-      const thesis = await Thesis.create({
-        topicId: topic.id,
-        studentId: student.id,
-        status: ThesisStatus.UNDER_ASSIGNMENT,
-      });
-
-      const { CommitteeMember } = sequelize.models;
-
-      // Automatically assign the professor as a supervisor
-      await CommitteeMember.create({
-        thesisId: thesis.id,
-        professorId: topic.professorId,
-        role: ThesisRole.SUPERVISOR,
-      });
-
-      return thesis;
-    }
-
     async canBeDeleted() {
       return this.status === ThesisStatus.UNDER_ASSIGNMENT;
     }
@@ -94,7 +64,7 @@ export default (sequelize) => {
         type: DataTypes.DATEONLY,
         allowNull: true,
       },
-      // TODO: cancellation data maybe should be in JSON column
+      // TODO: cancellation data maybe should be in JSON column, make sure to check custom queries in thesis.service.js
       assemblyYear: {
         type: DataTypes.INTEGER,
         allowNull: true,

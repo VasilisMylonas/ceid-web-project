@@ -3,8 +3,48 @@ import { ConflictError, NotFoundError, SecurityError } from "../errors.js";
 import { ThesisStatus } from "../constants.js";
 import { getFilePath, deleteIfExists } from "../config/file-storage.js";
 import { UserRole } from "../constants.js";
+import { ThesisRole } from "../constants.js";
 
 export default class ThesisService {
+  static async _assertUserHasThesisRoles(
+    id,
+    user,
+    roles,
+    allowSecretary = false
+  ) {
+    const thesis = await ThesisService.get(id);
+
+    const student = await user.getStudent();
+    const professor = await user.getProfessor();
+
+    if (user.role === UserRole.SECRETARY && allowSecretary) {
+      return thesis;
+    }
+
+    const isStudent = student ? thesis.studentId == student.id : false;
+
+    const isSupervisor = professor
+      ? await db.CommitteeMember.findOne({
+          where: {
+            thesisId: thesis.id,
+            professorId: professor.id,
+            role: ThesisRole.SUPERVISOR,
+          },
+        })
+      : false;
+
+    if (
+      !(
+        (roles.includes(ThesisRole.STUDENT) && isStudent) ||
+        (roles.includes(ThesisRole.SUPERVISOR) && isSupervisor)
+      )
+    ) {
+      throw new SecurityError();
+    }
+
+    return thesis;
+  }
+
   static async create({ topicId, studentId }) {
     const topic = await db.Topic.findByPk(topicId);
     const student = await db.Student.findByPk(studentId);
@@ -17,11 +57,34 @@ export default class ThesisService {
       throw new NotFoundError("No such student.");
     }
 
-    return await db.Thesis.createFrom({ topic, student });
+    if (await topic.isAssigned()) {
+      throw new ConflictError("Topic is already assigned to a student.");
+    }
+
+    if (await student.isAssigned()) {
+      throw new ConflictError("Student is already assigned to a thesis.");
+    }
+
+    const thesis = await db.Thesis.create({
+      topicId: topic.id,
+      studentId: student.id,
+      status: ThesisStatus.UNDER_ASSIGNMENT,
+    });
+
+    // Automatically assign the professor as a supervisor
+    await db.CommitteeMember.create({
+      thesisId: thesis.id,
+      professorId: topic.professorId,
+      role: ThesisRole.SUPERVISOR,
+    });
+
+    return thesis;
   }
 
-  static async delete(id) {
-    const thesis = await ThesisService.get(id);
+  static async delete(id, user) {
+    const thesis = await ThesisService._assertUserHasThesisRoles(id, user, [
+      ThesisRole.SUPERVISOR,
+    ]);
 
     if (!(await thesis.canBeDeleted())) {
       throw new ConflictError("Thesis cannot be deleted at this stage.");
@@ -40,7 +103,14 @@ export default class ThesisService {
     return thesis;
   }
 
-  static async getExtra(id) {
+  static async getExtra(id, user) {
+    await ThesisService._assertUserHasThesisRoles(
+      id,
+      user,
+      [ThesisRole.SUPERVISOR, ThesisRole.STUDENT, ThesisRole.COMMITTEE_MEMBER],
+      true // Allow Secretary
+    );
+
     const rawQuery = `
   SELECT
 theses.id AS "id",
@@ -53,7 +123,9 @@ students.id AS "studentId",
 supervisor_users.name AS "supervisor",
 supervisors.id AS "supervisorId",
 
-theses.status_reason AS "statusReason",
+theses.cancellation_reason AS "cancellationReason",
+theses.assembly_year AS "assemblyYear",
+theses.assembly_number AS "assemblyNumber",
 theses.end_date AS "endDate",
 theses.protocol_number AS "protocolNumber",
 theses.grading AS "grading",
@@ -72,10 +144,12 @@ JOIN users AS supervisor_users ON supervisors.user_id = supervisor_users.id
 JOIN committee_members ON theses.id = committee_members.thesis_id
 JOIN professors ON committee_members.professor_id = professors.id
 JOIN users AS professor_users ON professors.user_id = professor_users.id
-WHERE theses.id = '${id}'
+WHERE theses.id = :id'
     `;
 
-    const [results] = await db.sequelize.query(rawQuery);
+    const [results] = await db.sequelize.query(rawQuery, {
+      replacements: { id },
+    });
     const result = results[0];
 
     if (!result) {
@@ -86,16 +160,16 @@ WHERE theses.id = '${id}'
       SELECT
         committee_members.professor_id AS "professorId",
         committee_members.role AS "role",
-        committee_members.start_date AS "startDate",
-        committee_members.end_date AS "endDate",
         users.name AS "name"
       FROM committee_members
       JOIN professors ON committee_members.professor_id = professors.id
       JOIN users ON professors.user_id = users.id
-      WHERE committee_members.thesis_id = '${id}'
+      WHERE committee_members.thesis_id = :id'
     `;
 
-    const [committeeMembers] = await db.sequelize.query(rawQuery2);
+    const [committeeMembers] = await db.sequelize.query(rawQuery2, {
+      replacements: { id },
+    });
     result.committeeMembers = committeeMembers;
 
     return result;
@@ -131,13 +205,13 @@ WHERE theses.id = '${id}'
       });
 
     if (q) {
-      const q = q.toLowerCase().replace(/'/g, "''");
+      q = q.toLowerCase().replace(/'/g, "''");
       const searchCondition = `(LOWER(topics.title) LIKE '%${q}%' OR LOWER(topics.summary) LIKE '%${q}%' OR LOWER(student_users.name) LIKE '%${q}%' OR LOWER(supervisor_users.name) LIKE '%${q}%' OR LOWER(professor_users.name) LIKE '%${q}%')`;
       whereTemp.push(searchCondition);
     }
     const where = whereTemp.join(" AND ");
 
-    const raw_query = `
+    const rawQuery = `
     SELECT
 theses.id AS "id",
 theses.status AS "status",
@@ -172,14 +246,17 @@ ${limit ? `LIMIT ${limit}` : ""}
 ${offset ? `OFFSET ${offset}` : ""}
 `;
 
-    const [results, _] = await db.sequelize.query(raw_query);
+    const [results, _] = await db.sequelize.query(rawQuery);
     const total = results.length > 0 ? parseInt(results[0].total) : 0;
     results.forEach((r) => delete r.total);
     return { results, total };
   }
 
-  static async setNemertesLink(id, nemertesLink) {
-    const thesis = await ThesisService.get(id);
+  static async setNemertesLink(id, user, nemertesLink) {
+    const thesis = await ThesisService._assertUserHasThesisRoles(id, user, [
+      ThesisRole.STUDENT,
+    ]);
+
     if (thesis.status !== ThesisStatus.UNDER_EXAMINATION) {
       throw new ConflictError("Thesis is not under examination.");
     }
@@ -187,8 +264,11 @@ ${offset ? `OFFSET ${offset}` : ""}
     return thesis.nemertesLink;
   }
 
-  static async setGrading(id, grading) {
-    const thesis = await ThesisService.get(id);
+  static async setGrading(id, user, grading) {
+    const thesis = await ThesisService._assertUserHasThesisRoles(id, user, [
+      ThesisRole.SUPERVISOR,
+    ]);
+
     if (thesis.status !== ThesisStatus.UNDER_EXAMINATION) {
       throw new ConflictError("Thesis is not under examination.");
     }
@@ -196,16 +276,24 @@ ${offset ? `OFFSET ${offset}` : ""}
     return thesis.grading;
   }
 
-  static async getDraftFile(id) {
-    const thesis = await ThesisService.get(id);
+  static async getDraftFile(id, user) {
+    const thesis = await ThesisService._assertUserHasThesisRoles(id, user, [
+      ThesisRole.SUPERVISOR,
+      ThesisRole.STUDENT,
+      ThesisRole.COMMITTEE_MEMBER,
+    ]);
+
     if (!thesis.documentFile) {
       throw new NotFoundError("No draft file");
     }
     return getFilePath(thesis.documentFile);
   }
 
-  static async setDraftFile(id, filename) {
-    const thesis = await ThesisService.get(id);
+  static async setDraftFile(id, user, filename) {
+    const thesis = await ThesisService._assertUserHasThesisRoles(id, user, [
+      ThesisRole.STUDENT,
+    ]);
+
     if (thesis.status !== ThesisStatus.ACTIVE) {
       throw new ConflictError("Thesis is not active.");
     }
@@ -213,7 +301,7 @@ ${offset ? `OFFSET ${offset}` : ""}
     await thesis.update({ documentFile: filename });
   }
 
-  static async complete(id) {
+  static async complete(id, user) {
     const thesis = await ThesisService.get(id);
 
     if (thesis.status !== ThesisStatus.UNDER_EXAMINATION) {
@@ -237,7 +325,12 @@ ${offset ? `OFFSET ${offset}` : ""}
     user,
     { assemblyYear, assemblyNumber, cancellationReason }
   ) {
-    const thesis = await ThesisService.get(id);
+    const thesis = await ThesisService._assertUserHasThesisRoles(
+      id,
+      user,
+      [ThesisRole.SUPERVISOR],
+      true // Allow Secretary
+    );
 
     if (thesis.status !== ThesisStatus.ACTIVE) {
       throw new ConflictError("Thesis cannot be cancelled at this stage.");
@@ -245,7 +338,7 @@ ${offset ? `OFFSET ${offset}` : ""}
 
     const now = new Date();
 
-    // Secretary can also cancel and doesnt need to check the 2 years condition
+    // Secretary can also cancel and doesn't need to check the 2 years condition
     if (user.role == UserRole.PROFESSOR) {
       const startDate = thesis.startDate;
       const diffYears = (now - startDate) / (1000 * 60 * 60 * 24 * 365.25);

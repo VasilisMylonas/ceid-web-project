@@ -77,13 +77,19 @@ export default class MyController {
     return res.success(results);
   }
 
-  // TODO: Theses mainly forward to appropriate controllers with patched queries
   static async getThesis(req, res) {
+    // TODO: maybe we should only return not cancelled theses?
     const student = await req.user.getStudent();
-    req = patchQuery(req, { studentId: student.id });
-    await ThesisController.query(req, res);
+    const theses = await ThesisService.query({
+      studentId: student.id,
+    });
+    res.success(theses.results, {
+      count: theses.results.length,
+      total: theses.total,
+    });
   }
 
+  // TODO: These mainly forward to appropriate controllers with patched queries
   static async getInvitations(req, res) {
     const professor = await req.user.getProfessor();
     req = patchQuery(req, {

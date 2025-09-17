@@ -29,78 +29,51 @@ router.post(
   requireRole(UserRole.PROFESSOR),
   ThesisController.post
 );
-router.get(
-  "/:id",
-  validate(thesisValidator.get),
-  model(db.Thesis, "thesis"),
-  requireThesisRoleOrSecretary(
-    ThesisRole.STUDENT,
-    ThesisRole.SUPERVISOR,
-    ThesisRole.COMMITTEE_MEMBER
-  ),
-  ThesisController.get
-);
+router.get("/:id", validate(thesisValidator.get), ThesisController.get);
 router.delete(
   "/:id",
   validate(thesisValidator.delete),
-  model(db.Thesis, "thesis"),
-  requireThesisRole(ThesisRole.SUPERVISOR),
   ThesisController.delete
 );
 router.patch(
   // TODO: patch for historical reasons, should be put
   "/:id/status",
   validate(thesisValidator.putStatus),
-  model(db.Thesis, "thesis"),
   requireThesisRoleOrSecretary(ThesisRole.SUPERVISOR),
   ThesisController.putStatus
 );
 router.put(
   "/:id/nemertes-link",
   validate(thesisValidator.putNemertesLink),
-  model(db.Thesis, "thesis"),
-  requireThesisRole(ThesisRole.STUDENT),
   ThesisController.putNemertesLink
 );
 router.patch(
   // TODO: patch for historical reasons, should be put
   "/:id/grading",
   validate(thesisValidator.putGrading),
-  model(db.Thesis, "thesis"),
-  requireThesisRole(ThesisRole.SUPERVISOR),
   ThesisController.putGrading
 );
 router.get(
   "/:id/draft",
   validate(thesisValidator.getDraft),
-  model(db.Thesis, "thesis"),
-  requireThesisRole(
-    ThesisRole.STUDENT,
-    ThesisRole.SUPERVISOR,
-    ThesisRole.COMMITTEE_MEMBER
-  ),
   ThesisController.getDraft
 );
 router.put(
   "/:id/draft",
   validate(thesisValidator.putDraft),
   multer({ storage: fileStorage }).single("file"),
-  model(db.Thesis, "thesis"),
-  requireThesisRole(ThesisRole.STUDENT),
   ThesisController.putDraft
 );
 router.post(
   "/:id/cancel",
   validate(thesisValidator.cancel),
   model(db.Thesis, "thesis"),
-  requireThesisRoleOrSecretary(ThesisRole.SUPERVISOR),
   ThesisController.cancel
 );
 router.post(
   "/:id/complete",
   validate(thesisValidator.complete),
-  model(db.Thesis, "thesis"),
-  requireRole(ThesisRole.SUPERVISOR),
+  requireRole(UserRole.SECRETARY),
   ThesisController.complete
 );
 

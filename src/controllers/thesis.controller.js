@@ -1,6 +1,5 @@
 import { StatusCodes } from "http-status-codes";
 import db from "../models/index.js";
-import { ThesisStatus, UserRole } from "../constants.js";
 import ThesisService from "../services/thesis.service.js";
 
 export default class ThesisController {
@@ -27,18 +26,19 @@ export default class ThesisController {
   }
 
   static async get(req, res) {
-    const thesis = await ThesisService.getExtra(req.params.id);
+    const thesis = await ThesisService.getExtra(req.params.id, req.user);
     res.success(thesis);
   }
 
   static async delete(req, res) {
-    await ThesisService.delete(req.params.id);
+    await ThesisService.delete(req.params.id, req.user);
     res.success();
   }
 
   static async putNemertesLink(req, res) {
     const nemertesLink = await ThesisService.setNemertesLink(
       req.params.id,
+      req.user,
       req.body.nemertesLink
     );
     res.success({ nemertesLink });
@@ -47,13 +47,14 @@ export default class ThesisController {
   static async putGrading(req, res) {
     const grading = await ThesisService.setGrading(
       req.params.id,
+      req.user,
       req.body.grading
     );
     res.success({ grading });
   }
 
   static async getDraft(req, res) {
-    const filePath = await ThesisService.getDraftFile(req.params.id);
+    const filePath = await ThesisService.getDraftFile(req.params.id, req.user);
     res.status(StatusCodes.OK).sendFile(filePath);
   }
 
@@ -61,7 +62,11 @@ export default class ThesisController {
     if (!req.file) {
       return res.error("No file uploaded", StatusCodes.BAD_REQUEST);
     }
-    await ThesisService.setDraftFile(req.params.id, req.file.filename);
+    await ThesisService.setDraftFile(
+      req.params.id,
+      req.user,
+      req.file.filename
+    );
     res.success();
   }
 
@@ -75,7 +80,7 @@ export default class ThesisController {
   }
 
   static async complete(req, res) {
-    await ThesisService.complete(req.params.id);
+    await ThesisService.complete(req.params.id, req.user);
     res.success(null, {}, StatusCodes.OK);
   }
 

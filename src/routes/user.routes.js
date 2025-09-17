@@ -8,7 +8,7 @@ import { UserRole } from "../constants.js";
 const router = express.Router();
 router.use(requireAuth);
 
-// TODO
+// TODO: perms?
 router.get(
   "/professors",
   validate(userValidator.getProfessors),

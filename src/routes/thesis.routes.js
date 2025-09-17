@@ -6,8 +6,6 @@ import { validate } from "../middleware/validation.js";
 import { UserRole } from "../constants.js";
 import thesisValidator from "../validators/thesis.validators.js";
 import ThesisController from "../controllers/thesis.controller.js";
-import { model } from "../middleware/model.js";
-import db from "../models/index.js";
 
 const router = express.Router();
 router.use(requireAuth);
@@ -60,7 +58,6 @@ router.put(
 router.post(
   "/:id/cancel",
   validate(thesisValidator.cancel),
-  model(db.Thesis, "thesis"),
   ThesisController.cancel
 );
 router.post(

@@ -463,6 +463,7 @@ ${offset ? `OFFSET ${offset}` : ""}
       ThesisRole.COMMITTEE_MEMBER,
     ]);
 
+    // NOTE: We do not check role here, cause we have middleware
     const professor = await user.getProfessor();
     return await thesis.getNotes({
       where: { professorId: professor.id },
@@ -480,6 +481,7 @@ ${offset ? `OFFSET ${offset}` : ""}
       throw new ConflictError("Thesis is not active.");
     }
 
+    // NOTE: We do not check role here, cause we have middleware
     const professor = await user.getProfessor();
     return await db.Note.create({
       thesisId: thesis.id,

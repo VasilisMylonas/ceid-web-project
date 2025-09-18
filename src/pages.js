@@ -168,6 +168,7 @@ pages.get("/secretary/:page", requirePageAuth, async (req, res) => {
 
   return res.render(`pages/secretary/${req.params.page}`, {
     title: secretaryLinks.find((link) => link.href === req.path)?.title,
+    user: req.user,
     links: secretaryLinks,
     layout: "layouts/basic",
   });

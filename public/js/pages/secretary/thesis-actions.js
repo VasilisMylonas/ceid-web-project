@@ -39,8 +39,15 @@ async function onThesisApprovalFormReset(event) {
 
   protocolNumberInput.value = "";
   reasonInput.value = "";
-  acceptCheckbox.checked = true;
-  rejectCheckbox.checked = false;
+
+  if (!acceptCheckbox.disabled) {
+    acceptCheckbox.checked = true;
+    rejectCheckbox.checked = false;
+  } else {
+    acceptCheckbox.checked = false;
+    rejectCheckbox.checked = true;
+  }
+
   assemblyNumberInput.value = "";
 
   const protocolNumberSection = document.getElementById(
@@ -144,6 +151,10 @@ function renderThesisActions(thesis) {
   thesisApprovalForm.addEventListener("reset", onThesisApprovalFormReset);
   acceptCheckbox.addEventListener("change", onAcceptCheckboxChange);
   rejectCheckbox.addEventListener("change", onRejectCheckboxChange);
+
+  if (thesis.protocolNumber != null) {
+    acceptCheckbox.disabled = true;
+  }
 
   thesisApprovalForm.reset();
 }

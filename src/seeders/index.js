@@ -121,12 +121,12 @@ export default async function seedDatabase() {
     InvitationResponse.ACCEPTED
   );
 
-  // await ThesisService.approve(thesis.id, secretary, {
-  //   assemblyNumber: "2025/1",
-  //   protocolNumber: "123/2024",
-  // });
+  await ThesisService.approve(thesis.id, secretary, {
+    assemblyNumber: "2025/1",
+    protocolNumber: "123/2024",
+  });
 
-  // await ThesisService.examine(thesis.id, professor);
+  await ThesisService.examine(thesis.id, professor);
 
   // await ThesisService.setNemertesLink(
   //   thesis.id,

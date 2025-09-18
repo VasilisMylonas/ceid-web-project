@@ -33,10 +33,21 @@ export default class ThesisService {
         })
       : false;
 
+    const isCommitteeMember = professor
+      ? await db.CommitteeMember.findOne({
+          where: {
+            thesisId: thesis.id,
+            professorId: professor.id,
+            role: ThesisRole.COMMITTEE_MEMBER,
+          },
+        })
+      : false;
+
     if (
       !(
         (roles.includes(ThesisRole.STUDENT) && isStudent) ||
-        (roles.includes(ThesisRole.SUPERVISOR) && isSupervisor)
+        (roles.includes(ThesisRole.SUPERVISOR) && isSupervisor) ||
+        (roles.includes(ThesisRole.COMMITTEE_MEMBER) && isCommitteeMember)
       )
     ) {
       throw new SecurityError();
@@ -342,6 +353,15 @@ ${offset ? `OFFSET ${offset}` : ""}
       endDate: now,
     });
     return thesis.status;
+  }
+
+  static async getChanges(id, user) {
+    const thesis = await ThesisService._assertUserHasThesisRoles(id, user, [
+      ThesisRole.SUPERVISOR,
+      ThesisRole.COMMITTEE_MEMBER,
+    ]);
+
+    return await thesis.getThesisChanges({ order: [["changedAt", "ASC"]] });
   }
 
   static async getResources(id, user) {

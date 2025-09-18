@@ -106,6 +106,11 @@ router.post(
   validate(thesisValidator.postPresentation),
   ThesisController.postPresentation
 );
+router.get(
+  "/:id/timeline",
+  validate(thesisValidator.getTimeline),
+  ThesisController.getTimeline
+);
 
 // TODO: resources, presentations
 // Also check middleware here and in presentations/resources routes

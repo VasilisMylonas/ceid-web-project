@@ -143,4 +143,9 @@ export default {
     }).unknown(false),
     body: resourceValidators.put.body,
   },
+  getTimeline: {
+    params: Joi.object({
+      id: Joi.number().integer().min(1).required(),
+    }).unknown(false),
+  },
 };

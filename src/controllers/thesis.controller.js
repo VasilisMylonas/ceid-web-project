@@ -170,4 +170,9 @@ export default class ThesisController {
     );
     res.success(presentation);
   }
+
+  static async getTimeline(req, res) {
+    const changes = await ThesisService.getChanges(req.params.id, req.user);
+    res.success(changes);
+  }
 }

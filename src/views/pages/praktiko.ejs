@@ -1,0 +1,173 @@
+<style>
+  body {
+    font-family: 'Times New Roman', Times, serif;
+    line-height: 2rem;
+  }
+
+  .main-text {
+    font-size: 20px;
+    word-spacing: 0.3rem;
+    text-align: justify;
+  }
+
+  .input-underline {
+    padding: 0 1rem;
+    border-bottom: 2px dotted black;
+    font-weight: bold;
+  }
+
+  .praktiko-table th,
+  .praktiko-table td {
+    border: 1px solid #000;
+    padding: 4px 8px;
+  }
+</style>
+
+<article class="container my-4 fst-italic">
+  <h2 class="text-center mb-3 fw-bold">ΠΡΟΓΡΑΜΜΑ ΣΠΟΥΔΩΝ<br>
+    &laquo;
+    ΤΜΗΜΑΤΟΣ ΜΗΧΑΝΙΚΩΝ, ΗΛΕΚΤΡΟΝΙΚΩΝ ΥΠΟΛΟΓΙΣΤΩΝ ΚΑΙ ΠΛΗΡΟΦΟΡΙΚΗΣ
+    &raquo;
+  </h2>
+  <h3 class="text-center mb-4 fw-bold">
+    ΠΡΑΚΤΙΚΟ ΣΥΝΕΔΡΙΑΣΗΣ<br>
+    ΤΗΣ ΤΡΙΜΕΛΟΥΣ ΕΠΙΤΡΟΠΗΣ<br>
+    ΓΙΑ ΤΗΝ ΠΑΡΟΥΣΙΑΣΗ ΚΑΙ ΚΡΙΣΗ ΤΗΣ ΔΙΠΛΩΜΑΤΙΚΗΣ ΕΡΓΑΣΙΑΣ
+  </h3>
+
+  <p class="h4 text-center mb-4 fw-bold">
+    του/της φοιτητή/φοιτήτριας
+  </p>
+
+  <p class="h4 w-100 mb-4 input-underline">κ. <%= studentName %></p>
+
+  <div class="main-text">
+    <p class="text-center">
+      Η συνεδρίαση πραγματοποιήθηκε στην αίθουσα
+      <span class="input-underline"><%= hall %></span>
+      στις
+      <span class="input-underline"><%= date %></span>,
+      ημέρα <span class="input-underline"><%= day %></span>
+      και ώρα
+      <span class="input-underline"><%= time %></span>.
+      <br>
+    </p>
+
+    <p>
+      Στην συνεδρίαση είναι παρόντα τα μέλη της Τριμελούς Επιτροπής, κ.κ.:
+
+    <ol class="mb-4">
+      <% committee.forEach((member) => { %>
+      <li>
+        <span class="input-underline">
+          <%= member.name %>,
+        </span>
+      </li>
+      <% }); %>
+    </ol>
+
+    οι οποίοι ορίσθηκαν από την Συνέλευση του ΤΜΗΥΠ, στην συνεδρίαση της με
+    αριθμό <span class="input-underline"><%= assemblyYear %> /
+      <%= assemblyNumber %></span>.
+
+    </p>
+
+    <p class="mb-4">
+      Ο/Η φοιτητής/φοιτήτρια
+      κ. <span class="input-underline"><%= studentName %></span>
+      εκπόνησε τη Διπλωματική του/της Εργασία, με τίτλο<br>
+      <span class="input-underline">&laquo;<%= thesisTitle %>&raquo;</span>
+    </p>
+
+    <p class="mb-4">
+      Στη συνέχεια, υποβλήθηκαν ερωτήσεις στον υποψήφιο από τα μέλη της
+      Τριμελούς Επιτροπής και τους άλλους παρευρισκόμενους, προκειμένου να
+      διαμορφώσουν σαφή άποψη για το περιεχόμενο της εργασίας, για την
+      επιστημονική συγκρότηση του μεταπτυχιακού φοιτητή.
+    </p>
+
+    <p class="mb-4">
+      Μετά το τέλος της ανάπτυξης της εργασίας του και των ερωτήσεων, ο
+      υποψήφιος αποχωρεί.
+    </p>
+
+    <p class="mb-4">
+      Ο Επιβλέπων καθηγητής
+      κ. <span class="input-underline"><%= supervisorName %></span>
+      προτείνει στα
+      μέλη της Τριμελούς Επιτροπής να ψηφίσουν για το αν εγκρίνεται η
+      διπλωματική εργασία του
+      <span class="input-underline"> <%= studentName %></span>
+    </p>
+
+    <p>
+      Τα μέλη της Τριμελούς Επιτροπής, ψηφίζουν κατ’ αλφαβητική σειρά:
+    <ol class="mb-4">
+      <% votes.forEach(vote => { %>
+      <li>
+        <span class="input-underline">
+          <%= vote %>,
+        </span>
+      </li>
+      <% }); %>
+    </ol>
+    υπέρ της έγκρισης της Διπλωματικής Εργασίας του φοιτητή
+    <span class="input-underline"> <%= studentName %> </span>,
+    επειδή θεωρούν επιστημονικά επαρκή και το περιεχόμενό της ανταποκρίνεται στο
+    θέμα που του δόθηκε.
+    </p>
+
+    <p class="mb-4">
+      Μετά της έγκριση, ο εισηγητής κ.
+      <span class="input-underline"><%= supervisorName %></span>,
+      μέλος της Τριμελούς Επιτροπής, προτείνει στα μέλη της Τριμελούς
+      Επιτροπής
+      να απονεμηθεί στο/στη φοιτητή/τρια
+      κ. <span class="input-underline"> <%= studentName %> </span>
+      ο βαθμός
+      <span class="input-underline"><%= grade %></span>.
+    </p>
+
+    <p class="mb-4">
+      Τα μέλη της Τριμελούς Επιτροπής, απονέμουν την παρακάτω βαθμολογία:
+    </p>
+
+    <div class="table-responsive mb-4">
+      <table class="table table-bordered praktiko-table text-center">
+        <thead class="table-light">
+          <tr>
+            <th>ΟΝΟΜΑΤΕΠΩΝΥΜΟ</th>
+            <th>ΙΔΙΟΤΗΤΑ</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% committee.forEach(function(member) { %>
+          <tr>
+            <td><%= member.name %></td>
+            <td><%= member.role %></td>
+          </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="mb-4">
+      Μετά την έγκριση και την απονομή του βαθμού,
+      <span class="input-underline"><%= grade %></span>
+      η Τριμελής Επιτροπή
+      προτείνει
+      να προχωρήσει στη διαδικασία για να ανακηρύξει τον
+      κ. <span class="input-underline"> <%= studentName %> </span>
+      σε διπλωματούχο του Προγράμματος Σπουδών
+      &laquo;
+      ΤΜΗΜΑΤΟΣ ΜΗΧΑΝΙΚΩΝ, ΗΛΕΚΤΡΟΝΙΚΩΝ ΥΠΟΛΟΓΙΣΤΩΝ ΚΑΙ ΠΛΗΡΟΦΟΡΙΚΗΣ
+      ΠΑΝΕΠΙΣΤΗΜΙΟΥ ΠΑΤΡΩΝ
+      &raquo;
+      και να του απονέμει το Δίπλωμα
+      Μηχανικού Η/Υ το οποίο αναγνωρίζεται ως Ενιαίος Τίτλος Σπουδών
+      Μεταπτυχιακού Επιπέδου.
+
+    </p>
+  </div>
+
+</article>

@@ -19,6 +19,16 @@ export default {
       id: Joi.number().integer().min(1).required(),
     }).unknown(false),
   },
+  approve: {
+    params: Joi.object({
+      id: Joi.number().integer().min(1).required(),
+    }).unknown(false),
+    body: Joi.object({
+      assemblyYear: Joi.number().integer().min(2000).required(),
+      assemblyNumber: Joi.number().integer().min(1).required(),
+      protocolNumber: Joi.string().min(1).max(50).required(),
+    }),
+  },
   complete: {
     params: Joi.object({
       id: Joi.number().integer().min(1).required(),

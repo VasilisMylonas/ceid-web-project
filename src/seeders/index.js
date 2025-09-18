@@ -1,5 +1,9 @@
 import db from "../models/index.js";
-import { ThesisGradingStatus, UserRole } from "../constants.js";
+import {
+  PresentationKind,
+  ThesisGradingStatus,
+  UserRole,
+} from "../constants.js";
 import seedProfessors from "./professors.js";
 import seedStudents from "./students.js";
 import seedSecretaries from "./secretaries.js";
@@ -117,6 +121,12 @@ export default async function seedDatabase() {
     InvitationResponse.ACCEPTED
   );
 
+  await ThesisService.approve(thesis.id, secretary, {
+    assemblyYear: 2024,
+    assemblyNumber: 1,
+    protocolNumber: "123/2024",
+  });
+
   await ThesisService.examine(thesis.id, professor);
 
   await ThesisService.setNemertesLink(
@@ -124,6 +134,12 @@ export default async function seedDatabase() {
     student,
     "http://nemertes.library.upatras.gr/handle/123456789/12345"
   );
+
+  await ThesisService.createPresentation(thesis.id, student, {
+    date: new Date("2025-09-18T12:00:00"),
+    hall: "Αίθουσα 1",
+    kind: PresentationKind.IN_PERSON,
+  });
 
   await ThesisService.setGrading(
     thesis.id,
@@ -138,7 +154,22 @@ export default async function seedDatabase() {
     presentationQuality: 10,
   });
 
-  // await ThesisService.complete(thesis.id, secretary);
+  await ThesisService.setGrade(thesis.id, professor2, {
+    objectives: 6,
+    duration: 9,
+    deliverableQuality: 5,
+    presentationQuality: 8,
+  });
+
+  await ThesisService.setGrade(thesis.id, professor3, {
+    objectives: 7,
+    duration: 8,
+    deliverableQuality: 6,
+    presentationQuality: 9,
+  });
+
+  await ThesisService.complete(thesis.id, secretary);
+
   // await seedTopics(400);
   // await seedTheses(300);
   // await seedCommitteeMembers();

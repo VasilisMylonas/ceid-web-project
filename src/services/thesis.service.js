@@ -127,6 +127,7 @@ export default class ThesisService {
 theses.id AS "id",
 theses.status AS "status",
 theses.start_date AS "startDate",
+theses.grade AS "grade",
 topics.id AS "topicId",
 topics.title AS "topic",
 student_users.name AS "student",
@@ -277,6 +278,8 @@ ${offset ? `OFFSET ${offset}` : ""}
       ThesisRole.SUPERVISOR,
     ]);
 
+    // TODO: maybe a presentation should exist before allowing this
+
     await thesis.update({ grading });
     return thesis.grading;
   }
@@ -342,7 +345,34 @@ ${offset ? `OFFSET ${offset}` : ""}
     const thesis = await ThesisService._assertUserHasThesisRoles(id, user, [
       ThesisRole.SUPERVISOR,
     ]);
+
+    // TODO: maybe there should exist a protocolNumber before allowing this
+
     await thesis.update({ status: ThesisStatus.UNDER_EXAMINATION });
+    return thesis.status;
+  }
+
+  static async approve(
+    id,
+    user,
+    { assemblyYear, assemblyNumber, protocolNumber }
+  ) {
+    const thesis = await ThesisService.get(id);
+
+    if (thesis.status !== ThesisStatus.ACTIVE) {
+      throw new ConflictError("Thesis is not active.");
+    }
+
+    const now = new Date();
+
+    await thesis.update({
+      status: ThesisStatus.ACTIVE,
+      startDate: now,
+      assemblyYear,
+      assemblyNumber,
+      protocolNumber,
+    });
+
     return thesis.status;
   }
 

@@ -356,7 +356,7 @@ async function populateInvitationsList(invitations, activeStateCard) {
   const invitationList = activeStateCard.querySelector(".invitation-list");
   if (!invitationList) return;
 
-  const relevantInvitations = invitations.filter(inv => inv.response === "pending" || inv.response === "rejected");
+  const relevantInvitations = invitations.filter(inv => inv.response === "pending" || inv.response === "declined");
   if (relevantInvitations.length === 0) {
     invitationList.innerHTML = '<li class="list-group-item">Δεν υπάρχουν εκκρεμείς ή απορριφθείσες προσκλήσεις.</li>';
     return;

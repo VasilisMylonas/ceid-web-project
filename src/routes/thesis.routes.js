@@ -116,9 +116,9 @@ router.get(
   ThesisController.getGrades
 );
 router.put(
-  "/:id/grades",
-  validate(thesisValidator.putGrades),
-  ThesisController.putGrades
+  "/:id/grade",
+  validate(thesisValidator.putGrade),
+  ThesisController.putGrade
 );
 
 // TODO: resources, presentations, resources

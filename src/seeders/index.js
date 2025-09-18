@@ -1,5 +1,5 @@
 import db from "../models/index.js";
-import { UserRole } from "../constants.js";
+import { ThesisGradingStatus, UserRole } from "../constants.js";
 import seedProfessors from "./professors.js";
 import seedStudents from "./students.js";
 import seedSecretaries from "./secretaries.js";
@@ -125,10 +125,20 @@ export default async function seedDatabase() {
     "http://nemertes.library.upatras.gr/handle/123456789/12345"
   );
 
-  thesis.grade = 9.5;
-  await thesis.save();
+  await ThesisService.setGrading(
+    thesis.id,
+    professor,
+    ThesisGradingStatus.ENABLED
+  );
 
-  await ThesisService.complete(thesis.id, secretary);
+  await ThesisService.setGrade(thesis.id, professor, {
+    objectives: 8,
+    duration: 9,
+    deliverableQuality: 7,
+    presentationQuality: 10,
+  });
+
+  // await ThesisService.complete(thesis.id, secretary);
   // await seedTopics(400);
   // await seedTheses(300);
   // await seedCommitteeMembers();

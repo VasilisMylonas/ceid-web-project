@@ -153,7 +153,7 @@ export default {
       id: Joi.number().integer().min(1).required(),
     }).unknown(false),
   },
-  putGrades: {
+  putGrade: {
     params: Joi.object({
       id: Joi.number().integer().min(1).required(),
     }).unknown(false),

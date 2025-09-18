@@ -1,6 +1,6 @@
 import db from "../models/index.js";
 import { ConflictError, NotFoundError, SecurityError } from "../errors.js";
-import { ThesisStatus } from "../constants.js";
+import { ThesisGradingStatus, ThesisStatus } from "../constants.js";
 import { getFilePath } from "../config/file-storage.js";
 import { UserRole } from "../constants.js";
 import { ThesisRole } from "../constants.js";
@@ -415,6 +415,70 @@ ${offset ? `OFFSET ${offset}` : ""}
       hall,
       link,
     });
+  }
+
+  static async getGrades(id, user) {
+    const thesis = await ThesisService._assertUserHasThesisRoles(id, user, [
+      ThesisRole.SUPERVISOR,
+      ThesisRole.COMMITTEE_MEMBER,
+      ThesisRole.STUDENT,
+    ]);
+
+    return await thesis.getGrades({ order: [["id", "ASC"]] });
+  }
+
+  static async setGrade(
+    id,
+    user,
+    { objectives, duration, deliverableQuality, presentationQuality }
+  ) {
+    const thesis = await ThesisService._assertUserHasThesisRoles(id, user, [
+      ThesisRole.COMMITTEE_MEMBER,
+      ThesisRole.SUPERVISOR,
+    ]);
+
+    if (thesis.status !== ThesisStatus.UNDER_EXAMINATION) {
+      throw new ConflictError("Thesis is not under examination.");
+    }
+
+    if (thesis.grading !== ThesisGradingStatus.ENABLED) {
+      throw new ConflictError("Grading is not enabled for this thesis.");
+    }
+
+    const professor = await user.getProfessor();
+    const committeeMember = await db.CommitteeMember.findOne({
+      where: {
+        thesisId: thesis.id,
+        professorId: professor.id,
+      },
+      include: db.Grade,
+    });
+
+    // Create or update the grade
+    if (committeeMember.Grade !== null) {
+      await db.Grade.update(
+        {
+          committeeMemberId: committeeMember.professorId,
+          objectives,
+          duration,
+          deliverableQuality,
+          presentationQuality,
+        },
+        {
+          where: { committeeMemberId: committeeMember.professorId },
+        }
+      );
+    } else {
+      await db.Grade.create({
+        committeeMemberId: committeeMember.professorId,
+        objectives,
+        duration,
+        deliverableQuality,
+        presentationQuality,
+      });
+    }
+
+    return await committeeMember.getGrade();
   }
 
   static async getInvitations(id, user) {

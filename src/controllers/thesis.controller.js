@@ -90,16 +90,16 @@ export default class ThesisController {
 
   static async getGrades(req, res) {
     const grades = await ThesisService.getGrades(req.params.id, req.user);
-    res.success({ grades });
+    res.success(grades);
   }
 
-  static async putGrades(req, res) {
-    const grades = await ThesisService.setGrades(
+  static async putGrade(req, res) {
+    const grades = await ThesisService.setGrade(
       req.params.id,
       req.user,
       req.body
     );
-    res.success({ grades }, {}, StatusCodes.CREATED);
+    res.success(grades, {}, StatusCodes.CREATED);
   }
 
   static async getNotes(req, res) {

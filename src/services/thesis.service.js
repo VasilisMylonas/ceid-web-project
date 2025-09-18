@@ -269,6 +269,8 @@ ${offset ? `OFFSET ${offset}` : ""}
       ThesisRole.STUDENT,
     ]);
 
+    // TODO: all profs must have graded
+
     await thesis.update({ nemertesLink });
     return thesis.nemertesLink;
   }

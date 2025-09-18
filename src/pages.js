@@ -93,8 +93,8 @@ pages.get(
   async (req, res) => {
     const data = await ThesisService.getExtra(req.query.thesisId, req.user);
 
-    // TODO: when is this allowed??
-    // protocolNumber and presentation must exist
+    // TODO: when is this allowed?
+    // presentation must exist
 
     data.committeeMembers.map((member) => {
       if (member.role == ThesisRole.SUPERVISOR) {

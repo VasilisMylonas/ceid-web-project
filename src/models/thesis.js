@@ -20,6 +20,11 @@ function checkStatusTransition(thesis) {
           "Thesis cannot be set under examination at this stage."
         );
       }
+      if (thesis.protocolNumber === null) {
+        throw new ConflictError(
+          "Thesis cannot be set under examination without a protocol number."
+        );
+      }
       break;
 
     case ThesisStatus.COMPLETED:

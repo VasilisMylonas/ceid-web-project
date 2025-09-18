@@ -49,10 +49,7 @@ export default class InvitationService {
         committeeMemberCount >= 3 &&
         thesis.status === ThesisStatus.UNDER_ASSIGNMENT
       ) {
-        await thesis.update(
-          { status: ThesisStatus.ACTIVE, startDate: new Date() },
-          { transaction }
-        );
+        await thesis.update({ status: ThesisStatus.ACTIVE }, { transaction });
 
         // Destroy all pending invitations for this thesis
         await db.Invitation.destroy({

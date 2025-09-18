@@ -7,7 +7,7 @@ import { setPage } from "./middleware/pages.js";
 import Joi from "joi";
 import { expressJoiValidations } from "express-joi-validations";
 import { validate } from "./middleware/validation.js";
-import { UserRole } from "./constants.js";
+import { ThesisRole, UserRole } from "./constants.js";
 import ThesisService from "./services/thesis.service.js";
 import { requirePageAuth } from "./middleware/pages.js";
 import AuthService from "./services/auth.service.js";
@@ -93,24 +93,46 @@ pages.get(
   async (req, res) => {
     const data = await ThesisService.getExtra(req.query.thesisId, req.user);
 
-    console.log(data);
+    // TODO: when is this allowed??
+    // protocolNumber and presentation must exist
+
+    data.committeeMembers.map((member) => {
+      if (member.role == ThesisRole.SUPERVISOR) {
+        member.role = "Επιβλέπων";
+      } else {
+        member.role = "Μέλος";
+      }
+    });
+
+    const presentations = await ThesisService.getPresentations(
+      req.query.thesisId,
+      req.user
+    );
+
+    const presentation = presentations[0];
 
     res.render("pages/praktiko", {
-      studentName: "Γιάννης Παπαδόπουλος",
-      hall: "Αίθουσα 1",
-      date: "2025-09-18",
-      day: "Πέμπτη",
-      time: "12:00",
-      committee: [
-        { name: "Καθηγητής Α", role: "Επιβλέπων" },
-        { name: "Καθηγητής Β", role: "Μέλος" },
-        { name: "Καθηγητής Γ", role: "Μέλος" },
-      ],
-      assemblyNumber: "123",
-      thesisTitle: "Ανάπτυξη Εφαρμογής Web",
-      supervisorName: "Καθηγητής Α",
+      studentName: data.student,
+      hall: presentation.hall,
+      date: presentation.date.toLocaleDateString("el-GR", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      }),
+      day: presentation.date.toLocaleDateString("el-GR", {
+        weekday: "long",
+      }),
+      time: presentation.date.toLocaleTimeString("el-GR", {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+      committee: data.committeeMembers,
+      assemblyNumber: data.assemblyNumber,
+      assemblyYear: data.assemblyYear,
+      thesisTitle: data.topic,
+      supervisorName: data.supervisor,
+      grade: data.grade,
       votes: ["ΝΑΙ", "ΝΑΙ", "ΝΑΙ"],
-      grade: "9.5",
       layout: "layout",
       title: "Πρακτικό Εξέτασης",
     });

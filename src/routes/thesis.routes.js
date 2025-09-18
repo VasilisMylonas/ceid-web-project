@@ -55,6 +55,12 @@ router.put(
   ThesisController.putDraft
 );
 router.post(
+  "/:id/approve",
+  validate(thesisValidator.approve),
+  requireRole(UserRole.SECRETARY),
+  ThesisController.approve
+);
+router.post(
   "/:id/cancel",
   validate(thesisValidator.cancel),
   ThesisController.cancel

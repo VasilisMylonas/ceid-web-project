@@ -56,6 +56,30 @@ pages.get("/login", async (req, res) => {
   });
 });
 
+pages.get("/praktiko", async (req, res) => {
+
+
+  res.render("pages/praktiko", {
+    studentName: "Γιάννης Παπαδόπουλος",
+    hall: "Αίθουσα 1",
+    date: "2025-09-18",
+    day: "Πέμπτη",
+    time: "12:00",
+    committee: [
+      { name: "Καθηγητής Α", role: "Επιβλέπων" },
+      { name: "Καθηγητής Β", role: "Μέλος" },
+      { name: "Καθηγητής Γ", role: "Μέλος" },
+    ],
+    assemblyNumber: "123",
+    thesisTitle: "Ανάπτυξη Εφαρμογής Web",
+    supervisorName: "Καθηγητής Α",
+    votes: ["ΝΑΙ", "ΝΑΙ", "ΝΑΙ"],
+    grade: "9.5",
+    layout: "layout",
+    title: "Πρακτικό Εξέτασης",
+  });
+});
+
 pages.post("/login", async (req, res) => {
   const { username, password } = req.body;
 

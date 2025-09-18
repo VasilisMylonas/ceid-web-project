@@ -257,9 +257,6 @@ ${offset ? `OFFSET ${offset}` : ""}
       ThesisRole.STUDENT,
     ]);
 
-    if (thesis.status !== ThesisStatus.UNDER_EXAMINATION) {
-      throw new ConflictError("Thesis is not under examination.");
-    }
     await thesis.update({ nemertesLink });
     return thesis.nemertesLink;
   }
@@ -269,9 +266,6 @@ ${offset ? `OFFSET ${offset}` : ""}
       ThesisRole.SUPERVISOR,
     ]);
 
-    if (thesis.status !== ThesisStatus.UNDER_EXAMINATION) {
-      throw new ConflictError("Thesis is not under examination.");
-    }
     await thesis.update({ grading });
     return thesis.grading;
   }
@@ -293,27 +287,11 @@ ${offset ? `OFFSET ${offset}` : ""}
     const thesis = await ThesisService._assertUserHasThesisRoles(id, user, [
       ThesisRole.STUDENT,
     ]);
-
-    if (thesis.status !== ThesisStatus.ACTIVE) {
-      throw new ConflictError("Thesis is not active.");
-    }
-    deleteIfExists(thesis.documentFile);
     await thesis.update({ documentFile: filename });
   }
 
   static async complete(id, user) {
     const thesis = await ThesisService.get(id);
-
-    if (thesis.status !== ThesisStatus.UNDER_EXAMINATION) {
-      throw new ConflictError("Thesis cannot be completed at this stage.");
-    }
-
-    if (thesis.grade === null || thesis.nemertesLink === null) {
-      throw new ConflictError(
-        "Thesis cannot be completed without grade and nemertes link."
-      );
-    }
-
     await thesis.update({
       status: ThesisStatus.COMPLETED,
       endDate: new Date(),
@@ -326,11 +304,6 @@ ${offset ? `OFFSET ${offset}` : ""}
     const thesis = await ThesisService._assertUserHasThesisRoles(id, user, [
       ThesisRole.SUPERVISOR,
     ]);
-
-    if (thesis.status !== ThesisStatus.ACTIVE) {
-      throw new ConflictError("Thesis cannot be set under examination.");
-    }
-
     await thesis.update({ status: ThesisStatus.UNDER_EXAMINATION });
     return thesis.status;
   }
@@ -346,10 +319,6 @@ ${offset ? `OFFSET ${offset}` : ""}
       [ThesisRole.SUPERVISOR],
       true // Allow Secretary
     );
-
-    if (thesis.status !== ThesisStatus.ACTIVE) {
-      throw new ConflictError("Thesis cannot be cancelled at this stage.");
-    }
 
     const now = new Date();
 

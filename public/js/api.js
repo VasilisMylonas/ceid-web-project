@@ -266,34 +266,14 @@ async function updateThesisTopic(id, { title, summary }) {
   return await request("PUT", `${BASE_URL}/v1/topics/${id}`, { title, summary });
 }
 
-
-async function putDescription(topicId,file) {
-    const formData = new FormData();
-    formData.append('file', file);
-
-    try {
-        const response = await request("PUT",`${BASE_URL}/v1/topics/${topicId}/description`,formData)
-        const data = await response.json();
-        console.log('Upload successful:', data);
-        // Handle success (e.g., show a message to the user)
-    } catch (error) {
-        console.error('Error uploading file:', error);
-        // Handle error (e.g., show an error message)
-    }
-}
-
 //Assignments
 
 async function getStudents() {
-  return await request("GET", `${BASE_URL}/v1/users/?role=student` );
-}
-
-async function getAssignedThesis(){
-  return await request("GET", `${BASE_URL}/v1/my/thesis/`);
+  return await request("GET", `${BASE_URL}/v1/users?role=student`);
 }
 
 async function getUnderAssignementThesis() {
-  return await request("GET", `${BASE_URL}/v1/my/thesis?status=under_assignment`);
+  return await request("GET", `${BASE_URL}/v1/theses?status=under_assignment`);
 } 
 
 async function getThesisInvitations(thesisId) {

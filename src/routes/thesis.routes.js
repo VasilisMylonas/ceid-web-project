@@ -15,7 +15,7 @@ router.use(requireAuth);
 router.get(
   "/",
   validate(thesisValidator.query),
-  requireRole(UserRole.SECRETARY),
+  requireRole(UserRole.SECRETARY, UserRole.PROFESSOR),
   ThesisController.query
 );
 router.post(

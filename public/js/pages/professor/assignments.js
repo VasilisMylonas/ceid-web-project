@@ -1,98 +1,12 @@
-document.addEventListener('DOMContentLoaded', () => {
-  // === ΝΕΑ ΔΟΜΗ ΔΕΔΟΜΕΝΩΝ ===
+document.addEventListener('DOMContentLoaded', async () => {
+  // === ΚΕΝΗ ΤΟΠΙΚΗ ΚΑΤΑΣΤΑΣΗ (γεμίζει από τα δικά σας APIs) ===
   const state = {
-    currentProfessor: { id: 9001, name: 'Δρ. Αλέξανδρος Παπαδόπουλος' },
-
-    // ΘΕΜΑΤΑ
-    topics: [
-      { id: 1, professorId: 9001, title: 'Ανάλυση Μεγάλων Δεδομένων με Spark', summary: 'Αυτή είναι η περιγραφή...' },
-      { id: 3, professorId: 9001, title: 'Τεχνητή Νοημοσύνη στην Ιατρική', summary: 'Αυτή είναι η περιγραφή...' },
-      { id: 5, professorId: 9001, title: 'Μηχανική Μάθηση για Ενσωματωμένα Συστήματα', summary: 'Αυτή είναι η περιγραφή...' },
-    ],
-
-    // ΔΙΔΑΣΚΟΝΤΕΣ (για επίλυση professorId -> όνομα)
-    lecturers: [
-      { id: 201, name: 'Δρ. Ελένη Ρ.' },
-      { id: 202, name: 'Δρ. Πέτρος Μ.' },
-      { id: 203, name: 'Δρ. Κώστας Λ.' },
-      { id: 204, name: 'Δρ. Μαρίνα Χ.' },
-      { id: 205, name: 'Δρ. Σοφία Τ.' }
-    ],
-
-    // ΔΙΠΛΩΜΑΤΙΚΕΣ (συνδέονται με topicId) + invitations
-    theses: [
-      {
-        id: 100,
-        status: 'Υπό Ανάθεση',
-        startDate: null,
-        topicId: 3,
-        topic: null,
-        student: 'Γιάννης Παπαδόπουλος',
-        studentId: 101,
-        supervisor: 'Δρ. Αλέξανδρος Παπαδόπουλος',
-        supervisorId: 9001,
-        invitations: [
-          {
-            id: 5001,
-            response: 'Αποδέχθηκε',              // 'Αποδέχθηκε' | 'Απέρριψε' | 'Προσκεκλημένος'
-            responseDate: '2025-09-03',
-            professorId: 201,
-            thesisId: 100,
-            createdAt: '2025-09-01',            // ημ/νία πρόσκλησης
-            updatedAt: '2025-09-03'
-          },
-          {
-            id: 5002,
-            response: 'Προσκεκλημένος',
-            responseDate: null,
-            professorId: 202,
-            thesisId: 100,
-            createdAt: '2025-09-02',
-            updatedAt: '2025-09-02'
-          }
-        ]
-      },
-      {
-        id: 101,
-        status: 'Υπό Ανάθεση',
-        startDate: null,
-        topicId: 5,
-        topic: null,
-        student: 'Μαρία Σταύρου',
-        studentId: 102,
-        supervisor: 'Δρ. Αλέξανδρος Παπαδόπουλος',
-        supervisorId: 9001,
-        invitations: [
-          {
-            id: 5003,
-            response: 'Αποδέχθηκε',
-            responseDate: '2025-08-30',
-            professorId: 203,
-            thesisId: 101,
-            createdAt: '2025-08-29',
-            updatedAt: '2025-08-30'
-          },
-          {
-            id: 5004,
-            response: 'Αποδέχθηκε',
-            responseDate: '2025-09-02',
-            professorId: 204,
-            thesisId: 101,
-            createdAt: '2025-08-31',
-            updatedAt: '2025-09-02'
-          }
-        ]
-      }
-    ],
-
-    // Ενδεικτικοί φοιτητές
-    students: [
-      { id: 101, am: '1000123', name: 'Γιάννης Παπαδόπουλος' },
-      { id: 102, am: '1000456', name: 'Μαρία Σταύρου' },
-      { id: 103, am: '1000789', name: 'Νίκος Δημητρίου' },
-      { id: 104, am: '1000999', name: 'Ελένη Κωνσταντίνου' },
-      { id: 105, am: '1000111', name: 'Άννα Γεωργίου' }
-    ]
+    currentProfessor: { id: null, name: '' }, // TODO: set from auth/session if needed
+    topics: [],        // γεμίζει από getMyUnassignedTopics() ή/και getTopics()
+    lecturers: [],     // γεμίζει από getLecturers()
+    theses: [],        // γεμίζει από getTheses()
+    students: [],      // γεμίζει από getStudents()
+    studentsLoaded: false,
   };
 
   // --- Επιλογείς στοιχείων UI ---
@@ -173,6 +87,16 @@ document.addEventListener('DOMContentLoaded', () => {
   let selectedStudent = null;
   let submittingAssign = false;
 
+  // === Βοηθητικά ===
+  const escapeHTML = (str) => {
+    if (str == null) return '';
+    return String(str)
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#39;');
+  };
 
   const fmtDate = (d) => d ? new Date(d).toLocaleDateString('el-GR') : '-';
 
@@ -180,6 +104,9 @@ document.addEventListener('DOMContentLoaded', () => {
     switch (status) {
       case 'Ελεύθερο': return `<span class="badge bg-success">Ελεύθερο</span>`;
       case 'Υπό Ανάθεση': return `<span class="badge bg-warning text-dark">Υπό Ανάθεση</span>`;
+      case 'Ενεργή': return `<span class="badge bg-primary">Ενεργή</span>`;
+      case 'Ακυρωμένη': return `<span class="badge bg-secondary">Ακυρωμένη</span>`;
+      default: return `<span class="badge bg-light text-dark">${escapeHTML(status || '-')}</span>`;
     }
   };
 
@@ -200,43 +127,14 @@ document.addEventListener('DOMContentLoaded', () => {
     (thesis.invitations || []).filter(inv => inv.response === 'Αποδέχθηκε').length;
   const canFinalizeThesis = (thesis) => countAcceptedInvitations(thesis) >= 2;
 
-  // Δημιουργεί ΝΕΑ thesis όταν γίνεται ανάθεση θέματος σε φοιτητή
-  const createThesisForTopic = ({ topic, student }) => {
-    if (!topic || !student) return null;
-    const existing = getThesisByTopicId(topic.id);
-    if (existing) return existing;
 
-    const newId = Math.max(0, ...state.theses.map(x => x.id)) + 1;
-    const thesis = {
-      id: newId,
-      status: 'Υπό Ανάθεση',
-      startDate: null,
-      topicId: topic.id,
-      topic: null, // ή { ...topic } αν θες embedded
-      student: student.name,
-      studentId: student.id,
-      supervisor: state.currentProfessor.name,
-      supervisorId: state.currentProfessor.id,
-      invitations: [] // αρχικά καμία πρόσκληση
-    };
-    state.theses.push(thesis);
-    return thesis;
-  };
-
-  // Διαγράφει μια thesis όταν αφαιρείται ο φοιτητής (το topic ξαναγίνεται «Ελεύθερο»)
+  // Διαγράφει μια thesis από το state (η επίμονη διαγραφή γίνεται από εσάς)
   const deleteThesis = (thesisId) => {
     const idx = state.theses.findIndex(th => th.id === Number(thesisId));
-    if (idx >= 0) state.theses.splice(idx, 1);
+    if (idx === -1) return;
+    state.theses.splice(idx, 1);
   };
-
-  // Θέματα που είναι "ελεύθερα" = δεν υπάρχει thesis για το topic
-  const getFreeTopics = () =>
-    state.topics.filter(t => !getThesisByTopicId(t.id));
-
-  // Theses που είναι "υπό ανάθεση"
-  const getPendingTheses = () =>
-    state.theses.filter(th => th.status === 'Υπό Ανάθεση');
-
+  
   // --- Invitations Modal Render ---
   const renderInvitationsModal = (thesis) => {
     const topic = thesis.topic || getTopicById(thesis.topicId) || { title: '(Άγνωστο θέμα)' };
@@ -271,13 +169,91 @@ document.addEventListener('DOMContentLoaded', () => {
     else alert('Προσκληθέντα μέλη:\n' + (list.map(inv => `• ${getLecturerNameById(inv.professorId)} - ${inv.response || 'Προσκεκλημένος'}`).join('\n') || '—'));
   };
 
+  // === ΑΝΑΚΤΗΣΗ ΔΕΔΟΜΕΝΩΝ ΑΠΟ ΤΑ ΔΙΚΑ ΣΑΣ APIs ===
+  const fetchStudents = async (force = false) => {
+    if (state.studentsLoaded && !force) return;
+    try {
+      const res = await getStudents(); // <-- YOUR FUNCTION
+      const raw = Array.isArray(res) ? res : (res?.data ?? res?.items ?? []);
+
+      state.students = (raw || []).map(u => {
+        const fullName = u.name ?? [u.firstName, u.lastName].filter(Boolean).join(' ');
+        const fallbackName = (fullName?.trim()) || (u.email ? String(u.email).split('@')[0] : `#${u.id}`);
+        return {
+          id: u.id,
+          am: u.am ?? u.studentNumber ?? '', // αν δεν παρέχεται, μένει κενό
+          name: fallbackName
+        };
+      });
+      state.studentsLoaded = true;
+    } catch (err) {
+      console.error('Σφάλμα φόρτωσης φοιτητών:', err);
+    }
+  };
+
+  const fetchTopics = async () => {
+    try {
+      const res = await getMyUnassignedTopics(); 
+      state.topics = Array.isArray(res) ? res : (res?.data ?? res?.items ?? []);
+    } catch (err) {
+      console.error('Σφάλμα φόρτωσης θεμάτων:', err);
+      state.topics = [];
+    }
+  };
+
+  const fetchLecturers = async () => {
+    try {
+      // TODO: ΚΑΛΕΣΤΕ ΤΟ ΔΙΚΟ ΣΑΣ getLecturers()
+      // const res = await getLecturers(); // <-- YOUR FUNCTION
+      // state.lecturers = Array.isArray(res) ? res : (res?.data ?? res?.items ?? []);
+      // Προαιρετικό: κρατήστε το κενό αν δεν χρειάζεται ακόμη
+      state.lecturers = state.lecturers || [];
+    } catch (err) {
+      console.error('Σφάλμα φόρτωσης διδασκόντων:', err);
+      state.lecturers = [];
+    }
+  };
+
+
+  const fetchTheses = async () => {
+    try {
+      const res = await getUnderAssignementThesis(); 
+
+    const raw = Array.isArray(res)
+      ? res
+      : (Array.isArray(res?.data) ? res.data
+         : (Array.isArray(res?.items) ? res.items : []));
+
+    state.theses = raw.map(srv => ({
+      id: Number(srv?.id),
+      status: 'Υπό Ανάθεση',
+      startDate: srv?.startDate ?? null,
+      topicId: Number(srv?.topicId),
+      topic: { title: String(srv?.topic ?? '(Άγνωστο θέμα)') },
+      student: srv?.student ?? null,
+      studentId: srv?.studentId ?? null,
+      supervisor: srv?.supervisor ?? null,
+      supervisorId: srv?.supervisorId ?? null,
+      invitations: Array.isArray(srv?.invitations) ? srv.invitations : []
+    }));
+
+    } catch (err) {
+      console.error('Σφάλμα φόρτωσης διπλωματικών:', err);
+      state.theses = [];
+    }
+  };
+
   // --- Render Πίνακα (Free + Under Assignment) ---
-  const renderTopicsTable = () => {
+  const renderTopicsTable = async () => {
+
+    await fetchTheses();
+    await fetchTopics();
+    
     if (!myTopicsTableBody) return;
     myTopicsTableBody.innerHTML = '';
 
-    const freeTopics = getFreeTopics();
-    const pendingTheses = getPendingTheses();
+    const freeTopics = state.topics || [];
+    const pendingTheses = state.theses || [];
 
     if (!freeTopics.length && !pendingTheses.length) {
       const tr = document.createElement('tr');
@@ -317,9 +293,9 @@ document.addEventListener('DOMContentLoaded', () => {
       row.dataset.thesisId = thesis.id;
       row.dataset.topicId = thesis.topicId;
       row.innerHTML = `
-        <td>${topic.title}</td>
+        <td>${escapeHTML(topic.title)}</td>
         <td>${statusBadge(thesis.status)}</td>
-        <td>${thesis.student || '-'}</td>
+        <td>${escapeHTML(thesis.student || '-')}</td>
         <td class="text-center">
           <div class="d-flex justify-content-center gap-2">
             <button class="btn btn-sm btn-outline-secondary members-btn" title="Προσκεκλημένα Μέλη" aria-label="Προσκεκλημένα μέλη">
@@ -342,8 +318,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const filterStudents = (query) => {
     const q = (query || '').trim().toLowerCase();
     if (!q) return [];
-    return state.students
-      .filter(s => s.am.includes(q) || s.name.toLowerCase().includes(q))
+    return (state.students || [])
+      .filter(s =>
+        (s.am && String(s.am).includes(q)) ||
+        (s.name && s.name.toLowerCase().includes(q))
+      )
       .slice(0, 10);
   };
 
@@ -361,7 +340,7 @@ document.addEventListener('DOMContentLoaded', () => {
       item.innerHTML = `
         <span>
           <strong>${escapeHTML(s.name)}</strong><br>
-          <small class="text-muted">Α.Μ.: ${escapeHTML(s.am)}</small>
+          <small class="text-muted">Α.Μ.: ${escapeHTML(s.am || '—')}</small>
         </span>
         <i class="bi bi-check2-circle"></i>
       `;
@@ -386,8 +365,8 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   };
 
-  // --- Event Listeners πίνακα ---
-  myTopicsTableBody?.addEventListener('click', (e) => {
+  // --- Event Listeners πίνακα (με TODO σημεία για API κλήσεις) ---
+  myTopicsTableBody?.addEventListener('click', async (e) => {
     const target = e.target;
 
     // Assign σε "Ελεύθερο" topic
@@ -400,6 +379,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
       assignTopicIdInput.value = topic.id;
       assignTopicTitle.textContent = topic.title;
+
+      // TODO: Αν δεν έχετε ήδη φοιτητές, καλέστε εδώ το API σας
+      await fetchStudents(); // <- calls your getStudents()
+
       resetAssignModalState();
       assignStudentModal?.show();
       return;
@@ -412,6 +395,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const thesisId = Number(row?.dataset.thesisId);
       const thesis = state.theses.find(th => th.id === thesisId);
       if (!thesis) return;
+      // TODO: Αν θέλετε always-fresh invitations, καλέστε δικό σας getThesisInvitations(thesisId) εδώ
       renderInvitationsModal(thesis);
       return;
     }
@@ -424,13 +408,17 @@ document.addEventListener('DOMContentLoaded', () => {
       const thesis = state.theses.find(th => th.id === thesisId);
       if (!thesis) return;
 
-      // Guard κανόνα (≥2 αποδοχές)
       if (!canFinalizeThesis(thesis)) {
         alert('Απαιτούνται τουλάχιστον 2 αποδοχές από προσκεκλημένους Διδάσκοντες.');
         return;
       }
 
       if (!confirm('Οριστικοποίηση διπλωματικής; Η κατάσταση θα γίνει "Ενεργή".')) return;
+
+      // TODO: ΚΑΛΕΣΤΕ ΤΟ ΔΙΚΟ ΣΑΣ finalizeThesis(thesisId)
+      // await finalizeThesis(thesisId); // <-- YOUR FUNCTION
+
+      // Local state update (mirror του επιτυχημένου API response)
       thesis.status = 'Ενεργή';
       thesis.startDate = new Date().toISOString();
 
@@ -458,16 +446,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Επιβεβαίωση Ακύρωσης Ανάθεσης (διαγράφει thesis & απελευθερώνει το topic)
-  confirmUnassignBtn?.addEventListener('click', () => {
+  // Επιβεβαίωση Ακύρωσης Ανάθεσης
+  confirmUnassignBtn?.addEventListener('click', async () => {
     const thesisId = Number(confirmUnassignBtn.dataset.thesisId);
     if (!thesisId) return;
 
+    // TODO: ΚΑΛΕΣΤΕ ΤΟ ΔΙΚΟ ΣΑΣ cancelThesis(thesisId)
+    // await cancelThesis(thesisId); // <-- YOUR FUNCTION
+
+    // Local state update
     deleteThesis(thesisId);
 
     delete confirmUnassignBtn.dataset.thesisId;
     confirmUnassignModal?.hide();
-    renderTopicsTable(); // το αντίστοιχο topic ξαναεμφανίζεται στα «Ελεύθερα»
+
+    // TODO: Προαιρετικά ανανέωση θεμάτων από backend
+    // await fetchTopics();
+
+    renderTopicsTable();
   });
 
   // --- Αναζήτηση φοιτητή στο modal ---
@@ -481,13 +477,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const btn = e.target.closest('.list-group-item');
     if (!btn) return;
     const sid = Number(btn.dataset.studentId);
-    selectedStudent = state.students.find(s => s.id === sid) || null;
+    selectedStudent = (state.students || []).find(s => s.id === sid) || null;
 
     [...studentResults.children].forEach(el => el.classList.remove('active'));
     btn.classList.add('active');
 
     if (selectedStudent && studentSearchInput) {
-      studentSearchInput.value = `${selectedStudent.name} (${selectedStudent.am})`;
+      studentSearchInput.value = `${selectedStudent.name} (${selectedStudent.am || '—'})`;
     }
   });
 
@@ -500,7 +496,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (matches.length >= 1) {
           selectedStudent = matches[0];
           renderStudentResults(matches);
-          studentSearchInput.value = `${selectedStudent.name} (${selectedStudent.am})`;
+          studentSearchInput.value = `${selectedStudent.name} (${selectedStudent.am || '—'})`;
         }
       }
     } else if (e.key === 'Escape') {
@@ -510,7 +506,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Υποβολή ανάθεσης: δημιουργεί ΝΕΑ thesis για το topic
-  assignStudentForm?.addEventListener('submit', (e) => {
+  assignStudentForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (submittingAssign) return;
     submittingAssign = true;
@@ -540,21 +536,37 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // === ΔΗΜΙΟΥΡΓΙΑ THESIS ===
-    createThesisForTopic({ topic, student: selectedStudent });
 
-    // καθάρισμα modal & render
+    await assignTopic(topicId, selectedStudent.id); 
+
     resetAssignModalState();
     assignStudentModal?.hide();
     submitBtn?.removeAttribute('disabled');
     submittingAssign = false;
 
-    renderTopicsTable(); // το topic φεύγει από «Ελεύθερα» και εμφανίζεται ως «Υπό Ανάθεση»
+    renderTopicsTable();
   });
 
   // reset modal όταν κλείνει
   assignStudentModalEl?.addEventListener('hidden.bs.modal', resetAssignModalState);
 
-  // --- Αρχικό Render ---
-  renderTopicsTable();
+  // --- ΑΡΧΙΚΟ LOAD (όλα κενά -> γεμίζουν από τα δικά σας APIs) ---
+  try {
+    // TODO: ΘΕΣΤΕ τον currentProfessor αν χρειάζεται (π.χ. από auth me endpoint)
+    // const me = await getMe(); state.currentProfessor = { id: me.id, name: me.name };
+
+    // 1) Φόρτωση φοιτητών (για αναζήτηση στο modal)
+    await fetchStudents();
+
+    // 2) Φόρτωση διδασκόντων (για invitations ονόματα)
+    await fetchLecturers();
+
+
+
+    // Τελικό render
+    renderTopicsTable();
+  } catch (err) {
+    console.error('Αρχικοποίηση απέτυχε:', err);
+    renderTopicsTable(); // θα δείξει empty state
+  }
 });

@@ -3,7 +3,7 @@
  */
 
 // Same origin
-const BASE_URL = "";
+const BASE_URL = "/api";
 
 async function request(method, url, object = null) {
   const response = await fetch(url, {

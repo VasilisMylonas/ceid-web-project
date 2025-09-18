@@ -13,7 +13,7 @@ export default class MyController {
       limit: req.query.limit,
       offset: req.query.offset,
       status: req.query.status,
-      professorId: professor.professorId,
+      professorId: professor.id,
     });
 
     res.success(topics.rows, {

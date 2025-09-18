@@ -289,5 +289,5 @@ async function assignTopic(topicId, studentId) {
 }
 
 async function activateThesis(thesisId) {
-  return await request("PATCH", `${BASE_URL}/v1/theses/${thesisId}/status`, { status: "active" });
+  return await request("POST", `${BASE_URL}/v1/theses/${thesisId}/activate`);
 }

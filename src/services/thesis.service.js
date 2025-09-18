@@ -335,6 +335,17 @@ ${offset ? `OFFSET ${offset}` : ""}
     return thesis.status;
   }
 
+    static async activate(id) {
+    const thesis = await ThesisService.get(id);
+
+    if (thesis.status !== ThesisStatus.UNDER_ASSIGNMENT) {
+      throw new ConflictError("Thesis cannot be activsted.");
+    }
+
+    await thesis.update({ status: ThesisStatus.ACTIVE });
+    return thesis.status;
+  }
+
   static async cancel(
     id,
     user,

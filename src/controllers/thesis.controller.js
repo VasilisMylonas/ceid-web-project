@@ -88,6 +88,11 @@ export default class ThesisController {
     res.success({ status });
   }
 
+  static async activate(req, res) {
+    const status = await ThesisService.activate(req.params.id);
+    res.success({ status });
+  }
+
   static async patchStatus(req, res) {
     res.error("This API endpoint is deprecated.", StatusCodes.GONE);
   }

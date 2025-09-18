@@ -31,6 +31,15 @@ router.delete(
   ThesisController.delete
 );
 router.patch("/:id/status", ThesisController.patchStatus);
+
+
+router.post(
+  "/:id/activate",
+  validate(thesisValidator.examine),
+  ThesisController.activate
+);
+
+
 router.post(
   "/:id/examine",
   validate(thesisValidator.examine),

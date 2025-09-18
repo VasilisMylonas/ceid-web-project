@@ -380,9 +380,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       assignTopicIdInput.value = topic.id;
       assignTopicTitle.textContent = topic.title;
 
-      // TODO: Αν δεν έχετε ήδη φοιτητές, καλέστε εδώ το API σας
-      await fetchStudents(); // <- calls your getStudents()
-
       resetAssignModalState();
       assignStudentModal?.show();
       return;
@@ -419,8 +416,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       // await finalizeThesis(thesisId); // <-- YOUR FUNCTION
 
       // Local state update (mirror του επιτυχημένου API response)
-      thesis.status = 'Ενεργή';
-      thesis.startDate = new Date().toISOString();
 
       renderTopicsTable();
       return;
@@ -433,7 +428,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const thesisId = Number(row?.dataset.thesisId);
       const thesis = state.theses.find(th => th.id === thesisId);
       if (!thesis) return;
-
+    
       confirmUnassignModalLabel.textContent = 'Ακύρωση Ανάθεσης';
       const topic = getTopicById(thesis.topicId) || { title: '(Άγνωστο θέμα)' };
       confirmUnassignTitle.textContent = topic.title;
@@ -451,17 +446,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     const thesisId = Number(confirmUnassignBtn.dataset.thesisId);
     if (!thesisId) return;
 
-    // TODO: ΚΑΛΕΣΤΕ ΤΟ ΔΙΚΟ ΣΑΣ cancelThesis(thesisId)
-    // await cancelThesis(thesisId); // <-- YOUR FUNCTION
 
-    // Local state update
-    deleteThesis(thesisId);
+    await unassignThesis(thesisId);
 
     delete confirmUnassignBtn.dataset.thesisId;
     confirmUnassignModal?.hide();
-
-    // TODO: Προαιρετικά ανανέωση θεμάτων από backend
-    // await fetchTopics();
 
     renderTopicsTable();
   });

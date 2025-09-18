@@ -273,11 +273,11 @@ async function getStudents() {
 }
 
 async function getUnderAssignementThesis() {
-  return await request("GET", `${BASE_URL}/v1/theses?status=under_assignment`);
+  return await request("GET", `${BASE_URL}/v1/my/theses?status=under_assignment`);
 } 
 
 async function getThesisInvitations(thesisId) {
-  return await request("GET", `${BASE_URL}/v1/thesis/${thesisId}/invitations`);
+  return await request("GET", `${BASE_URL}/v1/theses/${thesisId}/invitations`);
 }
 
 async function unassignThesis(thesisId) {

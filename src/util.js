@@ -6,17 +6,6 @@ export function omit(obj, ...props) {
   return result;
 }
 
-// Hack because req.query is a getter
-export function patchQuery(req, query) {
-  return {
-    ...req,
-    query: {
-      ...req.query,
-      ...query,
-    },
-  };
-}
-
 // We check both the authorization header and the token cookie
 // The header has priority over the cookie if both are present
 export function extractTokenFromRequest(req) {

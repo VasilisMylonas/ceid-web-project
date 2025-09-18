@@ -103,7 +103,14 @@ document.addEventListener("DOMContentLoaded", async () => {
       const link = document.getElementById("examLink").value;
 
       if (date && time && kind) {
-        if ((kind === 'in_person' && location) || (kind === 'online' && link)) {
+        // --- Date Validation ---
+        const selectedDateTime = new Date(`${date}T${time}`);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Set to the beginning of today for a clean date comparison
+
+        if (selectedDateTime < today) {
+          alert("Η ημερομηнία εξέτασης δεν μπορεί να είναι στο παρελθόν. Παρακαλώ επιλέξτε μια μελλοντική ημερομηνία.");
+        } else if ((kind === 'in_person' && location) || (kind === 'online' && link)) {
           presentationDataValid = true;
           const formattedDateTime = `${date}T${time}:00`;
           const presentationData = { date: formattedDateTime, kind };
@@ -135,7 +142,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       await Promise.allSettled(operations);
       
-      alert("Οι αλλαγές αποθηκεύτηκαν. Η σελίδα θα ανανεωθεί.");
+      alert("Οι αλλαγές αποθηκεύτηκαν");
       document.getElementById("links-to-add").value = ""; // Clear textarea after attempting save
       await refreshPageData();
     });

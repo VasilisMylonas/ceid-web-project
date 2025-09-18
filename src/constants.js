@@ -6,6 +6,11 @@ export const ThesisStatus = Object.freeze({
   UNDER_EXAMINATION: "under_examination",
 });
 
+export const ThesisGradingStatus = Object.freeze({
+  ENABLED: "enabled",
+  DISABLED: "disabled",
+});
+
 export const UserRole = Object.freeze({
   STUDENT: "student",
   PROFESSOR: "professor",

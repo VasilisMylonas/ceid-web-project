@@ -1,7 +1,7 @@
 import db from "../models/index.js";
 import { ConflictError, NotFoundError, SecurityError } from "../errors.js";
-import { ThesisStatus } from "../constants.js";
-import { getFilePath, deleteIfExists } from "../config/file-storage.js";
+import { ThesisGradingStatus, ThesisStatus } from "../constants.js";
+import { getFilePath } from "../config/file-storage.js";
 import { UserRole } from "../constants.js";
 import { ThesisRole } from "../constants.js";
 
@@ -33,10 +33,21 @@ export default class ThesisService {
         })
       : false;
 
+    const isCommitteeMember = professor
+      ? await db.CommitteeMember.findOne({
+          where: {
+            thesisId: thesis.id,
+            professorId: professor.id,
+            role: ThesisRole.COMMITTEE_MEMBER,
+          },
+        })
+      : false;
+
     if (
       !(
         (roles.includes(ThesisRole.STUDENT) && isStudent) ||
-        (roles.includes(ThesisRole.SUPERVISOR) && isSupervisor)
+        (roles.includes(ThesisRole.SUPERVISOR) && isSupervisor) ||
+        (roles.includes(ThesisRole.COMMITTEE_MEMBER) && isCommitteeMember)
       )
     ) {
       throw new SecurityError();
@@ -257,9 +268,6 @@ ${offset ? `OFFSET ${offset}` : ""}
       ThesisRole.STUDENT,
     ]);
 
-    if (thesis.status !== ThesisStatus.UNDER_EXAMINATION) {
-      throw new ConflictError("Thesis is not under examination.");
-    }
     await thesis.update({ nemertesLink });
     return thesis.nemertesLink;
   }
@@ -269,9 +277,6 @@ ${offset ? `OFFSET ${offset}` : ""}
       ThesisRole.SUPERVISOR,
     ]);
 
-    if (thesis.status !== ThesisStatus.UNDER_EXAMINATION) {
-      throw new ConflictError("Thesis is not under examination.");
-    }
     await thesis.update({ grading });
     return thesis.grading;
   }
@@ -293,28 +298,39 @@ ${offset ? `OFFSET ${offset}` : ""}
     const thesis = await ThesisService._assertUserHasThesisRoles(id, user, [
       ThesisRole.STUDENT,
     ]);
-
-    if (thesis.status !== ThesisStatus.ACTIVE) {
-      throw new ConflictError("Thesis is not active.");
-    }
-    deleteIfExists(thesis.documentFile);
     await thesis.update({ documentFile: filename });
   }
 
   static async complete(id, user) {
     const thesis = await ThesisService.get(id);
 
-    if (thesis.status !== ThesisStatus.UNDER_EXAMINATION) {
-      throw new ConflictError("Thesis cannot be completed at this stage.");
+    const committeeMembers = await thesis.getCommitteeMembers({
+      include: db.Grade,
+    });
+
+    const grades = committeeMembers
+      .map((member) => member.Grade)
+      .filter((grade) => grade !== null);
+
+    if (grades.length !== committeeMembers.length) {
+      throw new ConflictError("Not all committee members have graded.");
     }
 
-    if (thesis.grade === null || thesis.nemertesLink === null) {
-      throw new ConflictError(
-        "Thesis cannot be completed without grade and nemertes link."
-      );
-    }
+    const average =
+      grades
+        .map(
+          // Calculate based on CEID regulations
+          // https://www.ceid.upatras.gr/sites/default/files/pages/diplomatiki_ergasia_tmiyp_0.pdf
+          (grade) =>
+            0.6 * grade.objectives +
+            0.15 * grade.duration +
+            0.15 * grade.deliverableQuality +
+            0.1 * grade.presentationQuality
+        )
+        .reduce((sum, grade) => sum + grade, 0) / grades.length;
 
     await thesis.update({
+      grade: average,
       status: ThesisStatus.COMPLETED,
       endDate: new Date(),
     });
@@ -326,11 +342,6 @@ ${offset ? `OFFSET ${offset}` : ""}
     const thesis = await ThesisService._assertUserHasThesisRoles(id, user, [
       ThesisRole.SUPERVISOR,
     ]);
-
-    if (thesis.status !== ThesisStatus.ACTIVE) {
-      throw new ConflictError("Thesis cannot be set under examination.");
-    }
-
     await thesis.update({ status: ThesisStatus.UNDER_EXAMINATION });
     return thesis.status;
   }
@@ -346,10 +357,6 @@ ${offset ? `OFFSET ${offset}` : ""}
       [ThesisRole.SUPERVISOR],
       true // Allow Secretary
     );
-
-    if (thesis.status !== ThesisStatus.ACTIVE) {
-      throw new ConflictError("Thesis cannot be cancelled at this stage.");
-    }
 
     const now = new Date();
 
@@ -373,6 +380,15 @@ ${offset ? `OFFSET ${offset}` : ""}
       endDate: now,
     });
     return thesis.status;
+  }
+
+  static async getChanges(id, user) {
+    const thesis = await ThesisService._assertUserHasThesisRoles(id, user, [
+      ThesisRole.SUPERVISOR,
+      ThesisRole.COMMITTEE_MEMBER,
+    ]);
+
+    return await thesis.getThesisChanges({ order: [["changedAt", "ASC"]] });
   }
 
   static async getResources(id, user) {
@@ -428,6 +444,80 @@ ${offset ? `OFFSET ${offset}` : ""}
     });
   }
 
+  static async getGrades(id, user) {
+    const thesis = await ThesisService._assertUserHasThesisRoles(id, user, [
+      ThesisRole.SUPERVISOR,
+      ThesisRole.COMMITTEE_MEMBER,
+      ThesisRole.STUDENT,
+    ]);
+
+    const grades = await db.Grade.findAll({
+      include: [
+        {
+          model: db.CommitteeMember,
+          where: { thesisId: thesis.id },
+          attributes: [],
+        },
+      ],
+    });
+
+    return grades;
+  }
+
+  static async setGrade(
+    id,
+    user,
+    { objectives, duration, deliverableQuality, presentationQuality }
+  ) {
+    const thesis = await ThesisService._assertUserHasThesisRoles(id, user, [
+      ThesisRole.COMMITTEE_MEMBER,
+      ThesisRole.SUPERVISOR,
+    ]);
+
+    if (thesis.status !== ThesisStatus.UNDER_EXAMINATION) {
+      throw new ConflictError("Thesis is not under examination.");
+    }
+
+    if (thesis.grading !== ThesisGradingStatus.ENABLED) {
+      throw new ConflictError("Grading is not enabled for this thesis.");
+    }
+
+    const professor = await user.getProfessor();
+    const committeeMember = await db.CommitteeMember.findOne({
+      where: {
+        thesisId: thesis.id,
+        professorId: professor.id,
+      },
+      include: db.Grade,
+    });
+
+    // Create or update the grade
+    if (committeeMember.Grade !== null) {
+      await db.Grade.update(
+        {
+          committeeMemberId: committeeMember.professorId,
+          objectives,
+          duration,
+          deliverableQuality,
+          presentationQuality,
+        },
+        {
+          where: { committeeMemberId: committeeMember.professorId },
+        }
+      );
+    } else {
+      await db.Grade.create({
+        committeeMemberId: committeeMember.professorId,
+        objectives,
+        duration,
+        deliverableQuality,
+        presentationQuality,
+      });
+    }
+
+    return await committeeMember.getGrade();
+  }
+
   static async getInvitations(id, user) {
     const thesis = await ThesisService._assertUserHasThesisRoles(id, user, [
       ThesisRole.SUPERVISOR,
@@ -463,6 +553,7 @@ ${offset ? `OFFSET ${offset}` : ""}
       ThesisRole.COMMITTEE_MEMBER,
     ]);
 
+    // NOTE: We do not check role here, cause we have middleware
     const professor = await user.getProfessor();
     return await thesis.getNotes({
       where: { professorId: professor.id },
@@ -480,6 +571,7 @@ ${offset ? `OFFSET ${offset}` : ""}
       throw new ConflictError("Thesis is not active.");
     }
 
+    // NOTE: We do not check role here, cause we have middleware
     const professor = await user.getProfessor();
     return await db.Note.create({
       thesisId: thesis.id,

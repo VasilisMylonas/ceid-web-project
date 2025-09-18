@@ -25,7 +25,7 @@ try {
   // TODO
   // const userCount = await db.User.count();
   // if (userCount === 0) {
-  // await seedDatabase();
+  await seedDatabase();
   // }
 
   console.log("Database connected successfully");

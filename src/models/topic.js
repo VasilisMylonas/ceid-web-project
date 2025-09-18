@@ -11,7 +11,7 @@ export default (sequelize) => {
     }
 
     async isAssigned() {
-      const theses = await this.getTheses({
+      const count = await this.countTheses({
         where: {
           status: {
             [Op.in]: [
@@ -24,7 +24,7 @@ export default (sequelize) => {
         },
       });
 
-      return theses.length > 0;
+      return count > 0;
     }
   }
 
@@ -66,12 +66,23 @@ export default (sequelize) => {
       ],
       hooks: {
         async beforeDestroy(topic) {
+          // Prevent deleting assigned topics
+          if (await topic.isAssigned()) {
+            throw new ConflictError("Cannot delete an assigned topic");
+          }
+
+          // Delete the file physically
           deleteIfExists(topic.descriptionFile);
         },
         async beforeUpdate(topic) {
-          // TODO: this should be in topic.service.js
+          // Prevent updating assigned topics
           if (await topic.isAssigned()) {
             throw new ConflictError("Cannot modify an assigned topic");
+          }
+
+          // Delete the previous file physically
+          if (topic.changed("descriptionFile")) {
+            deleteIfExists(topic.previous("descriptionFile"));
           }
         },
       },

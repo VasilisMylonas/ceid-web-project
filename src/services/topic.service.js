@@ -1,8 +1,8 @@
 import db from "../models/index.js";
 import { Op, Sequelize } from "sequelize";
 import { ThesisStatus } from "../constants.js";
-import { NotFoundError, SecurityError, ConflictError } from "../errors.js";
-import { getFilePath, deleteIfExists } from "../config/file-storage.js";
+import { NotFoundError, SecurityError } from "../errors.js";
+import { getFilePath } from "../config/file-storage.js";
 
 export default class TopicService {
   static async query({ limit, offset, professorId, status }) {
@@ -79,21 +79,16 @@ export default class TopicService {
 
   static async delete(id, user) {
     const topic = await TopicService._assertProfessorOwnsTopic(id, user);
-    if (await topic.isAssigned()) {
-      throw new ConflictError("Cannot delete an assigned topic");
-    }
     await topic.destroy();
   }
 
   static async setDescriptionFile(id, user, filename) {
     const topic = await TopicService._assertProfessorOwnsTopic(id, user);
-    deleteIfExists(topic.descriptionFile);
     await topic.update({ descriptionFile: filename });
   }
 
   static async clearDescriptionFile(id, user) {
     const topic = await TopicService._assertProfessorOwnsTopic(id, user);
-    deleteIfExists(topic.descriptionFile);
     await topic.update({ descriptionFile: null });
   }
 

@@ -1,5 +1,5 @@
 import db from "../models/index.js";
-import { UserRole } from "../constants.js";
+import { ThesisGradingStatus, UserRole } from "../constants.js";
 import seedProfessors from "./professors.js";
 import seedStudents from "./students.js";
 import seedSecretaries from "./secretaries.js";
@@ -9,6 +9,8 @@ import seedCommitteeMembers from "./committee-members.js";
 import UserService from "../services/user.service.js";
 import TopicService from "../services/topic.service.js";
 import ThesisService from "../services/thesis.service.js";
+import InvitationService from "../services/invitation.service.js";
+import { InvitationResponse } from "../constants.js";
 
 export default async function seedDatabase() {
   await db.sequelize.sync({ force: true });
@@ -63,7 +65,7 @@ export default async function seedDatabase() {
     am: "0",
   });
 
-  await UserService.create({
+  const secretary = await UserService.create({
     username: "secretary",
     password: "secretary",
     email: "secretary@example.com",
@@ -89,8 +91,54 @@ export default async function seedDatabase() {
   });
 
   const studentId = (await student.getStudent()).id;
-  await ThesisService.create({ topicId: topic.id, studentId });
+  const thesis = await ThesisService.create({ topicId: topic.id, studentId });
 
+  // Invite 2 professors
+  const inv1 = await ThesisService.createInvitation(
+    thesis.id,
+    student,
+    professor2.id
+  );
+  const inv2 = await ThesisService.createInvitation(
+    thesis.id,
+    student,
+    professor3.id
+  );
+
+  // Professors accept the invitation
+  await InvitationService.respond(
+    inv1.id,
+    professor2,
+    InvitationResponse.ACCEPTED
+  );
+  await InvitationService.respond(
+    inv2.id,
+    professor3,
+    InvitationResponse.ACCEPTED
+  );
+
+  await ThesisService.examine(thesis.id, professor);
+
+  await ThesisService.setNemertesLink(
+    thesis.id,
+    student,
+    "http://nemertes.library.upatras.gr/handle/123456789/12345"
+  );
+
+  await ThesisService.setGrading(
+    thesis.id,
+    professor,
+    ThesisGradingStatus.ENABLED
+  );
+
+  await ThesisService.setGrade(thesis.id, professor, {
+    objectives: 8,
+    duration: 9,
+    deliverableQuality: 7,
+    presentationQuality: 10,
+  });
+
+  // await ThesisService.complete(thesis.id, secretary);
   // await seedTopics(400);
   // await seedTheses(300);
   // await seedCommitteeMembers();

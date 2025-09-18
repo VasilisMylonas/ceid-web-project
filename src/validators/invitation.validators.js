@@ -2,7 +2,7 @@ import { InvitationResponse } from "../constants.js";
 import Joi from "joi";
 
 export default {
-  patchResponse: {
+  putResponse: {
     params: Joi.object({
       id: Joi.number().integer().min(1).required(),
     }).unknown(false),

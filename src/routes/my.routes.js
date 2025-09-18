@@ -42,11 +42,6 @@ router.patch(
   validate(myValidators.patchProfile),
   MyController.patchProfile
 );
-router.delete(
-  "/profile",
-  validate(myValidators.deleteProfile),
-  MyController.deleteProfile
-);
 router.get(
   "/thesis",
   validate(myValidators.getThesis),

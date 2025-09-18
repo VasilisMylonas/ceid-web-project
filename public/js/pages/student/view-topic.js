@@ -122,4 +122,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             committeeList.appendChild(li);
         }
     }
+
+    document.getElementById("thesis-start-date").textContent =
+  thesis.startDate ? new Date(thesis.startDate).toLocaleDateString('el-GR') : "undefined";
+document.getElementById("thesis-end-date").textContent =
+  thesis.endDate ? new Date(thesis.endDate).toLocaleDateString('el-GR') : "undefined";
 });

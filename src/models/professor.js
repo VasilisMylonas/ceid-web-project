@@ -8,11 +8,6 @@ export default (sequelize) => {
       Professor.hasMany(models.Note, { foreignKey: "professorId" });
       Professor.hasMany(models.Invitation, { foreignKey: "professorId" });
       Professor.hasMany(models.CommitteeMember, { foreignKey: "professorId" });
-      Professor.belongsToMany(models.Thesis, {
-        through: models.CommitteeMember,
-        foreignKey: "professorId",
-        otherKey: "thesisId",
-      });
     }
   }
 

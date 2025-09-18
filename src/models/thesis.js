@@ -55,12 +55,6 @@ export default (sequelize) => {
       Thesis.hasMany(models.CommitteeMember, { foreignKey: "thesisId" });
       Thesis.hasMany(models.Invitation, { foreignKey: "thesisId" });
       Thesis.hasMany(models.ThesisChange, { foreignKey: "thesisId" });
-
-      Thesis.belongsToMany(models.Professor, {
-        through: models.CommitteeMember,
-        foreignKey: "thesisId",
-        otherKey: "professorId",
-      });
     }
 
     async canBeDeleted() {
@@ -151,6 +145,15 @@ export default (sequelize) => {
           deleteIfExists(thesis.documentFile);
         },
         async beforeUpdate(thesis) {
+          if (
+            thesis.changed("grade") &&
+            thesis.status !== ThesisStatus.COMPLETED
+          ) {
+            throw new ConflictError(
+              "Cannot set grade until thesis is completed."
+            );
+          }
+
           if (thesis.changed("status")) {
             await thesis.createThesisChange({
               oldStatus: thesis.previous("status"),

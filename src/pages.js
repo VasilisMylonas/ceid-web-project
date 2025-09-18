@@ -128,7 +128,6 @@ pages.get(
       }),
       committee: data.committeeMembers,
       assemblyNumber: data.assemblyNumber,
-      assemblyYear: data.assemblyYear,
       thesisTitle: data.topic,
       supervisorName: data.supervisor,
       grade: data.grade,

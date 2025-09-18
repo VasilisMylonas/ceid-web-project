@@ -76,7 +76,6 @@ export default class ThesisController {
 
   static async approve(req, res) {
     const status = await ThesisService.approve(req.params.id, req.user, {
-      assemblyYear: req.body.assemblyYear,
       assemblyNumber: req.body.assemblyNumber,
       protocolNumber: req.body.protocolNumber,
     });
@@ -85,7 +84,6 @@ export default class ThesisController {
 
   static async cancel(req, res) {
     const status = await ThesisService.cancel(req.params.id, req.user, {
-      assemblyYear: req.body.assemblyYear,
       assemblyNumber: req.body.assemblyNumber,
       cancellationReason: req.body.cancellationReason,
     });

@@ -106,13 +106,8 @@ export default (sequelize) => {
         type: DataTypes.DATEONLY,
         allowNull: true,
       },
-      // TODO: cancellation data maybe should be in JSON column, make sure to check custom queries in thesis.service.js
-      assemblyYear: {
-        type: DataTypes.INTEGER,
-        allowNull: true,
-      },
       assemblyNumber: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.STRING,
         allowNull: true,
       },
       cancellationReason: {

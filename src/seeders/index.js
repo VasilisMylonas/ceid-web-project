@@ -121,54 +121,53 @@ export default async function seedDatabase() {
     InvitationResponse.ACCEPTED
   );
 
-  await ThesisService.approve(thesis.id, secretary, {
-    assemblyYear: 2024,
-    assemblyNumber: 1,
-    protocolNumber: "123/2024",
-  });
+  // await ThesisService.approve(thesis.id, secretary, {
+  //   assemblyNumber: "2025/1",
+  //   protocolNumber: "123/2024",
+  // });
 
-  await ThesisService.examine(thesis.id, professor);
+  // await ThesisService.examine(thesis.id, professor);
 
-  await ThesisService.setNemertesLink(
-    thesis.id,
-    student,
-    "http://nemertes.library.upatras.gr/handle/123456789/12345"
-  );
+  // await ThesisService.setNemertesLink(
+  //   thesis.id,
+  //   student,
+  //   "http://nemertes.library.upatras.gr/handle/123456789/12345"
+  // );
 
-  await ThesisService.createPresentation(thesis.id, student, {
-    date: new Date("2025-09-18T12:00:00"),
-    hall: "Αίθουσα 1",
-    kind: PresentationKind.IN_PERSON,
-  });
+  // await ThesisService.createPresentation(thesis.id, student, {
+  //   date: new Date("2025-09-18T12:00:00"),
+  //   hall: "Αίθουσα 1",
+  //   kind: PresentationKind.IN_PERSON,
+  // });
 
-  await ThesisService.setGrading(
-    thesis.id,
-    professor,
-    ThesisGradingStatus.ENABLED
-  );
+  // await ThesisService.setGrading(
+  //   thesis.id,
+  //   professor,
+  //   ThesisGradingStatus.ENABLED
+  // );
 
-  await ThesisService.setGrade(thesis.id, professor, {
-    objectives: 8,
-    duration: 9,
-    deliverableQuality: 7,
-    presentationQuality: 10,
-  });
+  // await ThesisService.setGrade(thesis.id, professor, {
+  //   objectives: 8,
+  //   duration: 9,
+  //   deliverableQuality: 7,
+  //   presentationQuality: 10,
+  // });
 
-  await ThesisService.setGrade(thesis.id, professor2, {
-    objectives: 6,
-    duration: 9,
-    deliverableQuality: 5,
-    presentationQuality: 8,
-  });
+  // await ThesisService.setGrade(thesis.id, professor2, {
+  //   objectives: 6,
+  //   duration: 9,
+  //   deliverableQuality: 5,
+  //   presentationQuality: 8,
+  // });
 
-  await ThesisService.setGrade(thesis.id, professor3, {
-    objectives: 7,
-    duration: 8,
-    deliverableQuality: 6,
-    presentationQuality: 9,
-  });
+  // await ThesisService.setGrade(thesis.id, professor3, {
+  //   objectives: 7,
+  //   duration: 8,
+  //   deliverableQuality: 6,
+  //   presentationQuality: 9,
+  // });
 
-  await ThesisService.complete(thesis.id, secretary);
+  // await ThesisService.complete(thesis.id, secretary);
 
   // await seedTopics(400);
   // await seedTheses(300);

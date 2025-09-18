@@ -136,7 +136,6 @@ supervisor_users.name AS "supervisor",
 supervisors.id AS "supervisorId",
 
 theses.cancellation_reason AS "cancellationReason",
-theses.assembly_year AS "assemblyYear",
 theses.assembly_number AS "assemblyNumber",
 theses.end_date AS "endDate",
 theses.protocol_number AS "protocolNumber",
@@ -354,11 +353,7 @@ ${offset ? `OFFSET ${offset}` : ""}
     return thesis.status;
   }
 
-  static async approve(
-    id,
-    user,
-    { assemblyYear, assemblyNumber, protocolNumber }
-  ) {
+  static async approve(id, user, { assemblyNumber, protocolNumber }) {
     const thesis = await ThesisService.get(id);
 
     if (thesis.status !== ThesisStatus.ACTIVE) {
@@ -370,7 +365,6 @@ ${offset ? `OFFSET ${offset}` : ""}
     await thesis.update({
       status: ThesisStatus.ACTIVE,
       startDate: now,
-      assemblyYear,
       assemblyNumber,
       protocolNumber,
     });
@@ -378,11 +372,7 @@ ${offset ? `OFFSET ${offset}` : ""}
     return thesis.status;
   }
 
-  static async cancel(
-    id,
-    user,
-    { assemblyYear, assemblyNumber, cancellationReason }
-  ) {
+  static async cancel(id, user, { assemblyNumber, cancellationReason }) {
     const thesis = await ThesisService._assertUserHasThesisRoles(
       id,
       user,
@@ -406,7 +396,6 @@ ${offset ? `OFFSET ${offset}` : ""}
 
     await thesis.update({
       status: ThesisStatus.CANCELLED,
-      assemblyYear,
       assemblyNumber,
       cancellationReason,
       endDate: now,

@@ -276,10 +276,6 @@ async function getUnderAssignementThesis() {
   return await request("GET", `${BASE_URL}/v1/my/theses?status=under_assignment`);
 } 
 
-async function getThesisInvitations(thesisId) {
-  return await request("GET", `${BASE_URL}/v1/theses/${thesisId}/invitations`);
-}
-
 async function unassignThesis(thesisId) {
   return await request("DELETE", `${BASE_URL}/v1/theses/${thesisId}`);
 }
@@ -290,4 +286,17 @@ async function assignTopic(topicId, studentId) {
 
 async function activateThesis(thesisId) {
   return await request("POST", `${BASE_URL}/v1/theses/${thesisId}/activate`);
+}
+
+
+//thesis management
+//getThesis() returns my thesisis
+
+async function getMyTheses() {
+  return await request("GET", `${BASE_URL}/v1/my/theses`);
+}
+
+
+async function getMemberTheses(professorId) {σ
+    return await request("POST", `${BASE_URL}/v1/theses?role=committee_member&professorId=${professorId}`);
 }

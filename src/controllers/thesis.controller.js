@@ -88,8 +88,18 @@ export default class ThesisController {
     res.success({ status });
   }
 
-  static async patchStatus(req, res) {
-    res.error("This API endpoint is deprecated.", StatusCodes.GONE);
+  static async getGrades(req, res) {
+    const grades = await ThesisService.getGrades(req.params.id, req.user);
+    res.success({ grades });
+  }
+
+  static async putGrades(req, res) {
+    const grades = await ThesisService.setGrades(
+      req.params.id,
+      req.user,
+      req.body
+    );
+    res.success({ grades }, {}, StatusCodes.CREATED);
   }
 
   static async getNotes(req, res) {

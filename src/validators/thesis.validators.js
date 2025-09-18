@@ -148,4 +148,20 @@ export default {
       id: Joi.number().integer().min(1).required(),
     }).unknown(false),
   },
+  getGrades: {
+    params: Joi.object({
+      id: Joi.number().integer().min(1).required(),
+    }).unknown(false),
+  },
+  putGrades: {
+    params: Joi.object({
+      id: Joi.number().integer().min(1).required(),
+    }).unknown(false),
+    body: Joi.object({
+      objectives: Joi.number().min(0).max(10).required(),
+      duration: Joi.number().min(0).max(10).required(),
+      deliverableQuality: Joi.number().min(0).max(10).required(),
+      presentationQuality: Joi.number().min(0).max(10).required(),
+    }).unknown(false),
+  },
 };

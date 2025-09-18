@@ -28,7 +28,6 @@ router.delete(
   validate(thesisValidator.delete),
   ThesisController.delete
 );
-router.patch("/:id/status", ThesisController.patchStatus);
 router.post(
   "/:id/examine",
   validate(thesisValidator.examine),
@@ -111,39 +110,29 @@ router.get(
   validate(thesisValidator.getTimeline),
   ThesisController.getTimeline
 );
+router.get(
+  "/:id/grades",
+  validate(thesisValidator.getGrades),
+  ThesisController.getGrades
+);
+router.put(
+  "/:id/grades",
+  validate(thesisValidator.putGrades),
+  ThesisController.putGrades
+);
 
-// TODO: resources, presentations
+// TODO: resources, presentations, resources
 // Also check middleware here and in presentations/resources routes
 // Who should be able to post/put/delete resources/presentations?
 
-// TODO: grades timeline, announcement, these are missing completely
+// TODO: announcement
 // Bathmos, epi merous kritiria
-// router.get(
-//   "/:id/timeline",
-//   validate(thesisValidator.getTimeline),
-//   model(db.Thesis, "thesis"),
-//   requireThesisRole(ThesisRole.STUDENT, ThesisRole.SUPERVISOR),
-//   ThesisController.getTimeline
-// );
 // router.get(
 //   "/:id/announcement",
 //   validate(thesisValidator.getAnnouncement),
 //   model(db.Thesis, "thesis"),
 //   requireThesisRole(ThesisRole.SUPERVISOR),
 //   ThesisController.getAnnouncement
-// );
-// router.get(
-//   "/:id/grades",
-//   validate(thesisValidator.getGrades),
-//   model(db.Thesis, "thesis"),
-//   ThesisController.getGrades
-// );
-// router.post(
-//   "/:id/grades",
-//   validate(thesisValidator.postGrades),
-//   model(db.Thesis, "thesis"),
-//   requireThesisRole(ThesisRole.COMMITTEE_MEMBER, ThesisRole.SUPERVISOR),
-//   ThesisController.postGrades
 // );
 
 export default router;

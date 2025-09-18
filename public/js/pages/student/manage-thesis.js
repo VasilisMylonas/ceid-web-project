@@ -1,3 +1,17 @@
+/**
+ * Helper function to validate a URL string.
+ * @param {string} string The URL string to validate.
+ * @returns {boolean} True if the URL is valid, false otherwise.
+ */
+function isValidUrl(string) {
+  try {
+    new URL(string);
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
   const container = document.querySelector(".container-fluid.py-4");
   const stateAssignment = document.getElementById("state-assignment");
@@ -21,7 +35,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   const refreshPageData = async () => {
     if (!initialThesisId) return;
     try {
+      console.log(`[API GET] Fetching details for thesis ID: ${initialThesisId}`);
       const thesisDetailsResponse = await getThesisDetails(initialThesisId);
+      console.log("[API GET] Received thesis details:", thesisDetailsResponse.data);
       currentThesis = thesisDetailsResponse.data;
 
       // --- Check for preliminary or terminal statuses ---
@@ -55,7 +71,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         populateCommitteeList(currentThesis, activeStateCard);
 
         if (currentThesis.status === "under_assignment") {
+          console.log(`[API GET] Fetching invitations for thesis ID: ${currentThesis.id}`);
           const invitationsResponse = await getThesisInvitations(currentThesis.id);
+          console.log("[API GET] Received invitations:", invitationsResponse.data);
           populateInvitationsList(invitationsResponse.data || [], activeStateCard);
         } else if (currentThesis.status === "under_examination") {
           await populateExaminationState(currentThesis);
@@ -69,7 +87,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // --- INITIAL PAGE LOAD ---
   try {
+    console.log("[API GET] Fetching initial thesis summary.");
     const thesisSummaryResponse = await getThesis();
+    console.log("[API GET] Received thesis summary:", thesisSummaryResponse.data);
     if (!thesisSummaryResponse?.data?.length) {
       container.innerHTML = '<div class="alert alert-warning text-center"><h3>Δεν έχετε αναλάβει κάποια διπλωματική εργασία.</h3></div>';
       return;
@@ -93,48 +113,100 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (!currentThesis) return;
 
       let operations = [];
-      let presentationDataValid = false;
+      let presentationSaveAttempted = false;
 
-      // --- Prepare Presentation Data ---
+      // --- Prepare and Validate Presentation Data ---
       const date = document.getElementById("examDate").value;
       const time = document.getElementById("examTime").value;
       const kind = document.querySelector('input[name="examType"]:checked')?.value;
-      const location = document.getElementById("examLocation").value;
-      const link = document.getElementById("examLink").value;
+      const hall = document.getElementById("examLocation").value.trim();
+      const link = document.getElementById("examLink").value.trim();
 
-      if (date && time && kind) {
-        // --- Date Validation ---
-        const selectedDateTime = new Date(`${date}T${time}`);
-        const today = new Date();
-        today.setHours(0, 0, 0, 0); // Set to the beginning of today for a clean date comparison
+      // Only proceed if the user has filled the main presentation fields
+      if (date || time || kind) {
+        presentationSaveAttempted = true;
+        let isValid = true;
+        let validationMessage = "";
 
-        if (selectedDateTime < today) {
-          alert("Η ημερομηнία εξέτασης δεν μπορεί να είναι στο παρελθόν. Παρακαλώ επιλέξτε μια μελλοντική ημερομηνία.");
-        } else if ((kind === 'in_person' && location) || (kind === 'online' && link)) {
-          presentationDataValid = true;
+        if (!date || !time || !kind) {
+          isValid = false;
+          validationMessage = "Για να αποθηκεύσετε τις λεπτομέρειες εξέτασης, πρέπει να συμπληρώσετε την Ημερομηνία, την Ώρα και τον Τύπο.";
+        } else {
+          const selectedDateTime = new Date(`${date}T${time}`);
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          if (selectedDateTime < today) {
+            isValid = false;
+            validationMessage = "Η ημερομηνία εξέτασης δεν μπορεί να είναι στο παρελθόν.";
+          } else if (kind === 'online') {
+            if (!link) {
+              isValid = false;
+              validationMessage = "Για διαδικτυακή εξέταση, ο Σύνδεσμος είναι υποχρεωτικός.";
+            } else if (!isValidUrl(link)) {
+              isValid = false;
+              validationMessage = "Ο Σύνδεσμος για διαδικτυακή εξέταση δεν είναι σε έγκυρη μορφή (π.χ. https://example.com).";
+            }
+            if (hall) {
+              isValid = false;
+              validationMessage = "Για διαδικτυακή εξέταση, το πεδίο Τοποθεσία πρέπει να είναι κενό.";
+            }
+          } else if (kind === 'in_person') {
+            if (!hall) {
+              isValid = false;
+              validationMessage = "Για αυτοπρόσωπη εξέταση, η Τοποθεσία είναι υποχρεωτική.";
+            }
+            // Optional link validation for in-person
+            if (link && !isValidUrl(link)) {
+              isValid = false;
+              validationMessage = "Ο προαιρετικός σύνδεσμος δεν είναι σε έγκυρη μορφή (π.χ. https://example.com).";
+            }
+          }
+        }
+
+        if (isValid) {
           const formattedDateTime = `${date}T${time}:00`;
           const presentationData = { date: formattedDateTime, kind };
-          if (kind === 'online') presentationData.link = link;
-          if (kind === 'in_person') presentationData.hall = location;
+          if (kind === 'in_person') {
+            presentationData.hall = hall;
+            if (link) presentationData.link = link; // Link is optional for in-person
+          } else { // online
+            presentationData.link = link;
+          }
           
-          operations.push(createThesisPresentation(currentThesis.id, presentationData).catch(err => console.error("Presentation save failed:", err)));
+          console.log("[API POST] Sending presentation data:", presentationData);
+          operations.push(createThesisPresentation(currentThesis.id, presentationData).catch(err => console.error("[API POST] Presentation save failed:", err)));
+        } else {
+          alert(validationMessage);
         }
       }
-
+      
       // --- Prepare Links Data ---
       const linksText = document.getElementById("links-to-add").value;
       const linksArray = linksText.split("\n").map((l) => l.trim()).filter((l) => l);
       if (linksArray.length > 0) {
         const resources = linksArray.map((l) => ({ link: l, kind: "other" }));
-        operations.push(...resources.map(res => addThesisResources(currentThesis.id, res).catch(err => console.error("Link save failed:", err))));
+        console.log("[API POST] Sending resources data:", resources);
+        operations.push(...resources.map(res => addThesisResources(currentThesis.id, res).catch(err => console.error("[API POST] Link save failed:", err))));
       }
 
       // --- Prepare Nimertis Link ---
       const nimertisUrl = document.getElementById("nimertisLink").value.trim();
       if (nimertisUrl) {
-        operations.push(setNymertesLink(currentThesis.id, nimertisUrl).catch(err => console.error("Nimertis save failed:", err)));
+        if (isValidUrl(nimertisUrl)) {
+          console.log("[API PUT] Sending Nimertis link:", { nemertesLink: nimertisUrl });
+          operations.push(setNymertesLink(currentThesis.id, nimertisUrl).catch(err => console.error("[API PUT] Nimertis save failed:", err)));
+        } else {
+          alert("Ο σύνδεσμος Νημερτής δεν είναι σε έγκυρη μορφή (π.χ. https://example.com).");
+        }
       }
 
+      // Only proceed if there are non-presentation operations, or if presentation was not attempted.
+      if (operations.length === 0 && presentationSaveAttempted) {
+        // This case happens if presentation validation failed and there was nothing else to save.
+        // The alert was already shown, so we just stop.
+        return;
+      }
+      
       if (operations.length === 0) {
         alert("Δεν υπάρχουν αλλαγές προς αποθήκευση.");
         return;
@@ -161,7 +233,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       const formData = new FormData();
       formData.append("file", file);
       try {
+        console.log(`[API PUT] Uploading draft for thesis ID: ${currentThesis.id}`);
         await uploadThesisDraft(currentThesis.id, formData);
+        console.log("[API PUT] Draft upload successful.");
         alert("Το αρχείο της διπλωματικής ανέβηκε με επιτυχία.");
         fileInput.value = "";
         await refreshPageData(); // Refresh after upload
@@ -178,7 +252,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       // Always attempt the download, regardless of thesis properties.
       if (currentThesis) {
         try {
+          console.log(`[API GET] Downloading draft for thesis ID: ${currentThesis.id}`);
           const blob = await getThesisDraft(currentThesis.id);
+          console.log("[API GET] Draft download successful, received blob:", blob);
           const url = window.URL.createObjectURL(blob);
           const a = document.createElement("a");
           a.style.display = "none";
@@ -219,10 +295,13 @@ function setupModalEventListeners(
     professorListContainer.innerHTML = "<p>Φόρτωση λίστας διδασκόντων...</p>";
 
     try {
+        console.log("[API GET] Fetching professors and invitations for modal.");
         const [professorsResponse, invitationsResponse] = await Promise.all([
             getProfessors(),
             getThesisInvitations(thesis.id)
         ]);
+        console.log("[API GET] Received professors for modal:", professorsResponse.data);
+        console.log("[API GET] Received invitations for modal:", invitationsResponse.data);
         const invitations = invitationsResponse.data || [];
         const committeeMemberIds = new Set(thesis.committeeMembers.map((member) => member.professorId));
         const alreadyInvitedIds = new Set(invitations.map((inv) => inv.professorId));
@@ -259,8 +338,10 @@ function setupModalEventListeners(
     }
 
     try {
+      console.log("[API POST] Sending invitations to professors:", selectedProfessorIds);
       const invitationPromises = selectedProfessorIds.map((id) => sendThesisInvitation(currentThesis.id, id));
       await Promise.all(invitationPromises);
+      console.log("[API POST] Invitations sent successfully.");
       alert("Οι προσκλήσεις στάλθηκαν με επιτυχία.");
       inviteModal.hide();
       await onInvitationsSent(); // This calls refreshPageData
@@ -331,7 +412,9 @@ async function populateExaminationState(thesis) {
   const linksList = document.getElementById("existing-links-list");
   linksList.innerHTML = '';
   try {
+    console.log(`[API GET] Fetching resources for thesis ID: ${thesis.id}`);
     const resourcesResponse = await getThesisResources(thesis.id);
+    console.log("[API GET] Received resources:", resourcesResponse.data);
     if (resourcesResponse?.data?.length > 0) {
       linksList.innerHTML = resourcesResponse.data.map(res => `<li class="list-group-item"><a href="${res.link}" target="_blank" rel="noopener noreferrer">${res.link}</a></li>`).join('');
     } else {
@@ -344,7 +427,9 @@ async function populateExaminationState(thesis) {
 
   // Populate Presentation Details
   try {
+    console.log(`[API GET] Fetching presentations for thesis ID: ${thesis.id}`);
     const presentationsResponse = await getThesisPresentations(thesis.id);
+    console.log("[API GET] Received presentations:", presentationsResponse.data);
     if (presentationsResponse?.data?.length > 0) {
       const lastPresentation = presentationsResponse.data.at(-1);
       const presentationDate = new Date(lastPresentation.date);

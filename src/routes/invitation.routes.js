@@ -7,11 +7,10 @@ import InvitationController from "../controllers/invitation.controller.js";
 const router = express.Router();
 router.use(requireAuth);
 
-router.patch(
-  // TODO: This should be PUT
+router.put(
   "/:id/response",
-  validate(invitationValidators.patchResponse),
-  InvitationController.patchResponse
+  validate(invitationValidators.putResponse),
+  InvitationController.putResponse
 );
 router.delete(
   "/:id",

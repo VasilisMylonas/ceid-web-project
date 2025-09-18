@@ -1,7 +1,7 @@
 import InvitationService from "../services/invitation.service.js";
 
 export default class InvitationController {
-  static async patchResponse(req, res) {
+  static async putResponse(req, res) {
     const invitation = await InvitationService.respond(
       req.params.id,
       req.user,

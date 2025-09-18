@@ -3,12 +3,17 @@ document.addEventListener('DOMContentLoaded', async () => {
   // === Configuration ===
   const CURRENT_USER_NAME = 'Δρ. Α. Γεωργίου';
 
-  // === Local State (single source of truth for this page) ===
+
   const state = {
-    currentUserName: CURRENT_USER_NAME,
-    theses: [],        // <-- what the UI renders
-    loaded: false,
-  };
+  currentUser: {
+    userId: null,
+    name: '',
+    role: '',          // 'professor' | 'student' | 'secretary' | ...
+    professorId: null, // from profile.Professor.id (if exists)
+  },
+  theses: [],
+  loaded: false,
+};
 
   // === Server -> UI status mapping (adjust if your API differs) ===
   const STATUS_MAP = {
@@ -85,36 +90,34 @@ document.addEventListener('DOMContentLoaded', async () => {
   const detailsModal = new bootstrap.Modal(detailsModalEl);
 
   // === Normalizer: adapt server objects to this UI's structure ===
-  const normalizeThesis = (srv) => {
-    // If your API already uses this exact UI structure, just return srv.
-    // Below is a robust adapter from common server fields.
-    return {
-      id: Number(srv?.id),
-      title: srv?.title ?? srv?.topic ?? '(Untitled)',
-      student: srv?.student ?? srv?.studentName ?? '',
-      myRole: srv?.myRole ?? (srv?.supervisorId === srv?.currentUserId ? 'supervisor' : 'member'),
-      status: STATUS_MAP[srv?.status] || srv?.status || 'Active',
-      assignmentDate: srv?.assignmentDate ?? srv?.startDate ?? null,
+function normalizeThesis(srv) {
+  const profId = state.currentUser.professorId;
 
-      // Optional/extended fields (safe defaults)
-      committee: Array.isArray(srv?.committee) ? srv.committee : (srv?.invitations
-        ? srv.invitations.map(inv => ({
-            name: inv.professorName ?? `#${inv.professorId}`,
-            role: inv.role ?? 'Μέλος',
-            status: inv.response, date: inv.responseDate
-          }))
-        : []),
-      timeline: Array.isArray(srv?.timeline) ? srv.timeline : [],
-      notes: Array.isArray(srv?.notes) ? srv.notes : [],
-      presentationDetailsFilled: !!srv?.presentationDetailsFilled,
-      gradingActive: !!srv?.gradingActive,
-      grades: srv?.grades ?? {},
-      finalGrade: srv?.finalGrade ?? null,
-      repoLink: srv?.repoLink ?? '#',
-      gradingFormLink: srv?.gradingFormLink ?? '#',
-      draftLink: srv?.draftLink ?? '#'
-    };
+  // Supervisor if the thesis supervisorId equals my professorId
+  const amSupervisor =
+    profId != null && Number(srv?.supervisorId) === Number(profId);
+
+  return {
+    id: Number(srv?.id),
+    title: srv?.title ?? srv?.topic ?? '(Untitled)',
+    student: srv?.student ?? srv?.studentName ?? '',
+    myRole: amSupervisor ? 'supervisor' : 'member',
+    status: STATUS_MAP[srv?.status] || srv?.status || 'Active',
+    assignmentDate: srv?.assignmentDate ?? srv?.startDate ?? null,
+
+    // Optional fields with safe defaults
+    committee: Array.isArray(srv?.committee) ? srv.committee : [],
+    timeline: Array.isArray(srv?.timeline) ? srv.timeline : [],
+    notes: Array.isArray(srv?.notes) ? srv.notes : [],
+    presentationDetailsFilled: !!srv?.presentationDetailsFilled,
+    gradingActive: !!srv?.gradingActive,
+    grades: srv?.grades ?? {},
+    finalGrade: srv?.finalGrade ?? null,
+    repoLink: srv?.repoLink ?? '#',
+    gradingFormLink: srv?.gradingFormLink ?? '#',
+    draftLink: srv?.draftLink ?? '#'
   };
+}
 
   // === Data loaders (marking API calls clearly) ===
 
@@ -137,6 +140,24 @@ document.addEventListener('DOMContentLoaded', async () => {
       state.loaded = true;
     }
   }
+
+
+  async function loadProfile() {
+  try {
+    const res = await getProfile(); // -> the payload you pasted
+
+    const u = res?.data || res; // tolerate {data:{...}} or just {...}
+    state.currentUser.userId = Number(u?.id) || null;
+    state.currentUser.name = u?.name || '';
+    state.currentUser.role = u?.role || '';
+    state.currentUser.professorId = Number(u?.Professor?.id) || null;
+    return state.currentUser;
+  } catch (err) {
+    console.error('Failed to load profile:', err);
+    // Keep defaults so UI still works
+    return state.currentUser;
+  }
+}
 
   // === UI renderers ===
 
@@ -318,8 +339,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  // === Initial Load ===
-  await loadTheses();   // <-- loads from API (TODO inside) or falls back to sample
-  renderTable();
+    await loadProfile();    // <-- sets state.currentUser.userId/name/professorId
+    await loadTheses();     // <-- uses normalizeThesis() which reads currentUser
+    renderTable();
 });
 

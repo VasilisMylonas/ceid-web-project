@@ -290,7 +290,6 @@ async function activateThesis(thesisId) {
 
 
 //thesis management
-//getThesis() returns my thesisis
 
 async function getMyTheses() {
   return await request("GET", `${BASE_URL}/v1/my/theses`);
@@ -300,3 +299,7 @@ async function getMyTheses() {
 async function getMemberTheses(professorId) {σ
     return await request("POST", `${BASE_URL}/v1/theses?role=committee_member&professorId=${professorId}`);
 }
+
+//async function getProfile() {
+//  return await request("GET", `${BASE_URL}/v1/my/profile`);
+//}

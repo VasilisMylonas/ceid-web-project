@@ -6,8 +6,6 @@ import { validate } from "../middleware/validation.js";
 import { UserRole } from "../constants.js";
 import thesisValidator from "../validators/thesis.validators.js";
 import ThesisController from "../controllers/thesis.controller.js";
-import { model } from "../middleware/model.js";
-import db from "../models/index.js";
 
 const router = express.Router();
 router.use(requireAuth);
@@ -30,7 +28,6 @@ router.delete(
   validate(thesisValidator.delete),
   ThesisController.delete
 );
-router.patch("/:id/status", ThesisController.patchStatus);
 router.post(
   "/:id/examine",
   validate(thesisValidator.examine),
@@ -58,9 +55,14 @@ router.put(
   ThesisController.putDraft
 );
 router.post(
+  "/:id/approve",
+  validate(thesisValidator.approve),
+  requireRole(UserRole.SECRETARY),
+  ThesisController.approve
+);
+router.post(
   "/:id/cancel",
   validate(thesisValidator.cancel),
-  model(db.Thesis, "thesis"),
   ThesisController.cancel
 );
 router.post(
@@ -109,39 +111,34 @@ router.post(
   validate(thesisValidator.postPresentation),
   ThesisController.postPresentation
 );
+router.get(
+  "/:id/timeline",
+  validate(thesisValidator.getTimeline),
+  ThesisController.getTimeline
+);
+router.get(
+  "/:id/grades",
+  validate(thesisValidator.getGrades),
+  ThesisController.getGrades
+);
+router.put(
+  "/:id/grade",
+  validate(thesisValidator.putGrade),
+  ThesisController.putGrade
+);
 
-// TODO: resources, presentations
+// TODO: resources, presentations, resources
 // Also check middleware here and in presentations/resources routes
 // Who should be able to post/put/delete resources/presentations?
 
-// TODO: grades timeline, announcement, these are missing completely
+// TODO: announcement
 // Bathmos, epi merous kritiria
-// router.get(
-//   "/:id/timeline",
-//   validate(thesisValidator.getTimeline),
-//   model(db.Thesis, "thesis"),
-//   requireThesisRole(ThesisRole.STUDENT, ThesisRole.SUPERVISOR),
-//   ThesisController.getTimeline
-// );
 // router.get(
 //   "/:id/announcement",
 //   validate(thesisValidator.getAnnouncement),
 //   model(db.Thesis, "thesis"),
 //   requireThesisRole(ThesisRole.SUPERVISOR),
 //   ThesisController.getAnnouncement
-// );
-// router.get(
-//   "/:id/grades",
-//   validate(thesisValidator.getGrades),
-//   model(db.Thesis, "thesis"),
-//   ThesisController.getGrades
-// );
-// router.post(
-//   "/:id/grades",
-//   validate(thesisValidator.postGrades),
-//   model(db.Thesis, "thesis"),
-//   requireThesisRole(ThesisRole.COMMITTEE_MEMBER, ThesisRole.SUPERVISOR),
-//   ThesisController.postGrades
 // );
 
 export default router;

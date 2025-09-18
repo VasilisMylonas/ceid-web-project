@@ -74,9 +74,16 @@ export default class ThesisController {
     res.success({ status });
   }
 
+  static async approve(req, res) {
+    const status = await ThesisService.approve(req.params.id, req.user, {
+      assemblyNumber: req.body.assemblyNumber,
+      protocolNumber: req.body.protocolNumber,
+    });
+    res.success({ status });
+  }
+
   static async cancel(req, res) {
     const status = await ThesisService.cancel(req.params.id, req.user, {
-      assemblyYear: req.body.assemblyYear,
       assemblyNumber: req.body.assemblyNumber,
       cancellationReason: req.body.cancellationReason,
     });
@@ -88,8 +95,18 @@ export default class ThesisController {
     res.success({ status });
   }
 
-  static async patchStatus(req, res) {
-    res.error("This API endpoint is deprecated.", StatusCodes.GONE);
+  static async getGrades(req, res) {
+    const grades = await ThesisService.getGrades(req.params.id, req.user);
+    res.success(grades);
+  }
+
+  static async putGrade(req, res) {
+    const grades = await ThesisService.setGrade(
+      req.params.id,
+      req.user,
+      req.body
+    );
+    res.success(grades, {}, StatusCodes.CREATED);
   }
 
   static async getNotes(req, res) {
@@ -169,5 +186,10 @@ export default class ThesisController {
       }
     );
     res.success(presentation);
+  }
+
+  static async getTimeline(req, res) {
+    const changes = await ThesisService.getChanges(req.params.id, req.user);
+    res.success(changes);
   }
 }

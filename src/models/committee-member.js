@@ -8,6 +8,7 @@ export default (sequelize) => {
       CommitteeMember.belongsTo(models.Professor, {
         foreignKey: "professorId",
       });
+      CommitteeMember.hasOne(models.Grade, { foreignKey: "committeeMemberId" });
     }
   }
 
@@ -22,10 +23,6 @@ export default (sequelize) => {
         type: DataTypes.INTEGER,
         primaryKey: true,
         allowNull: false,
-      },
-      grade: {
-        type: DataTypes.FLOAT,
-        allowNull: true,
       },
       role: {
         type: DataTypes.ENUM(

@@ -9,7 +9,7 @@ export default (sequelize) => {
     }
 
     async isAssigned() {
-      const theses = await this.getTheses({
+      const count = await this.countTheses({
         where: {
           status: {
             [Op.in]: [
@@ -21,7 +21,7 @@ export default (sequelize) => {
           },
         },
       });
-      return theses.length > 0;
+      return count > 0;
     }
   }
 

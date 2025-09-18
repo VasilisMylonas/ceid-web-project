@@ -2,7 +2,8 @@
  * This module contains functions for making API requests to the backend server.
  */
 
-const BASE_URL = "http://localhost:3000/api";
+// Same origin
+const BASE_URL = "/api";
 
 async function request(method, url, object = null) {
   const response = await fetch(url, {

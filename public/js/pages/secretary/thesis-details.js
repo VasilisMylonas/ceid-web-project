@@ -71,6 +71,9 @@ function renderThesisDetails(thesis) {
   const thesisSummary = document.getElementById("thesis-summary");
   const thesisStudent = document.getElementById("thesis-student");
   const thesisStatus = document.getElementById("thesis-status");
+  const thesisProtocolNumber = document.getElementById(
+    "thesis-protocol-number"
+  );
 
   // Set date only if present
   if (thesis.startDate == null) {
@@ -81,6 +84,13 @@ function renderThesisDetails(thesis) {
     const elapsedText = makeDaysSinceString(startDate);
     assignmentTimeElapsed.textContent = `(${elapsedText})`;
     assignmentDate.textContent = startDate.toLocaleDateString("el-GR");
+  }
+
+  // Set protocol number only if present
+  if (thesis.protocolNumber == null) {
+    thesisProtocolNumber.textContent = "-";
+  } else {
+    thesisProtocolNumber.textContent = thesis.protocolNumber;
   }
 
   // Set other fields

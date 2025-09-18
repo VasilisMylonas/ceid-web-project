@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { ThesisRole, ThesisStatus } from "../constants.js";
+import { ThesisGradingStatus, ThesisRole, ThesisStatus } from "../constants.js";
 import presentationValidators from "./presentation.validators.js";
 import resourceValidators from "./resource.validators.js";
 
@@ -9,8 +9,7 @@ export default {
       id: Joi.number().integer().min(1).required(),
     }).unknown(false),
     body: Joi.object({
-      assemblyYear: Joi.number().integer().min(2000).required(),
-      assemblyNumber: Joi.number().integer().min(1).required(),
+      assemblyNumber: Joi.string().min(1).required(),
       cancellationReason: Joi.string().min(1).max(200).required(),
     }),
   },
@@ -18,6 +17,15 @@ export default {
     params: Joi.object({
       id: Joi.number().integer().min(1).required(),
     }).unknown(false),
+  },
+  approve: {
+    params: Joi.object({
+      id: Joi.number().integer().min(1).required(),
+    }).unknown(false),
+    body: Joi.object({
+      assemblyNumber: Joi.string().min(1).required(),
+      protocolNumber: Joi.string().min(1).max(50).required(),
+    }),
   },
   complete: {
     params: Joi.object({
@@ -84,7 +92,9 @@ export default {
       id: Joi.number().integer().min(1).required(),
     }).unknown(false),
     body: Joi.object({
-      grading: Joi.string().valid("enabled", "disabled").required(),
+      grading: Joi.string()
+        .valid(...Object.values(ThesisGradingStatus))
+        .required(),
     }).unknown(false),
   },
   get: {
@@ -140,5 +150,26 @@ export default {
       id: Joi.number().integer().min(1).required(),
     }).unknown(false),
     body: resourceValidators.put.body,
+  },
+  getTimeline: {
+    params: Joi.object({
+      id: Joi.number().integer().min(1).required(),
+    }).unknown(false),
+  },
+  getGrades: {
+    params: Joi.object({
+      id: Joi.number().integer().min(1).required(),
+    }).unknown(false),
+  },
+  putGrade: {
+    params: Joi.object({
+      id: Joi.number().integer().min(1).required(),
+    }).unknown(false),
+    body: Joi.object({
+      objectives: Joi.number().min(0).max(10).required(),
+      duration: Joi.number().min(0).max(10).required(),
+      deliverableQuality: Joi.number().min(0).max(10).required(),
+      presentationQuality: Joi.number().min(0).max(10).required(),
+    }).unknown(false),
   },
 };

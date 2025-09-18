@@ -1,11 +1,18 @@
 import express from "express";
 import expressEjsLayouts from "express-ejs-layouts";
-import AuthService from "./services/auth.service.js";
-import { UserRole } from "./constants.js";
-import { extractTokenFromRequest } from "./util.js";
+
 import cookieParser from "cookie-parser";
-import process from "process";
 import path from "path";
+import { setPage } from "./middleware/pages.js";
+import Joi from "joi";
+import { expressJoiValidations } from "express-joi-validations";
+import { validate } from "./middleware/validation.js";
+import { ThesisRole, UserRole } from "./constants.js";
+import ThesisService from "./services/thesis.service.js";
+import { requirePageAuth } from "./middleware/pages.js";
+import AuthService from "./services/auth.service.js";
+import { extractTokenFromRequest } from "./util.js";
+import process from "process";
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
 
@@ -14,14 +21,6 @@ const pages = express();
 // EJS templates
 pages.set("view engine", "ejs");
 pages.set("views", path.join(__dirname, "views"));
-
-// Middleware to set ejs `page` variable
-function setPage() {
-  return (req, res, next) => {
-    res.locals.page = req.path;
-    next();
-  };
-}
 
 pages.use(expressEjsLayouts); // EJS layouts
 pages.use(express.urlencoded({ extended: true })); // Parse form data
@@ -36,25 +35,8 @@ function getHomeRedirectPath(role) {
       return "/student/home";
     case UserRole.SECRETARY:
       return "/secretary/home";
-    default:
-      return "/login";
   }
 }
-
-pages.get("/login", async (req, res) => {
-  const token = extractTokenFromRequest(req);
-  const user = await AuthService.verifyToken(token);
-
-  // User already logged in
-  if (user) {
-    return res.redirect("/");
-  }
-
-  res.render("pages/login", {
-    title: "Σύνδεση",
-    error: null,
-  });
-});
 
 pages.post("/login", async (req, res) => {
   const { username, password } = req.body;
@@ -79,32 +61,91 @@ pages.post("/login", async (req, res) => {
   res.redirect("/");
 });
 
-pages.post("/logout", (req, res) => {
+pages.post("/logout", async (req, res) => {
   res.clearCookie("token");
   res.redirect("/login");
 });
 
-pages.get("/", async (req, res) => {
+pages.get("/login", async (req, res) => {
   const token = extractTokenFromRequest(req);
   const user = await AuthService.verifyToken(token);
 
-  if (!user) {
-    return res.redirect("/login");
+  // User already logged in
+  if (user) {
+    return res.redirect("/");
   }
 
-  return res.redirect(getHomeRedirectPath(user.role));
+  res.render("pages/login", {
+    title: "Σύνδεση",
+    error: null,
+  });
 });
 
-pages.get("/secretary/:page", async (req, res) => {
-  const token = extractTokenFromRequest(req);
-  const user = await AuthService.verifyToken(token);
+pages.get(
+  "/praktiko",
+  requirePageAuth,
+  expressJoiValidations({ throwErrors: true }),
+  validate({
+    query: Joi.object({
+      thesisId: Joi.number().integer().min(1).required(),
+    }),
+  }),
+  async (req, res) => {
+    const data = await ThesisService.getExtra(req.query.thesisId, req.user);
 
-  if (!user) {
-    return res.redirect("/login");
+    // TODO: when is this allowed?
+    // presentation must exist
+
+    data.committeeMembers.map((member) => {
+      if (member.role == ThesisRole.SUPERVISOR) {
+        member.role = "Επιβλέπων";
+      } else {
+        member.role = "Μέλος";
+      }
+    });
+
+    const presentations = await ThesisService.getPresentations(
+      req.query.thesisId,
+      req.user
+    );
+
+    const presentation = presentations[0];
+
+    res.render("pages/praktiko", {
+      studentName: data.student,
+      hall: presentation.hall,
+      date: presentation.date.toLocaleDateString("el-GR", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      }),
+      day: presentation.date.toLocaleDateString("el-GR", {
+        weekday: "long",
+      }),
+      time: presentation.date.toLocaleTimeString("el-GR", {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+      committee: data.committeeMembers,
+      assemblyNumber: data.assemblyNumber,
+      thesisTitle: data.topic,
+      supervisorName: data.supervisor,
+      grade: data.grade,
+      votes: ["ΝΑΙ", "ΝΑΙ", "ΝΑΙ"],
+      layout: "layout",
+      title: "Πρακτικό Εξέτασης",
+    });
   }
+);
 
-  if (user.role !== UserRole.SECRETARY) {
-    return res.redirect(getHomeRedirectPath(user.role));
+// Redirect to role-based home
+pages.get("/", requirePageAuth, async (req, res) => {
+  return res.redirect(getHomeRedirectPath(req.user.role));
+});
+
+pages.get("/secretary/:page", requirePageAuth, async (req, res) => {
+  if (req.user.role !== UserRole.SECRETARY) {
+    return res.redirect("/");
   }
 
   const secretaryLinks = [
@@ -127,21 +168,15 @@ pages.get("/secretary/:page", async (req, res) => {
 
   return res.render(`pages/secretary/${req.params.page}`, {
     title: secretaryLinks.find((link) => link.href === req.path)?.title,
+    user: req.user,
     links: secretaryLinks,
     layout: "layouts/basic",
   });
 });
 
-pages.get("/student/:page", async (req, res) => {
-  const token = extractTokenFromRequest(req);
-  const user = await AuthService.verifyToken(token);
-
-  if (!user) {
-    return res.redirect("/login");
-  }
-
-  if (user.role !== UserRole.STUDENT) {
-    return res.redirect(getHomeRedirectPath(user.role));
+pages.get("/student/:page", requirePageAuth, async (req, res) => {
+  if (req.user.role !== UserRole.STUDENT) {
+    return res.redirect("/");
   }
 
   const studentLinks = [

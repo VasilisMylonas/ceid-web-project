@@ -12,12 +12,15 @@ export function wrapResponse() {
 
     // Add custom success function
     res.success = (data, meta = {}, status = StatusCodes.OK) => {
+      res.set("X-Request-Id", req.context.requestId);
+      res.set("X-Timestamp", req.context.timestamp);
+
       res.status(status);
       return res.json({
         success: true,
         data,
         meta: {
-          ...req.context,
+          path: req.context.path,
           ...meta,
         },
       });
@@ -25,11 +28,15 @@ export function wrapResponse() {
 
     // Add custom error function
     res.error = (message, status) => {
+      res.set("X-Request-Id", req.context.requestId);
+      res.set("X-Timestamp", req.context.timestamp);
+
       res.status(status);
       return res.json({
         success: false,
         error: { message },
         meta: {
+          path: req.context.path,
           ...req.context,
         },
       });

@@ -1,5 +1,5 @@
-import AuthService from "./services/auth.service.js";
-import { extractTokenFromRequest } from "./util.js";
+import AuthService from "../services/auth.service.js";
+import { extractTokenFromRequest } from "../util.js";
 
 // Middleware to set ejs `page` variable
 export function setPage() {

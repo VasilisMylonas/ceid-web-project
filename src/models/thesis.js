@@ -12,6 +12,7 @@ export default (sequelize) => {
       Thesis.hasMany(models.Resource, { foreignKey: "thesisId" });
       Thesis.hasMany(models.CommitteeMember, { foreignKey: "thesisId" });
       Thesis.hasMany(models.Invitation, { foreignKey: "thesisId" });
+      Thesis.hasMany(models.ThesisTimeline, { foreignKey: "thesisId" });
 
       Thesis.belongsToMany(models.Professor, {
         through: models.CommitteeMember,

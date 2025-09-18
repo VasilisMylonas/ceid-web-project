@@ -1,7 +1,6 @@
-import { NotFoundError } from "adminjs";
 import { InvitationResponse, ThesisStatus } from "../constants.js";
 import db from "../models/index.js";
-import { ConflictError, SecurityError } from "../errors.js";
+import { ConflictError, SecurityError, NotFoundError } from "../errors.js";
 
 export default class InvitationService {
   static async respond(id, user, response) {
@@ -20,36 +19,53 @@ export default class InvitationService {
       throw new ConflictError("Invitation already responded to.");
     }
 
-    await invitation.update({ response, responseDate: new Date() });
+    const transaction = await db.sequelize.transaction();
 
-    // Add as committee member
-    if (response === InvitationResponse.ACCEPTED) {
-      await db.CommitteeMember.create({
-        professorId: professor.id,
-        thesisId: invitation.thesisId,
+    try {
+      await invitation.update(
+        { response, responseDate: new Date() },
+        { transaction }
+      );
+
+      // Add as committee member
+      if (response === InvitationResponse.ACCEPTED) {
+        await db.CommitteeMember.create(
+          {
+            professorId: professor.id,
+            thesisId: invitation.thesisId,
+          },
+          { transaction }
+        );
+      }
+
+      const thesis = await invitation.getThesis();
+      const committeeMemberCount = await db.CommitteeMember.count({
+        where: { thesisId: thesis.id },
+        transaction,
       });
+
+      // Move thesis to ACTIVE state
+      if (
+        committeeMemberCount >= 3 &&
+        thesis.status === ThesisStatus.UNDER_ASSIGNMENT
+      ) {
+        await thesis.update({ status: ThesisStatus.ACTIVE }, { transaction });
+
+        // Destroy all pending invitations for this thesis
+        await db.Invitation.destroy({
+          where: {
+            thesisId: invitation.thesisId,
+            response: InvitationResponse.PENDING,
+          },
+          transaction,
+        });
+      }
+
+      await transaction.commit();
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
     }
-
-    const thesis = await invitation.getThesis();
-    const committeeMemberCount = await db.CommitteeMember.count({
-      where: { thesisId: thesis.id },
-    });
-
-    // Move thesis to ACTIVE state
-    if (
-      committeeMemberCount >= 3 &&
-      thesis.status === ThesisStatus.UNDER_ASSIGNMENT
-    ) {
-      await thesis.update({ status: ThesisStatus.ACTIVE });
-    }
-
-    // Destroy all pending invitations for this thesis
-    await db.Invitation.destroy({
-      where: {
-        thesisId: invitation.thesisId,
-        response: InvitationResponse.PENDING,
-      },
-    });
 
     return invitation;
   }

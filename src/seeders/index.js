@@ -9,9 +9,35 @@ import seedCommitteeMembers from "./committee-members.js";
 import UserService from "../services/user.service.js";
 import TopicService from "../services/topic.service.js";
 import ThesisService from "../services/thesis.service.js";
+import InvitationService from "../services/invitation.service.js";
+import { InvitationResponse } from "../constants.js";
 
 export default async function seedDatabase() {
   await db.sequelize.sync({ force: true });
+
+  const sql = `
+CREATE OR REPLACE FUNCTION log_thesis_status_change()
+RETURNS TRIGGER AS
+$$
+BEGIN
+  INSERT INTO thesis_timeline (thesis_id, old_status, new_status, changed_at) VALUES (
+    NEW.id,
+    OLD.status,
+    NEW.status,
+    CURRENT_TIMESTAMP
+  );
+  RETURN NEW;
+END;
+$$
+LANGUAGE plpgsql;
+
+CREATE OR REPLACE TRIGGER thesis_status_change_trigger
+AFTER UPDATE OF status ON theses
+FOR EACH ROW
+WHEN (OLD.status IS DISTINCT FROM NEW.status)
+EXECUTE FUNCTION log_thesis_status_change();
+`;
+  await db.sequelize.query(sql);
 
   // await Promise.all([
   //   seedProfessors(30),
@@ -89,7 +115,33 @@ export default async function seedDatabase() {
   });
 
   const studentId = (await student.getStudent()).id;
-  await ThesisService.create({ topicId: topic.id, studentId });
+  const thesis = await ThesisService.create({ topicId: topic.id, studentId });
+
+  // Invite 2 professors
+  const inv1 = await ThesisService.createInvitation(
+    thesis.id,
+    student,
+    professor2.id
+  );
+  const inv2 = await ThesisService.createInvitation(
+    thesis.id,
+    student,
+    professor3.id
+  );
+
+  // Professors accept the invitation
+  await InvitationService.respond(
+    inv1.id,
+    professor2,
+    InvitationResponse.ACCEPTED
+  );
+  await InvitationService.respond(
+    inv2.id,
+    professor3,
+    InvitationResponse.ACCEPTED
+  );
+
+  await ThesisService.examine(thesis.id, professor);
 
   // await seedTopics(400);
   // await seedTheses(300);

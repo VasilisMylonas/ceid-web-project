@@ -27,19 +27,6 @@
     </div>
   </div>
 
-    <div id="state-completed" class="card shadow-sm" style="display: none;">
-    <div class="card-body p-4">
-      <h5 class="card-title text-center">Κατάσταση: Περατωμένη</h5>
-      <p class="text-center text-muted">Η διπλωματική εργασία έχει ολοκληρωθεί και βαθμολογηθεί.</p>
-      <hr class="my-4">
-      <div class="d-grid gap-2 col-sm-8 col-md-6 mx-auto">
-        <button class="btn btn-dark" type="button">
-          <i class="fas fa-award me-2"></i>Προβολή Πρακτικού Εξέτασης
-        </button>
-      </div>
-    </div>
-  </div>
-
   <!-- State 2: Under Examination -->
   <div id="state-examination" class="card shadow-sm mb-4" style="display: none;">
     <div class="card-body p-4">
@@ -55,15 +42,12 @@
             <div class="card-body">
               <h6 class="card-title">Διαχείριση Αρχείου</h6>
               <p class="card-text text-muted small">Ανεβάστε ή κατεβάστε το τρέχον αρχείο της διπλωματικής σας.</p>
-              <div class="input-group mb-3">
-                <input type="file" class="form-control" id="thesisFile" accept=".pdf">
-                <button class="btn btn-primary mb-0" type="button" id="upload-draft-btn">Ανέβασμα</button>
+              <button type="button" id="download-draft-btn" class="btn btn-secondary w-100 mb-3" style="display: none;"></button>
+              <label for="thesisFile" class="form-label">Ανέβασμα νέου αρχείου (PDF)</label>
+              <div class="input-group">
+                <input class="form-control" type="file" id="thesisFile" accept=".pdf">
+                <button class="btn btn-outline-primary" type="button" id="upload-draft-btn">Ανέβασμα</button>
               </div>
-
-              <!-- Change the button's class to make it look more active -->
-              <button class="btn btn-info text-dark w-100" type="button" id="download-draft-btn">
-                <i class="fas fa-file-download me-2"></i>Λήψη Τρέχοντος Αρχείου
-              </button>
             </div>
           </div>
           <!-- Links Management Card -->
@@ -142,7 +126,18 @@
   </div>
 
   <!-- State 3: Completed -->
-
+  <div id="state-completed" class="card shadow-sm" style="display: none;">
+    <div class="card-body p-4">
+      <h5 class="card-title text-center">Κατάσταση: Περατωμένη</h5>
+      <p class="text-center text-muted">Η διπλωματική εργασία έχει ολοκληρωθεί και βαθμολογηθεί.</p>
+      <hr class="my-4">
+      <div class="d-grid gap-2 col-sm-8 col-md-6 mx-auto">
+        <button class="btn btn-dark" type="button">
+          <i class="fas fa-award me-2"></i>Προβολή Πρακτικού Εξέτασης
+        </button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- Modal for Inviting Professors -->

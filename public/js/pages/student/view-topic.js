@@ -6,18 +6,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     let response;
-   
+    try {
         response = await getThesis();
-        if (
-            !response ||
-            !response.data ||
-            response.data.length === 0
-        ) {
-    container.innerHTML =
-      '<div class="alert alert-warning text-center"><h3>Δεν έχετε αναλάβει κάποια διπλωματική εργασία.</h3><p>Η σελίδα αυτή προορίζεται για τη διαχείριση μιας ενεργής διπλωματικής.</p></div>';
-    return;
-  }
-  
+    } catch (error) {
+        console.error("Failed to fetch thesis:", error);
+        container.innerHTML = '<div class="alert alert-danger">Σφάλμα φόρτωσης δεδομένων διπλωματικής.</div>';
+        return;
+    }
     const thesis = response.data[0];
     try {
         topic = await getTopic(thesis.topicId);
@@ -122,9 +117,4 @@ document.addEventListener('DOMContentLoaded', async () => {
             committeeList.appendChild(li);
         }
     }
-
-    document.getElementById("thesis-start-date").textContent =
-  thesis.startDate ? new Date(thesis.startDate).toLocaleDateString('el-GR') : "undefined";
-document.getElementById("thesis-end-date").textContent =
-  thesis.endDate ? new Date(thesis.endDate).toLocaleDateString('el-GR') : "undefined";
 });

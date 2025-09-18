@@ -1,7 +1,7 @@
 import db from "../models/index.js";
 import { ConflictError, NotFoundError, SecurityError } from "../errors.js";
 import { ThesisStatus } from "../constants.js";
-import { getFilePath, deleteIfExists } from "../config/file-storage.js";
+import { getFilePath } from "../config/file-storage.js";
 import { UserRole } from "../constants.js";
 import { ThesisRole } from "../constants.js";
 

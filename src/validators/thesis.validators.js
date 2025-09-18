@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { ThesisRole, ThesisStatus } from "../constants.js";
+import { ThesisGradingStatus, ThesisRole, ThesisStatus } from "../constants.js";
 import presentationValidators from "./presentation.validators.js";
 import resourceValidators from "./resource.validators.js";
 
@@ -84,7 +84,9 @@ export default {
       id: Joi.number().integer().min(1).required(),
     }).unknown(false),
     body: Joi.object({
-      grading: Joi.string().valid("enabled", "disabled").required(),
+      grading: Joi.string()
+        .valid(...Object.values(ThesisGradingStatus))
+        .required(),
     }).unknown(false),
   },
   get: {

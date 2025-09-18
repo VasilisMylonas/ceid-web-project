@@ -1,5 +1,5 @@
 import { DataTypes, Model } from "sequelize";
-import { ThesisStatus } from "../constants.js";
+import { ThesisGradingStatus, ThesisStatus } from "../constants.js";
 import { deleteIfExists } from "../config/file-storage.js";
 
 export default (sequelize) => {
@@ -84,9 +84,9 @@ export default (sequelize) => {
         defaultValue: ThesisStatus.UNDER_ASSIGNMENT,
       },
       grading: {
-        type: DataTypes.ENUM("enabled", "disabled"),
+        type: DataTypes.ENUM(...Object.values(ThesisGradingStatus)),
         allowNull: false,
-        defaultValue: "disabled",
+        defaultValue: ThesisGradingStatus.DISABLED,
       },
     },
     {

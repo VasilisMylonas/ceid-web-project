@@ -154,14 +154,6 @@ export default (sequelize) => {
             );
           }
 
-          if (thesis.changed("status")) {
-            await thesis.createThesisChange({
-              oldStatus: thesis.previous("status"),
-              newStatus: thesis.status,
-              changedAt: new Date(),
-            });
-          }
-
           // Check if status transition is valid
           if (thesis.changed("status")) {
             checkStatusTransition(thesis);
@@ -191,6 +183,14 @@ export default (sequelize) => {
 
             // Delete the previous file physically
             deleteIfExists(thesis.previous("documentFile"));
+          }
+
+          if (thesis.changed("status")) {
+            await thesis.createThesisChange({
+              oldStatus: thesis.previous("status"),
+              newStatus: thesis.status,
+              changedAt: new Date(),
+            });
           }
         },
       },

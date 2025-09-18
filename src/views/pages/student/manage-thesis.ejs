@@ -42,12 +42,14 @@
             <div class="card-body">
               <h6 class="card-title">Διαχείριση Αρχείου</h6>
               <p class="card-text text-muted small">Ανεβάστε ή κατεβάστε το τρέχον αρχείο της διπλωματικής σας.</p>
-              <button type="button" id="download-draft-btn" class="btn btn-secondary w-100 mb-3" style="display: none;"></button>
-              <label for="thesisFile" class="form-label">Ανέβασμα νέου αρχείου (PDF)</label>
-              <div class="input-group">
-                <input class="form-control" type="file" id="thesisFile" accept=".pdf">
-                <button class="btn btn-outline-primary" type="button" id="upload-draft-btn">Ανέβασμα</button>
+              <div class="input-group mb-3">
+                <input type="file" class="form-control" id="thesisFile" accept=".pdf">
+                <button class="btn btn-primary mb-0" type="button" id="upload-draft-btn">Ανέβασμα</button>
               </div>
+              <!-- Add the download button back here -->
+              <button class="btn btn-outline-secondary w-100" type="button" id="download-draft-btn" disabled>
+                <i class="fas fa-file-download me-2"></i>Λήψη Τρέχοντος Αρχείου
+              </button>
             </div>
           </div>
           <!-- Links Management Card -->

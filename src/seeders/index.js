@@ -15,30 +15,6 @@ import { InvitationResponse } from "../constants.js";
 export default async function seedDatabase() {
   await db.sequelize.sync({ force: true });
 
-  const sql = `
-CREATE OR REPLACE FUNCTION log_thesis_status_change()
-RETURNS TRIGGER AS
-$$
-BEGIN
-  INSERT INTO thesis_timeline (thesis_id, old_status, new_status, changed_at) VALUES (
-    NEW.id,
-    OLD.status,
-    NEW.status,
-    CURRENT_TIMESTAMP
-  );
-  RETURN NEW;
-END;
-$$
-LANGUAGE plpgsql;
-
-CREATE OR REPLACE TRIGGER thesis_status_change_trigger
-AFTER UPDATE OF status ON theses
-FOR EACH ROW
-WHEN (OLD.status IS DISTINCT FROM NEW.status)
-EXECUTE FUNCTION log_thesis_status_change();
-`;
-  await db.sequelize.query(sql);
-
   // await Promise.all([
   //   seedProfessors(30),
   //   seedStudents(500),
@@ -89,7 +65,7 @@ EXECUTE FUNCTION log_thesis_status_change();
     am: "0",
   });
 
-  await UserService.create({
+  const secretary = await UserService.create({
     username: "secretary",
     password: "secretary",
     email: "secretary@example.com",
@@ -143,6 +119,16 @@ EXECUTE FUNCTION log_thesis_status_change();
 
   await ThesisService.examine(thesis.id, professor);
 
+  await ThesisService.setNemertesLink(
+    thesis.id,
+    student,
+    "http://nemertes.library.upatras.gr/handle/123456789/12345"
+  );
+
+  thesis.grade = 9.5;
+  await thesis.save();
+
+  await ThesisService.complete(thesis.id, secretary);
   // await seedTopics(400);
   // await seedTheses(300);
   // await seedCommitteeMembers();

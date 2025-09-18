@@ -1,13 +1,14 @@
 import { DataTypes, Model } from "sequelize";
+import { ThesisStatus } from "../constants.js";
 
 export default (sequelize) => {
-  class ThesisTimeline extends Model {
+  class ThesisChange extends Model {
     static associate(models) {
-      ThesisTimeline.belongsTo(models.Thesis, { foreignKey: "thesisId" });
+      ThesisChange.belongsTo(models.Thesis, { foreignKey: "thesisId" });
     }
   }
 
-  ThesisTimeline.init(
+  ThesisChange.init(
     {
       id: {
         type: DataTypes.INTEGER,
@@ -18,13 +19,12 @@ export default (sequelize) => {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
-      // Make sure we use the same type as in the Thesis model so we dont have issues with triggers
       oldStatus: {
-        type: "enum_theses_status",
+        type: DataTypes.ENUM(...Object.values(ThesisStatus)),
         allowNull: true,
       },
       newStatus: {
-        type: "enum_theses_status",
+        type: DataTypes.ENUM(...Object.values(ThesisStatus)),
         allowNull: false,
       },
       changedAt: {
@@ -37,10 +37,8 @@ export default (sequelize) => {
       sequelize,
       underscored: true,
       timestamps: false,
-      tableName: "thesis_timeline",
-      hasTrigger: true,
     }
   );
 
-  return ThesisTimeline;
+  return ThesisChange;
 };

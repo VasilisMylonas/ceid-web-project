@@ -54,7 +54,7 @@ export default (sequelize) => {
       Thesis.hasMany(models.Resource, { foreignKey: "thesisId" });
       Thesis.hasMany(models.CommitteeMember, { foreignKey: "thesisId" });
       Thesis.hasMany(models.Invitation, { foreignKey: "thesisId" });
-      Thesis.hasMany(models.ThesisTimeline, { foreignKey: "thesisId" });
+      Thesis.hasMany(models.ThesisChange, { foreignKey: "thesisId" });
 
       Thesis.belongsToMany(models.Professor, {
         through: models.CommitteeMember,
@@ -151,6 +151,15 @@ export default (sequelize) => {
           deleteIfExists(thesis.documentFile);
         },
         async beforeUpdate(thesis) {
+          if (thesis.changed("status")) {
+            await thesis.createThesisChange({
+              oldStatus: thesis.previous("status"),
+              newStatus: thesis.status,
+              changedAt: new Date(),
+            });
+          }
+
+          // Check if status transition is valid
           if (thesis.changed("status")) {
             checkStatusTransition(thesis);
           }

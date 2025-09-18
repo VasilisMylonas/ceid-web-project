@@ -61,6 +61,7 @@ document.addEventListener('DOMContentLoaded', async () => {
               </div>
             </div>
             <div class="modal-footer">
+              <!-- Finalize button gets injected dynamically just below -->
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Κλείσιμο</button>
             </div>
           </div>
@@ -73,6 +74,19 @@ document.addEventListener('DOMContentLoaded', async () => {
   const invitationsTopicTitle = document.getElementById('invitations-topic-title');
   const invitationsStudentLine = document.getElementById('invitations-student-line');
   const invitationsTableBody = document.getElementById('invitations-table-body');
+
+  // --- Add Finalize button inside modal footer (if missing) ---
+  const invitationsFooter = invitationsModalEl.querySelector('.modal-footer');
+  let invitationsFinalizeBtn = document.getElementById('invitations-finalize-btn');
+  if (!invitationsFinalizeBtn) {
+    invitationsFooter.insertAdjacentHTML(
+      'afterbegin',
+      `<button type="button" class="btn btn-success me-auto" id="invitations-finalize-btn" title="Οριστικοποίηση">
+         <i class="bi bi-check2-circle"></i> Οριστικοποίηση
+       </button>`
+    );
+    invitationsFinalizeBtn = document.getElementById('invitations-finalize-btn');
+  }
 
   // Container δυναμικών αποτελεσμάτων αναζήτησης
   let studentResults = document.getElementById('studentResults');
@@ -117,8 +131,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   };
 
   const getTopicById = (id) => state.topics.find(t => String(t.id) === String(id));
-  const getThesisByTopicId = (topicId) =>
-    state.theses.find(th => String(th.topicId) === String(topicId) && th.status !== 'Ακυρωμένη');
   const getLecturerNameById = (pid) =>
     state.lecturers?.find?.(l => l.id === Number(pid))?.name || `#${pid}`;
 
@@ -127,14 +139,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     (thesis.invitations || []).filter(inv => inv.response === 'Αποδέχθηκε').length;
   const canFinalizeThesis = (thesis) => countAcceptedInvitations(thesis) >= 2;
 
-
-  // Διαγράφει μια thesis από το state (η επίμονη διαγραφή γίνεται από εσάς)
-  const deleteThesis = (thesisId) => {
-    const idx = state.theses.findIndex(th => th.id === Number(thesisId));
-    if (idx === -1) return;
-    state.theses.splice(idx, 1);
-  };
-  
   // --- Invitations Modal Render ---
   const renderInvitationsModal = (thesis) => {
     const topic = thesis.topic || getTopicById(thesis.topicId) || { title: '(Άγνωστο θέμα)' };
@@ -145,7 +149,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       : `Αποδεκτοί: ${acceptedN}`;
 
     invitationsTableBody.innerHTML = '';
-
     const list = thesis.invitations || [];
     if (!list.length) {
       invitationsTableBody.innerHTML = `<tr><td colspan="5" class="text-muted">Δεν υπάρχουν προσκεκλημένα μέλη.</td></tr>`;
@@ -175,15 +178,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
       const res = await getStudents(); // <-- YOUR FUNCTION
       const raw = Array.isArray(res) ? res : (res?.data ?? res?.items ?? []);
-
       state.students = (raw || []).map(u => {
         const fullName = u.name ?? [u.firstName, u.lastName].filter(Boolean).join(' ');
         const fallbackName = (fullName?.trim()) || (u.email ? String(u.email).split('@')[0] : `#${u.id}`);
-        return {
-          id: u.id,
-          am: u.am ?? u.studentNumber ?? '', // αν δεν παρέχεται, μένει κενό
-          name: fallbackName
-        };
+        return { id: u.id, am: u.am ?? u.studentNumber ?? '', name: fallbackName };
       });
       state.studentsLoaded = true;
     } catch (err) {
@@ -193,7 +191,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const fetchTopics = async () => {
     try {
-      const res = await getMyUnassignedTopics(); 
+      const res = await getMyUnassignedTopics();
       state.topics = Array.isArray(res) ? res : (res?.data ?? res?.items ?? []);
     } catch (err) {
       console.error('Σφάλμα φόρτωσης θεμάτων:', err);
@@ -203,10 +201,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const fetchLecturers = async () => {
     try {
-      // TODO: ΚΑΛΕΣΤΕ ΤΟ ΔΙΚΟ ΣΑΣ getLecturers()
-      // const res = await getLecturers(); // <-- YOUR FUNCTION
-      // state.lecturers = Array.isArray(res) ? res : (res?.data ?? res?.items ?? []);
-      // Προαιρετικό: κρατήστε το κενό αν δεν χρειάζεται ακόμη
+      // TODO: getLecturers()
       state.lecturers = state.lecturers || [];
     } catch (err) {
       console.error('Σφάλμα φόρτωσης διδασκόντων:', err);
@@ -214,41 +209,64 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   };
 
-
   const fetchTheses = async () => {
     try {
-      const res = await getUnderAssignementThesis(); 
-
-    const raw = Array.isArray(res)
-      ? res
-      : (Array.isArray(res?.data) ? res.data
-         : (Array.isArray(res?.items) ? res.items : []));
-
-    state.theses = raw.map(srv => ({
-      id: Number(srv?.id),
-      status: 'Υπό Ανάθεση',
-      startDate: srv?.startDate ?? null,
-      topicId: Number(srv?.topicId),
-      topic: { title: String(srv?.topic ?? '(Άγνωστο θέμα)') },
-      student: srv?.student ?? null,
-      studentId: srv?.studentId ?? null,
-      supervisor: srv?.supervisor ?? null,
-      supervisorId: srv?.supervisorId ?? null,
-      invitations: Array.isArray(srv?.invitations) ? srv.invitations : []
-    }));
-
+      const res = await getUnderAssignementThesis();
+      const raw = Array.isArray(res)
+        ? res
+        : (Array.isArray(res?.data) ? res.data : (Array.isArray(res?.items) ? res.items : []));
+      state.theses = raw.map(srv => ({
+        id: Number(srv?.id),
+        status: 'Υπό Ανάθεση',
+        startDate: srv?.startDate ?? null,
+        topicId: Number(srv?.topicId),
+        topic: { title: String(srv?.topic ?? '(Άγνωστο θέμα)') },
+        student: srv?.student ?? null,
+        studentId: srv?.studentId ?? null,
+        supervisor: srv?.supervisor ?? null,
+        supervisorId: srv?.supervisorId ?? null,
+        invitations: Array.isArray(srv?.invitations) ? srv.invitations : []
+      }));
     } catch (err) {
       console.error('Σφάλμα φόρτωσης διπλωματικών:', err);
       state.theses = [];
     }
   };
 
+  const normalizeInvitationResponse = (resp) => {
+    const r = String(resp || '').toLowerCase();
+    if (r === 'accepted') return 'Αποδέχθηκε';
+    if (r === 'rejected') return 'Απέρριψε';
+    return 'Προσκεκλημένος';
+  };
+
+  // Lazy loader (with simple caching). Set {force:true} to always refetch.
+  const loadThesisInvitations = async (thesisId, { force = false } = {}) => {
+    const th = state.theses.find(t => Number(t.id) === Number(thesisId));
+    if (!th) return [];
+    if (th._invitationsLoaded && !force && Array.isArray(th.invitations) && th.invitations.length) {
+      return th.invitations;
+    }
+    const invRes = await getThesisInvitations(thesisId); // <-- your API
+    const invRaw = Array.isArray(invRes?.data) ? invRes.data : (Array.isArray(invRes) ? invRes : []);
+    th.invitations = (invRaw || []).map(inv => ({
+      id: Number(inv.id),
+      response: normalizeInvitationResponse(inv.response),
+      responseDate: inv.responseDate ?? null,
+      professorId: Number(inv.professorId),
+      thesisId: Number(inv.thesisId ?? thesisId),
+      createdAt: inv.createdAt ?? null,
+      updatedAt: inv.updatedAt ?? null
+    }));
+    th._invitationsLoaded = true;
+    return th.invitations;
+  };
+
   // --- Render Πίνακα (Free + Under Assignment) ---
   const renderTopicsTable = async () => {
-
     await fetchTheses();
     await fetchTopics();
-    
+
     if (!myTopicsTableBody) return;
     myTopicsTableBody.innerHTML = '';
 
@@ -281,14 +299,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       myTopicsTableBody.appendChild(row);
     });
 
-    // 2) ΥΠΟ ΑΝΑΘΕΣΗ ΔΙΠΛΩΜΑΤΙΚΕΣ
+    // 2) ΥΠΟ ΑΝΑΘΕΣΗ ΔΙΠΛΩΜΑΤΙΚΕΣ  (NO finalize button here anymore)
     pendingTheses.forEach(thesis => {
       const topic = thesis.topic || getTopicById(thesis.topicId) || { title: '(Άγνωστο θέμα)' };
-      const finalizeDisabled = canFinalizeThesis(thesis) ? '' : 'disabled';
-      const finalizeTitle = canFinalizeThesis(thesis)
-        ? 'Οριστικοποίηση'
-        : 'Απαιτούνται ≥2 αποδοχές προσκεκλημένων';
-
       const row = document.createElement('tr');
       row.dataset.thesisId = thesis.id;
       row.dataset.topicId = thesis.topicId;
@@ -300,9 +313,6 @@ document.addEventListener('DOMContentLoaded', async () => {
           <div class="d-flex justify-content-center gap-2">
             <button class="btn btn-sm btn-outline-secondary members-btn" title="Προσκεκλημένα Μέλη" aria-label="Προσκεκλημένα μέλη">
               <i class="bi bi-people"></i>
-            </button>
-            <button class="btn btn-sm btn-outline-success finalize-btn" title="${finalizeTitle}" aria-label="Οριστικοποίηση" ${finalizeDisabled}>
-              <i class="bi bi-check2-circle"></i>
             </button>
             <button class="btn btn-sm btn-outline-danger unassign-btn" title="Ακύρωση Ανάθεσης" aria-label="Ακύρωση ανάθεσης">
               <i class="bi bi-person-dash"></i>
@@ -365,7 +375,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
   };
 
-  // --- Event Listeners πίνακα (με TODO σημεία για API κλήσεις) ---
+  // --- Event Listeners πίνακα ---
   myTopicsTableBody?.addEventListener('click', async (e) => {
     const target = e.target;
 
@@ -390,47 +400,34 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (membersBtn) {
       const row = membersBtn.closest('tr');
       const thesisId = Number(row?.dataset.thesisId);
+
+      // Fetch fresh invitations on demand
+      await loadThesisInvitations(thesisId, { force: true });
+
+      // Configure modal finalize button based on current thesis state
       const thesis = state.theses.find(th => th.id === thesisId);
-      if (!thesis) return;
-      // TODO: Αν θέλετε always-fresh invitations, καλέστε δικό σας getThesisInvitations(thesisId) εδώ
-      renderInvitationsModal(thesis);
+        if ( canFinalizeThesis(thesis)) {
+          invitationsFinalizeBtn.removeAttribute('disabled');
+          invitationsFinalizeBtn.title = 'Οριστικοποίηση';
+        } else {
+          invitationsFinalizeBtn.setAttribute('disabled', 'disabled');
+          invitationsFinalizeBtn.title = 'Απαιτούνται ≥2 αποδοχές προσκεκλημένων';
+        } 
+        invitationsFinalizeBtn.dataset.thesisId = String(thesisId);
+        renderInvitationsModal(thesis);
+      
       return;
     }
 
-    // Οριστικοποίηση thesis
-    const finalizeBtn = target.closest('.finalize-btn');
-    if (finalizeBtn) {
-      const row = finalizeBtn.closest('tr');
-      const thesisId = Number(row?.dataset.thesisId);
-      const thesis = state.theses.find(th => th.id === thesisId);
-      if (!thesis) return;
-
-      if (!canFinalizeThesis(thesis)) {
-        alert('Απαιτούνται τουλάχιστον 2 αποδοχές από προσκεκλημένους Διδάσκοντες.');
-        return;
-      }
-
-      if (!confirm('Οριστικοποίηση διπλωματικής; Η κατάσταση θα γίνει "Ενεργή".')) return;
-
-      // TODO: ΚΑΛΕΣΤΕ ΤΟ ΔΙΚΟ ΣΑΣ finalizeThesis(thesisId)
-      // await finalizeThesis(thesisId); // <-- YOUR FUNCTION
-
-      // Local state update (mirror του επιτυχημένου API response)
-
-      renderTopicsTable();
-      return;
-    }
-
-    // Ακύρωση ανάθεσης thesis (επιστρέφει το topic σε "Ελεύθερο")
     const unassignBtn = target.closest('.unassign-btn');
     if (unassignBtn) {
       const row = unassignBtn.closest('tr');
       const thesisId = Number(row?.dataset.thesisId);
       const thesis = state.theses.find(th => th.id === thesisId);
       if (!thesis) return;
-    
+
       confirmUnassignModalLabel.textContent = 'Ακύρωση Ανάθεσης';
-      const topic = getTopicById(thesis.topicId) || { title: '(Άγνωστο θέμα)' };
+      const topic = thesis.topic || getTopicById(thesis.topicId) || { title: '(Άγνωστο θέμα)' };
       confirmUnassignTitle.textContent = topic.title;
       confirmUnassignBtn.dataset.thesisId = thesis.id;
       confirmUnassignBtn.textContent = 'Ακύρωση';
@@ -441,17 +438,32 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
+  // Finalize click inside the Invitations modal
+  invitationsFinalizeBtn?.addEventListener('click', async () => {
+    const thesisId = Number(invitationsFinalizeBtn.dataset.thesisId);
+    const thesis = state.theses.find(th => th.id === thesisId);
+    if (!thesis) return;
+
+ 
+    try {
+       await activateThesis(thesisId); 
+
+      invitationsModal?.hide();
+      renderTopicsTable();
+    } catch (err) {
+      console.error('Σφάλμα οριστικοποίησης:', err);
+      alert('Αποτυχία οριστικοποίησης. Δοκιμάστε ξανά.');
+    } 
+  });
+
   // Επιβεβαίωση Ακύρωσης Ανάθεσης
   confirmUnassignBtn?.addEventListener('click', async () => {
     const thesisId = Number(confirmUnassignBtn.dataset.thesisId);
     if (!thesisId) return;
 
-
     await unassignThesis(thesisId);
-
     delete confirmUnassignBtn.dataset.thesisId;
     confirmUnassignModal?.hide();
-
     renderTopicsTable();
   });
 
@@ -494,7 +506,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  // Υποβολή ανάθεσης: δημιουργεί ΝΕΑ thesis για το topic
+  // Υποβολή ανάθεσης
   assignStudentForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (submittingAssign) return;
@@ -512,7 +524,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       return;
     }
 
-    // auto-pick μοναδικό match αν δεν έγινε explicit επιλογή
     if (!selectedStudent) {
       const typed = studentSearchInput.value.trim();
       const matches = filterStudents(typed);
@@ -525,9 +536,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       return;
     }
 
-
-    await assignTopic(topicId, selectedStudent.id); 
-
+    await assignTopic(topicId, selectedStudent.id);
     resetAssignModalState();
     assignStudentModal?.hide();
     submitBtn?.removeAttribute('disabled');
@@ -539,23 +548,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   // reset modal όταν κλείνει
   assignStudentModalEl?.addEventListener('hidden.bs.modal', resetAssignModalState);
 
-  // --- ΑΡΧΙΚΟ LOAD (όλα κενά -> γεμίζουν από τα δικά σας APIs) ---
+  // --- ΑΡΧΙΚΟ LOAD ---
   try {
-    // TODO: ΘΕΣΤΕ τον currentProfessor αν χρειάζεται (π.χ. από auth me endpoint)
     // const me = await getMe(); state.currentProfessor = { id: me.id, name: me.name };
-
-    // 1) Φόρτωση φοιτητών (για αναζήτηση στο modal)
     await fetchStudents();
-
-    // 2) Φόρτωση διδασκόντων (για invitations ονόματα)
     await fetchLecturers();
-
-
-
-    // Τελικό render
     renderTopicsTable();
   } catch (err) {
     console.error('Αρχικοποίηση απέτυχε:', err);
-    renderTopicsTable(); // θα δείξει empty state
+    renderTopicsTable();
   }
 });

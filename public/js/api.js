@@ -172,51 +172,9 @@ async function getTopic(id) {
   return await request("GET", `${BASE_URL}/v1/topics/${id}`);
 }
 
-async function getThesesSecretary(
-  page,
-  pageSize,
-  supervisorId = null,
-  status = null,
-  query = null
-) {
-  let offset;
-  let limit;
-
-  if (page == null || pageSize == null) {
-    offset = 0;
-    limit = null;
-  } else {
-    page = parseInt(page, 10);
-    pageSize = parseInt(pageSize, 10);
-    offset = (page - 1) * pageSize;
-    limit = pageSize;
-  }
-
-  return await request(
-    "GET",
-    `${BASE_URL}/v1/theses?&offset=${offset}${limit ? `&limit=${limit}` : ""}${
-      supervisorId ? `&professorId=${supervisorId}&role=supervisor` : ""
-    }${status ? `&status=${status}` : ""}${
-      query ? `&q=${encodeURIComponent(query)}` : ""
-    }`
-  );
-}
-
-function pageToLimitOffset(page, pageSize) {
-  if (page == null || pageSize == null) {
-    return {
-      offset: 0,
-      limit: null,
-    };
-  }
-
-  page = parseInt(page, 10);
-  pageSize = parseInt(pageSize, 10);
-  return {
-    offset: (page - 1) * pageSize,
-    limit: pageSize,
-  };
-}
+//
+// Professor
+//
 
 async function getMyTheses(
   page,
@@ -266,97 +224,23 @@ async function completeThesis(thesisId) {
   return await request("POST", `${BASE_URL}/v1/theses/${thesisId}/complete`);
 }
 
-//
-// Name mappings and misc
-//
+async function getThesesSecretary(
+  page,
+  pageSize,
+  supervisorId = null,
+  status = null,
+  query = null
+) {
+  const { offset, limit } = pageToLimitOffset(page, pageSize);
 
-class Name {
-  static ofThesisStatus(status) {
-    switch (status) {
-      case "active":
-        return "Ενεργή";
-      case "under_examination":
-        return "Υπό Εξέταση";
-      case "completed":
-        return "Ολοκληρωμένη";
-      case "cancelled":
-        return "Ακυρωμένη";
-      case "under_assignment":
-        return "Υπό Ανάθεση";
-    }
-  }
-
-  static ofMemberRole(role) {
-    switch (role) {
-      case "supervisor":
-        return "Επιβλέπων";
-      case "committee_member":
-        return "Μέλος";
-    }
-  }
-
-  static ofInvitationResponse(response) {
-    switch (response) {
-      case "accepted":
-        return "Αποδεκτή";
-      case "rejected":
-        return "Απορριφθείσα";
-      case "pending":
-        return "Εκκρεμεί";
-    }
-  }
-}
-
-function getMemberRoleBootstrapBgClass(role) {
-  switch (role) {
-    case "supervisor":
-      return "bg-primary";
-    case "committee_member":
-      return "bg-secondary";
-  }
-}
-
-function getThesisStatusBootstrapBgClass(status) {
-  switch (status) {
-    case "active":
-      return "bg-success";
-    case "completed":
-      return "bg-success";
-    case "cancelled":
-      return "bg-danger";
-    case "under_examination":
-      return "bg-warning";
-    case "under_assignment":
-      return "bg-info";
-  }
-}
-
-function makeDaysSinceString(date) {
-  const now = new Date();
-  const diffTime = Math.abs(now - date);
-  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
-  const years = Math.floor(diffDays / 365);
-  const days = diffDays % 365;
-
-  let elapsedText = "";
-
-  if (years > 0) {
-    elapsedText += `πριν ${years} ${years === 1 ? "χρόνο" : "χρόνια"}`;
-    if (days > 0) {
-      elapsedText += ` και ${days} μέρες`;
-    }
-  } else {
-    elapsedText = `πριν ${days} μέρες`;
-    if (days == 0) {
-      elapsedText = "σήμερα";
-    }
-    if (days == 1) {
-      elapsedText = "χθες";
-    }
-  }
-
-  return elapsedText;
+  return await request(
+    "GET",
+    `${BASE_URL}/v1/theses?&offset=${offset}${limit ? `&limit=${limit}` : ""}${
+      supervisorId ? `&professorId=${supervisorId}&role=supervisor` : ""
+    }${status ? `&status=${status}` : ""}${
+      query ? `&q=${encodeURIComponent(query)}` : ""
+    }`
+  );
 }
 //Professors API s
 
@@ -365,12 +249,15 @@ async function getMyTopics() {
   return await request("GET", `${BASE_URL}/v1/my/topics`);
 }
 
-async function createTopic(title,summary) {
-  return await request("POST", `${BASE_URL}/v1/topics`, {title,summary});
+async function createTopic(title, summary) {
+  return await request("POST", `${BASE_URL}/v1/topics`, { title, summary });
 }
 
-async function updateTopic(topicId, title,summary) {
-  return await request("PUT", `${BASE_URL}/v1/topics/${topicId}`, {title,summary});
+async function updateTopic(topicId, title, summary) {
+  return await request("PUT", `${BASE_URL}/v1/topics/${topicId}`, {
+    title,
+    summary,
+  });
 }
 
 async function putDescriptionFile(topicId, formData) {
@@ -395,7 +282,11 @@ async function getMyInvitations() {
 }
 
 async function respondToInvitation(invitationId, response) {
-  return await request("PUT",`${BASE_URL}/v1/invitations/${invitationId}/response`,{ response });
+  return await request(
+    "PUT",
+    `${BASE_URL}/v1/invitations/${invitationId}/response`,
+    { response }
+  );
 }
 
 //async function getThesisDetails(thesisId) {
@@ -406,4 +297,3 @@ async function respondToInvitation(invitationId, response) {
 async function getStatistics() {
   return await request("GET", `${BASE_URL}/v1/my/stats`);
 }
-

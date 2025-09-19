@@ -7,16 +7,18 @@ const state = {
   searchQuery: "",
 };
 
+const STATE_KEY = "thesesListState";
+
 async function setState(newState) {
   newState = { ...state, ...newState }; // Merge with existing state
   await onStateUpdate(newState);
   Object.assign(state, newState); // Update state
-  localStorage.setItem("thesesListState", JSON.stringify(state));
+  localStorage.setItem(STATE_KEY, JSON.stringify(state));
   console.log("State updated:", state);
 }
 
 async function loadState() {
-  const savedState = localStorage.getItem("thesesListState");
+  const savedState = localStorage.getItem(STATE_KEY);
   if (savedState) {
     Object.assign(state, JSON.parse(savedState));
   }
@@ -43,6 +45,34 @@ async function onFiltersReset(event) {
   });
 }
 
+async function onExportJsonClick(event) {
+  event.preventDefault();
+
+  const theses = await getMyTheses(
+    state.page,
+    state.pageSize,
+    state.statusFilter === "all" ? null : state.statusFilter,
+    state.searchQuery || null,
+    state.roleFilter === "all" ? null : state.roleFilter
+  );
+
+  exportThesesToJSON(theses.data);
+}
+
+async function onExportCsvClick(event) {
+  event.preventDefault();
+
+  const theses = await getMyTheses(
+    state.page,
+    state.pageSize,
+    state.statusFilter === "all" ? null : state.statusFilter,
+    state.searchQuery || null,
+    state.roleFilter === "all" ? null : state.roleFilter
+  );
+
+  exportThesesCSV(theses.data);
+}
+
 async function onPageSizeChange(event) {
   const newPageSize = parseInt(event.target.value);
 
@@ -55,8 +85,6 @@ async function onPageSizeChange(event) {
 
 // Called whenever state is updated
 async function onStateUpdate(newState) {
-  console.log(newState.pageSize);
-
   const theses = await getMyTheses(
     newState.page,
     newState.pageSize,
@@ -73,6 +101,7 @@ async function onStateUpdate(newState) {
     Math.ceil(theses.meta.total / newState.pageSize)
   );
 
+  // Re render UI
   renderPageSizeSelect(newState.pageSize);
   renderStatusFilter(newState.statusFilter);
   renderRoleFilter(newState.roleFilter);
@@ -92,10 +121,8 @@ function renderThesesCards(div, theses) {
     card.className = "col";
     card.innerHTML = `
       <article class="card h-100">
+        <h5 class="card-header fw-semibold text-primary">${thesis.topic}</h5>
         <div class="card-body d-flex flex-column">
-          <h5 class="card-title mb-3 fw-semibold text-primary">${
-            thesis.topic
-          }</h5>
           <ul class="list-unstyled mb-4 small">
             <li class="mb-1">
                 <i class="bi bi-person-fill me-1 text-secondary"></i>
@@ -107,13 +134,13 @@ function renderThesesCards(div, theses) {
             </li>
             <li class="mb-1">
                 <i class="bi bi-info-circle-fill me-1 text-secondary"></i>
-                <strong>Κατάσταση:</strong> <span class="rounded-pill badge ${getThesisStatusBootstrapBgClass(
+                <strong>Κατάσταση:</strong> <span class="rounded-pill border-0 badge ${getThesisStatusBootstrapBgClass(
                   thesis.status
                 )} border">${Name.ofThesisStatus(thesis.status)}</span>
             </li>
             <li>
                 <i class="bi bi-calendar-event-fill me-1 text-secondary"></i>
-                <strong>Ημ. Ανάθεσης:</strong> <span class="text-dark">${
+                <strong>Ημ. Ανάθεσης:</strong> <span>${
                   thesis.startDate
                     ? new Date(thesis.startDate).toLocaleDateString("el-GR")
                     : "Αναμένεται"
@@ -200,6 +227,12 @@ async function onLoad() {
   const filters = document.getElementById("filters");
   filters.addEventListener("submit", onFiltersSubmit);
   filters.addEventListener("reset", onFiltersReset);
+
+  const exportJsonBtn = document.getElementById("export-json-btn");
+  exportJsonBtn.addEventListener("click", onExportJsonClick);
+
+  const exportCsvBtn = document.getElementById("export-csv-btn");
+  exportCsvBtn.addEventListener("click", onExportCsvClick);
 
   initPageNav(
     document.getElementById("page-nav-container"),

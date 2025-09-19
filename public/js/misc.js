@@ -41,6 +41,19 @@ class Name {
         return "Μέλος";
     }
   }
+
+  static ofInvitationResponse(response) {
+    switch (response) {
+      case "pending":
+        return "Εκκρεμεί";
+      case "accepted":
+        return "Αποδεκτή";
+      case "rejected":
+        return "Απορριφθείσα";
+      case "cancelled":
+        return "Ακυρωθείσα";
+    }
+  }
 }
 
 function getMemberRoleBootstrapBgClass(role) {

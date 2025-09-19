@@ -291,8 +291,16 @@ async function unassignTopic(thesisId) {
 }
 
 async function getMyAssignedTopic() {
-  return await request("GET", `${BASE_URL}/v1//my/theses?status=under_assignment`);
+  return await request("GET", `${BASE_URL}/v1/my/theses?status=under_assignment`);
 }
+
+async function getUnassignedStudents() {
+  return await request("GET", `${BASE_URL}/v1/students?assigned=false`);
+}
+
+// async function getThesisInvitations(thesisId) {
+//   return await request("GET", `${BASE_URL}/v1/theses/${thesisId}/invitations`);
+// }
 
 //async function getThesisDetails(thesisId) {
 //  return await request("GET", `${BASE_URL}/v1/theses/${thesisId}`);

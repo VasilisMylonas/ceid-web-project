@@ -246,7 +246,7 @@ async function getThesesSecretary(
 
 //topics
 async function getMyTopics() {
-  return await request("GET", `${BASE_URL}/v1/my/topics`);
+  return await request("GET", `${BASE_URL}/v1/my/topics?status=unassigned`);
 }
 
 async function createTopic(title, summary) {
@@ -275,6 +275,29 @@ async function putDescriptionFile(topicId, formData) {
 //   }
 //   return await response.blob();
 // }
+
+//assignments
+
+// async function getMyTopics() {
+//   return await request("GET", `${BASE_URL}/v1/my/topics?status=unassigned`);
+// }
+
+async function assignTopic(studentId, topicId) {
+  return await request("POST", `${BASE_URL}/v1/theses`, { studentId,topicId });
+}
+
+async function unassignTopic(thesisId) {
+  return await request("DELETE", `${BASE_URL}/v1/theses/${thesisId}`);
+}
+
+async function getMyAssignedTopic() {
+  return await request("GET", `${BASE_URL}/v1//my/theses?status=under_assignment`);
+}
+
+//async function getThesisDetails(thesisId) {
+//  return await request("GET", `${BASE_URL}/v1/theses/${thesisId}`);
+//}
+
 
 //invitations
 async function getMyInvitations() {

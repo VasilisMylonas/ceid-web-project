@@ -5,8 +5,7 @@
   const $empty = document.getElementById("empty");
   const $error = document.getElementById("error");
 
-  const thesisCache = new Map();
-  let isLoading = false; 
+  let isLoading = false;
 
   const fmtDateTime = (iso) => {
     if (!iso) return "—";
@@ -35,12 +34,14 @@
   };
 
   async function fetchThesis(thesisId) {
-    if (thesisCache.has(thesisId)) return thesisCache.get(thesisId);
-    const res = await getThesisDetails(thesisId);
-    const payload = res?.success ? res.data : res?.data ?? null;
-    const out = (payload && payload.data) ? payload.data : payload;
-    thesisCache.set(thesisId, out);
-    return out;
+    try {
+      const res = await getThesisDetails(thesisId);
+      const payload = res?.success ? res.data : res?.data ?? null;
+      return (payload && payload.data) ? payload.data : payload;
+    } catch (err) {
+      console.error(err);
+      return null;
+    }
   }
 
   function renderInvitation(invite, thesis) {
@@ -55,7 +56,7 @@
 
     const pill = node.querySelector('[data-field="state"]');
     pill.classList.remove("ok", "err");
-    pill.textContent = Name.ofInvitationResponse(invite.response) ;
+    pill.textContent = Name.ofInvitationResponse(invite.response);
 
     const $accept = node.querySelector(".accept");
     const $reject = node.querySelector(".reject");
@@ -73,12 +74,12 @@
       }
     };
 
-     $accept.addEventListener("click", async () => {
+    $accept.addEventListener("click", async () => {
       hideBanners();
       try {
         setBusy(true);
         await respondToInvitation(invite.id, "accepted");
-        await loadInvitations(); 
+        await loadInvitations();
       } catch (err) {
         console.error(err);
         showError("Αποτυχία αποδοχής. Προσπαθήστε ξανά.");
@@ -92,7 +93,7 @@
       try {
         setBusy(true);
         await respondToInvitation(invite.id, "declined");
-        await loadInvitations(); 
+        await loadInvitations();
       } catch (err) {
         console.error(err);
         showError("Αποτυχία απόρριψης. Προσπαθήστε ξανά.");
@@ -105,7 +106,7 @@
   }
 
   async function loadInvitations() {
-    if (isLoading) return; 
+    if (isLoading) return;
     isLoading = true;
     setLoading(true);
     hideBanners();

@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     let response;
-   
+
         response = await getThesis();
         if (
             !response ||
@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       '<div class="alert alert-warning text-center"><h3>Δεν έχετε αναλάβει κάποια διπλωματική εργασία.</h3><p>Η σελίδα αυτή προορίζεται για τη διαχείριση μιας ενεργής διπλωματικής.</p></div>';
     return;
   }
-  
+
     const thesis = response.data[0];
     try {
         topic = await getTopic(thesis.topicId);
@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // The thesis is the first object in the 'data' array
-    
+
 
     // --- Helper function to get status color ---
     function getStatusClass(status) {
@@ -51,9 +51,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Fill in thesis details using the correct property names
     document.getElementById("thesis-title").textContent = thesis.topic || "Χωρίς Τίτλο";
     document.getElementById("thesis-summary").textContent = topic.summary || "Χωρίς Περίληψη";
-    
+
     const descriptionLink = document.getElementById("thesis-description");
- 
+
     descriptionLink.textContent = "Λήψη Περιγραφής";
     descriptionLink.href = "#"; // Keep it as a clickable link
     descriptionLink.classList.remove('disabled');
@@ -62,14 +62,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         e.preventDefault(); // Prevent the link from navigating
         try {
             const blob = await getTopicDescription(thesis.topicId);
-            
+
             // Create a temporary link to trigger the download
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.style.display = 'none';
             a.href = url;
             // Use the original filename from the topic or a default
-            a.download = topic.description || 'description.pdf'; 
+            a.download = topic.description || 'description.pdf';
             document.body.appendChild(a);
             a.click();
             window.URL.revokeObjectURL(url);
@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             alert('Δεν υπάρχει διαθέσιμη περιγραφή για αυτό το θέμα.');
         }
     });
-   
+
 
     // Status badge
     const statusSpan = document.getElementById("thesis-status");
@@ -104,21 +104,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     const committeeList = document.getElementById("committee-list");
     if (committeeList) {
         committeeList.innerHTML = ""; // Clear existing list
-        if (thesis.supervisor) {
+        for (const member of thesis.committeeMembers) {
             const li = document.createElement("li");
             li.className = "list-group-item d-flex justify-content-between align-items-center";
-            li.textContent = thesis.supervisor;
-            
+            li.textContent = member.name;
+
             const roleSpan = document.createElement('span');
-            roleSpan.className = 'badge bg-primary rounded-pill';
-            roleSpan.textContent = "Επιβλέπων";
+            roleSpan.className = `badge ${getMemberRoleBootstrapBgClass(member.role)} rounded-pill`;
+            roleSpan.textContent = Name.ofMemberRole(member.role);
             li.appendChild(roleSpan);
 
-            committeeList.appendChild(li);
-        } else {
-            const li = document.createElement("li");
-            li.className = "list-group-item";
-            li.textContent = "Δεν έχει οριστεί επιβλέπων.";
             committeeList.appendChild(li);
         }
     }

@@ -30,9 +30,7 @@ export default {
           )
           .optional()
       ),
-    })
-      .unknown(false)
-      .with("role", "professorId"),
+    }).unknown(false),
   },
   getInvitations: {
     query: Joi.object({

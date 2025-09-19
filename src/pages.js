@@ -205,6 +205,7 @@ pages.get("/student/:page", requirePageAuth, async (req, res) => {
   return res.render(`pages/student/${req.params.page}`, {
     title: studentLinks.find((link) => link.href === req.path)?.title,
     links: studentLinks,
+    user: req.user,
     layout: "layouts/basic",
   });
 });

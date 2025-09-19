@@ -1,4 +1,3 @@
-
 document.addEventListener("DOMContentLoaded", async () => {
   const container = document.querySelector(".container-fluid.py-4");
   const stateAssignment = document.getElementById("state-assignment");
@@ -103,54 +102,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       if (date || time || kind) {
         presentationSaveAttempted = true;
-        let isValid = true;
-        let validationMessage = "";
-
-        if (!date || !time || !kind) {
-          isValid = false;
-          validationMessage = "Για να αποθηκεύσετε τις λεπτομέρειες εξέτασης, πρέπει να συμπληρώσετε την Ημερομηνία, την Ώρα και τον Τύπο.";
-        } else {
-          const selectedDateTime = new Date(`${date}T${time}`);
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
-          if (selectedDateTime < today) {
-            isValid = false;
-            validationMessage = "Η ημερομηνία εξέτασης δεν μπορεί να είναι στο παρελθόν.";
-          } else if (kind === 'online') {
-            if (!link || !isValidUrl(link)) {
-              isValid = false;
-              validationMessage = "Για διαδικτυακή εξέταση, ο Σύνδεσμος είναι υποχρεωτικός και πρέπει να είναι έγκυρος.";
-            }
-            if (hall) {
-              isValid = false;
-              validationMessage = "Για διαδικτυακή εξέταση, το πεδίο Τοποθεσία πρέπει να είναι κενό.";
-              //hall = null;
-            }
-          } else if (kind === 'in_person') {
-            if (!hall) {
-              isValid = false;
-              validationMessage = "Για αυτοπρόσωπη εξέταση, η Τοποθεσία είναι υποχρεωτική.";
-            }
-            if (link && !isValidUrl(link)) {
-              isValid = false;
-              validationMessage = "Ο προαιρετικός σύνδεσμος δεν είναι σε έγκυρη μορφή.";
-            }
-          }
-        }
-
-        if (isValid) {
-          const formattedDateTime = `${date}T${time}:00`;
-          const presentationData = { date: formattedDateTime, kind };
-          if (kind === 'in_person') {
-            presentationData.hall = hall;
-            if (link) presentationData.link = link;
-          } else {
-            presentationData.link = link;
-          }
-          operations.push(createThesisPresentation(currentThesis.id, presentationData).catch(err => console.error("Presentation save failed:", err)));
-        } else {
-          alert(validationMessage);
-        }
+        const { isValid, validationMessage } = validatePresentationData({ date, time, kind, hall, link });
+        handlePresentationSave({ isValid, validationMessage, date, time, kind, hall, link, currentThesis, operations });
       }
 
       // Prepare links data
@@ -459,6 +412,51 @@ function isValidUrl(string) {
   }
 }
 
+function validatePresentationData({ date, time, kind, hall, link }) {
+  if (!date || !time || !kind) {
+    return {
+      isValid: false,
+      validationMessage: "Για να αποθηκεύσετε τις λεπτομέρειες εξέτασης, πρέπει να συμπληρώσετε την Ημερομηνία, την Ώρα και τον Τύπο."
+    };
+  }
+  const selectedDateTime = new Date(`${date}T${time}`);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  if (selectedDateTime < today) {
+    return {
+      isValid: false,
+      validationMessage: "Η ημερομηνία εξέτασης δεν μπορεί να είναι στο παρελθόν."
+    };
+  }
+  if (kind === 'online') {
+    if (!link || !isValidUrl(link)) {
+      return {
+        isValid: false,
+        validationMessage: "Για διαδικτυακή εξέταση, ο Σύνδεσμος είναι υποχρεωτικός και πρέπει να είναι έγκυρος."
+      };
+    }
+    if (hall) {
+      return {
+        isValid: false,
+        validationMessage: "Για διαδικτυακή εξέταση, το πεδίο Τοποθεσία πρέπει να είναι κενό."
+      };
+    }
+  } else if (kind === 'in_person') {
+    if (!hall) {
+      return {
+        isValid: false,
+        validationMessage: "Για αυτοπρόσωπη εξέταση, η Τοποθεσία είναι υποχρεωτική."
+      };
+    }
+    if (link && !isValidUrl(link)) {
+      return {
+        isValid: false,
+        validationMessage: "Ο προαιρετικός σύνδεσμος δεν είναι σε έγκυρη μορφή."
+      };
+    }
+  }
+  return { isValid: true, validationMessage: "" };
+}
 
 async function populateTimeline(thesisId) {
   const timelineList = document.getElementById("thesis-timeline-list");
@@ -507,5 +505,24 @@ const statusBadgeClass = {
 
 function getStatusBadge(status) {
   return `<span class="badge ${statusBadgeClass[status] || "bg-dark"}">${Name.ofThesisStatus(status)}</span>`;
+}
+
+function handlePresentationSave({ isValid, validationMessage, date, time, kind, hall, link, currentThesis, operations }) {
+  if (isValid) {
+    const formattedDateTime = `${date}T${time}:00`;
+    const presentationData = { date: formattedDateTime, kind };
+    if (kind === 'in_person') {
+      presentationData.hall = hall;
+      if (link) presentationData.link = link;
+    } else {
+      presentationData.link = link;
+    }
+    operations.push(
+      createThesisPresentation(currentThesis.id, presentationData)
+        .catch(err => console.error("Presentation save failed:", err))
+    );
+  } else {
+    alert(validationMessage);
+  }
 }
 

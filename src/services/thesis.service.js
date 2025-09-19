@@ -97,7 +97,7 @@ export default class ThesisService {
       ThesisRole.SUPERVISOR,
     ]);
 
-    if (!(await thesis.canBeDeleted())) {
+    if (thesis.status !== ThesisStatus.UNDER_ASSIGNMENT) {
       throw new ConflictError("Thesis cannot be deleted at this stage.");
     }
 
@@ -268,6 +268,10 @@ ${offset ? `OFFSET ${offset}` : ""}
       ThesisRole.STUDENT,
     ]);
 
+    if (thesis.status !== ThesisStatus.UNDER_EXAMINATION) {
+      throw new ConflictError("Thesis is not under examination.");
+    }
+
     // TODO: all profs must have graded
 
     await thesis.update({ nemertesLink });
@@ -278,6 +282,10 @@ ${offset ? `OFFSET ${offset}` : ""}
     const thesis = await ThesisService._assertUserHasThesisRoles(id, user, [
       ThesisRole.SUPERVISOR,
     ]);
+
+    if (thesis.status !== ThesisStatus.UNDER_EXAMINATION) {
+      throw new ConflictError("Thesis is not under examination.");
+    }
 
     // TODO: maybe a presentation and a draft should exist before allowing this
 
@@ -303,11 +311,25 @@ ${offset ? `OFFSET ${offset}` : ""}
       ThesisRole.STUDENT,
     ]);
 
+    if (thesis.status !== ThesisStatus.UNDER_EXAMINATION) {
+      throw new ConflictError("Thesis is not under examination.");
+    }
+
     await thesis.update({ documentFile: filename });
   }
 
   static async complete(id, user) {
     const thesis = await ThesisService.get(id);
+
+    if (thesis.status !== ThesisStatus.UNDER_EXAMINATION) {
+      throw new ConflictError("Thesis cannot be completed at this stage.");
+    }
+
+    if (thesis.grade === null || thesis.nemertesLink === null) {
+      throw new ConflictError(
+        "Thesis cannot be completed without grade and nemertes link."
+      );
+    }
 
     const committeeMembers = await thesis.getCommitteeMembers({
       include: db.Grade,
@@ -348,6 +370,18 @@ ${offset ? `OFFSET ${offset}` : ""}
       ThesisRole.SUPERVISOR,
     ]);
 
+    if (thesis.status !== ThesisStatus.ACTIVE) {
+      throw new ConflictError(
+        "Thesis cannot be set under examination at this stage."
+      );
+    }
+
+    if (thesis.protocolNumber === null) {
+      throw new ConflictError(
+        "Thesis cannot be set under examination without a protocol number."
+      );
+    }
+
     await thesis.update({ status: ThesisStatus.UNDER_EXAMINATION });
     return thesis.status;
   }
@@ -378,6 +412,14 @@ ${offset ? `OFFSET ${offset}` : ""}
       [ThesisRole.SUPERVISOR],
       true // Allow Secretary
     );
+
+    if (thesis.status === ThesisStatus.CANCELLED) {
+      throw new ConflictError("Thesis is already cancelled.");
+    }
+
+    if (thesis.status !== ThesisStatus.ACTIVE) {
+      throw new ConflictError("Thesis cannot be cancelled at this stage.");
+    }
 
     const now = new Date();
 

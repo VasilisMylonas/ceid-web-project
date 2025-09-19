@@ -303,11 +303,6 @@ ${offset ? `OFFSET ${offset}` : ""}
       ThesisRole.STUDENT,
     ]);
 
-
-    if (thesis.status !== ThesisStatus.UNDER_EXAMINATION) {
-      throw new ConflictError("Thesis is not under examination.");
-    }
-    deleteIfExists(thesis.documentFile);
     await thesis.update({ documentFile: filename });
   }
 

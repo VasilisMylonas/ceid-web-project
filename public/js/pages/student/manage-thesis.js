@@ -295,6 +295,10 @@ function setupModalEventListeners(modalElement, inviteModal, getThesis, onInvita
   };
 }
 
+async function populateCompletedState(thesis) {
+    await addPraktikoButton(thesis.id);
+}
+
 async function populateInvitationsList(invitations, activeStateCard) {
   const invitationList = activeStateCard.querySelector(".invitation-list");
   if (!invitationList) return;

@@ -430,6 +430,7 @@ ${offset ? `OFFSET ${offset}` : ""}
     const thesis = await ThesisService._assertUserHasThesisRoles(id, user, [
       ThesisRole.SUPERVISOR,
       ThesisRole.COMMITTEE_MEMBER,
+      ThesisRole.STUDENT,
     ]);
 
     return await thesis.getThesisChanges({ order: [["changedAt", "ASC"]] });

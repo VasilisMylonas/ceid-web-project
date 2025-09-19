@@ -56,9 +56,9 @@ document.addEventListener("DOMContentLoaded", async () => {
           populateInvitationsList(invitationsResponse.data || [], activeStateCard);
         } else if (currentThesis.status === "under_examination") {
           await populateExaminationState(currentThesis);
-          await populateCompletedState(currentThesis.id);
+          await addPraktikoButton(currentThesis.id);
         } else if (currentThesis.status === "completed") {
-          await populateCompletedState(currentThesis.id);
+          await addPraktikoButton(currentThesis.id);
         }
       }
     } catch (error) {
@@ -385,14 +385,14 @@ async function populateExaminationState(thesis) {
   const nimertisInput = document.getElementById('nimertisLink');
   if (nimertisInput) {
     nimertisInput.disabled = thesis.grade == null;
-    // Optionally, visually indicate it's disabled
-    nimertisInput.closest('.card').classList.toggle('opacity-50', thesis.grade == null);
+    // Optionally, visually indicate only the input is disabled
+    nimertisInput.classList.toggle('opacity-20', thesis.grade == null);
   }
 
   
 }
 
-async function populateCompletedState(thesisId) {
+async function addPraktikoButton(thesisId) {
   // Find the visible state card
   const stateCard = document.querySelector('.card.shadow-sm[style*="display: block"]');
   if (!stateCard) return;

@@ -315,9 +315,7 @@ function populateCommitteeList(thesis, activeStateCard) {
 }
 
 async function populateExaminationState(thesis) {
-  const downloadDraftBtn = document.getElementById("download-draft-btn");
-  downloadDraftBtn.innerHTML = `<i class="fas fa-file-download me-2"></i>Λήψη Τρέχοντος Αρχείου`;
-  downloadDraftBtn.disabled = false;
+  await addDownloadButton(thesis);
 
   const linksList = document.getElementById("existing-links-list");
   linksList.innerHTML = '';
@@ -362,7 +360,7 @@ async function populateExaminationState(thesis) {
   }
 
   await addPraktikoButton(thesis);
-  
+  await addDownloadButton(thesis);
 }
 
 async function addPraktikoButton(thesis) {
@@ -396,6 +394,36 @@ async function addPraktikoButton(thesis) {
         window.open(`/praktiko?thesisId=${thesisId}`, "_blank");
       } else {
         alert("Δεν έχει καταχωρηθεί παρουσίαση για τη διπλωματική εργασία. Το πρακτικό δεν είναι διαθέσιμο.");
+      }
+    };
+  }
+}
+
+async function addDownloadButton(thesis) {
+  // Find the visible state card
+  const stateCard = document.querySelector('.card.shadow-sm[style*="display: block"]');
+  if (!stateCard) return;
+
+  const downloadDraftBtn = stateCard.querySelector("#download-draft-btn");
+  if (downloadDraftBtn && thesis.id) {
+    downloadDraftBtn.disabled = false;
+    downloadDraftBtn.innerHTML = `<i class="fas fa-file-download me-2"></i>Λήψη Διπλωματικής Εργασίας`;
+
+    downloadDraftBtn.onclick = async () => {
+      try {
+        const blob = await getThesisDraft(thesis.id);
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.style.display = "none";
+        a.href = url;
+        a.download = "thesis_draft.pdf";
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        a.remove();
+      } catch (error) {
+        console.error("Failed to download thesis draft:", error);
+        alert("Δεν βρέθηκε αρχείο για λήψη.");
       }
     };
   }

@@ -275,7 +275,11 @@ ${offset ? `OFFSET ${offset}` : ""}
       throw new ConflictError("Thesis is not under examination.");
     }
 
-    // TODO: all profs must have graded
+    if (thesis.grade === null) {
+      throw new ConflictError(
+        "Thesis must be graded before setting nemertes link."
+      );
+    }
 
     await thesis.update({ nemertesLink });
     return thesis.nemertesLink;
@@ -334,33 +338,7 @@ ${offset ? `OFFSET ${offset}` : ""}
       );
     }
 
-    const committeeMembers = await thesis.getCommitteeMembers({
-      include: db.Grade,
-    });
-
-    const grades = committeeMembers
-      .map((member) => member.Grade)
-      .filter((grade) => grade !== null);
-
-    if (grades.length !== committeeMembers.length) {
-      throw new ConflictError("Not all committee members have graded.");
-    }
-
-    const average =
-      grades
-        .map(
-          // Calculate based on CEID regulations
-          // https://www.ceid.upatras.gr/sites/default/files/pages/diplomatiki_ergasia_tmiyp_0.pdf
-          (grade) =>
-            0.6 * grade.objectives +
-            0.15 * grade.duration +
-            0.15 * grade.deliverableQuality +
-            0.1 * grade.presentationQuality
-        )
-        .reduce((sum, grade) => sum + grade, 0) / grades.length;
-
     await thesis.update({
-      grade: average,
       status: ThesisStatus.COMPLETED,
       endDate: new Date(),
     });
@@ -578,6 +556,33 @@ ${offset ? `OFFSET ${offset}` : ""}
         deliverableQuality,
         presentationQuality,
       });
+    }
+
+    const committeeMembers = await thesis.getCommitteeMembers({
+      include: db.Grade,
+    });
+
+    const grades = committeeMembers
+      .map((member) => member.Grade)
+      .filter((grade) => grade !== null);
+
+    // If all committee members have graded, calculate the final grade
+    if (grades.length === committeeMembers.length) {
+      const average =
+        grades
+          .map(
+            // Calculate based on CEID regulations
+            // https://www.ceid.upatras.gr/sites/default/files/pages/diplomatiki_ergasia_tmiyp_0.pdf
+            (grade) =>
+              0.6 * grade.objectives +
+              0.15 * grade.duration +
+              0.15 * grade.deliverableQuality +
+              0.1 * grade.presentationQuality
+          )
+          .reduce((sum, grade) => sum + grade, 0) / grades.length;
+
+      // Round to 2 decimal places
+      await thesis.update({ grade: Math.round(average * 100) / 100 });
     }
 
     return await committeeMember.getGrade();

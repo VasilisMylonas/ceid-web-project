@@ -348,8 +348,6 @@ ${offset ? `OFFSET ${offset}` : ""}
       ThesisRole.SUPERVISOR,
     ]);
 
-    // TODO: maybe there should exist a protocolNumber before allowing this
-
     await thesis.update({ status: ThesisStatus.UNDER_EXAMINATION });
     return thesis.status;
   }

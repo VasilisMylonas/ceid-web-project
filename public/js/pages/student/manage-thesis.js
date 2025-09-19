@@ -124,6 +124,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             if (hall) {
               isValid = false;
               validationMessage = "Για διαδικτυακή εξέταση, το πεδίο Τοποθεσία πρέπει να είναι κενό.";
+              hall = null;
             }
           } else if (kind === 'in_person') {
             if (!hall) {

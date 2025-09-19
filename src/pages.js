@@ -109,9 +109,7 @@ pages.get(
       req.user
     );
 
-    const presentation = presentations[0];
-    
-
+    const presentation = presentations.at(-1);
     res.render("pages/praktiko", {
 
       studentName: data.student,

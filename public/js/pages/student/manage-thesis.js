@@ -59,6 +59,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           await addPraktikoButton(currentThesis.id);
         } else if (currentThesis.status === "completed") {
           await addPraktikoButton(currentThesis.id);
+          await populateTimeline(currentThesis.id); // <-- This line ensures the timeline is shown
         }
       }
     } catch (error) {
@@ -296,7 +297,8 @@ function setupModalEventListeners(modalElement, inviteModal, getThesis, onInvita
 }
 
 async function populateCompletedState(thesis) {
-    await addPraktikoButton(thesis.id);
+  await addPraktikoButton(thesis.id);
+  await populateTimeline(thesis.id); // <-- This line ensures the timeline is shown
 }
 
 async function populateInvitationsList(invitations, activeStateCard) {
@@ -434,3 +436,41 @@ function isValidUrl(string) {
     return false;
   }
 }
+
+async function populateTimeline(thesisId) {
+  const timelineList = document.getElementById("thesis-timeline-list");
+  if (!timelineList) return;
+
+  timelineList.innerHTML = `<li class="list-group-item text-center text-muted">Φόρτωση ιστορικού...</li>`;
+
+  try {
+    const timelineResponse = await getThesisTimeline(thesisId);
+    const timeline = timelineResponse?.data || [];
+
+    if (!timeline.length) {
+      timelineList.innerHTML = `<li class="list-group-item text-center text-muted">Δεν υπάρχουν αλλαγές κατάστασης.</li>`;
+      return;
+    }
+
+    timelineList.innerHTML = timeline
+      .map(entry => {
+        const date = new Date(entry.changedAt).toLocaleString("el-GR");
+        return `
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <span>
+              <strong>${Name.ofThesisStatus(entry.oldStatus)}</strong>
+              <i class="fas fa-arrow-right mx-2"></i>
+              <strong>${Name.ofThesisStatus(entry.newStatus)}</strong>
+            </span>
+            <span class="text-muted small">${date}</span>
+          </li>
+        `;
+      })
+      .reverse() // Show latest first
+      .join("");
+  } catch (error) {
+    console.error("Failed to load thesis timeline:", error);
+    timelineList.innerHTML = `<li class="list-group-item text-danger">Σφάλμα φόρτωσης ιστορικού.</li>`;
+  }
+}
+

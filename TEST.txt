@@ -1,0 +1,17 @@
+## No thesis: OK
+
+## Thesis under assignment:
+undefined date
+Χρόνος από ανάθεση -
+Να δείχνει τις ACCEPTED προσκλήσεις στις εκκρεμμείς ?
+
+## Thesis active:
+Η διπλωματική σας εργασία έχει εγκριθεί και είναι σε κατάσταση ενεργή. ??
+- Μπορεί να μην έχει εγκριθεί δεν το ξέρουμε ακόμα, απλά ειναι active
+- Δεν φαίνεται αν έχει λάβει αριθμό πρωτοκόλλου
+
+AN EINAI CANCELLED TI GINETAI? PREPEI NA MPOREI NA LABEI KAINOURIA
+
+
+## UNDER_EXAMINATION
+den katalavainw ti ginetai sto gui

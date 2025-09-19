@@ -58,6 +58,28 @@ export default async function seedDatabase() {
     division: "Software Engineering",
   });
 
+  const professor4 = await UserService.create({
+    username: "professor4",
+    password: "professor4",
+    email: "professor4@example.com",
+    name: "Test Professor 4",
+    role: UserRole.PROFESSOR,
+    phone: "6942023594",
+    address: "ADDRESS",
+    division: "Software Engineering",
+  });
+
+  const professor5 = await UserService.create({
+    username: "professor5",
+    password: "professor5",
+    email: "professor5@example.com",
+    name: "Test Professor 5",
+    role: UserRole.PROFESSOR,
+    phone: "6942023594",
+    address: "ADDRESS",
+    division: "Software Engineering",
+  });
+
   const student = await UserService.create({
     username: "student",
     password: "student",
@@ -97,7 +119,6 @@ export default async function seedDatabase() {
   const studentId = (await student.getStudent()).id;
   const thesis = await ThesisService.create({ topicId: topic.id, studentId });
 
-  // Invite 2 professors
   const inv1 = await ThesisService.createInvitation(
     thesis.id,
     student,
@@ -108,8 +129,6 @@ export default async function seedDatabase() {
     student,
     professor3.id
   );
-
-  // Professors accept the invitation
   await InvitationService.respond(
     inv1.id,
     professor2,
@@ -121,6 +140,11 @@ export default async function seedDatabase() {
     InvitationResponse.ACCEPTED
   );
 
+  // await ThesisService.cancel(thesis.id, secretary, {
+  //   assemblyNumber: "2024/1",
+  //   cancellationReason: "Just for testing",
+  // });
+
   await ThesisService.approve(thesis.id, secretary, {
     assemblyNumber: "2025/1",
     protocolNumber: "123/2024",
@@ -128,11 +152,38 @@ export default async function seedDatabase() {
 
   await ThesisService.examine(thesis.id, professor);
 
-  // await ThesisService.setNemertesLink(
-  //   thesis.id,
-  //   student,
-  //   "http://nemertes.library.upatras.gr/handle/123456789/12345"
-  // );
+  await ThesisService.setGrading(
+    thesis.id,
+    professor,
+    ThesisGradingStatus.ENABLED
+  );
+
+  await ThesisService.setGrade(thesis.id, professor, {
+    objectives: 8,
+    duration: 9,
+    deliverableQuality: 7,
+    presentationQuality: 10,
+  });
+
+  await ThesisService.setGrade(thesis.id, professor2, {
+    objectives: 6,
+    duration: 9,
+    deliverableQuality: 5,
+    presentationQuality: 8,
+  });
+
+  await ThesisService.setGrade(thesis.id, professor3, {
+    objectives: 7,
+    duration: 8,
+    deliverableQuality: 6,
+    presentationQuality: 9,
+  });
+
+  await ThesisService.setNemertesLink(
+    thesis.id,
+    student,
+    "http://nemertes.library.upatras.gr/handle/123456789/12345"
+  );
 
   // await ThesisService.createPresentation(thesis.id, student, {
   //   date: new Date("2025-09-18T12:00:00"),
@@ -140,32 +191,7 @@ export default async function seedDatabase() {
   //   kind: PresentationKind.IN_PERSON,
   // });
 
-  // await ThesisService.setGrading(
-  //   thesis.id,
-  //   professor,
-  //   ThesisGradingStatus.ENABLED
-  // );
 
-  // await ThesisService.setGrade(thesis.id, professor, {
-  //   objectives: 8,
-  //   duration: 9,
-  //   deliverableQuality: 7,
-  //   presentationQuality: 10,
-  // });
-
-  // await ThesisService.setGrade(thesis.id, professor2, {
-  //   objectives: 6,
-  //   duration: 9,
-  //   deliverableQuality: 5,
-  //   presentationQuality: 8,
-  // });
-
-  // await ThesisService.setGrade(thesis.id, professor3, {
-  //   objectives: 7,
-  //   duration: 8,
-  //   deliverableQuality: 6,
-  //   presentationQuality: 9,
-  // });
 
   // await ThesisService.complete(thesis.id, secretary);
 

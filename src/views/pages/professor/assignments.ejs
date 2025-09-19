@@ -1,33 +1,28 @@
 <div class="container-fluid">
-    <h1 class="h2 mb-4">Διαχείριση Θεμάτων</h1>
+    <h1 class="h2 mb-4">Ανάθεση σε Φοιτητή</h1>
 
-    <!-- 1. List of Created/Assigned Topics -->
     <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">Τα Θέματά μου</h5>
-            <!-- This button now opens the create modal -->
-            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#create-topic-modal">
-                <i class="bi bi-plus-circle me-1"></i> Δημιουργία Νέου Θέματος
-            </button>
-        </div>
-        <div class="card-body">
-            <p class="text-muted">Επιλέξτε μια ενέργεια από τη λίστα για να διαχειριστείτε τα θέματά σας.</p>
-            <table class="table table-hover align-middle">
-                <thead>
-                    <tr>
-                        <th>Τίτλος</th>
-                        <th>Κατάσταση</th>
-                        <th>Φοιτητής</th>
-                        <th class="text-center">Ενέργειες</th>
-                    </tr>
-                </thead>
-                <tbody id="my-topics-table-body">
-                    <!-- Rows will be populated by topics-manage.js -->
-                </tbody>
-            </table>
-        </div>
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Τα Θέματά μου</h5>
+      </div>
+      <div class="card-body">
+        <table class="table table-hover align-middle">
+          <thead>
+            <tr>
+              <th>Τίτλος</th>
+              <th>Κατάσταση</th>
+              <th>Φοιτητής</th>
+              <th class="text-center">Ενέργειες</th>
+            </tr>
+          </thead>
+          <tbody id="my-topics-table-body">
+            <!-- Γεμίζει δυναμικά από assignments.js -->
+          </tbody>
+        </table>
+      </div>
     </div>
-</div>
+  </div>
+
 
   <!-- Assign Student Modal -->
   <div class="modal fade" id="assign-student-modal" tabindex="-1" aria-labelledby="assignStudentModalLabel"
@@ -117,73 +112,5 @@
   </div>
 
 
-<!-- Create Topic Modal -->
-<div class="modal fade" id="create-topic-modal" tabindex="-1" aria-labelledby="createTopicModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="createTopicModalLabel">Δημιουργία Νέου Θέματος</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <form id="create-topic-form">
-          <div class="mb-3">
-            <label for="create-title" class="form-label">Τίτλος</label>
-            <input type="text" class="form-control" id="create-title" name="title" required>
-          </div>
-          <div class="mb-3">
-            <label for="create-description" class="form-label">Σύντομη Περιγραφή</label>
-            <textarea class="form-control" id="create-description" name="description" rows="3" required></textarea>
-          </div>
-          <div class="mb-3">
-            <label for="create-pdfFile" class="form-label">Αρχείο PDF (Προαιρετικό)</label>
-            <input class="form-control" type="file" id="create-pdfFile" name="file" accept=".pdf">
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Ακύρωση</button>
-        <button type="submit" form="create-topic-form" class="btn btn-success">Αποθήκευση Θέματος</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Topic Details Modal -->
-<div class="modal fade" id="topic-details-modal" tabindex="-1" aria-labelledby="topicDetailsModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="topicDetailsModalLabel">Λεπτομέρειες Θέματος</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <form id="edit-topic-form">
-          <input type="hidden" id="modal-topic-id">
-          <div class="mb-3">
-            <label for="modal-topic-title" class="form-label">Τίτλος</label>
-            <input type="text" class="form-control" id="modal-topic-title" readonly>
-          </div>
-          <div class="mb-3">
-            <label for="modal-topic-description" class="form-label">Περιγραφή</label>
-            <textarea class="form-control" id="modal-topic-description" rows="5" readonly></textarea>
-          </div>
-          <div class="mb-3">
-            <label for="modal-topic-file" class="form-label">Επισύναψη Νέου Αρχείου</label>
-            <input class="form-control" type="file" id="modal-topic-file" accept=".pdf" disabled>
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Κλείσιμο</button>
-        <button type="button" class="btn btn-outline-info" id="view-file-btn" style="display:none;">
-            <i class="bi bi-file-earmark-pdf me-1"></i> Προβολή Αρχείου
-          </button>
-        <button type="button" class="btn btn-primary" id="edit-topic-btn">Επεξεργασία</button>
-        <button type="button" class="btn btn-success" id="save-topic-btn" style="display:none;">Αποθήκευση</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<script src="/js/pages/professor/assignments.js"></script>
+  <!-- Η λογική της σελίδας -->
+  <script src="/js/pages/professor/assignments.js"></script>

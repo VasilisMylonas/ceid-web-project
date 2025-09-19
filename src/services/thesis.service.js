@@ -17,8 +17,11 @@ export default class ThesisService {
     const student = await user.getStudent();
     const professor = await user.getProfessor();
 
-    if (user.role === UserRole.SECRETARY && allowSecretary) {
-      return thesis;
+    if (user.role === UserRole.SECRETARY) {
+      if (allowSecretary) {
+        return thesis;
+      }
+      throw new SecurityError();
     }
 
     const isStudent = student ? thesis.studentId == student.id : false;

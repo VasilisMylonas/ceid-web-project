@@ -1,7 +1,7 @@
 import { omit } from "../util.js";
 import { InvitationResponse, ThesisStatus } from "../constants.js";
 import db from "../models/index.js";
-import { Sequelize } from "sequelize";
+import { Op } from "sequelize";
 import UserService from "../services/user.service.js";
 import TopicService from "../services/topic.service.js";
 import ThesisService from "../services/thesis.service.js";
@@ -76,10 +76,10 @@ export default class MyController {
     const student = await req.user.getStudent();
 
     // Only not cancelled theses
-    const theses = student.getTheses({
+    const theses = await student.getTheses({
       where: {
         status: {
-          [Sequelize.Op.ne]: ThesisStatus.CANCELLED,
+          [Op.ne]: ThesisStatus.CANCELLED,
         },
       },
     });
@@ -90,7 +90,7 @@ export default class MyController {
       return res.success([], { count: 0, total: 0 });
     }
 
-    const thesis = await ThesisService.getExtra(student.id, req.user);
+    const thesis = await ThesisService.getExtra(theses[0].id, req.user);
 
     res.success([thesis], {
       count: 1,

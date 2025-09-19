@@ -91,6 +91,39 @@ export default async function seedDatabase() {
     am: "0",
   });
 
+  const student2 = await UserService.create({
+    username: "student2",
+    password: "student2",
+    email: "student2@example.com",
+    name: "Test Student 2",
+    role: UserRole.STUDENT,
+    phone: "6942023594",
+    address: "ADDRESS",
+    am: "2",
+  });
+
+  const student3 = await UserService.create({
+    username: "student3",
+    password: "student3",
+    email: "student3@example.com",
+    name: "Test Student 3",
+    role: UserRole.STUDENT,
+    phone: "6942023594",
+    address: "ADDRESS",
+    am: "3",
+  });
+
+  const student4 = await UserService.create({
+    username: "student4",
+    password: "student4",
+    email: "student4@example.com",
+    name: "Test Student 4",
+    role: UserRole.STUDENT,
+    phone: "6942023594",
+    address: "ADDRESS",
+    am: "4",
+  });
+
   const secretary = await UserService.create({
     username: "secretary",
     password: "secretary",
@@ -106,18 +139,32 @@ export default async function seedDatabase() {
     summary: "This is a sample topic for testing.",
   });
 
-  await TopicService.create(professor, {
+  const topic2 = await TopicService.create(professor, {
     title: "Sample Topic 2",
     summary: "This is a sample topic for testing.",
   });
 
-  await TopicService.create(professor, {
+  const topic3 = await TopicService.create(professor, {
     title: "Sample Topic 3",
     summary: "This is a sample topic for testing.",
   });
 
+  const topic4 = await TopicService.create(professor, {
+    title: "Sample Topic 4",
+    summary: "This is a sample topic for testing.",
+  });
+
   const studentId = (await student.getStudent()).id;
+
+  const studentId2 = (await student2.getStudent()).id;
+  const studentId3 = (await student3.getStudent()).id;
+  const studentId4 = (await student4.getStudent()).id;
+
   const thesis = await ThesisService.create({ topicId: topic.id, studentId });
+
+  await ThesisService.create({ topicId: topic2.id, studentId: studentId2 });
+  await ThesisService.create({ topicId: topic3.id, studentId: studentId3 });
+  await ThesisService.create({ topicId: topic4.id, studentId: studentId4 });
 
   const inv1 = await ThesisService.createInvitation(
     thesis.id,
@@ -190,8 +237,6 @@ export default async function seedDatabase() {
   //   hall: "Αίθουσα 1",
   //   kind: PresentationKind.IN_PERSON,
   // });
-
-
 
   // await ThesisService.complete(thesis.id, secretary);
 

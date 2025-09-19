@@ -1,3 +1,4 @@
+
 document.addEventListener("DOMContentLoaded", async () => {
   const container = document.querySelector(".container-fluid.py-4");
   const stateAssignment = document.getElementById("state-assignment");
@@ -294,6 +295,21 @@ function setupModalEventListeners(modalElement, inviteModal, getThesis, onInvita
 }
 
 async function populateCompletedState(thesis) {
+  // Fill thesis details
+  document.getElementById("thesis-title").textContent = thesis.topic || "-";
+ 
+  document.getElementById("thesis-description").textContent = thesis.topicSummary || "-";
+  const fileLink = document.getElementById("thesis-description-file");
+  if (fileLink) {
+    if (thesis.descriptionFileUrl) {
+      fileLink.href = thesis.descriptionFileUrl;
+      fileLink.style.display = "";
+    } else {
+      fileLink.href = "#";
+      fileLink.style.display = "none";
+    }
+  }
+
   await addPraktikoButton(thesis);
   await populateTimeline(thesis.id); 
 }

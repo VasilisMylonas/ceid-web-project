@@ -294,6 +294,17 @@ class Name {
         return "Μέλος";
     }
   }
+
+  static ofInvitationResponse(response) {
+    switch (response) {
+      case "accepted":
+        return "Αποδεκτή";
+      case "rejected":
+        return "Απορριφθείσα";
+      case "pending":
+        return "Εκκρεμεί";
+    }
+  }
 }
 
 function getMemberRoleBootstrapBgClass(role) {
@@ -347,3 +358,52 @@ function makeDaysSinceString(date) {
 
   return elapsedText;
 }
+//Professors API s
+
+//topics
+async function getMyTopics() {
+  return await request("GET", `${BASE_URL}/v1/my/topics`);
+}
+
+async function createTopic(title,summary) {
+  return await request("POST", `${BASE_URL}/v1/topics`, {title,summary});
+}
+
+async function updateTopic(topicId, title,summary) {
+  return await request("PUT", `${BASE_URL}/v1/topics/${topicId}`, {title,summary});
+}
+
+async function putDescriptionFile(topicId, formData) {
+  return await requestWithFile(
+    "PUT",
+    `${BASE_URL}/v1/topics/${topicId}/description`,
+    formData
+  );
+}
+
+// async function getTopicDescription(topicId) {
+//   const response = await fetch(`${BASE_URL}/v1/topics/${topicId}/description`);
+//   if (!response.ok) {
+//     throw new Error(`Failed to download file: ${response.statusText}`);
+//   }
+//   return await response.blob();
+// }
+
+//invitations
+async function getMyInvitations() {
+  return await request("GET", `${BASE_URL}/v1/my/invitations`);
+}
+
+async function respondToInvitation(invitationId, response) {
+  return await request("PUT",`${BASE_URL}/v1/invitations/${invitationId}/response`,{ response });
+}
+
+//async function getThesisDetails(thesisId) {
+//  return await request("GET", `${BASE_URL}/v1/theses/${thesisId}`);
+//}
+
+//stats
+async function getStatistics() {
+  return await request("GET", `${BASE_URL}/v1/my/stats`);
+}
+

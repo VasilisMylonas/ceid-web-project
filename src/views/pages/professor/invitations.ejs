@@ -1,22 +1,39 @@
+<div class="container py-4">
+  <h1 class="h2 mb-0">Προσκλήσεις τριμελούς</h1>
+  <p class="text-muted mb-4">Απαντήστε στις προσκλήσεις σας για συμμετοχή σε τριμελείς επιτροπές.</p>
 
-<div class="container-fluid">
-    <h1 class="h2 mb-4">Εκκρεμείς Προσκλήσεις</h1>
-    <p class="text-muted">Απαντήστε στις προσκλήσεις για συμμετοχή σε τριμελείς επιτροπές.</p>
+  <div id="status" role="status" aria-live="polite" class="mb-2">Φόρτωση προσκλήσεων…</div>
+  <div id="error" class="alert alert-danger" hidden>Παρουσιάστηκε σφάλμα. Δοκιμάστε ξανά.</div>
+  <div id="empty" class="alert alert-info" hidden>Δεν υπάρχουν εκκρεμείς προσκλήσεις.</div>
 
-    <div class="list-group">
-        <!-- EJS loop to populate invitations -->
-        <div class="list-group-item list-group-item-action">
-            <div class="d-flex w-100 justify-content-between">
-                <h5 class="mb-1">Θέμα: Ανάλυση Μεγάλων Δεδομένων</h5>
-                <small>Πρόσκληση: 3 μέρες πριν</small>
-            </div>
-            <p class="mb-1"><strong>Επιβλέπων:</strong> Δρ. Κ. Νικολάου</p>
-            <p class="mb-1"><strong>Φοιτητής:</strong> Ελένη Ιωάννου</p>
-            <div class="mt-2">
-                <button class="btn btn-success">Αποδοχή</button>
-                <button class="btn btn-danger">Απόρριψη</button>
-            </div>
+  <section id="list" hidden></section>
+
+  <template id="invitation-item">
+    <article class="card shadow-sm mb-3" data-id="">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start">
+          <h2 class="h6 mb-2">Πρόσκληση</h2>
+          <span data-field="state" class="badge bg-secondary">pending</span>
         </div>
-        <!-- End loop -->
-    </div>
+
+        <p class="mb-1"><strong>Φοιτητής/τρια:</strong> <span data-field="student"></span></p>
+        <p class="mb-1"><strong>Θέμα:</strong> <span data-field="topic"></span></p>
+
+        <p class="mb-1">
+          <strong>Περίληψη Θέματος:</strong>
+          <span data-field="topicSummary"></span>
+        </p>
+
+        <p class="mb-1"><strong>Επιβλέπων/ουσα:</strong> <span data-field="supervisor"></span></p>
+        <p class="mb-1"><strong>Ημ/νία πρόσκλησης:</strong> <span data-field="createdAt"></span></p>
+
+        <div class="mt-3 d-flex gap-2">
+          <button class="btn btn-outline-danger btn-sm reject" type="button">Απόρριψη</button>
+          <button class="btn btn-success btn-sm accept" type="button">Αποδοχή</button>
+        </div>
+      </div>
+    </article>
+  </template>
 </div>
+
+<script type="module" src="/js/pages/professor/invitations.js"></script>

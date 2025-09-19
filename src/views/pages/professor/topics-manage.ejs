@@ -48,7 +48,7 @@
           </div>
           <div class="mb-3">
             <label for="create-pdfFile" class="form-label">Αρχείο PDF (Προαιρετικό)</label>
-            <input class="form-control" type="file" id="create-pdfFile" name="pdfFile" accept=".pdf">
+            <input class="form-control" type="file" id="create-pdfFile" name="file" accept=".pdf">
           </div>
         </form>
       </div>
@@ -87,6 +87,9 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Κλείσιμο</button>
+        <button type="button" class="btn btn-outline-info" id="view-file-btn" style="display:none;">
+            <i class="bi bi-file-earmark-pdf me-1"></i> Προβολή Αρχείου
+          </button>
         <button type="button" class="btn btn-primary" id="edit-topic-btn">Επεξεργασία</button>
         <button type="button" class="btn btn-success" id="save-topic-btn" style="display:none;">Αποθήκευση</button>
       </div>

@@ -125,7 +125,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             if (hall) {
               isValid = false;
               validationMessage = "Για διαδικτυακή εξέταση, το πεδίο Τοποθεσία πρέπει να είναι κενό.";
-              hall = null;
+              //hall = null;
             }
           } else if (kind === 'in_person') {
             if (!hall) {
@@ -393,8 +393,11 @@ async function populateExaminationState(thesis) {
 }
 
 async function populateCompletedState(thesisId) {
-  const viewPraktikoBtn = document.getElementById("view-praktiko-btn");
+  // Find the visible state card
+  const stateCard = document.querySelector('.card.shadow-sm[style*="display: block"]');
+  if (!stateCard) return;
 
+  const viewPraktikoBtn = stateCard.querySelector("#view-praktiko-btn");
   if (viewPraktikoBtn && thesisId) {
     let hasPresentation = false;
     try {
@@ -415,8 +418,6 @@ async function populateCompletedState(thesisId) {
       }
     };
   }
-
-
 }
 /**
  * Helper function to validate a URL string.

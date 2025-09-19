@@ -215,32 +215,37 @@ pages.get("/professor/:page", requirePageAuth, async (req, res) => {
     return res.redirect("/");
   }
 
-  const studentLinks = [
+  const professorLinks = [
     {
-      href: "/student/home",
-      icon: "bi-house",
+      href: "/professor/topics-manage",
+      icon: "bi-house-door",
       title: "Αρχική",
     },
     {
-      href: "/student/view-topic",
-      icon: "bi-book",
-      title: "Προβολή θέματος",
+      href: "/professor/assignments",
+      icon: "bi-journal-plus",
+      title: "Θέματα & Ανάθεση",
     },
     {
-      href: "/student/manage-thesis",
-      icon: "bi-file-earmark-check",
-      title: "Διαχείριση Διπλωματικής Εργασίας",
+      href: "/professor/theses-list",
+      icon: "bi-collection",
+      title: "Οι Διπλωματικές μου",
     },
     {
-      href: "/student/edit-profile",
-      icon: "bi-person-circle",
-      title: "Επεξεργασία Προφίλ",
+      href: "/professor/invitations",
+      icon: "bi-envelope",
+      title: "Προσκλήσεις",
+    },
+    {
+      href: "/professor/statistics",
+      icon: "bi-graph-up",
+      title: "Στατιστικά",
     },
   ];
 
-  return res.render(`pages/student/${req.params.page}`, {
-    title: studentLinks.find((link) => link.href === req.path)?.title,
-    links: studentLinks,
+  return res.render(`pages/professor/${req.params.page}`, {
+    title: professorLinks.find((link) => link.href === req.path)?.title,
+    links: professorLinks,
     layout: "layouts/basic",
   });
 });

@@ -4,6 +4,7 @@ import { ThesisGradingStatus, ThesisStatus } from "../constants.js";
 import { getFilePath } from "../config/file-storage.js";
 import { UserRole } from "../constants.js";
 import { ThesisRole } from "../constants.js";
+import { Sequelize } from "sequelize";
 
 export default class ThesisService {
   static async _assertUserHasThesisRoles(
@@ -605,7 +606,24 @@ ${offset ? `OFFSET ${offset}` : ""}
 
     return await thesis.getInvitations({
       order: [["id", "ASC"]],
-      include: [db.Professor],
+      attributes: {
+        include: [
+          [Sequelize.col("Professor.User.name"), "professorName"],
+          [Sequelize.col("Professor.User.email"), "professorEmail"],
+        ],
+      },
+      include: [
+        {
+          model: db.Professor,
+          attributes: [],
+          include: [
+            {
+              model: db.User,
+              attributes: ["name", "email"],
+            },
+          ],
+        },
+      ],
     });
   }
 

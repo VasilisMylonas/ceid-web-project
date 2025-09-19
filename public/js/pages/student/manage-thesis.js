@@ -1,15 +1,3 @@
-/**
- * Helper function to validate a URL string.
- */
-function isValidUrl(string) {
-  try {
-    new URL(string);
-    return true;
-  } catch (_) {
-    return false;
-  }
-}
-
 document.addEventListener("DOMContentLoaded", async () => {
   const container = document.querySelector(".container-fluid.py-4");
   const stateAssignment = document.getElementById("state-assignment");
@@ -68,6 +56,8 @@ document.addEventListener("DOMContentLoaded", async () => {
           populateInvitationsList(invitationsResponse.data || [], activeStateCard);
         } else if (currentThesis.status === "under_examination") {
           await populateExaminationState(currentThesis);
+        } else if (currentThesis.status === "completed") {
+          await populateCompletedState(currentThesis.id);
         }
       }
     } catch (error) {
@@ -240,14 +230,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  // Add this after you set initialThesisId
-  const viewPraktikoBtn = document.getElementById("view-praktiko-btn");
-  if (viewPraktikoBtn && initialThesisId) {
-    viewPraktikoBtn.addEventListener("click", () => {
-      window.open(`/praktiko?thesisId=${initialThesisId}`, "_blank");
-    });
-  }
-
   await refreshPageData();
 });
 
@@ -394,4 +376,40 @@ async function populateExaminationState(thesis) {
 
   document.getElementById('nimertisLink').value = thesis.nimertisUrl || '';
 
+}
+
+async function populateCompletedState(thesisId) {
+  const viewPraktikoBtn = document.getElementById("view-praktiko-btn");
+
+  if (viewPraktikoBtn && thesisId) {
+    let hasPresentation = false;
+    try {
+      const presentationsResponse = await getThesisPresentations(thesisId);
+      hasPresentation = presentationsResponse?.data?.length > 0;
+    } catch (error) {
+      console.error("Failed to fetch presentations:", error);
+      viewPraktikoBtn.disabled = true;
+      viewPraktikoBtn.title = "Σφάλμα κατά τον έλεγχο παρουσίασης.";
+      return;
+    }
+
+    viewPraktikoBtn.onclick = () => {
+      if (hasPresentation) {
+        window.open(`/praktiko?thesisId=${thesisId}`, "_blank");
+      } else {
+        alert("Δεν έχει καταχωρηθεί παρουσίαση για τη διπλωματική εργασία. Το πρακτικό δεν είναι διαθέσιμο.");
+      }
+    };
+  }
+}
+/**
+ * Helper function to validate a URL string.
+ */
+function isValidUrl(string) {
+  try {
+    new URL(string);
+    return true;
+  } catch (_) {
+    return false;
+  }
 }

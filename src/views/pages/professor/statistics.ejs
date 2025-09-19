@@ -1,91 +1,45 @@
 <style>
-  :root {
-    --clr-supervisor: rgba(54, 162, 235, 0.5);
-    --clr-supervisor-border: rgba(54, 162, 235, 1);
-    --clr-member: rgba(255, 159, 64, 0.5);
-    --clr-member-border: rgba(255, 159, 64, 1);
-    --card-min-height: 320px;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root { color-scheme: dark; }
-  }
-  .card-body {
-    position: relative;
-    min-height: var(--card-min-height);
-  }
   .card-body canvas {
-    display: block;
-    width: 100% !important;
-    height: 260px !important;
-  }
-  .empty-state {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    pointer-events: none;
-    color: #6c757d; /* muted */
-    font-size: 0.95rem;
-    text-align: center;
-    padding: 0 1rem;
+    height: 300px !important;
   }
 </style>
 
-<main class="container-fluid" aria-labelledby="page-title">
-  <h1 id="page-title" class="h2 mb-4">Στατιστικά Διπλωματικών</h1>
-  <div id="a11y-status" aria-live="polite" class="visually-hidden"></div>
+<div class="container">
+  <h1 class="h2 mb-4">Στατιστικά Διπλωματικών</h1>
 
-  <section class="row g-4" aria-label="Γραφήματα στατιστικών">
-    <article class="col-lg-6">
-      <div class="card" role="group" aria-labelledby="completion-title">
-        <div class="card-header" id="completion-title">Μέσος Χρόνος Ολοκλήρωσης</div>
+  <section class="row row-cols-1 row-cols-lg-2 row-cols-xxl-3 g-4 mb-4"
+      aria-label="Γραφήματα στατιστικών">
+    <div class="col">
+      <article class="card">
+        <div class="card-header">Μέσος Χρόνος Ολοκλήρωσης</div>
         <div class="card-body">
-          <canvas id="completionTimeChart" role="img" aria-label="Μέσος χρόνος ολοκλήρωσης Επιβλέπων έναντι Μέλους"></canvas>
-          <p class="text-center text-muted mt-2">Γράφημα για μέσο χρόνο ολοκλήρωσης (Επιβλέπων vs Μέλος)</p>
+          <canvas id="completionTimeChart"></canvas>
         </div>
-      </div>
-    </article>
+      </article>
+    </div>
 
-    <article class="col-lg-6">
-      <div class="card" role="group" aria-labelledby="grade-title">
-        <div class="card-header" id="grade-title">Μέση Βαθμολογία</div>
+    <div class="col">
+      <article class="card">
+        <div class="card-header">Μέση Βαθμολογία</div>
         <div class="card-body">
-          <canvas id="averageGradeChart" role="img" aria-label="Μέση βαθμολογία Επιβλέπων έναντι Μέλους"></canvas>
-          <p class="text-center text-muted mt-2">Γράφημα για μέση βαθμολογία (Επιβλέπων vs Μέλος)</p>
+          <canvas id="averageGradeChart"></canvas>
         </div>
-      </div>
-    </article>
+      </article>
+    </div>
 
-    <article class="col-lg-6">
-      <div class="card" role="group" aria-labelledby="total-title">
-        <div class="card-header" id="total-title">Συνολικό Πλήθος Διπλωματικών</div>
+    <div class="col">
+      <article class="card">
+        <div class="card-header">Συνολικό Πλήθος Διπλωματικών</div>
         <div class="card-body">
-          <canvas id="totalThesesChart" role="img" aria-label="Συνολικό πλήθος διπλωματικών: Επιβλέπων vs Μέλος"></canvas>
-          <p class="text-center text-muted mt-2">Γράφημα για συνολικό πλήθος (Επιβλέπων vs Μέλος)</p>
+          <canvas id="totalThesesChart"></canvas>
         </div>
-      </div>
-    </article>
+      </article>
+    </div>
   </section>
-</main>
+</div>
 
 <noscript>Απαιτείται JavaScript για την εμφάνιση των γραφημάτων.</noscript>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.min.js" defer></script>
-<script>
-  // Dummy data function
-  window.getStatistics = async function() {
-    return {
-      success: true,
-      data: {
-        avgCompletionDaysSupervised: 180,
-        avgCompletionDays: 200,
-        avgGradeSupervised: 8.5,
-        avgGrade: 7.9,
-        totalSupervised: 12,
-        total: 25
-      }
-    };
-  };
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.min.js">
 </script>
-<script type="module" src="/js/pages/professor/statistics.js" defer></script>
+<script src="/js/pages/professor/statistics.js"></script>

@@ -283,7 +283,7 @@ async function putDescriptionFile(topicId, formData) {
 // }
 
 async function assignTopic(studentId, topicId) {
-  return await request("POST", `${BASE_URL}/v1/theses`, { studentId,topicId });
+  return await request("POST", `${BASE_URL}/v1/theses`, { studentId, topicId });
 }
 
 async function unassignTopic(thesisId) {
@@ -291,7 +291,10 @@ async function unassignTopic(thesisId) {
 }
 
 async function getMyAssignedTopic() {
-  return await request("GET", `${BASE_URL}/v1/my/theses?status=under_assignment`);
+  return await request(
+    "GET",
+    `${BASE_URL}/v1/my/theses?status=under_assignment`
+  );
 }
 
 async function getUnassignedStudents() {
@@ -305,7 +308,6 @@ async function getUnassignedStudents() {
 //async function getThesisDetails(thesisId) {
 //  return await request("GET", `${BASE_URL}/v1/theses/${thesisId}`);
 //}
-
 
 //invitations
 async function getMyInvitations() {
@@ -324,7 +326,6 @@ async function respondToInvitation(invitationId, response) {
 //  return await request("GET", `${BASE_URL}/v1/theses/${thesisId}`);
 //}
 
-//stats
 async function getStatistics() {
   return await request("GET", `${BASE_URL}/v1/my/stats`);
 }

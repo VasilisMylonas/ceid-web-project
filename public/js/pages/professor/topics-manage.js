@@ -60,7 +60,7 @@
     `;
     try {
       const res = await getMyTopics();
-      const topics = Array.isArray(res?.data) ? res.data : (res?.data?.data || []);
+      const topics = res?.data;
       if (!topics.length) {
         $tableBody.innerHTML = `
           <tr><td colspan="3" class="text-center text-muted py-4">Δεν υπάρχουν ελεύθερα θέματα.</td></tr>

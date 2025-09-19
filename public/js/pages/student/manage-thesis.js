@@ -24,9 +24,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const preliminaryStatuses = {
         pending: "Η αίτησή σας για τη διπλωματική εργασία εκκρεμεί για έγκριση από την γραμματεία.",
         rejected: "Η αίτησή σας για τη διπλωματική εργασία απορρίφθηκε. Παρακαλώ επικοινωνήστε με την γραμματεία για περισσότερες πληροφορίες.",
-        active: "Η διπλωματική σας εργασία έχει εγκριθεί και είναι σε κατάσταση ενεργή.",
-        cancelled: "Η διπλωματική εργασία έχει ακυρωθεί.",
-      };
+        active: "Η διπλωματική σας εργασία έχει εγκριθεί και είναι σε κατάσταση ενεργή."      };
 
       if (Object.keys(preliminaryStatuses).includes(currentThesis.status)) {
         container.innerHTML = `
@@ -56,10 +54,9 @@ document.addEventListener("DOMContentLoaded", async () => {
           populateInvitationsList(invitationsResponse.data || [], activeStateCard);
         } else if (currentThesis.status === "under_examination") {
           await populateExaminationState(currentThesis);
-          await addPraktikoButton(currentThesis.id);
+
         } else if (currentThesis.status === "completed") {
-          await addPraktikoButton(currentThesis.id);
-          await populateTimeline(currentThesis.id); // <-- This line ensures the timeline is shown
+          populateCompletedState(currentThesis);
         }
       }
     } catch (error) {
@@ -297,8 +294,8 @@ function setupModalEventListeners(modalElement, inviteModal, getThesis, onInvita
 }
 
 async function populateCompletedState(thesis) {
-  await addPraktikoButton(thesis.id);
-  await populateTimeline(thesis.id); // <-- This line ensures the timeline is shown
+  await addPraktikoButton(thesis);
+  await populateTimeline(thesis.id); 
 }
 
 async function populateInvitationsList(invitations, activeStateCard) {
@@ -395,16 +392,25 @@ async function populateExaminationState(thesis) {
     nimertisInput.classList.toggle('opacity-20', thesis.grade == null);
   }
 
+  await addPraktikoButton(thesis);
   
 }
 
-async function addPraktikoButton(thesisId) {
+async function addPraktikoButton(thesis) {
+  const thesisId = thesis.id;
   // Find the visible state card
   const stateCard = document.querySelector('.card.shadow-sm[style*="display: block"]');
   if (!stateCard) return;
 
   const viewPraktikoBtn = stateCard.querySelector("#view-praktiko-btn");
   if (viewPraktikoBtn && thesisId) {
+    // Disable the button if thesis.grade is null
+    if (thesis.grade == null) {
+      viewPraktikoBtn.disabled = true;
+      viewPraktikoBtn.title = "Το πρακτικό είναι διαθέσιμο μόνο όταν υπάρχει βαθμός.";
+      return;
+    }
+
     let hasPresentation = false;
     try {
       const presentationsResponse = await getThesisPresentations(thesisId);

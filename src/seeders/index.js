@@ -162,9 +162,18 @@ export default async function seedDatabase() {
 
   const thesis = await ThesisService.create({ topicId: topic.id, studentId });
 
-  await ThesisService.create({ topicId: topic2.id, studentId: studentId2 });
-  await ThesisService.create({ topicId: topic3.id, studentId: studentId3 });
-  await ThesisService.create({ topicId: topic4.id, studentId: studentId4 });
+  const thesis2 = await ThesisService.create({
+    topicId: topic2.id,
+    studentId: studentId2,
+  });
+  const thesis3 = await ThesisService.create({
+    topicId: topic3.id,
+    studentId: studentId3,
+  });
+  const thesis4 = await ThesisService.create({
+    topicId: topic4.id,
+    studentId: studentId4,
+  });
 
   const inv1 = await ThesisService.createInvitation(
     thesis.id,
@@ -176,6 +185,17 @@ export default async function seedDatabase() {
     student,
     professor3.id
   );
+  const inv3 = await ThesisService.createInvitation(
+    thesis3.id,
+    student3,
+    professor.id
+  );
+  const inv4 = await ThesisService.createInvitation(
+    thesis4.id,
+    student4,
+    professor.id
+  );
+
   await InvitationService.respond(
     inv1.id,
     professor2,

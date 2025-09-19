@@ -55,6 +55,12 @@ class Name {
     }
   }
 }
+  function fmtDateTime(date) {
+    if (!date) return "—";
+    const d = new Date(date);
+    return Number.isNaN(+d) ? "—"
+      : new Intl.DateTimeFormat("el-GR", { dateStyle: "medium", timeStyle: "short" }).format(d);
+  }
 
 function getMemberRoleBootstrapBgClass(role) {
   switch (role) {

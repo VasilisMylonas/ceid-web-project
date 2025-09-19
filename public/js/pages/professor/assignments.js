@@ -34,15 +34,6 @@
     b.textContent = text;
     return b;
   }
-
-  function fmtDateTime(iso) {
-    if (!iso) return "—";
-    const d = new Date(iso);
-    return Number.isNaN(+d) ? "—"
-      : new Intl.DateTimeFormat("el-GR", { dateStyle: "medium", timeStyle: "short" }).format(d);
-  }
-
-
   // ---------- Table ----------
   async function loadTable() {
     $tbody.innerHTML = "";
@@ -167,7 +158,6 @@
 
   $assignForm.addEventListener("submit", async (e) => {
     e.preventDefault();
-    if (!selectedStudent) { alert("Παρακαλώ επιλέξτε φοιτητή από τη λίστα."); return; }
     const topicId = Number($assignTopicId.value);
     const submitBtn = $assignForm.querySelector('button[type="submit"]');
     const original = submitBtn.innerHTML;
@@ -176,7 +166,6 @@
 
     try {
       await assignTopic(selectedStudent.id, topicId);
-      alert("Η ανάθεση καταχωρήθηκε προσωρινά.");
       assignModal.hide();
       await loadTable();
     } catch {
@@ -203,7 +192,6 @@
 
     try {
       await unassignTopic(th.id);
-      alert("Η προσωρινή ανάθεση αναιρέθηκε.");
       confirmUnassignModal.hide();
       currentThesisForUnassign = null;
       await loadTable();
@@ -217,7 +205,7 @@
 
   // ---------- Committee ----------
   async function openCommitteeModal(thesis) {
-    $committeeTopicTitle.textContent = thesis.topic || `Θέμα #${thesis.topicId}`;
+    $committeeTopicTitle.textContent = thesis.topic;
     $committeeTableBody.innerHTML = "";
 
     try {
@@ -234,15 +222,14 @@
       invitations.forEach(inv => {
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td>#${inv.professorId}</td>
+          <td>#${inv.professorName}</td>
           <td>${
             inv.response === "accepted" ? badge("Αποδέχθηκε", "success").outerHTML :
             inv.response === "declined" ? badge("Απέρριψε", "danger").outerHTML :
             badge("Εκκρεμεί", "secondary").outerHTML
           }</td>
           <td>${fmtDateTime(inv.createdAt)}</td>
-          <td>${fmtDateTime(inv.response === "accepted" ? inv.responseDate : null)}</td>
-          <td>${fmtDateTime(inv.response === "declined" ? inv.responseDate : null)}</td>`;
+          <td>${fmtDateTime(inv.responseDate)}</td>`;
         $committeeTableBody.append(tr);
       });
     } catch {

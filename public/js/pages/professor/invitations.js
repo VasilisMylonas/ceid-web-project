@@ -7,17 +7,6 @@
 
   let isLoading = false;
 
-  const fmtDateTime = (iso) => {
-    if (!iso) return "—";
-    try {
-      const d = new Date(iso);
-      return new Intl.DateTimeFormat("el-GR", {
-        dateStyle: "medium",
-        timeStyle: "short",
-      }).format(d);
-    } catch { return "—"; }
-  };
-
   const setLoading = (on, text = "Φόρτωση προσκλήσεων…") => {
     $status.textContent = on ? text : "";
     $status.hidden = !on;

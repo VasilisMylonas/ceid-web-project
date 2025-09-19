@@ -202,9 +202,47 @@ async function getThesesSecretary(
   );
 }
 
+function pageToLimitOffset(page, pageSize) {
+  if (page == null || pageSize == null) {
+    return {
+      offset: 0,
+      limit: null,
+    };
+  }
+
+  page = parseInt(page, 10);
+  pageSize = parseInt(pageSize, 10);
+  return {
+    offset: (page - 1) * pageSize,
+    limit: pageSize,
+  };
+}
+
+async function getMyTheses(
+  page,
+  pageSize,
+  status = null,
+  query = null,
+  role = null
+) {
+  const { offset, limit } = pageToLimitOffset(page, pageSize);
+  return await request(
+    "GET",
+    `${BASE_URL}/v1/my/theses?&offset=${offset}${
+      limit ? `&limit=${limit}` : ""
+    }${status ? `&status=${status}` : ""}${
+      query ? `&q=${encodeURIComponent(query)}` : ""
+    }${role ? `&role=${role}` : ""}`
+  );
+}
+
 async function getThesisDetails(thesisId) {
   return await request("GET", `${BASE_URL}/v1/theses/${thesisId}`);
 }
+
+//
+// Secretary
+//
 
 async function importUsers(users) {
   return await request("POST", `${BASE_URL}/v1/users/batch`, users);
@@ -227,6 +265,10 @@ async function cancelThesis(thesisId, assemblyNumber, reason) {
 async function completeThesis(thesisId) {
   return await request("POST", `${BASE_URL}/v1/theses/${thesisId}/complete`);
 }
+
+//
+// Name mappings and misc
+//
 
 class Name {
   static ofThesisStatus(status) {
@@ -261,4 +303,47 @@ function getMemberRoleBootstrapBgClass(role) {
     case "committee_member":
       return "bg-secondary";
   }
+}
+
+function getThesisStatusBootstrapBgClass(status) {
+  switch (status) {
+    case "active":
+      return "bg-success";
+    case "completed":
+      return "bg-success";
+    case "cancelled":
+      return "bg-danger";
+    case "under_examination":
+      return "bg-warning";
+    case "under_assignment":
+      return "bg-info";
+  }
+}
+
+function makeDaysSinceString(date) {
+  const now = new Date();
+  const diffTime = Math.abs(now - date);
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+  const years = Math.floor(diffDays / 365);
+  const days = diffDays % 365;
+
+  let elapsedText = "";
+
+  if (years > 0) {
+    elapsedText += `πριν ${years} ${years === 1 ? "χρόνο" : "χρόνια"}`;
+    if (days > 0) {
+      elapsedText += ` και ${days} μέρες`;
+    }
+  } else {
+    elapsedText = `πριν ${days} μέρες`;
+    if (days == 0) {
+      elapsedText = "σήμερα";
+    }
+    if (days == 1) {
+      elapsedText = "χθες";
+    }
+  }
+
+  return elapsedText;
 }

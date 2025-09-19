@@ -1,145 +1,207 @@
+<h2 class="mb-4">Διαχείριση Διπλωματικών Εργασιών</h2>
 
-<div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h2 mb-0">Λίστα Διπλωματικών</h1>
-        <div class="d-flex flex-column flex-md-row gap-2">
-            <button id="export-csv-btn" class="btn btn-secondary"><i class="bi bi-file-earmark-spreadsheet me-1"></i> Export CSV</button>
-            <button id="export-json-btn" class="btn btn-secondary"><i class="bi bi-filetype-json me-1"></i> Export JSON</button>
+<div class="container">
+  <form class="mb-4" id="filters">
+    <legend class="visually-hidden">Φίλτρα Διπλωματικών</legend>
+    <div class="row g-2">
+      <div class="col-12">
+        <label class="form-label" for="search-input">Αναζήτηση</label>
+        <div class="input-group">
+          <input type="text" class="form-control" id="search-input"
+              name="search" placeholder="Όνομα θέματος ή φοιτητή...">
+          <button class="btn btn-outline-secondary" aria-label="Αναζήτηση"
+              type="submit">
+            <i class="bi bi-search" aria-hidden="true"></i>
+          </button>
         </div>
-    </div>
+      </div>
 
-    <!-- Filters -->
-    <div class="card mb-4">
-        <div class="card-body">
-            <form id="filter-form" class="row g-3 align-items-end">
-                <div class="col-md-5">
-                    <label for="filter-status" class="form-label">Φίλτρο κατάστασης</label>
-                    <select id="filter-status" class="form-select">
-                        <option value="all">Όλα</option>
-                        <option value="Υπό Ανάθεση">Υπό Ανάθεση</option>
-                        <option value="Ενεργή">Ενεργή</option>
-                        <option value="Περατωμένη">Περατωμένη</option>
-                        <option value="Υπό Εξέταση">Υπό Εξέταση</option>
-                        <option value="Ακυρωμένη">Ακυρωμένη</option>
-                    </select>
-                </div>
-                <div class="col-md-5">
-                    <label for="filter-role" class="form-label">Φίλτρο ρόλου</label>
-                    <select id="filter-role" class="form-select">
-                        <option value="all" selected>Όλοι οι ρόλοι</option>
-                        <option value="supervisor">Επιβλέπων</option>
-                        <option value="member">Μέλος Επιτροπής</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <button type="submit" class="btn btn-primary w-100">Φιλτράρισμα</button>
-                </div>
-            </form>
-        </div>
-    </div>
+      <div class="col-12 col-lg-6">
+        <label for="status-select" class="form-label">Κατάσταση</label>
+        <select class="form-select" name="status" id="status-select">
+          <!-- Added dynamically -->
+        </select>
+      </div>
 
-    <!-- Theses Table -->
-    <div class="table-responsive">
-        <table class="table table-hover align-middle">
-            <thead>
-                <tr>
-                    <th>Θέμα</th>
-                    <th>Φοιτητής</th>
-                    <th>Ο Ρόλος μου</th>
-                    <th>Κατάσταση</th>
-                    <th class="text-center">Ενέργειες</th>
-                </tr>
-            </thead>
-            <tbody id="theses-table-body">
-                <!-- Rows will be populated by theses-list.js -->
-            </tbody>
-        </table>
+      <div class="col-12 col-lg-6">
+        <label for="role-select" class="form-label">Ρόλος</label>
+        <select class="form-select" name="role" id="role-select">
+          <!-- Added dynamically -->
+        </select>
+      </div>
+
+      <div class="col-12 col-sm-6 col-lg-auto pt-2">
+        <button type="submit" class="btn btn-primary w-100">
+          <i class="bi bi-funnel-fill me-1" aria-hidden="true"></i>
+          Εφαρμογή
+        </button>
+      </div>
+
+      <div class="col-12 col-sm-6 col-lg-auto pt-2">
+        <button type="reset" class="btn btn-secondary w-100">
+          <i class="bi bi-arrow-counterclockwise me-1" aria-hidden="true"></i>
+          Επαναφορά
+        </button>
+      </div>
+
+      <div class="col-12 col-sm-6 col-lg-auto pt-2">
+        <button type="button" class="btn btn-dark w-100" id="export-json-btn"
+            title="Εξαγωγή σε JSON">
+          <i class="bi bi-file-earmark-arrow-down-fill me-1"
+              aria-hidden="true"></i>
+          Εξαγωγή σε JSON
+        </button>
+      </div>
+
+      <div class="col-12 col-sm-6 col-lg-auto pt-2">
+        <button type="button" class="btn btn-dark w-100" id="export-csv-btn"
+            title="Εξαγωγή σε CSV">
+          <i class="bi bi-file-earmark-spreadsheet-fill me-1"
+              aria-hidden="true"></i>
+          Εξαγωγή σε CSV
+        </button>
+      </div>
     </div>
+  </form>
+
+  <div class="mb-4">
+    <p class="text-muted">
+      Επιλέξτε μια διπλωματική για περισσότερες λεπτομέρειες.
+    </p>
+  </div>
+
+  <select class="form-select form-select-sm w-auto mb-4" id="page-size-select">
+    <!-- Added dynamically -->
+  </select>
+
+
+  <div class="row row-cols-1 row-cols-lg-2 row-cols-xxl-3 g-4 mb-4"
+      id="theses-card-list">
+    <!-- Cards will be dynamically inserted here -->
+  </div>
+
+  <div id="page-nav-container">
+    <%- include('../../components/page-nav') %>
+  </div>
 </div>
 
-<!-- Thesis Details & Management Modal -->
-<div class="modal fade" id="thesis-details-modal" tabindex="-1" aria-labelledby="thesisDetailsModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="thesis-modal-title"></h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<div class="modal fade" id="thesis-details-modal" tabindex="-1"
+    aria-labelledby="thesisDetailsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="thesis-modal-title"></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"
+            aria-label="Close"></button>
+      </div>
+      <div class="modal-body" data-thesis-id="">
+        <div class="row">
+          <!-- Left Column: Info & Timeline -->
+          <div class="col-md-4 border-end">
+            <h6>Βασικές Πληροφορίες</h6>
+            <p><strong>Φοιτητής:</strong> <span id="modal-student-name"></span>
+            </p>
+            <p><strong>Επιτροπή:</strong></p>
+            <ul id="modal-committee-list" class="list-unstyled"></ul>
+            <hr>
+            <h6>Χρονολόγιο</h6>
+            <ul id="modal-timeline" class="list-group list-group-flush"></ul>
+          </div>
+          <!-- Right Column: Actions & Details -->
+          <div class="col-md-8">
+            <!-- Status: Under Assignment -->
+            <div id="actions-under-assignment" class="action-section">
+              <h6>Κατάσταση Επιτροπής</h6>
+              <div id="modal-committee-status"></div>
+              <div id="supervisor-actions-under-assignment"
+                  class="supervisor-action mt-3">
+                <hr>
+                <p class="text-danger small">Ως επιβλέπων, μπορείτε να ακυρώσετε
+                  την ανάθεση. Αυτή η ενέργεια είναι οριστική.</p>
+                <button id="cancel-assignment-btn"
+                    class="btn btn-danger">Ακύρωση
+                  Ανάθεσης</button>
+              </div>
             </div>
-            <div class="modal-body" data-thesis-id="">
-                <div class="row">
-                    <!-- Left Column: Info & Timeline -->
-                    <div class="col-md-4 border-end">
-                        <h6>Βασικές Πληροφορίες</h6>
-                        <p><strong>Φοιτητής:</strong> <span id="modal-student-name"></span></p>
-                        <p><strong>Επιτροπή:</strong></p>
-                        <ul id="modal-committee-list" class="list-unstyled"></ul>
-                        <hr>
-                        <h6>Χρονολόγιο</h6>
-                        <ul id="modal-timeline" class="list-group list-group-flush"></ul>
-                    </div>
-                    <!-- Right Column: Actions & Details -->
-                    <div class="col-md-8">
-                        <!-- Status: Under Assignment -->
-                        <div id="actions-under-assignment" class="action-section">
-                            <h6>Κατάσταση Επιτροπής</h6>
-                            <div id="modal-committee-status"></div>
-                            <div id="supervisor-actions-under-assignment" class="supervisor-action mt-3">
-                                <hr>
-                                <p class="text-danger small">Ως επιβλέπων, μπορείτε να ακυρώσετε την ανάθεση. Αυτή η ενέργεια είναι οριστική.</p>
-                                <button id="cancel-assignment-btn" class="btn btn-danger">Ακύρωση Ανάθεσης</button>
-                            </div>
-                        </div>
-                        <!-- Status: Active -->
-                        <div id="actions-active" class="action-section">
-                            <h6>Σημειώσεις (Ορατές μόνο σε εσάς)</h6>
-                            <div id="modal-notes-list" class="mb-2"></div>
-                            <textarea id="modal-new-note" class="form-control" rows="3" placeholder="Προσθέστε μια νέα σημείωση (max 300 χαρακτήρες)..."></textarea>
-                            <button id="add-note-btn" class="btn btn-primary btn-sm mt-2">Προσθήκη Σημείωσης</button>
-                            <div id="supervisor-actions-active" class="supervisor-action mt-3">
-                                <hr>
-                                <button id="change-status-to-review-btn" class="btn btn-primary">Αλλαγή σε "Υπό Εξέταση"</button>
-                                <div id="cancel-thesis-section" class="mt-3 border rounded p-3" style="display: none;">
-                                    <p class="small text-danger">Ακύρωση διπλωματικής (μόνο μετά από 2 έτη).</p>
-                                    <div class="input-group">
-                                        <input type="text" id="ga-number" class="form-control" placeholder="Αρ. Γεν. Συνέλευσης">
-                                        <input type="text" id="ga-year" class="form-control" placeholder="Έτος">
-                                        <button id="confirm-cancel-thesis-btn" class="btn btn-danger">Επιβεβαίωση</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Status: Under Review -->
-                        <div id="actions-under-review" class="action-section">
-                            <a href="#" id="view-draft-link" class="btn btn-secondary" target="_blank">Προβολή Κειμένου Διπλωματικής</a>
-                            <div id="supervisor-actions-under-review" class="supervisor-action mt-3">
-                                <hr>
-                                <button id="generate-announcement-btn" class="btn btn-info" disabled>Δημιουργία Ανακοίνωσης Παρουσίασης</button>
-                                <button id="activate-grading-btn" class="btn btn-success ms-2">Ενεργοποίηση Βαθμολόγησης</button>
-                            </div>
-                            <div id="grading-section" class="mt-3" style="display: none;">
-                                <hr>
-                                <h6>Βαθμολόγηση</h6>
-                                <table class="table">
-                                    <thead><tr><th>Μέλος Επιτροπής</th><th>Βαθμός</th><th>Ενέργεια</th></tr></thead>
-                                    <tbody id="grading-table-body"></tbody>
-                                </table>
-                            </div>
-                        </div>
-                        <!-- Status: Completed -->
-                        <div id="actions-completed" class="action-section">
-                            <h6>Ολοκληρωμένη Διπλωματική</h6>
-                            <p><strong>Τελική Βαθμολογία:</strong> <span id="modal-final-grade"></span></p>
-                            <a id="modal-repo-link" href="#" class="btn btn-link">Link Αρχείου στο Αποθετήριο</a>
-                            <a id="modal-grading-form-link" href="#" class="btn btn-link">Link Φόρμας Βαθμολόγησης</a>
-                        </div>
-                    </div>
+            <!-- Status: Active -->
+            <div id="actions-active" class="action-section">
+              <h6>Σημειώσεις (Ορατές μόνο σε εσάς)</h6>
+              <div id="modal-notes-list" class="mb-2"></div>
+              <textarea id="modal-new-note" class="form-control" rows="3"
+                  placeholder="Προσθέστε μια νέα σημείωση (max 300 χαρακτήρες)..."></textarea>
+              <button id="add-note-btn"
+                  class="btn btn-primary btn-sm mt-2">Προσθήκη
+                Σημείωσης</button>
+              <div id="supervisor-actions-active"
+                  class="supervisor-action mt-3">
+                <hr>
+                <button id="change-status-to-review-btn"
+                    class="btn btn-primary">Αλλαγή σε "Υπό Εξέταση"</button>
+                <div id="cancel-thesis-section" class="mt-3 border rounded p-3"
+                    style="display: none;">
+                  <p class="small text-danger">Ακύρωση διπλωματικής (μόνο μετά
+                    από
+                    2 έτη).</p>
+                  <div class="input-group">
+                    <input type="text" id="ga-number" class="form-control"
+                        placeholder="Αρ. Γεν. Συνέλευσης">
+                    <input type="text" id="ga-year" class="form-control"
+                        placeholder="Έτος">
+                    <button id="confirm-cancel-thesis-btn"
+                        class="btn btn-danger">Επιβεβαίωση</button>
+                  </div>
                 </div>
+              </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Κλείσιμο</button>
+            <!-- Status: Under Review -->
+            <div id="actions-under-review" class="action-section">
+              <a href="#" id="view-draft-link" class="btn btn-secondary"
+                  target="_blank">Προβολή Κειμένου Διπλωματικής</a>
+              <div id="supervisor-actions-under-review"
+                  class="supervisor-action mt-3">
+                <hr>
+                <button id="generate-announcement-btn" class="btn btn-info"
+                    disabled>Δημιουργία Ανακοίνωσης Παρουσίασης</button>
+                <button id="activate-grading-btn"
+                    class="btn btn-success ms-2">Ενεργοποίηση
+                  Βαθμολόγησης</button>
+              </div>
+              <div id="grading-section" class="mt-3" style="display: none;">
+                <hr>
+                <h6>Βαθμολόγηση</h6>
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Μέλος Επιτροπής</th>
+                      <th>Βαθμός</th>
+                      <th>Ενέργεια</th>
+                    </tr>
+                  </thead>
+                  <tbody id="grading-table-body"></tbody>
+                </table>
+              </div>
             </div>
+            <!-- Status: Completed -->
+            <div id="actions-completed" class="action-section">
+              <h6>Ολοκληρωμένη Διπλωματική</h6>
+              <p><strong>Τελική Βαθμολογία:</strong> <span
+                    id="modal-final-grade"></span></p>
+              <a id="modal-repo-link" href="#" class="btn btn-link">Link Αρχείου
+                στο Αποθετήριο</a>
+              <a id="modal-grading-form-link" href="#" class="btn btn-link">Link
+                Φόρμας Βαθμολόγησης</a>
+            </div>
+          </div>
         </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary"
+            data-bs-dismiss="modal">Κλείσιμο</button>
+      </div>
     </div>
+  </div>
+
 </div>
 
-<script src="/js/pages/professor/theses-list.js"></script>
+<script src="/js/components/page-nav.js"></script>
+<script src="/js/components/thesis-list.js"></script>

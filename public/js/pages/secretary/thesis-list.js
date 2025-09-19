@@ -1,18 +1,3 @@
-function getThesisStatusBootstrapBgClass(status) {
-  switch (status) {
-    case "active":
-      return "bg-success";
-    case "completed":
-      return "bg-success";
-    case "cancelled":
-      return "bg-danger";
-    case "under_examination":
-      return "bg-warning";
-    case "under_assignment":
-      return "bg-info";
-  }
-}
-
 /**
  * Session storage
  */

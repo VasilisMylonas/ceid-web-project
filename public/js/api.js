@@ -296,10 +296,15 @@ async function getMyTheses() {
 }
 
 
-async function getMemberTheses(professorId) {σ
-    return await request("POST", `${BASE_URL}/v1/theses?role=committee_member&professorId=${professorId}`);
+async function getAllProfessorTheses(professorId) {
+    return await request("GET", `${BASE_URL}/v1/theses?professorId=${professorId}`);
+}
+
+async function getThesisTimeline(thesisId) {
+    return await request("GET", `${BASE_URL}/v1/theses/${thesisId}/timeline`);
 }
 
 //async function getProfile() {
 //  return await request("GET", `${BASE_URL}/v1/my/profile`);
 //}
+

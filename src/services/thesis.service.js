@@ -59,7 +59,7 @@ export default class ThesisService {
     return thesis;
   }
 
-  static async create({ topicId, studentId }) {
+  static async create(user, { topicId, studentId }) {
     const topic = await db.Topic.findByPk(topicId);
     const student = await db.Student.findByPk(studentId);
 
@@ -69,6 +69,13 @@ export default class ThesisService {
 
     if (!student) {
       throw new NotFoundError("No such student.");
+    }
+
+    const professor = await user.getProfessor();
+    if (!professor || topic.professorId !== professor.id) {
+      throw new SecurityError(
+        "Only the topic owner can create a thesis for this topic."
+      );
     }
 
     if (await topic.isAssigned()) {

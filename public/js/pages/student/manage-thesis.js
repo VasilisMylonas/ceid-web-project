@@ -56,6 +56,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           populateInvitationsList(invitationsResponse.data || [], activeStateCard);
         } else if (currentThesis.status === "under_examination") {
           await populateExaminationState(currentThesis);
+          await populateCompletedState(currentThesis.id);
         } else if (currentThesis.status === "completed") {
           await populateCompletedState(currentThesis.id);
         }
@@ -162,7 +163,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
 
       // Prepare Nimertis link
-      const nimertisUrl = document.getElementById("nimertisLink").value.trim();
+      if (currentThesis.grade){
+        const nimertisUrl = document.getElementById("nimertisLink").value.trim();
       if (nimertisUrl) {
         if (isValidUrl(nimertisUrl)) {
           operations.push(setNymertesLink(currentThesis.id, nimertisUrl).catch(err => console.error("Nimertis save failed:", err)));
@@ -170,6 +172,8 @@ document.addEventListener("DOMContentLoaded", async () => {
           alert("Ο σύνδεσμος Νημερτής δεν είναι σε έγκυρη μορφή.");
         }
       }
+      }
+      
 
       if (operations.length === 0 && presentationSaveAttempted) return;
       if (operations.length === 0) {
@@ -377,6 +381,15 @@ async function populateExaminationState(thesis) {
 
   document.getElementById('nimertisLink').value = thesis.nimertisUrl || '';
 
+  // Disable Νημερτής card if grade is null
+  const nimertisInput = document.getElementById('nimertisLink');
+  if (nimertisInput) {
+    nimertisInput.disabled = thesis.grade == null;
+    // Optionally, visually indicate it's disabled
+    nimertisInput.closest('.card').classList.toggle('opacity-50', thesis.grade == null);
+  }
+
+  
 }
 
 async function populateCompletedState(thesisId) {
@@ -402,6 +415,8 @@ async function populateCompletedState(thesisId) {
       }
     };
   }
+
+
 }
 /**
  * Helper function to validate a URL string.

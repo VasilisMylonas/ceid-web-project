@@ -253,3 +253,12 @@ class Name {
     }
   }
 }
+
+function getMemberRoleBootstrapBgClass(role) {
+  switch (role) {
+    case "supervisor":
+      return "bg-primary";
+    case "committee_member":
+      return "bg-secondary";
+  }
+}

@@ -144,12 +144,12 @@ export default async function seedDatabase() {
     summary: "This is a sample topic for testing.",
   });
 
-  const topic3 = await TopicService.create(professor, {
+  const topic3 = await TopicService.create(professor2, {
     title: "Sample Topic 3",
     summary: "This is a sample topic for testing.",
   });
 
-  const topic4 = await TopicService.create(professor, {
+  const topic4 = await TopicService.create(professor2, {
     title: "Sample Topic 4",
     summary: "This is a sample topic for testing.",
   });
@@ -185,6 +185,7 @@ export default async function seedDatabase() {
     student,
     professor3.id
   );
+
   const inv3 = await ThesisService.createInvitation(
     thesis3.id,
     student3,

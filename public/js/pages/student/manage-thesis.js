@@ -437,6 +437,7 @@ function isValidUrl(string) {
   }
 }
 
+
 async function populateTimeline(thesisId) {
   const timelineList = document.getElementById("thesis-timeline-list");
   if (!timelineList) return;
@@ -458,19 +459,31 @@ async function populateTimeline(thesisId) {
         return `
           <li class="list-group-item d-flex justify-content-between align-items-center">
             <span>
-              <strong>${Name.ofThesisStatus(entry.oldStatus)}</strong>
-              <i class="fas fa-arrow-right mx-2"></i>
-              <strong>${Name.ofThesisStatus(entry.newStatus)}</strong>
+              ${getStatusBadge(entry.oldStatus)}
+              <span class="mx-2" style="font-size:1.2em;">&#8594;</span>
+              ${getStatusBadge(entry.newStatus)}
             </span>
             <span class="text-muted small">${date}</span>
           </li>
         `;
       })
-      .reverse() // Show latest first
+      .reverse()
       .join("");
   } catch (error) {
     console.error("Failed to load thesis timeline:", error);
     timelineList.innerHTML = `<li class="list-group-item text-danger">Σφάλμα φόρτωσης ιστορικού.</li>`;
   }
+}
+
+// Add this at the top of your JS file or near the Name object
+const statusBadgeClass = {
+  under_assignment: "bg-secondary",
+  active: "bg-primary",
+  under_examination: "bg-warning text-dark",
+  completed: "bg-success",
+};
+
+function getStatusBadge(status) {
+  return `<span class="badge ${statusBadgeClass[status] || "bg-dark"}">${Name.ofThesisStatus(status)}</span>`;
 }
 

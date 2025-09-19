@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   let currentThesis; // This will be the single source of truth for thesis data.
   let initialThesisId;
-
+  
   const hideAllStates = () => {
     if (stateAssignment) stateAssignment.style.display = "none";
     if (stateExamination) stateExamination.style.display = "none";
@@ -96,17 +96,50 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
     initialThesisId = thesisSummaryResponse.data[0].id;
   } catch (error) {
-    console.error("Failed to fetch initial thesis data:", error);
-    container.innerHTML = '<div class="alert alert-danger">Σφάλμα φόρτωσης σελίδας.</div>';
+    console.error("Failed to fetch thesis details:", error);
+    container.innerHTML =
+      '<div class="alert alert-danger">Σφάλμα φόρτωσης λεπτομερειών διπλωματικής.</div>';
     return;
   }
+  let thesis = thesisDetailsResponse.data;
+  console.log("Thesis details:", thesis);
+
+  // --- Check for preliminary or terminal statuses ---
+  const preliminaryStatuses = {
+    pending:
+      "Η αίτησή σας για τη διπλωματική εργασία εκκρεμεί για έγκριση από την γραμματεία.",
+    rejected:
+      "Η αίτησή σας για τη διπλωματική εργασία απορρίφθηκε. Παρακαλώ επικοινωνήστε με την γραμματεία για περισσότερες πληροφορίες.",
+    active:
+      "Η διπλωματική σας εργασία έχει εγκριθεί και είναι σε κατάσταση ενεργή.",
+    cancelled: "Η διπλωματική εργασία έχει ακυρωθεί.",
+  };
+
+  if (Object.keys(preliminaryStatuses).includes(thesis.status)) {
+    container.innerHTML = `
+            <div class="alert alert-info text-center">
+                <h3>Ενημέρωση Κατάστασης</h3>
+                <p class="lead">${preliminaryStatuses[thesis.status]}</p>
+            </div>
+        `;
+    return; // Stop further execution
+  }
+
+  hideAllStates();
 
   // --- SETUP EVENT LISTENERS ONCE ---
   if (modalElement) {
     const inviteModal = new bootstrap.Modal(modalElement);
-    setupModalEventListeners(modalElement, inviteModal, () => currentThesis, refreshPageData);
+    // Pass functions to get the current thesis and invitations data.
+    setupModalEventListeners(
+      modalElement,
+      inviteModal,
+      () => thesis,
+      () => invitationsResponse
+    );
   }
 
+  // Event listener for saving examination details and links
   const saveExamBtn = document.getElementById("save-examination-btn");
   if (saveExamBtn) {
     saveExamBtn.addEventListener("click", async () => {
@@ -163,7 +196,26 @@ document.addEventListener("DOMContentLoaded", async () => {
           }
         }
 
-        if (isValid) {
+      // --- Handle Presentation Data ---
+      try {
+        const date = document.getElementById("examDate").value;
+        const time = document.getElementById("examTime").value;
+        const kind = document.querySelector(
+          'input[name="examType"]:checked'
+        ).value;
+        const location = document.getElementById("examLocation").value;
+        const link = document.getElementById("examLink").value;
+
+        if (kind === "in_person" && !location) {
+          alert("Παρακαλώ εισάγετε την τοποθεσία της εξέτασης.");
+          return;
+        }
+        if (kind === "online" && !link) {
+          alert("Παρακαλώ εισάγετε τον σύνδεσμο της τηλεδιάσκεψης.");
+          return;
+        }
+        if (date && time && kind && location) {
+          // Format date and time as "YYYY-MM-DDTHH:mm:00"
           const formattedDateTime = `${date}T${time}:00`;
           const presentationData = { date: formattedDateTime, kind };
           if (kind === 'in_person') {
@@ -171,6 +223,15 @@ document.addEventListener("DOMContentLoaded", async () => {
             if (link) presentationData.link = link; // Link is optional for in-person
           } else { // online
             presentationData.link = link;
+            if (location) {
+              presentationData.hall = location; // Optional, if provided
+            }
+          }
+          if (kind === "in_person") {
+            presentationData.hall = location;
+            if (link) {
+              presentationData.link = link; // Optional, if provided
+            }
           }
           
           console.log("[API POST] Sending presentation data:", presentationData);
@@ -178,6 +239,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         } else {
           alert(validationMessage);
         }
+      } catch (error) {
+        console.error("Failed to save presentation details:", error);
+        alert(error);
       }
       
       // --- Prepare Links Data ---
@@ -220,18 +284,23 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
+  // Add event listener for uploading the thesis draft
   const uploadDraftBtn = document.getElementById("upload-draft-btn");
   if (uploadDraftBtn) {
     uploadDraftBtn.addEventListener("click", async () => {
-      if (!currentThesis) return;
+      if (!thesis) return;
+
       const fileInput = document.getElementById("thesisFile");
       const file = fileInput.files[0];
+
       if (!file) {
         alert("Παρακαλώ επιλέξτε ένα αρχείο PDF για ανέβασμα.");
         return;
       }
+
       const formData = new FormData();
       formData.append("file", file);
+
       try {
         console.log(`[API PUT] Uploading draft for thesis ID: ${currentThesis.id}`);
         await uploadThesisDraft(currentThesis.id, formData);
@@ -246,7 +315,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
+  // --- Display Current Draft Button ---
   const downloadDraftBtn = document.getElementById("download-draft-btn");
+
+  downloadDraftBtn.innerHTML = `
+        <i class="fas fa-file-download me-2"></i>Λήψη Τρέχοντος Αρχείου
+    `;
+  downloadDraftBtn.style.display = "block";
+
   if (downloadDraftBtn) {
     downloadDraftBtn.addEventListener("click", async () => {
       // Always attempt the download, regardless of thesis properties.
@@ -268,7 +344,7 @@ a.click();
         } catch (error) {
           // If the API call fails, inform the user.
           console.error("Failed to download thesis draft:", error);
-          alert("Δεν βρέθηκε αρχείο για λήψη.");
+          alert("Προέκυψε σφάλμα κατά τη λήψη του αρχείου.");
         }
       }
     });
@@ -289,9 +365,11 @@ function setupModalEventListeners(
 ) {
   // --- Logic to populate the modal right before it's shown ---
   modalElement.addEventListener("show.bs.modal", async () => {
-    const thesis = getThesis();
-    if (!thesis) return;
-    const professorListContainer = document.getElementById("professor-list-container");
+    const thesis = getThesis(); // Get the most recent thesis data
+    const invitations = getInvitations(); // Get the most recent invitations data
+    const professorListContainer = document.getElementById(
+      "professor-list-container"
+    );
     professorListContainer.innerHTML = "<p>Φόρτωση λίστας διδασκόντων...</p>";
 
     try {
@@ -322,15 +400,21 @@ function setupModalEventListeners(
             professorListContainer.appendChild(div);
         });
     } catch (error) {
-      console.error("Error fetching data for modal:", error);
-      professorListContainer.innerHTML = '<p class="text-danger">Σφάλμα φόρτωσης διδασκόντων.</p>';
+      console.error("Error fetching professors for modal:", error);
+      professorListContainer.innerHTML =
+        '<p class="text-danger">Σφάλμα φόρτωσης διδασκόντων.</p>';
     }
   });
 
   // --- Logic to handle submitting invitations from the modal ---
   document.getElementById("submit-invitations-btn").onclick = async () => {
-    const currentThesis = getThesis();
-    const selectedProfessorIds = Array.from(document.querySelectorAll("#professor-list-container .form-check-input:checked")).map(cb => parseInt(cb.value));
+    const currentThesis = getThesis(); // Get the most recent thesis data
+    const selectedCheckboxes = document.querySelectorAll(
+      "#professor-list-container .form-check-input:checked"
+    );
+    const selectedProfessorIds = Array.from(selectedCheckboxes).map((cb) =>
+      parseInt(cb.value)
+    );
 
     if (selectedProfessorIds.length === 0) {
       alert("Παρακαλώ επιλέξτε τουλάχιστον έναν διδάσκοντα.");
@@ -346,19 +430,36 @@ function setupModalEventListeners(
       inviteModal.hide();
       await onInvitationsSent(); // This calls refreshPageData
     } catch (error) {
-      console.error("Error sending invitations:", error);
-      alert("Προέκυψε σφάλμα κατά την αποστολή των προσκλήσεων.");
+      console.error("Error sending one or more invitations:", error);
+      alert(
+        "Προέκυψε σφάλμα κατά την αποστολή των προσκλήσεων. Ενδέχεται κάποιες προσκλήσεις να μην στάλθηκαν."
+      );
     }
   };
 }
 
+/**
+ * Populates the list of pending and rejected invitations within a given state card.
+ * @param {Array} invitations - The array of invitation objects from the API.
+ * @param {HTMLElement} activeStateCard - The currently active state card element.
+ */
 async function populateInvitationsList(invitations, activeStateCard) {
+  console.log("Populating invitations:", invitations);
   const invitationList = activeStateCard.querySelector(".invitation-list");
-  if (!invitationList) return;
+  if (!invitationList) {
+    // This is expected if the card is not 'state-assignment'
+    return;
+  }
 
-  const relevantInvitations = invitations.filter(inv => inv.response === "pending" || inv.response === "declined");
+  invitationList.innerHTML = ""; // Clear existing list
+
+  const relevantInvitations = invitations.filter(
+    (inv) => inv.response === "pending" || inv.response === "rejected"
+  );
+
   if (relevantInvitations.length === 0) {
-    invitationList.innerHTML = '<li class="list-group-item">Δεν υπάρχουν εκκρεμείς ή απορριφθείσες προσκλήσεις.</li>';
+    invitationList.innerHTML =
+      '<li class="list-group-item">Δεν υπάρχουν εκκρεμείς ή απορριφθείσες προσκλήσεις.</li>';
     return;
   }
 
@@ -378,17 +479,31 @@ async function populateInvitationsList(invitations, activeStateCard) {
             </li>`;
     }).join('');
   } catch (error) {
-    console.error("Error populating invitations list:", error);
-    invitationList.innerHTML = '<li class="list-group-item text-danger">Σφάλμα φόρτωσης λίστας προσκλήσεων.</li>';
+    console.error("Error fetching professors for invitations list:", error);
+    invitationList.innerHTML =
+      '<li class="list-group-item text-danger">Σφάλμα φόρτωσης λίστας προσκλήσεων.</li>';
   }
 }
 
+/**
+ * Populates the committee list within a given state card.
+ * This function is used to repopulate the committee list in the active state card
+ * after an sendThesisInvitationation is sent or when the modal is closed and reopened.
+ * @param {object} thesis - The detailed thesis object from the API.
+ * @param {HTMLElement} activeStateCard - The currently active state card element.
+ */
 function populateCommitteeList(thesis, activeStateCard) {
   const committeeList = activeStateCard.querySelector(".committee-member-list");
-  if (!committeeList) return;
+  if (!committeeList) {
+    // This is expected in states that don't have a committee list.
+    return;
+  }
 
-  if (!thesis.committeeMembers?.length) {
-    committeeList.innerHTML = '<li class="list-group-item">Δεν έχουν οριστεί μέλη επιτροπής.</li>';
+  committeeList.innerHTML = ""; // Clear existing list items
+
+  if (!thesis.committeeMembers || thesis.committeeMembers.length === 0) {
+    committeeList.innerHTML =
+      '<li class="list-group-item">Δεν έχουν οριστεί μέλη επιτροπής.</li>';
     return;
   }
 
@@ -410,19 +525,27 @@ async function populateExaminationState(thesis) {
 
   // Populate Links
   const linksList = document.getElementById("existing-links-list");
-  linksList.innerHTML = '';
+  linksList.innerHTML = ""; // Clear current list
+
   try {
     console.log(`[API GET] Fetching resources for thesis ID: ${thesis.id}`);
     const resourcesResponse = await getThesisResources(thesis.id);
     console.log("[API GET] Received resources:", resourcesResponse.data);
     if (resourcesResponse?.data?.length > 0) {
-      linksList.innerHTML = resourcesResponse.data.map(res => `<li class="list-group-item"><a href="${res.link}" target="_blank" rel="noopener noreferrer">${res.link}</a></li>`).join('');
+      resourcesResponse.data.forEach((resource) => {
+        const li = document.createElement("li");
+        li.className = "list-group-item";
+        li.innerHTML = `<a href="${resource.link}" target="_blank" rel="noopener noreferrer">${resource.link}</a>`;
+        linksList.appendChild(li);
+      });
     } else {
-      linksList.innerHTML = '<li class="list-group-item">Δεν υπάρχουν αποθηκευμένοι σύνδεσμοι.</li>';
+      linksList.innerHTML =
+        '<li class="list-group-item">Δεν υπάρχουν αποθηκευμένοι σύνδεσμοι.</li>';
     }
   } catch (error) {
     console.error("Failed to load thesis resources:", error);
-    linksList.innerHTML = '<li class="list-group-item text-danger">Σφάλμα φόρτωσης συνδέσμων.</li>';
+    linksList.innerHTML =
+      '<li class="list-group-item text-danger">Σφάλμα φόρτωσης συνδέσμων.</li>';
   }
 
   // Populate Presentation Details
@@ -431,19 +554,44 @@ async function populateExaminationState(thesis) {
     const presentationsResponse = await getThesisPresentations(thesis.id);
     console.log("[API GET] Received presentations:", presentationsResponse.data);
     if (presentationsResponse?.data?.length > 0) {
-      const lastPresentation = presentationsResponse.data.at(-1);
+      const lastPresentation =
+        presentationsResponse.data[presentationsResponse.data.length - 1]; //get the last presentation
+
       const presentationDate = new Date(lastPresentation.date);
-      document.getElementById("examDate").value = presentationDate.toISOString().split("T")[0];
+
+      // Format date as YYYY-MM-DD
+      document.getElementById("examDate").value = presentationDate
+        .toISOString()
+        .split("T")[0];
+
+      // Format time as HH:MM
       const hours = String(presentationDate.getUTCHours()).padStart(2, "0");
       const minutes = String(presentationDate.getUTCMinutes()).padStart(2, "0");
       document.getElementById("examTime").value = `${hours}:${minutes}`;
-      document.getElementById("examLocation").value = lastPresentation.hall || "";
+
+      document.getElementById("examLocation").value =
+        lastPresentation.hall || "";
       document.getElementById("examLink").value = lastPresentation.link || "";
-      const radio = document.getElementById(lastPresentation.kind);
-      if (radio) radio.checked = true;
+
+      const examType = lastPresentation.kind || "in_person";
+      const radio = document.getElementById(examType);
+      if (radio) {
+        radio.checked = true;
+      }
+    } else {
+      // Fallback if no presentations are found
+      document.getElementById("examDate").value = "";
+      document.getElementById("examTime").value = "";
+      document.getElementById("examLocation").value = "";
+      document.getElementById("examLink").value = "";
     }
   } catch (error) {
     console.error("Failed to load thesis presentations:", error);
+    // Clear fields on error to avoid showing stale data
+    document.getElementById("examDate").value = "";
+    document.getElementById("examTime").value = "";
+    document.getElementById("examLocation").value = "";
+    document.getElementById("examLink").value = "";
   }
 
   // Populate Nimertis link

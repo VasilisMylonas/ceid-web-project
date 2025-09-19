@@ -5,9 +5,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
-    let response;
-
-        response = await getThesis();
+    let response = await getThesis();
         if (
             !response ||
             !response.data ||

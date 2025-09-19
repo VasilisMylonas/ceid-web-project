@@ -240,6 +240,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
+  // Add this after you set initialThesisId
+  const viewPraktikoBtn = document.getElementById("view-praktiko-btn");
+  if (viewPraktikoBtn && initialThesisId) {
+    viewPraktikoBtn.addEventListener("click", () => {
+      window.open(`/praktiko?thesisId=${initialThesisId}`, "_blank");
+    });
+  }
+
   await refreshPageData();
 });
 

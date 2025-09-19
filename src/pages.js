@@ -110,10 +110,12 @@ pages.get(
     );
 
     const presentation = presentations[0];
+    console.log(presentation);
 
     res.render("pages/praktiko", {
+
       studentName: data.student,
-      hall: presentation.hall,
+      hall: presentation.hall ? presentation.hall : "-",
       date: presentation.date.toLocaleDateString("el-GR", {
         day: "2-digit",
         month: "2-digit",

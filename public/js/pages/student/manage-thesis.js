@@ -1,15 +1,3 @@
-/**
- * Helper function to validate a URL string.
- */
-function isValidUrl(string) {
-  try {
-    new URL(string);
-    return true;
-  } catch (_) {
-    return false;
-  }
-}
-
 document.addEventListener("DOMContentLoaded", async () => {
   const container = document.querySelector(".container-fluid.py-4");
   const stateAssignment = document.getElementById("state-assignment");
@@ -36,9 +24,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const preliminaryStatuses = {
         pending: "Η αίτησή σας για τη διπλωματική εργασία εκκρεμεί για έγκριση από την γραμματεία.",
         rejected: "Η αίτησή σας για τη διπλωματική εργασία απορρίφθηκε. Παρακαλώ επικοινωνήστε με την γραμματεία για περισσότερες πληροφορίες.",
-        active: "Η διπλωματική σας εργασία έχει εγκριθεί και είναι σε κατάσταση ενεργή.",
-        cancelled: "Η διπλωματική εργασία έχει ακυρωθεί.",
-      };
+        active: "Η διπλωματική σας εργασία έχει εγκριθεί και είναι σε κατάσταση ενεργή."      };
 
       if (Object.keys(preliminaryStatuses).includes(currentThesis.status)) {
         container.innerHTML = `
@@ -68,6 +54,9 @@ document.addEventListener("DOMContentLoaded", async () => {
           populateInvitationsList(invitationsResponse.data || [], activeStateCard);
         } else if (currentThesis.status === "under_examination") {
           await populateExaminationState(currentThesis);
+
+        } else if (currentThesis.status === "completed") {
+          populateCompletedState(currentThesis);
         }
       }
     } catch (error) {
@@ -113,53 +102,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       if (date || time || kind) {
         presentationSaveAttempted = true;
-        let isValid = true;
-        let validationMessage = "";
-
-        if (!date || !time || !kind) {
-          isValid = false;
-          validationMessage = "Για να αποθηκεύσετε τις λεπτομέρειες εξέτασης, πρέπει να συμπληρώσετε την Ημερομηνία, την Ώρα και τον Τύπο.";
-        } else {
-          const selectedDateTime = new Date(`${date}T${time}`);
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
-          if (selectedDateTime < today) {
-            isValid = false;
-            validationMessage = "Η ημερομηνία εξέτασης δεν μπορεί να είναι στο παρελθόν.";
-          } else if (kind === 'online') {
-            if (!link || !isValidUrl(link)) {
-              isValid = false;
-              validationMessage = "Για διαδικτυακή εξέταση, ο Σύνδεσμος είναι υποχρεωτικός και πρέπει να είναι έγκυρος.";
-            }
-            if (hall) {
-              isValid = false;
-              validationMessage = "Για διαδικτυακή εξέταση, το πεδίο Τοποθεσία πρέπει να είναι κενό.";
-            }
-          } else if (kind === 'in_person') {
-            if (!hall) {
-              isValid = false;
-              validationMessage = "Για αυτοπρόσωπη εξέταση, η Τοποθεσία είναι υποχρεωτική.";
-            }
-            if (link && !isValidUrl(link)) {
-              isValid = false;
-              validationMessage = "Ο προαιρετικός σύνδεσμος δεν είναι σε έγκυρη μορφή.";
-            }
-          }
-        }
-
-        if (isValid) {
-          const formattedDateTime = `${date}T${time}:00`;
-          const presentationData = { date: formattedDateTime, kind };
-          if (kind === 'in_person') {
-            presentationData.hall = hall;
-            if (link) presentationData.link = link;
-          } else {
-            presentationData.link = link;
-          }
-          operations.push(createThesisPresentation(currentThesis.id, presentationData).catch(err => console.error("Presentation save failed:", err)));
-        } else {
-          alert(validationMessage);
-        }
+        const { isValid, validationMessage } = validatePresentationData({ date, time, kind, hall, link });
+        handlePresentationSave({ isValid, validationMessage, date, time, kind, hall, link, currentThesis, operations });
       }
 
       // Prepare links data
@@ -171,7 +115,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
 
       // Prepare Nimertis link
-      const nimertisUrl = document.getElementById("nimertisLink").value.trim();
+      if (currentThesis.grade){
+        const nimertisUrl = document.getElementById("nimertisLink").value.trim();
       if (nimertisUrl) {
         if (isValidUrl(nimertisUrl)) {
           operations.push(setNymertesLink(currentThesis.id, nimertisUrl).catch(err => console.error("Nimertis save failed:", err)));
@@ -179,6 +124,8 @@ document.addEventListener("DOMContentLoaded", async () => {
           alert("Ο σύνδεσμος Νημερτής δεν είναι σε έγκυρη μορφή.");
         }
       }
+      }
+      
 
       if (operations.length === 0 && presentationSaveAttempted) return;
       if (operations.length === 0) {
@@ -300,6 +247,26 @@ function setupModalEventListeners(modalElement, inviteModal, getThesis, onInvita
   };
 }
 
+async function populateCompletedState(thesis) {
+  // Fill thesis details
+  document.getElementById("thesis-title").textContent = thesis.topic || "-";
+ 
+  document.getElementById("thesis-description").textContent = thesis.topicSummary || "-";
+  const fileLink = document.getElementById("thesis-description-file");
+  if (fileLink) {
+    if (thesis.descriptionFileUrl) {
+      fileLink.href = thesis.descriptionFileUrl;
+      fileLink.style.display = "";
+    } else {
+      fileLink.href = "#";
+      fileLink.style.display = "none";
+    }
+  }
+
+  await addPraktikoButton(thesis);
+  await populateTimeline(thesis.id); 
+}
+
 async function populateInvitationsList(invitations, activeStateCard) {
   const invitationList = activeStateCard.querySelector(".invitation-list");
   if (!invitationList) return;
@@ -386,4 +353,176 @@ async function populateExaminationState(thesis) {
 
   document.getElementById('nimertisLink').value = thesis.nimertisUrl || '';
 
+  // Disable Νημερτής card if grade is null
+  const nimertisInput = document.getElementById('nimertisLink');
+  if (nimertisInput) {
+    nimertisInput.disabled = thesis.grade == null;
+    // Optionally, visually indicate only the input is disabled
+    nimertisInput.classList.toggle('opacity-20', thesis.grade == null);
+  }
+
+  await addPraktikoButton(thesis);
+  
 }
+
+async function addPraktikoButton(thesis) {
+  const thesisId = thesis.id;
+  // Find the visible state card
+  const stateCard = document.querySelector('.card.shadow-sm[style*="display: block"]');
+  if (!stateCard) return;
+
+  const viewPraktikoBtn = stateCard.querySelector("#view-praktiko-btn");
+  if (viewPraktikoBtn && thesisId) {
+    // Disable the button if thesis.grade is null
+    if (thesis.grade == null) {
+      viewPraktikoBtn.disabled = true;
+      viewPraktikoBtn.title = "Το πρακτικό είναι διαθέσιμο μόνο όταν υπάρχει βαθμός.";
+      return;
+    }
+
+    let hasPresentation = false;
+    try {
+      const presentationsResponse = await getThesisPresentations(thesisId);
+      hasPresentation = presentationsResponse?.data?.length > 0;
+    } catch (error) {
+      console.error("Failed to fetch presentations:", error);
+      viewPraktikoBtn.disabled = true;
+      viewPraktikoBtn.title = "Σφάλμα κατά τον έλεγχο παρουσίασης.";
+      return;
+    }
+
+    viewPraktikoBtn.onclick = () => {
+      if (hasPresentation) {
+        window.open(`/praktiko?thesisId=${thesisId}`, "_blank");
+      } else {
+        alert("Δεν έχει καταχωρηθεί παρουσίαση για τη διπλωματική εργασία. Το πρακτικό δεν είναι διαθέσιμο.");
+      }
+    };
+  }
+}
+/**
+ * Helper function to validate a URL string.
+ */
+function isValidUrl(string) {
+  try {
+    new URL(string);
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
+
+function validatePresentationData({ date, time, kind, hall, link }) {
+  if (!date || !time || !kind) {
+    return {
+      isValid: false,
+      validationMessage: "Για να αποθηκεύσετε τις λεπτομέρειες εξέτασης, πρέπει να συμπληρώσετε την Ημερομηνία, την Ώρα και τον Τύπο."
+    };
+  }
+  const selectedDateTime = new Date(`${date}T${time}`);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  if (selectedDateTime < today) {
+    return {
+      isValid: false,
+      validationMessage: "Η ημερομηνία εξέτασης δεν μπορεί να είναι στο παρελθόν."
+    };
+  }
+  if (kind === 'online') {
+    if (!link || !isValidUrl(link)) {
+      return {
+        isValid: false,
+        validationMessage: "Για διαδικτυακή εξέταση, ο Σύνδεσμος είναι υποχρεωτικός και πρέπει να είναι έγκυρος."
+      };
+    }
+    if (hall) {
+      return {
+        isValid: false,
+        validationMessage: "Για διαδικτυακή εξέταση, το πεδίο Τοποθεσία πρέπει να είναι κενό."
+      };
+    }
+  } else if (kind === 'in_person') {
+    if (!hall) {
+      return {
+        isValid: false,
+        validationMessage: "Για αυτοπρόσωπη εξέταση, η Τοποθεσία είναι υποχρεωτική."
+      };
+    }
+    if (link && !isValidUrl(link)) {
+      return {
+        isValid: false,
+        validationMessage: "Ο προαιρετικός σύνδεσμος δεν είναι σε έγκυρη μορφή."
+      };
+    }
+  }
+  return { isValid: true, validationMessage: "" };
+}
+
+async function populateTimeline(thesisId) {
+  const timelineList = document.getElementById("thesis-timeline-list");
+  if (!timelineList) return;
+
+  timelineList.innerHTML = `<li class="list-group-item text-center text-muted">Φόρτωση ιστορικού...</li>`;
+
+  try {
+    const timelineResponse = await getThesisTimeline(thesisId);
+    const timeline = timelineResponse?.data || [];
+
+    if (!timeline.length) {
+      timelineList.innerHTML = `<li class="list-group-item text-center text-muted">Δεν υπάρχουν αλλαγές κατάστασης.</li>`;
+      return;
+    }
+
+    timelineList.innerHTML = timeline
+      .map(entry => {
+        const date = new Date(entry.changedAt).toLocaleString("el-GR");
+        return `
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <span>
+              ${getStatusBadge(entry.oldStatus)}
+              <span class="mx-2" style="font-size:1.2em;">&#8594;</span>
+              ${getStatusBadge(entry.newStatus)}
+            </span>
+            <span class="text-muted small">${date}</span>
+          </li>
+        `;
+      })
+      .reverse()
+      .join("");
+  } catch (error) {
+    console.error("Failed to load thesis timeline:", error);
+    timelineList.innerHTML = `<li class="list-group-item text-danger">Σφάλμα φόρτωσης ιστορικού.</li>`;
+  }
+}
+
+// Add this at the top of your JS file or near the Name object
+const statusBadgeClass = {
+  under_assignment: "bg-secondary",
+  active: "bg-primary",
+  under_examination: "bg-warning text-dark",
+  completed: "bg-success",
+};
+
+function getStatusBadge(status) {
+  return `<span class="badge ${statusBadgeClass[status] || "bg-dark"}">${Name.ofThesisStatus(status)}</span>`;
+}
+
+function handlePresentationSave({ isValid, validationMessage, date, time, kind, hall, link, currentThesis, operations }) {
+  if (isValid) {
+    const formattedDateTime = `${date}T${time}:00`;
+    const presentationData = { date: formattedDateTime, kind };
+    if (kind === 'in_person') {
+      presentationData.hall = hall;
+      if (link) presentationData.link = link;
+    } else {
+      presentationData.link = link;
+    }
+    operations.push(
+      createThesisPresentation(currentThesis.id, presentationData)
+        .catch(err => console.error("Presentation save failed:", err))
+    );
+  } else {
+    alert(validationMessage);
+  }
+}
+

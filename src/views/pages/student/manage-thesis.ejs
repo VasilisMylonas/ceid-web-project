@@ -26,17 +26,38 @@
       </div>
     </div>
   </div>
-
-    <div id="state-completed" class="card shadow-sm" style="display: none;">
+  <!-- State 3: Completed -->
+  <div id="state-completed" class="card shadow-sm" style="display: none;">
     <div class="card-body p-4">
       <h5 class="card-title text-center">Κατάσταση: Περατωμένη</h5>
       <p class="text-center text-muted">Η διπλωματική εργασία έχει ολοκληρωθεί και βαθμολογηθεί.</p>
       <hr class="my-4">
+
+      <!-- Thesis Details -->
+      <div class="mb-4">
+        <h6 class="mb-2">Λεπτομέρειες Διπλωματικής Εργασίας</h6>
+        <ul class="list-group">
+          <li class="list-group-item"><strong>Θέμα:</strong> <span id="thesis-title">-</span></li>
+          <li class="list-group-item"><strong>Περιγραφή:</strong> <span id="thesis-description">-</span></li>
+           <button class="btn btn-primary w-100 mt-2" type="button" id="download-draft-btn">
+                <i class="fas fa-file-download me-2"></i>Λήψη Διπλωματικής Εργασίας
+              </button>
+        </ul>
+      </div>
+
       <div class="d-grid gap-2 col-sm-8 col-md-6 mx-auto">
-        <button class="btn btn-dark" type="button">
+        <button
+          class="btn btn-primary w-100 mt-2"
+          type="button"
+          id="view-praktiko-btn">
           <i class="fas fa-award me-2"></i>Προβολή Πρακτικού Εξέτασης
         </button>
       </div>
+      <hr class="my-4">
+      <h6 class="text-center mb-3">Ιστορικό Καταστάσεων</h6>
+      <ul class="list-group" id="thesis-timeline-list">
+        <li class="list-group-item text-center text-muted">Φόρτωση ιστορικού...</li>
+      </ul>
     </div>
   </div>
 
@@ -61,7 +82,7 @@
               </div>
 
               <!-- Change the button's class to make it look more active -->
-              <button class="btn btn-info text-dark w-100" type="button" id="download-draft-btn">
+              <button class="btn btn-primary w-100" type="button" id="download-draft-btn">
                 <i class="fas fa-file-download me-2"></i>Λήψη Τρέχοντος Αρχείου
               </button>
             </div>
@@ -122,11 +143,17 @@
           <!-- Final Submission Card -->
           <div class="card">
             <div class="card-body">
-              <h6 class="card-title">Σύνδεσμος Νημερτής</h6>
-              <div class="form-floating">
+              <h6 class="card-title">Τελικές Πληροφορίες</h6>
+              <div class="form-floating mb-3">
                 <input type="url" class="form-control" id="nimertisLink">
                 <label for="nimertisLink">URL Νημερτής</label>
               </div>
+              <button
+                class="btn btn-primary w-100 mt-2"
+                type="button"
+                id="view-praktiko-btn">
+                <i class="fas fa-award me-2"></i>Προβολή Πρακτικού Εξέτασης
+              </button>
             </div>
           </div>
         </div>
@@ -141,7 +168,6 @@
     </div>
   </div>
 
-  <!-- State 3: Completed -->
 
 </div>
 

@@ -135,7 +135,9 @@ async function getThesisResources(thesisId) {
 async function getThesisInvitations(thesisId) {
   return await request("GET", `${BASE_URL}/v1/theses/${thesisId}/invitations`);
 }
-
+async function getThesisTimeline(thesisId) {
+  return await request("GET", `${BASE_URL}/v1/theses/${thesisId}/timeline`);
+}
 async function sendThesisInvitation(thesisId, professorId) {
   return await request(
     "POST",

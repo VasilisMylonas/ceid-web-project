@@ -109,11 +109,11 @@ pages.get(
       req.user
     );
 
-    const presentation = presentations[0];
-
+    const presentation = presentations.at(-1);
     res.render("pages/praktiko", {
+
       studentName: data.student,
-      hall: presentation.hall,
+      hall: presentation.hall ? presentation.hall : presentation.link,
       date: presentation.date.toLocaleDateString("el-GR", {
         day: "2-digit",
         month: "2-digit",
@@ -205,6 +205,7 @@ pages.get("/student/:page", requirePageAuth, async (req, res) => {
   return res.render(`pages/student/${req.params.page}`, {
     title: studentLinks.find((link) => link.href === req.path)?.title,
     links: studentLinks,
+    user: req.user,
     layout: "layouts/basic",
   });
 });

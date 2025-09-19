@@ -176,8 +176,8 @@ export default (sequelize) => {
           }
 
           if (thesis.changed("documentFile")) {
-            // Prevent changing documentFile if not in ACTIVE state
-            if (thesis.status !== ThesisStatus.ACTIVE) {
+            // Prevent changing documentFile if not in UNDER_EXAMINATION state
+            if (thesis.status !== ThesisStatus.UNDER_EXAMINATION) {
               throw new ConflictError("Thesis is not active.");
             }
 

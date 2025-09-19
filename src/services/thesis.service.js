@@ -279,7 +279,7 @@ ${offset ? `OFFSET ${offset}` : ""}
       ThesisRole.SUPERVISOR,
     ]);
 
-    // TODO: maybe a presentation should exist before allowing this
+    // TODO: maybe a presentation and a draft should exist before allowing this
 
     await thesis.update({ grading });
     return thesis.grading;

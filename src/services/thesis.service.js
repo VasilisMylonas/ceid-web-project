@@ -603,7 +603,10 @@ ${offset ? `OFFSET ${offset}` : ""}
       ThesisRole.STUDENT,
     ]);
 
-    return await thesis.getInvitations({ order: [["id", "ASC"]] });
+    return await thesis.getInvitations({
+      order: [["id", "ASC"]],
+      include: [db.Professor],
+    });
   }
 
   static async createInvitation(id, user, professorId) {

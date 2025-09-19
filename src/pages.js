@@ -209,4 +209,40 @@ pages.get("/student/:page", requirePageAuth, async (req, res) => {
   });
 });
 
+
+pages.get("/professor/:page", requirePageAuth, async (req, res) => {
+  if (req.user.role !== UserRole.PROFESSOR) {
+    return res.redirect("/");
+  }
+
+  const studentLinks = [
+    {
+      href: "/student/home",
+      icon: "bi-house",
+      title: "Αρχική",
+    },
+    {
+      href: "/student/view-topic",
+      icon: "bi-book",
+      title: "Προβολή θέματος",
+    },
+    {
+      href: "/student/manage-thesis",
+      icon: "bi-file-earmark-check",
+      title: "Διαχείριση Διπλωματικής Εργασίας",
+    },
+    {
+      href: "/student/edit-profile",
+      icon: "bi-person-circle",
+      title: "Επεξεργασία Προφίλ",
+    },
+  ];
+
+  return res.render(`pages/student/${req.params.page}`, {
+    title: studentLinks.find((link) => link.href === req.path)?.title,
+    links: studentLinks,
+    layout: "layouts/basic",
+  });
+});
+
 export default pages;

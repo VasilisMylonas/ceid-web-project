@@ -1,3 +1,17 @@
+/**
+ * Helper function to validate a URL string.
+ * @param {string} string The URL string to validate.
+ * @returns {boolean} True if the URL is valid, false otherwise.
+ */
+function isValidUrl(string) {
+  try {
+    new URL(string);
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
   const container = document.querySelector(".container-fluid.py-4");
   const stateAssignment = document.getElementById("state-assignment");
@@ -5,35 +19,82 @@ document.addEventListener("DOMContentLoaded", async () => {
   const stateCompleted = document.getElementById("state-completed");
   const modalElement = document.getElementById("invite-modal");
 
+  let currentThesis; // This will be the single source of truth for thesis data.
+  let initialThesisId;
+  
   const hideAllStates = () => {
     if (stateAssignment) stateAssignment.style.display = "none";
     if (stateExamination) stateExamination.style.display = "none";
     if (stateCompleted) stateCompleted.style.display = "none";
   };
 
-  let thesisSummaryResponse;
-  try {
-    thesisSummaryResponse = await getThesis();
-  } catch (error) {
-    console.error("Failed to fetch thesis summary:", error);
-    container.innerHTML =
-      '<div class="alert alert-danger">Σφάλμα φόρτωσης δεδομένων διπλωματικής.</div>';
-    return;
-  }
+  /**
+   * Fetches all necessary data from the server and updates the entire UI.
+   * This is the single source of truth for rendering the page state.
+   */
+  const refreshPageData = async () => {
+    if (!initialThesisId) return;
+    try {
+      console.log(`[API GET] Fetching details for thesis ID: ${initialThesisId}`);
+      const thesisDetailsResponse = await getThesisDetails(initialThesisId);
+      console.log("[API GET] Received thesis details:", thesisDetailsResponse.data);
+      currentThesis = thesisDetailsResponse.data;
 
-  if (
-    !thesisSummaryResponse ||
-    !thesisSummaryResponse.data ||
-    thesisSummaryResponse.data.length === 0
-  ) {
-    container.innerHTML =
-      '<div class="alert alert-warning text-center"><h3>Δεν έχετε αναλάβει κάποια διπλωματική εργασία.</h3><p>Η σελίδα αυτή προορίζεται για τη διαχείριση μιας ενεργής διπλωματικής.</p></div>';
-    return;
-  }
-  let thesisDetailsResponse;
+      // --- Check for preliminary or terminal statuses ---
+      const preliminaryStatuses = {
+        pending: "Η αίτησή σας για τη διπλωματική εργασία εκκρεμεί για έγκριση από την γραμματεία.",
+        rejected: "Η αίτησή σας για τη διπλωματική εργασία απορρίφθηκε. Παρακαλώ επικοινωνήστε με την γραμματεία για περισσότερες πληροφορίες.",
+        active: "Η διπλωματική σας εργασία έχει εγκριθεί και είναι σε κατάσταση ενεργή.",
+        cancelled: "Η διπλωματική εργασία έχει ακυρωθεί.",
+      };
+
+      if (Object.keys(preliminaryStatuses).includes(currentThesis.status)) {
+        container.innerHTML = `
+          <div class="alert alert-info text-center">
+              <h3>Ενημέρωση Κατάστασης</h3>
+              <p class="lead">${preliminaryStatuses[currentThesis.status]}</p>
+          </div>`;
+        return;
+      }
+
+      let activeStateCard = null;
+      switch (currentThesis.status) {
+        case "under_assignment": activeStateCard = stateAssignment; break;
+        case "under_examination": activeStateCard = stateExamination; break;
+        case "completed": activeStateCard = stateCompleted; break;
+        default: activeStateCard = stateAssignment; break;
+      }
+
+      hideAllStates();
+      if (activeStateCard) {
+        activeStateCard.style.display = "block";
+        populateCommitteeList(currentThesis, activeStateCard);
+
+        if (currentThesis.status === "under_assignment") {
+          console.log(`[API GET] Fetching invitations for thesis ID: ${currentThesis.id}`);
+          const invitationsResponse = await getThesisInvitations(currentThesis.id);
+          console.log("[API GET] Received invitations:", invitationsResponse.data);
+          populateInvitationsList(invitationsResponse.data || [], activeStateCard);
+        } else if (currentThesis.status === "under_examination") {
+          await populateExaminationState(currentThesis);
+        }
+      }
+    } catch (error) {
+      console.error("Failed to refresh page data:", error);
+      container.innerHTML = '<div class="alert alert-danger">Σφάλμα ανανέωσης δεδομένων σελίδας.</div>';
+    }
+  };
+
+  // --- INITIAL PAGE LOAD ---
   try {
-    const thesisId = thesisSummaryResponse.data[0].id;
-    thesisDetailsResponse = await getThesisDetails(thesisId);
+    console.log("[API GET] Fetching initial thesis summary.");
+    const thesisSummaryResponse = await getThesis();
+    console.log("[API GET] Received thesis summary:", thesisSummaryResponse.data);
+    if (!thesisSummaryResponse?.data?.length) {
+      container.innerHTML = '<div class="alert alert-warning text-center"><h3>Δεν έχετε αναλάβει κάποια διπλωματική εργασία.</h3></div>';
+      return;
+    }
+    initialThesisId = thesisSummaryResponse.data[0].id;
   } catch (error) {
     console.error("Failed to fetch thesis details:", error);
     container.innerHTML =
@@ -67,8 +128,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   hideAllStates();
 
   // --- SETUP EVENT LISTENERS ONCE ---
-
-  let invitationsResponse = []; // Initialize as an empty array
   if (modalElement) {
     const inviteModal = new bootstrap.Modal(modalElement);
     // Pass functions to get the current thesis and invitations data.
@@ -84,7 +143,58 @@ document.addEventListener("DOMContentLoaded", async () => {
   const saveExamBtn = document.getElementById("save-examination-btn");
   if (saveExamBtn) {
     saveExamBtn.addEventListener("click", async () => {
-      if (!thesis) return;
+      if (!currentThesis) return;
+
+      let operations = [];
+      let presentationSaveAttempted = false;
+
+      // --- Prepare and Validate Presentation Data ---
+      const date = document.getElementById("examDate").value;
+      const time = document.getElementById("examTime").value;
+      const kind = document.querySelector('input[name="examType"]:checked')?.value;
+      const hall = document.getElementById("examLocation").value.trim();
+      const link = document.getElementById("examLink").value.trim();
+
+      // Only proceed if the user has filled the main presentation fields
+      if (date || time || kind) {
+        presentationSaveAttempted = true;
+        let isValid = true;
+        let validationMessage = "";
+
+        if (!date || !time || !kind) {
+          isValid = false;
+          validationMessage = "Για να αποθηκεύσετε τις λεπτομέρειες εξέτασης, πρέπει να συμπληρώσετε την Ημερομηνία, την Ώρα και τον Τύπο.";
+        } else {
+          const selectedDateTime = new Date(`${date}T${time}`);
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          if (selectedDateTime < today) {
+            isValid = false;
+            validationMessage = "Η ημερομηνία εξέτασης δεν μπορεί να είναι στο παρελθόν.";
+          } else if (kind === 'online') {
+            if (!link) {
+              isValid = false;
+              validationMessage = "Για διαδικτυακή εξέταση, ο Σύνδεσμος είναι υποχρεωτικός.";
+            } else if (!isValidUrl(link)) {
+              isValid = false;
+              validationMessage = "Ο Σύνδεσμος για διαδικτυακή εξέταση δεν είναι σε έγκυρη μορφή (π.χ. https://example.com).";
+            }
+            if (hall) {
+              isValid = false;
+              validationMessage = "Για διαδικτυακή εξέταση, το πεδίο Τοποθεσία πρέπει να είναι κενό.";
+            }
+          } else if (kind === 'in_person') {
+            if (!hall) {
+              isValid = false;
+              validationMessage = "Για αυτοπρόσωπη εξέταση, η Τοποθεσία είναι υποχρεωτική.";
+            }
+            // Optional link validation for in-person
+            if (link && !isValidUrl(link)) {
+              isValid = false;
+              validationMessage = "Ο προαιρετικός σύνδεσμος δεν είναι σε έγκυρη μορφή (π.χ. https://example.com).";
+            }
+          }
+        }
 
       // --- Handle Presentation Data ---
       try {
@@ -107,11 +217,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (date && time && kind && location) {
           // Format date and time as "YYYY-MM-DDTHH:mm:00"
           const formattedDateTime = `${date}T${time}:00`;
-          const presentationData = {
-            date: formattedDateTime,
-            kind: kind === "online" ? "online" : "in_person",
-          };
-          if (kind === "online") {
+          const presentationData = { date: formattedDateTime, kind };
+          if (kind === 'in_person') {
+            presentationData.hall = hall;
+            if (link) presentationData.link = link; // Link is optional for in-person
+          } else { // online
             presentationData.link = link;
             if (location) {
               presentationData.hall = location; // Optional, if provided
@@ -123,52 +233,54 @@ document.addEventListener("DOMContentLoaded", async () => {
               presentationData.link = link; // Optional, if provided
             }
           }
-          await createThesisPresentation(thesis.id, presentationData);
-          console.log("Saved presentation data:", presentationData);
-          alert("Οι λεπτομέρειες της εξέτασης αποθηκεύτηκαν.");
+          
+          console.log("[API POST] Sending presentation data:", presentationData);
+          operations.push(createThesisPresentation(currentThesis.id, presentationData).catch(err => console.error("[API POST] Presentation save failed:", err)));
+        } else {
+          alert(validationMessage);
         }
       } catch (error) {
         console.error("Failed to save presentation details:", error);
         alert(error);
       }
-
-      // --- Handle Links Data ---
+      
+      // --- Prepare Links Data ---
       const linksText = document.getElementById("links-to-add").value;
-      const linksArray = linksText
-        .split("\n")
-        .map((link) => link.trim())
-        .filter((link) => link);
-
+      const linksArray = linksText.split("\n").map((l) => l.trim()).filter((l) => l);
       if (linksArray.length > 0) {
-        const resources = linksArray.map((link) => ({
-          link: link,
-          kind: "other",
-        }));
-        try {
-          const promises = resources.map((res) =>
-            addThesisResources(thesis.id, res)
-          );
-          await Promise.all(promises);
-          alert("Οι σύνδεσμοι αποθηκεύτηκαν.");
-          document.getElementById("links-to-add").value = "";
-        } catch (error) {
-          console.error("Failed to save links:", error);
-          alert("Σφάλμα κατά την αποθήκευση των συνδέσμων.");
-        }
+        const resources = linksArray.map((l) => ({ link: l, kind: "other" }));
+        console.log("[API POST] Sending resources data:", resources);
+        operations.push(...resources.map(res => addThesisResources(currentThesis.id, res).catch(err => console.error("[API POST] Link save failed:", err))));
       }
 
-      // --- Handle Nimertis Link ---
+      // --- Prepare Nimertis Link ---
       const nimertisUrl = document.getElementById("nimertisLink").value.trim();
       if (nimertisUrl) {
-        try {
-          await setNymertesLink(thesis.id, nimertisUrl);
-
-          alert("Ο σύνδεσμος Νημερτής αποθηκεύτηκε.");
-        } catch (error) {
-          console.error("Failed to save Nimertis link:", error);
-          alert("Προέκυψε σφάλμα κατά την αποθήκευση του συνδέσμου Νημερτής.");
+        if (isValidUrl(nimertisUrl)) {
+          console.log("[API PUT] Sending Nimertis link:", { nemertesLink: nimertisUrl });
+          operations.push(setNymertesLink(currentThesis.id, nimertisUrl).catch(err => console.error("[API PUT] Nimertis save failed:", err)));
+        } else {
+          alert("Ο σύνδεσμος Νημερτής δεν είναι σε έγκυρη μορφή (π.χ. https://example.com).");
         }
       }
+
+      // Only proceed if there are non-presentation operations, or if presentation was not attempted.
+      if (operations.length === 0 && presentationSaveAttempted) {
+        // This case happens if presentation validation failed and there was nothing else to save.
+        // The alert was already shown, so we just stop.
+        return;
+      }
+      
+      if (operations.length === 0) {
+        alert("Δεν υπάρχουν αλλαγές προς αποθήκευση.");
+        return;
+      }
+
+      await Promise.allSettled(operations);
+      
+      alert("Οι αλλαγές αποθηκεύτηκαν");
+      document.getElementById("links-to-add").value = ""; // Clear textarea after attempting save
+      await refreshPageData();
     });
   }
 
@@ -190,9 +302,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       formData.append("file", file);
 
       try {
-        await uploadThesisDraft(thesis.id, formData);
+        console.log(`[API PUT] Uploading draft for thesis ID: ${currentThesis.id}`);
+        await uploadThesisDraft(currentThesis.id, formData);
+        console.log("[API PUT] Draft upload successful.");
         alert("Το αρχείο της διπλωματικής ανέβηκε με επιτυχία.");
-        fileInput.value = ""; // Clear the file input
+        fileInput.value = "";
+        await refreshPageData(); // Refresh after upload
       } catch (error) {
         console.error("Failed to upload thesis draft:", error);
         alert("Προέκυψε σφάλμα κατά το ανέβασμα του αρχείου.");
@@ -210,21 +325,24 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   if (downloadDraftBtn) {
     downloadDraftBtn.addEventListener("click", async () => {
-      if (thesis) {
+      // Always attempt the download, regardless of thesis properties.
+      if (currentThesis) {
         try {
-          const blob = await getThesisDraft(thesis.id);
-
-          // Create a temporary link to trigger the download
+          console.log(`[API GET] Downloading draft for thesis ID: ${currentThesis.id}`);
+          const blob = await getThesisDraft(currentThesis.id);
+          console.log("[API GET] Draft download successful, received blob:", blob);
           const url = window.URL.createObjectURL(blob);
           const a = document.createElement("a");
           a.style.display = "none";
           a.href = url;
-          a.download = "current_draft.pdf";
+          // Use a generic filename since the property is not available.
+          a.download = "thesis_draft.pdf";
           document.body.appendChild(a);
-          a.click();
+a.click();
           window.URL.revokeObjectURL(url);
           a.remove();
         } catch (error) {
+          // If the API call fails, inform the user.
           console.error("Failed to download thesis draft:", error);
           alert("Προέκυψε σφάλμα κατά τη λήψη του αρχείου.");
         }
@@ -232,65 +350,18 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  let activeStateCard = null;
-
-  switch (thesis.status) {
-    case "under_assignment":
-      console.log("Thesis is under assignment.");
-      // The call to populateInvitationsList is removed from here.
-      if (stateAssignment) {
-        activeStateCard = stateAssignment;
-      }
-      break;
-    case "under_examination":
-      if (stateExamination) {
-        activeStateCard = stateExamination;
-      }
-      break;
-    case "completed":
-      if (stateCompleted) {
-        activeStateCard = stateCompleted;
-      }
-      break;
-    default:
-      // Fallback to the assignment state if status is unknown
-      if (stateAssignment) {
-        activeStateCard = stateAssignment;
-      }
-      break;
-  }
-
-  if (activeStateCard) {
-    activeStateCard.style.display = "block";
-
-    // Populate lists common to most states
-    populateCommitteeList(thesis, activeStateCard);
-
-    // --- Conditional Logic for States ---
-    if (thesis.status === "under_assignment") {
-      try {
-        // Fetch and populate invitations ONLY for this state
-        invitationsResponse = (await getThesisInvitations(thesis.id)).data;
-        populateInvitationsList(invitationsResponse, activeStateCard);
-      } catch (error) {
-        console.error("Failed to fetch or populate invitations:", error);
-        const invitationList =
-          activeStateCard.querySelector(".invitation-list");
-        if (invitationList)
-          invitationList.innerHTML =
-            '<li class="list-group-item text-danger">Σφάλμα φόρτωσης προσκλήσεων.</li>';
-      }
-    } else if (thesis.status === "under_examination") {
-      await populateExaminationState(thesis);
-    }
-  }
+  // Initial data load and render
+  await refreshPageData();
 });
 
+// The rest of your functions (setupModalEventListeners, populateInvitationsList, etc.) remain largely the same.
+// The key change is that setupModalEventListeners now receives `refreshPageData` as its callback.
+// ... (rest of the functions from your file)
 function setupModalEventListeners(
   modalElement,
   inviteModal,
   getThesis,
-  getInvitations
+  onInvitationsSent // This is now the refreshPageData function
 ) {
   // --- Logic to populate the modal right before it's shown ---
   modalElement.addEventListener("show.bs.modal", async () => {
@@ -302,66 +373,32 @@ function setupModalEventListeners(
     professorListContainer.innerHTML = "<p>Φόρτωση λίστας διδασκόντων...</p>";
 
     try {
-      const professorsResponse = await getProfessors();
-      console.log("Professors fetched for modal:", professorsResponse);
+        console.log("[API GET] Fetching professors and invitations for modal.");
+        const [professorsResponse, invitationsResponse] = await Promise.all([
+            getProfessors(),
+            getThesisInvitations(thesis.id)
+        ]);
+        console.log("[API GET] Received professors for modal:", professorsResponse.data);
+        console.log("[API GET] Received invitations for modal:", invitationsResponse.data);
+        const invitations = invitationsResponse.data || [];
+        const committeeMemberIds = new Set(thesis.committeeMembers.map((member) => member.professorId));
+        const alreadyInvitedIds = new Set(invitations.map((inv) => inv.professorId));
 
-      // Set of professors already on the committee
-      const committeeMemberIds = new Set(
-        thesis.committeeMembers.map((member) => member.professorId)
-      );
+        professorListContainer.innerHTML = "";
 
-      // Set of professors with pending, rejected, or accepted invitations
-      const alreadyInvitedIds = new Set(
-        invitations
-          .filter(
-            (inv) => inv.response === "pending" || inv.response === "declined"
-          )
-          .map((inv) => inv.professorId)
-      );
+        professorsResponse.data.forEach((professor) => {
+            if (committeeMemberIds.has(professor.id)) return;
 
-      professorListContainer.innerHTML = ""; // Clear loading text
-
-      if (
-        !professorsResponse ||
-        !professorsResponse.data ||
-        professorsResponse.data.length === 0
-      ) {
-        professorListContainer.innerHTML =
-          '<p class="text-danger">Δεν βρέθηκαν διαθέσιμοι διδάσκοντες.</p>';
-        return;
-      }
-
-      professorsResponse.data.forEach((professor) => {
-        // Don't show professors who are already confirmed members
-        if (committeeMemberIds.has(professor.id)) {
-          return;
-        }
-
-        const isAlreadyInvited = alreadyInvitedIds.has(professor.id);
-        const div = document.createElement("div");
-        div.className = "form-check";
-
-        div.innerHTML = `
-                    <input
-                        class="form-check-input"
-                        type="checkbox"
-                        value="${professor.id}"
-                        id="prof-${professor.id}"
-                        ${isAlreadyInvited ? "disabled" : ""}
-                    >
-                    <label
-                        class="form-check-label ${
-                          isAlreadyInvited ? "text-muted" : ""
-                        }"
-                        for="prof-${professor.id}"
-                    >
-                        ${professor.name} ${
-          isAlreadyInvited ? "(Έχει ήδη προσκληθεί)" : ""
-        }
-                    </label>
-                `;
-        professorListContainer.appendChild(div);
-      });
+            const isAlreadyInvited = alreadyInvitedIds.has(professor.id);
+            const div = document.createElement("div");
+            div.className = "form-check";
+            div.innerHTML = `
+                <input class="form-check-input" type="checkbox" value="${professor.id}" id="prof-${professor.id}" ${isAlreadyInvited ? "disabled" : ""}>
+                <label class="form-check-label ${isAlreadyInvited ? "text-muted" : ""}" for="prof-${professor.id}">
+                    ${professor.name} ${isAlreadyInvited ? "(Έχει ήδη προσκληθεί)" : ""}
+                </label>`;
+            professorListContainer.appendChild(div);
+        });
     } catch (error) {
       console.error("Error fetching professors for modal:", error);
       professorListContainer.innerHTML =
@@ -385,39 +422,13 @@ function setupModalEventListeners(
     }
 
     try {
-      // Create an array of promises, one for each invitation request
-      const invitationPromises = selectedProfessorIds.map((professorId) => {
-        console.log(`Sending invitation to professor with ID: ${professorId}`);
-        return sendThesisInvitation(currentThesis.id, professorId);
-      });
-
-      // Wait for all invitation requests to complete
-      const responses = await Promise.all(invitationPromises);
-
-      console.log("All invitations sent successfully:", responses);
-
-      // Show a confirmation dialog to the user
-      alert("Όλες οι προσκλήσεις στάλθηκαν με επιτυχία.");
-
+      console.log("[API POST] Sending invitations to professors:", selectedProfessorIds);
+      const invitationPromises = selectedProfessorIds.map((id) => sendThesisInvitation(currentThesis.id, id));
+      await Promise.all(invitationPromises);
+      console.log("[API POST] Invitations sent successfully.");
+      alert("Οι προσκλήσεις στάλθηκαν με επιτυχία.");
       inviteModal.hide();
-
-      // Refresh the thesis details and the committee list on the main page
-      const updatedThesisDetails = await getThesisDetails(currentThesis.id);
-      // Re-assign the main 'thesis' variable in the outer scope with the new data.
-      thesis = updatedThesisDetails.data;
-      const updatedInvitations = (await getThesisInvitations(thesis.id)).data;
-      // Also update the main invitations variable in the outer scope.
-      invitationsResponse = updatedInvitations;
-
-      const activeCard =
-        document.querySelector('#state-assignment[style*="block"]') ||
-        document.querySelector('#state-examination[style*="block"]') ||
-        document.querySelector('#state-completed[style*="block"]');
-
-      if (activeCard) {
-        populateCommitteeList(thesis, activeCard);
-        populateInvitationsList(updatedInvitations, activeCard);
-      }
+      await onInvitationsSent(); // This calls refreshPageData
     } catch (error) {
       console.error("Error sending one or more invitations:", error);
       alert(
@@ -454,37 +465,19 @@ async function populateInvitationsList(invitations, activeStateCard) {
 
   try {
     const professorsResponse = await getProfessors();
-    const professorMap = new Map(
-      professorsResponse.data.map((p) => [p.id, p.name])
-    );
-
-    relevantInvitations.forEach((invitation) => {
-      const professorName =
-        professorMap.get(invitation.professorId) ||
-        `Άγνωστος Διδάσκων (ID: ${invitation.professorId})`;
-      const li = document.createElement("li");
-      li.className =
-        "list-group-item d-flex justify-content-between align-items-center";
-
-      let statusBadge;
-      if (invitation.response === "pending") {
-        statusBadge = `<span class="badge bg-warning rounded-pill">Εκκρεμεί</span>`;
-      } else if (invitation.response === "rejected") {
-        statusBadge = `<span class="badge bg-danger rounded-pill">Απορρίφθηκε</span>`;
-      }
-
-      li.innerHTML = `
+    const professorMap = new Map(professorsResponse.data.map((p) => [p.id, p.name]));
+    invitationList.innerHTML = relevantInvitations.map(inv => {
+        const professorName = professorMap.get(inv.professorId) || `ID: ${inv.professorId}`;
+        const badge = `<span class="badge bg-${inv.response === 'pending' ? 'warning' : 'danger'} rounded-pill">${inv.response === 'pending' ? 'Εκκρεμεί' : 'Απορρίφθηκε'}</span>`;
+        return `
+            <li class="list-group-item d-flex justify-content-between align-items-center">
                 <div>
-                    ${professorName}
-                    <br>
-                    <small class="text-muted">Πρόσκληση στάλθηκε: ${new Date(
-                      invitation.createdAt
-                    ).toLocaleDateString("el-GR")}</small>
+                    ${professorName}<br>
+                    <small class="text-muted">Στάλθηκε: ${new Date(inv.createdAt).toLocaleDateString("el-GR")}</small>
                 </div>
-                ${statusBadge}
-            `;
-      invitationList.appendChild(li);
-    });
+                ${badge}
+            </li>`;
+    }).join('');
   } catch (error) {
     console.error("Error fetching professors for invitations list:", error);
     invitationList.innerHTML =
@@ -514,36 +507,30 @@ function populateCommitteeList(thesis, activeStateCard) {
     return;
   }
 
-  // Iterate over the committee members from the thesis object and display them
-  thesis.committeeMembers.forEach((member) => {
-    const li = document.createElement("li");
-    li.className =
-      "list-group-item d-flex justify-content-between align-items-center";
-
-    // Since the detailed API provides the role but not the invitation status,
-    // we display a generic "Μέλος" badge.
-    professor_role = member.role;
-    const statusBadge = `<span class="badge bg-success rounded-pill">${Name.ofMemberRole(
-      professor_role
-    )}</span>`;
-
-    li.innerHTML = `
-            <div>
-                ${member.name}
-                <br>
-            </div>
-            ${statusBadge}
-        `;
-    committeeList.appendChild(li);
-  });
+  committeeList.innerHTML = thesis.committeeMembers.map(member => {
+    const roleBadge = `<span class="badge bg-success rounded-pill">${Name.ofMemberRole(member.role)}</span>`;
+    return `
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <div>${member.name}</div>
+            ${roleBadge}
+        </li>`;
+  }).join('');
 }
 
 async function populateExaminationState(thesis) {
+  // Handle Download Button: Always enable it.
+  const downloadDraftBtn = document.getElementById("download-draft-btn");
+  downloadDraftBtn.innerHTML = `<i class="fas fa-file-download me-2"></i>Λήψη Τρέχοντος Αρχείου`;
+  downloadDraftBtn.disabled = false;
+
+  // Populate Links
   const linksList = document.getElementById("existing-links-list");
   linksList.innerHTML = ""; // Clear current list
 
   try {
+    console.log(`[API GET] Fetching resources for thesis ID: ${thesis.id}`);
     const resourcesResponse = await getThesisResources(thesis.id);
+    console.log("[API GET] Received resources:", resourcesResponse.data);
     if (resourcesResponse?.data?.length > 0) {
       resourcesResponse.data.forEach((resource) => {
         const li = document.createElement("li");
@@ -561,9 +548,11 @@ async function populateExaminationState(thesis) {
       '<li class="list-group-item text-danger">Σφάλμα φόρτωσης συνδέσμων.</li>';
   }
 
-  // --- Populate Presentation Details from the latest presentation entry ---
+  // Populate Presentation Details
   try {
+    console.log(`[API GET] Fetching presentations for thesis ID: ${thesis.id}`);
     const presentationsResponse = await getThesisPresentations(thesis.id);
+    console.log("[API GET] Received presentations:", presentationsResponse.data);
     if (presentationsResponse?.data?.length > 0) {
       const lastPresentation =
         presentationsResponse.data[presentationsResponse.data.length - 1]; //get the last presentation
@@ -605,6 +594,6 @@ async function populateExaminationState(thesis) {
     document.getElementById("examLink").value = "";
   }
 
-  // Populate Nimertis link from the main thesis object, dont have get for nimertis link
-  // document.getElementById('nimertisLink').value =
+  // Populate Nimertis link
+  document.getElementById('nimertisLink').value = thesis.nimertisUrl || '';
 }

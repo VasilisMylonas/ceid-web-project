@@ -55,7 +55,7 @@ pages.post("/login", async (req, res) => {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
-    maxAge: 60 * 60 * 1000, // 1 hour (3600 seconds)
+    maxAge: 5 * 60 * 60 * 1000, // 5 hours (5 * 3600 seconds)
   });
 
   res.redirect("/");

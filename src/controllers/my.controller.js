@@ -1,6 +1,7 @@
 import { omit } from "../util.js";
-import { InvitationResponse } from "../constants.js";
+import { InvitationResponse, ThesisStatus } from "../constants.js";
 import db from "../models/index.js";
+import { Op } from "sequelize";
 import UserService from "../services/user.service.js";
 import TopicService from "../services/topic.service.js";
 import ThesisService from "../services/thesis.service.js";
@@ -72,14 +73,28 @@ export default class MyController {
   }
 
   static async getThesis(req, res) {
-    // TODO: maybe we should only return not cancelled theses?
     const student = await req.user.getStudent();
-    const theses = await ThesisService.query({
-      studentId: student.id,
+
+    // Only not cancelled theses
+    const theses = await student.getTheses({
+      where: {
+        status: {
+          [Op.ne]: ThesisStatus.CANCELLED,
+        },
+      },
     });
-    res.success(theses.results, {
-      count: theses.results.length,
-      total: theses.total,
+
+    // Hardcoded, cause of compatibility with old UI
+
+    if (!theses || theses.length === 0) {
+      return res.success([], { count: 0, total: 0 });
+    }
+
+    const thesis = await ThesisService.getExtra(theses[0].id, req.user);
+
+    res.success([thesis], {
+      count: 1,
+      total: 1,
     });
   }
 

@@ -124,18 +124,25 @@ function renderThesisActions(thesis) {
 
   const completeThesisButton = document.getElementById("complete-thesis-btn");
   const nemertesLink = document.getElementById("nemertes-link");
+  const grade = document.getElementById("grade");
 
-  // TODO: grading-status
-
-  if (thesis.nemertesLink == null) {
+  if (thesis.nemertesLink === null || thesis.grade == null) {
     completeThesisButton.classList.add("disabled");
   } else {
     completeThesisButton.classList.remove("disabled");
   }
 
-  if (thesis.nemertesLink != null) {
-    nemertesLink.innerHTML = `<a href="${nemertesLink}" target="_blank" rel="noopener noreferrer">${nemertesLink}</a>`;
-    nemertesLink.href = thesis.nemertesLink;
+  if (thesis.grade !== null) {
+    grade.textContent = thesis.grade;
+  } else {
+    grade.textContent = "Σε εξέλιξη...";
+  }
+
+  if (thesis.nemertesLink !== null) {
+    nemertesLink.innerHTML = `
+    <a href="${thesis.nemertesLink}" target="_blank" rel="noopener noreferrer">
+      ${thesis.nemertesLink}
+    </a>`;
   } else {
     nemertesLink.innerHTML = "Αναμένεται από φοιτητή/τρια...";
     nemertesLink.href = "#";

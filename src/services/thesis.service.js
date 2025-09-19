@@ -17,8 +17,11 @@ export default class ThesisService {
     const student = await user.getStudent();
     const professor = await user.getProfessor();
 
-    if (user.role === UserRole.SECRETARY && allowSecretary) {
-      return thesis;
+    if (user.role === UserRole.SECRETARY) {
+      if (allowSecretary) {
+        return thesis;
+      }
+      throw new SecurityError();
     }
 
     const isStudent = student ? thesis.studentId == student.id : false;
@@ -97,7 +100,7 @@ export default class ThesisService {
       ThesisRole.SUPERVISOR,
     ]);
 
-    if (!(await thesis.canBeDeleted())) {
+    if (thesis.status !== ThesisStatus.UNDER_ASSIGNMENT) {
       throw new ConflictError("Thesis cannot be deleted at this stage.");
     }
 
@@ -128,6 +131,7 @@ theses.id AS "id",
 theses.status AS "status",
 theses.start_date AS "startDate",
 theses.grade AS "grade",
+theses.nemertes_link AS "nemertesLink",
 topics.id AS "topicId",
 topics.title AS "topic",
 student_users.name AS "student",
@@ -268,7 +272,15 @@ ${offset ? `OFFSET ${offset}` : ""}
       ThesisRole.STUDENT,
     ]);
 
-    // TODO: all profs must have graded
+    if (thesis.status !== ThesisStatus.UNDER_EXAMINATION) {
+      throw new ConflictError("Thesis is not under examination.");
+    }
+
+    if (thesis.grade === null) {
+      throw new ConflictError(
+        "Thesis must be graded before setting nemertes link."
+      );
+    }
 
     await thesis.update({ nemertesLink });
     return thesis.nemertesLink;
@@ -279,7 +291,11 @@ ${offset ? `OFFSET ${offset}` : ""}
       ThesisRole.SUPERVISOR,
     ]);
 
-    // TODO: maybe a presentation should exist before allowing this
+    if (thesis.status !== ThesisStatus.UNDER_EXAMINATION) {
+      throw new ConflictError("Thesis is not under examination.");
+    }
+
+    // TODO: maybe a presentation and a draft should exist before allowing this
 
     await thesis.update({ grading });
     return thesis.grading;
@@ -302,39 +318,28 @@ ${offset ? `OFFSET ${offset}` : ""}
     const thesis = await ThesisService._assertUserHasThesisRoles(id, user, [
       ThesisRole.STUDENT,
     ]);
+
+    if (thesis.status !== ThesisStatus.UNDER_EXAMINATION) {
+      throw new ConflictError("Thesis is not under examination.");
+    }
+
     await thesis.update({ documentFile: filename });
   }
 
   static async complete(id, user) {
     const thesis = await ThesisService.get(id);
 
-    const committeeMembers = await thesis.getCommitteeMembers({
-      include: db.Grade,
-    });
-
-    const grades = committeeMembers
-      .map((member) => member.Grade)
-      .filter((grade) => grade !== null);
-
-    if (grades.length !== committeeMembers.length) {
-      throw new ConflictError("Not all committee members have graded.");
+    if (thesis.status !== ThesisStatus.UNDER_EXAMINATION) {
+      throw new ConflictError("Thesis cannot be completed at this stage.");
     }
 
-    const average =
-      grades
-        .map(
-          // Calculate based on CEID regulations
-          // https://www.ceid.upatras.gr/sites/default/files/pages/diplomatiki_ergasia_tmiyp_0.pdf
-          (grade) =>
-            0.6 * grade.objectives +
-            0.15 * grade.duration +
-            0.15 * grade.deliverableQuality +
-            0.1 * grade.presentationQuality
-        )
-        .reduce((sum, grade) => sum + grade, 0) / grades.length;
+    if (thesis.grade === null || thesis.nemertesLink === null) {
+      throw new ConflictError(
+        "Thesis cannot be completed without grade and nemertes link."
+      );
+    }
 
     await thesis.update({
-      grade: average,
       status: ThesisStatus.COMPLETED,
       endDate: new Date(),
     });
@@ -347,7 +352,17 @@ ${offset ? `OFFSET ${offset}` : ""}
       ThesisRole.SUPERVISOR,
     ]);
 
-    // TODO: maybe there should exist a protocolNumber before allowing this
+    if (thesis.status !== ThesisStatus.ACTIVE) {
+      throw new ConflictError(
+        "Thesis cannot be set under examination at this stage."
+      );
+    }
+
+    if (thesis.protocolNumber === null) {
+      throw new ConflictError(
+        "Thesis cannot be set under examination without a protocol number."
+      );
+    }
 
     await thesis.update({ status: ThesisStatus.UNDER_EXAMINATION });
     return thesis.status;
@@ -379,6 +394,14 @@ ${offset ? `OFFSET ${offset}` : ""}
       [ThesisRole.SUPERVISOR],
       true // Allow Secretary
     );
+
+    if (thesis.status === ThesisStatus.CANCELLED) {
+      throw new ConflictError("Thesis is already cancelled.");
+    }
+
+    if (thesis.status !== ThesisStatus.ACTIVE) {
+      throw new ConflictError("Thesis cannot be cancelled at this stage.");
+    }
 
     const now = new Date();
 
@@ -534,6 +557,33 @@ ${offset ? `OFFSET ${offset}` : ""}
         deliverableQuality,
         presentationQuality,
       });
+    }
+
+    const committeeMembers = await thesis.getCommitteeMembers({
+      include: db.Grade,
+    });
+
+    const grades = committeeMembers
+      .map((member) => member.Grade)
+      .filter((grade) => grade !== null);
+
+    // If all committee members have graded, calculate the final grade
+    if (grades.length === committeeMembers.length) {
+      const average =
+        grades
+          .map(
+            // Calculate based on CEID regulations
+            // https://www.ceid.upatras.gr/sites/default/files/pages/diplomatiki_ergasia_tmiyp_0.pdf
+            (grade) =>
+              0.6 * grade.objectives +
+              0.15 * grade.duration +
+              0.15 * grade.deliverableQuality +
+              0.1 * grade.presentationQuality
+          )
+          .reduce((sum, grade) => sum + grade, 0) / grades.length;
+
+      // Round to 2 decimal places
+      await thesis.update({ grade: Math.round(average * 100) / 100 });
     }
 
     return await committeeMember.getGrade();

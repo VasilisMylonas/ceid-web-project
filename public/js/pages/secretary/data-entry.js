@@ -9,8 +9,6 @@ function onDataEntryFormSubmit(event) {
   fileReader.readAsText(file);
 
   fileReader.onload = async () => {
-    console.log("ONLOAD");
-
     try {
       showSpinner("result");
       await delay(250); // allow spinner to render
@@ -28,7 +26,6 @@ function onDataEntryFormSubmit(event) {
         error.message
       );
     } finally {
-      // 👇 Clear input so same file can be chosen again
       event.target.file.value = "";
     }
   };

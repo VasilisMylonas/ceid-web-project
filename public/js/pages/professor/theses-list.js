@@ -7,7 +7,7 @@ const state = {
   searchQuery: "",
 };
 
-const STATE_KEY = "thesesListState";
+const STATE_KEY = "thesesListStateProfessor";
 
 async function setState(newState) {
   newState = { ...state, ...newState }; // Merge with existing state

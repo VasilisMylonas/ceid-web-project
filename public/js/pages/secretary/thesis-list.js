@@ -1,121 +1,3 @@
-/**
- * Session storage
- */
-
-const STORAGE_KEY_SECRETARY_THESES_PAGE_SIZE = "sec_theses_page_size";
-const STORAGE_KEY_SECRETARY_THESES_PAGE = "sec_theses_page";
-const STORAGE_KEY_SECRETARY_THESES_PAGE_COUNT = "sec_theses_page_count";
-const STORAGE_KEY_SECRETARY_THESES_ITEM_COUNT = "sec_theses_item_count";
-const STORAGE_KEY_SECRETARY_THESES_SUPERVISOR_FILTER =
-  "sec_theses_supervisor_filter";
-const STORAGE_KEY_THESES_STATUS_FILTER = "sec_theses_status_filter";
-const STORAGE_KEY_THESES_SEARCH_QUERY = "sec_theses_search_query";
-
-function getPage() {
-  return parseInt(sessionStorage.getItem(STORAGE_KEY_SECRETARY_THESES_PAGE));
-}
-
-function getPageSize() {
-  return parseInt(
-    sessionStorage.getItem(STORAGE_KEY_SECRETARY_THESES_PAGE_SIZE)
-  );
-}
-
-function getPageCount() {
-  return parseInt(
-    sessionStorage.getItem(STORAGE_KEY_SECRETARY_THESES_PAGE_COUNT)
-  );
-}
-
-function getSearchQuery() {
-  return sessionStorage.getItem(STORAGE_KEY_THESES_SEARCH_QUERY);
-}
-
-function getSupervisorFilter() {
-  return parseInt(
-    sessionStorage.getItem(STORAGE_KEY_SECRETARY_THESES_SUPERVISOR_FILTER)
-  );
-}
-
-function getStatusFilter() {
-  return sessionStorage.getItem(STORAGE_KEY_THESES_STATUS_FILTER);
-}
-
-function getItemCount() {
-  return parseInt(
-    sessionStorage.getItem(STORAGE_KEY_SECRETARY_THESES_ITEM_COUNT)
-  );
-}
-
-function setItemCount(itemCount) {
-  sessionStorage.setItem(STORAGE_KEY_SECRETARY_THESES_ITEM_COUNT, itemCount);
-}
-
-function setPage(page) {
-  sessionStorage.setItem(STORAGE_KEY_SECRETARY_THESES_PAGE, page);
-}
-
-function setPageSize(pageSize) {
-  sessionStorage.setItem(STORAGE_KEY_SECRETARY_THESES_PAGE_SIZE, pageSize);
-}
-
-function setPageCount(pageCount) {
-  sessionStorage.setItem(STORAGE_KEY_SECRETARY_THESES_PAGE_COUNT, pageCount);
-}
-
-function setSupervisorFilter(supervisorId) {
-  sessionStorage.setItem(
-    STORAGE_KEY_SECRETARY_THESES_SUPERVISOR_FILTER,
-    supervisorId
-  );
-}
-
-function setSearchQuery(query) {
-  sessionStorage.setItem(STORAGE_KEY_THESES_SEARCH_QUERY, query);
-}
-
-function setStatusFilter(status) {
-  sessionStorage.setItem(STORAGE_KEY_THESES_STATUS_FILTER, status);
-}
-
-// Set default values if not present
-function initSessionStorage() {
-  if (
-    sessionStorage.getItem(STORAGE_KEY_SECRETARY_THESES_ITEM_COUNT) === null
-  ) {
-    sessionStorage.setItem(STORAGE_KEY_SECRETARY_THESES_ITEM_COUNT, 0);
-  }
-
-  if (sessionStorage.getItem(STORAGE_KEY_SECRETARY_THESES_PAGE) === null) {
-    sessionStorage.setItem(STORAGE_KEY_SECRETARY_THESES_PAGE, 1);
-  }
-
-  if (sessionStorage.getItem(STORAGE_KEY_SECRETARY_THESES_PAGE_SIZE) === null) {
-    sessionStorage.setItem(STORAGE_KEY_SECRETARY_THESES_PAGE_SIZE, 10);
-  }
-
-  if (
-    sessionStorage.getItem(STORAGE_KEY_SECRETARY_THESES_PAGE_COUNT) === null
-  ) {
-    sessionStorage.setItem(STORAGE_KEY_SECRETARY_THESES_PAGE_COUNT, 1);
-  }
-
-  if (
-    sessionStorage.getItem(STORAGE_KEY_SECRETARY_THESES_SUPERVISOR_FILTER) ===
-    null
-  ) {
-    sessionStorage.setItem(STORAGE_KEY_SECRETARY_THESES_SUPERVISOR_FILTER, -1);
-  }
-
-  if (sessionStorage.getItem(STORAGE_KEY_THESES_STATUS_FILTER) === null) {
-    sessionStorage.setItem(STORAGE_KEY_THESES_STATUS_FILTER, "all");
-  }
-
-  if (sessionStorage.getItem(STORAGE_KEY_THESES_SEARCH_QUERY) === null) {
-    sessionStorage.setItem(STORAGE_KEY_THESES_SEARCH_QUERY, "");
-  }
-}
-
 function renderThesisTableSpinner() {
   const tableBody = document.getElementById("theses-table-body");
   tableBody.innerHTML = `
@@ -129,8 +11,7 @@ function renderThesisTableSpinner() {
   `;
 }
 
-function renderThesisTable(theses) {
-  const tableBody = document.getElementById("theses-table-body");
+function renderThesisTable(tableBody, theses) {
   tableBody.innerHTML = ""; // Clear existing rows
 
   for (const thesis of theses) {
@@ -168,21 +49,143 @@ function renderThesisTable(theses) {
     ?.addEventListener("click", onShowDetailsClick);
 }
 
-function renderSupervisorFilter(professors) {
-  const supervisorSelect = document.getElementById("supervisor-select");
-  supervisorSelect.innerHTML = `<option value="-1">Όλοι</option>`;
+// We need this here cause of bootstrap modal bug
+let thesisModal = null;
+document.addEventListener("DOMContentLoaded", () => {
+  thesisModal = new bootstrap.Modal(
+    document.getElementById("thesisDetailsModal")
+  );
+});
 
-  for (const professor of professors) {
-    const option = document.createElement("option");
-    option.value = professor.id;
-    option.textContent = professor.name;
-    supervisorSelect.appendChild(option);
-  }
-
-  supervisorSelect.value = getSupervisorFilter();
+async function onShowDetailsClick(event) {
+  const row = event.target.closest("tr");
+  const res = await getThesisDetails(row.dataset.thesisId);
+  renderThesisDetails(res.data);
+  renderThesisActions(res.data);
+  thesisModal.show();
 }
 
-function renderStatusFilter() {
+const state = {
+  page: 1,
+  pageSize: 10,
+  pageCount: 0,
+  statusFilter: "all",
+  supervisorFilter: -1,
+  searchQuery: "",
+};
+
+const STATE_KEY = "thesesListStateSecretary";
+
+async function setState(newState) {
+  newState = { ...state, ...newState }; // Merge with existing state
+  await onStateUpdate(newState);
+  Object.assign(state, newState); // Update state
+  localStorage.setItem(STATE_KEY, JSON.stringify(state));
+  console.log("State updated:", state);
+}
+
+async function loadState() {
+  const savedState = localStorage.getItem(STATE_KEY);
+  if (savedState) {
+    Object.assign(state, JSON.parse(savedState));
+  }
+}
+
+async function onFiltersSubmit(event) {
+  event.preventDefault();
+
+  // event.target is the form element
+  await setState({
+    searchQuery: event.target.elements.search.value,
+    statusFilter: event.target.elements.status.value,
+    supervisorFilter: parseInt(event.target.elements.supervisor.value),
+    page: 1,
+  });
+}
+
+async function onFiltersReset(event) {
+  await setState({
+    searchQuery: "",
+    statusFilter: "all",
+    supervisorFilter: -1,
+    page: 1,
+  });
+}
+
+async function onExportJsonClick(event) {
+  event.preventDefault();
+
+  const theses = await getThesesSecretary(
+    state.page,
+    state.pageSize,
+    state.supervisorFilter === -1 ? null : state.supervisorFilter,
+    state.statusFilter === "all" ? null : state.statusFilter,
+    state.searchQuery || null
+  );
+
+  exportThesesToJSON(theses.data);
+}
+
+async function onExportCsvClick(event) {
+  event.preventDefault();
+
+  const theses = await getThesesSecretary(
+    state.page,
+    state.pageSize,
+    state.supervisorFilter === -1 ? null : state.supervisorFilter,
+    state.statusFilter === "all" ? null : state.statusFilter,
+    state.searchQuery || null
+  );
+
+  exportThesesCSV(theses.data);
+}
+
+async function onPageSizeChange(event) {
+  const newPageSize = parseInt(event.target.value);
+
+  await setState({
+    pageSize: newPageSize,
+    // Recalculate page number to maintain the current item range
+    page: Math.floor(((state.page - 1) * state.pageSize) / newPageSize) + 1,
+  });
+}
+
+// Called whenever state is updated
+async function onStateUpdate(newState) {
+  const theses = await getThesesSecretary(
+    newState.page,
+    newState.pageSize,
+    newState.supervisorFilter === -1 ? null : newState.supervisorFilter,
+    newState.statusFilter === "all" ? null : newState.statusFilter,
+    newState.searchQuery || null
+  );
+
+  const thesesTableBody = document.getElementById("theses-table-body");
+  const pageNavDiv = document.getElementById("page-nav-container");
+
+  newState.pageCount = Math.max(
+    1,
+    Math.ceil(theses.meta.total / newState.pageSize)
+  );
+
+  const professors = await getProfessors();
+
+  renderThesisTableSpinner();
+
+  // Re render UI
+  renderPageSizeSelect(newState.pageSize);
+  renderStatusFilter(newState.statusFilter);
+  renderSupervisorFilter(professors.data, newState.supervisorFilter);
+  renderThesisTable(thesesTableBody, theses.data);
+  renderPageNav(
+    pageNavDiv,
+    newState.pageCount,
+    newState.page,
+    theses.meta.count
+  );
+}
+
+function renderStatusFilter(value) {
   const statusSelect = document.getElementById("status-select");
   statusSelect.innerHTML = `<option value="all">Όλες</option>`;
 
@@ -201,239 +204,68 @@ function renderStatusFilter() {
     statusSelect.appendChild(option);
   }
 
-  statusSelect.value = getStatusFilter();
+  statusSelect.value = value;
 }
 
-function renderPageNav() {
-  const pageCount = getPageCount();
-  const page = getPage();
-  const itemCount = getItemCount();
-
-  const nextPageBtn = document.getElementById("next-page-btn");
-  const prevPageBtn = document.getElementById("prev-page-btn");
-  const firstPageBtn = document.getElementById("first-page-btn");
-  const lastPageBtn = document.getElementById("last-page-btn");
-
-  if (page >= pageCount) {
-    nextPageBtn.classList.add("disabled");
-    lastPageBtn.classList.add("disabled");
-  } else {
-    nextPageBtn.classList.remove("disabled");
-    lastPageBtn.classList.remove("disabled");
-  }
-
-  if (page <= 1) {
-    prevPageBtn.classList.add("disabled");
-    firstPageBtn.classList.add("disabled");
-  } else {
-    prevPageBtn.classList.remove("disabled");
-    firstPageBtn.classList.remove("disabled");
-  }
-
-  document.getElementById("current-page").textContent = page;
-  document.getElementById("page-count").textContent = pageCount;
-  document.getElementById("item-count").textContent = itemCount;
-}
-
-async function reloadContent() {
-  const page = getPage();
-  const pageSize = getPageSize();
-  const supervisorId = getSupervisorFilter();
-  const status = getStatusFilter();
-  const searchQuery = getSearchQuery();
-
-  renderThesisTableSpinner();
-
-  // Apply filters and get data
-  const theses = await getThesesSecretary(
-    page,
-    pageSize,
-    supervisorId < 0 ? undefined : supervisorId,
-    status === "all" ? undefined : status,
-    searchQuery === "" ? undefined : searchQuery
-  );
-
-  // Show data
-  renderThesisTable(theses.data);
-
-  thesesData = theses.data;
-
-  // Update pagination
-  setPageCount(Math.max(Math.ceil(theses.meta.total / pageSize), 1));
-  setItemCount(theses.meta.total);
-  renderPageNav();
-}
-
-/**
- * Event handlers
- */
-
-async function onPrevPageClick(event) {
-  setPage(getPage() - 1);
-  await reloadContent();
-}
-
-async function onNextPageClick(event) {
-  setPage(getPage() + 1);
-  await reloadContent();
-}
-
-async function onFirstPageClick(event) {
-  setPage(1);
-  await reloadContent();
-}
-
-async function onLastPageClick(event) {
-  setPage(getPageCount());
-  await reloadContent();
-}
-
-async function onPageSizeChange(event) {
-  const newPageSize = parseInt(event.target.value);
-  const oldPageSize = getPageSize();
-  const oldPage = getPage();
-
-  // Recalculate page number to maintain the current item range
-  const newPage = Math.floor(((oldPage - 1) * oldPageSize) / newPageSize) + 1;
-
-  setPageSize(newPageSize);
-  setPage(newPage);
-
-  await reloadContent();
-}
-
-async function onSupervisorSelectChange(event) {
-  setSupervisorFilter(event.target.value);
-  setPage(1);
-  await reloadContent();
-}
-
-async function onStatusSelectChange(event) {
-  setStatusFilter(event.target.value);
-  setPage(1);
-  await reloadContent();
-}
-
-async function onSearchInputChange(event) {
-  setSearchQuery(event.target.value);
-  setPage(1);
-  await reloadContent();
-}
-
-// We need this here cause of bootstrap modal bug
-let thesisModal = null;
-document.addEventListener("DOMContentLoaded", () => {
-  thesisModal = new bootstrap.Modal(
-    document.getElementById("thesisDetailsModal")
-  );
-});
-
-async function onShowDetailsClick(event) {
-  const row = event.target.closest("tr");
-  const res = await getThesisDetails(row.dataset.thesisId);
-  renderThesisDetails(res.data);
-  renderThesisActions(res.data);
-  thesisModal.show();
-}
-
-async function onExportJsonClick(event) {
-  const supervisorId = getSupervisorFilter();
-  const status = getStatusFilter();
-  const searchQuery = getSearchQuery();
-
-  // Apply filters and get data
-  const theses = await getThesesSecretary(
-    null,
-    null,
-    supervisorId < 0 ? undefined : supervisorId,
-    status === "all" ? undefined : status,
-    searchQuery === "" ? undefined : searchQuery
-  );
-
-  const jsonContent = JSON.stringify(theses.data, null, 2);
-  const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
-  saveToFile(jsonContent, `theses-${today}.json`, "application/json");
-}
-
-async function onExportCsvClick(event) {
-  const supervisorId = getSupervisorFilter();
-  const status = getStatusFilter();
-  const searchQuery = getSearchQuery();
-
-  // Apply filters and get data
-  const theses = await getThesesSecretary(
-    null,
-    null,
-    supervisorId < 0 ? undefined : supervisorId,
-    status === "all" ? undefined : status,
-    searchQuery === "" ? undefined : searchQuery
-  );
-
-  const headers = [
-    "Θέμα",
-    "Φοιτητής",
-    "Επιβλέπων",
-    "Κατάσταση",
-    "Ημ/νία Ανάθεσης",
-  ];
-
-  // Escape double quotes according to CSV rules: " -> ""
-  const rows = theses.data.map((thesis) => [
-    `"${thesis.topic.replace(/"/g, '""')}"`,
-    `"${thesis.student.replace(/"/g, '""')}"`,
-    `"${thesis.supervisor.replace(/"/g, '""')}"`,
-    `"${Name.ofThesisStatus(thesis.status).replace(/"/g, '""')}"`,
-    `"${new Date(thesis.startDate).toLocaleDateString("el-GR")}"`,
-  ]);
-
-  const csvContent = [headers, ...rows].map((r) => r.join(",")).join("\r\n");
-  const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
-  saveToFile(csvContent, `theses-${today}.csv`, "text/csv");
-}
-
-/**
- * Entry point
- */
-
-document.addEventListener("DOMContentLoaded", async () => {
-  // These are all the inputs in the page
-  const pageSizeSelect = document.getElementById("page-size-select");
-  const prevPageBtn = document.getElementById("prev-page-btn");
-  const nextPageBtn = document.getElementById("next-page-btn");
-  const firstPageBtn = document.getElementById("first-page-btn");
-  const lastPageBtn = document.getElementById("last-page-btn");
+function renderSupervisorFilter(professors, supervisorId) {
   const supervisorSelect = document.getElementById("supervisor-select");
-  const statusSelect = document.getElementById("status-select");
-  const searchInput = document.getElementById("search-input");
-  const exportJsonBtn = document.getElementById("export-json-btn");
-  const exportCsvBtn = document.getElementById("export-csv-btn");
+  supervisorSelect.innerHTML = `<option value="-1">Όλοι</option>`;
 
-  initSessionStorage();
+  for (const professor of professors) {
+    const option = document.createElement("option");
+    option.value = professor.professorId;
+    option.textContent = professor.name;
+    supervisorSelect.appendChild(option);
+  }
 
-  // Set values for inputs
-  searchInput.value = getSearchQuery();
-  pageSizeSelect.value = getPageSize();
+  supervisorSelect.value = supervisorId;
+}
 
-  const professors = await getAllProfessors();
-  renderSupervisorFilter(professors.data);
-  renderStatusFilter();
+function renderPageSizeSelect(value) {
+  const pageSizeSelect = document.getElementById("page-size-select");
+  pageSizeSelect.innerHTML = "";
 
-  await reloadContent();
+  const pageSizes = [10, 25, 50, 100];
 
-  // Setup event handlers
+  for (const size of pageSizes) {
+    const option = document.createElement("option");
+    option.value = size;
+    option.textContent = `${size} ανά σελίδα`;
+    pageSizeSelect.appendChild(option);
+  }
+
+  pageSizeSelect.value = value;
+}
+
+async function onLoad() {
+  // Load saved state
+  loadState();
+
+  // Initialize event listeners
+
+  const pageSizeSelect = document.getElementById("page-size-select");
   pageSizeSelect.addEventListener("change", onPageSizeChange);
-  prevPageBtn.addEventListener("click", onPrevPageClick);
-  nextPageBtn.addEventListener("click", onNextPageClick);
-  firstPageBtn.addEventListener("click", onFirstPageClick);
-  lastPageBtn.addEventListener("click", onLastPageClick);
-  supervisorSelect.addEventListener("change", onSupervisorSelectChange);
-  statusSelect.addEventListener("change", onStatusSelectChange);
-  searchInput.addEventListener("input", onSearchInputChange);
+
+  const filters = document.getElementById("filters");
+  filters.addEventListener("submit", onFiltersSubmit);
+  filters.addEventListener("reset", onFiltersReset);
+
+  const exportJsonBtn = document.getElementById("export-json-btn");
   exportJsonBtn.addEventListener("click", onExportJsonClick);
+
+  const exportCsvBtn = document.getElementById("export-csv-btn");
   exportCsvBtn.addEventListener("click", onExportCsvClick);
 
-  // Prevent browser from submitting the form
-  document.getElementById("filters").addEventListener("submit", (event) => {
-    event.preventDefault();
-  });
-});
+  initPageNav(
+    document.getElementById("page-nav-container"),
+    () => setState({ page: state.page - 1 }),
+    () => setState({ page: state.page + 1 }),
+    () => setState({ page: 1 }),
+    () => setState({ page: state.pageCount })
+  );
+
+  // Trigger first load
+  await setState(state);
+}
+
+document.addEventListener("DOMContentLoaded", onLoad);

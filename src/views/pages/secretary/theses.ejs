@@ -1,226 +1,202 @@
-<h2 class="mb-4">Διαχείριση Διπλωματικών Εργασιών</h2>
+<div class="container">
+  <h2 class="mb-4">Διαχείριση Διπλωματικών Εργασιών</h2>
 
-<form class="mb-4" id="filters">
-  <legend class="visually-hidden">Φίλτρα Διπλωματικών</legend>
-  <div class="row g-2">
-    <div class="col-12 col-xxl-6">
-      <label class="form-label" for="search-input">Αναζήτηση</label>
-      <div class="input-group">
-        <input type="text" class="form-control" id="search-input"
-            placeholder="Όνομα θέματος ή φοιτητή...">
-        <button class="input-group-text" aria-label="Αναζήτηση" type="button">
-          <i class="bi bi-search" aria-hidden="true"></i>
+  <form class="mb-4" id="filters">
+    <legend class="visually-hidden">Φίλτρα Διπλωματικών</legend>
+    <div class="row g-2">
+      <div class="col-12">
+        <label class="form-label" for="search-input">Αναζήτηση</label>
+        <div class="input-group">
+          <input type="text" class="form-control" id="search-input"
+              name="search" placeholder="Όνομα θέματος ή φοιτητή...">
+          <button class="btn btn-outline-secondary" aria-label="Αναζήτηση"
+              type="submit">
+            <i class="bi bi-search" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="col-12 col-lg-6">
+        <label for="status-select" class="form-label">Κατάσταση</label>
+        <select class="form-select" name="status" id="status-select">
+          <!-- Added dynamically -->
+        </select>
+      </div>
+
+
+      <div class="col-12 col-lg-6">
+        <label for="supervisor-select" class="form-label">Επιβλέπων</label>
+        <select class="form-select" name="supervisor" id="supervisor-select">
+          <!-- Added dynamically -->
+        </select>
+      </div>
+
+      <div class="col-12 col-sm-6 col-lg-auto pt-2">
+        <button type="submit" class="btn btn-primary w-100">
+          <i class="bi bi-funnel-fill me-1" aria-hidden="true"></i>
+          Εφαρμογή
+        </button>
+      </div>
+
+      <div class="col-12 col-sm-6 col-lg-auto pt-2">
+        <button type="reset" class="btn btn-secondary w-100">
+          <i class="bi bi-arrow-counterclockwise me-1" aria-hidden="true"></i>
+          Επαναφορά
+        </button>
+      </div>
+
+
+      <div class="col-12 col-sm-6 col-lg-auto pt-2">
+        <button type="button" class="btn btn-dark w-100" id="export-json-btn"
+            title="Εξαγωγή σε JSON">
+          <i class="bi bi-file-earmark-arrow-down-fill me-1"
+              aria-hidden="true"></i>
+          Εξαγωγή σε JSON
+        </button>
+      </div>
+
+      <div class="col-12 col-sm-6 col-lg-auto pt-2">
+        <button type="button" class="btn btn-dark w-100" id="export-csv-btn"
+            title="Εξαγωγή σε CSV">
+          <i class="bi bi-file-earmark-spreadsheet-fill me-1"
+              aria-hidden="true"></i>
+          Εξαγωγή σε CSV
         </button>
       </div>
     </div>
+  </form>
 
-    <div class="col-12 col-md-6 col-xxl-3">
-      <label for="status-select" class="form-label">Κατάσταση</label>
-      <select class="form-select" id="status-select">
-        <!-- Added dynamically -->
-      </select>
+  <p class="text-muted mb-4">
+    Επιλέξτε μια διπλωματική για περισσότερες λεπτομέρειες.
+  </p>
+
+  <select class="form-select form-select-sm w-auto mb-4" id="page-size-select">
+    <option value="10">10 ανά σελίδα</option>
+    <option value="25">25 ανά σελίδα</option>
+    <option value="50">50 ανά σελίδα</option>
+    <option value="100">100 ανά σελίδα</option>
+  </select>
+
+  <div class="table-container mb-4">
+    <div class="table-responsive">
+      <table class="table table-hover fixed-table align-middle">
+        <thead class="sticky-top bg-white">
+          <tr>
+            <th scope="col" style="width: 400px;">Θέμα</th>
+            <th scope="col" style="width: 150px;">Φοιτητής</th>
+            <th scope="col" style="width: 150px;">Επιβλέπων</th>
+            <th scope="col" style="width: 120px;">Κατάσταση</th>
+            <th scope="col" style="width: 150px;">Ημερομηνία Ανάθεσης</th>
+            <th scope="col" style="width: 100px;">Ενέργειες</th>
+          </tr>
+        </thead>
+        <tbody id="theses-table-body">
+        </tbody>
+      </table>
     </div>
+  </div>
 
-    <div class="col-12 col-md-6 col-xxl-3">
-      <label for="supervisor-select" class="form-label">Επιβλέπων</label>
-      <select class="form-select" id="supervisor-select">
-        <!-- Added dynamically -->
-      </select>
+  <style>
+    .table-container {
+      position: relative;
+      width: 100%;
+    }
+
+    .table-responsive {
+      height: 500px;
+      overflow-y: auto;
+      overflow-x: auto;
+      border: 1px solid rgba(0, 0, 0, .125);
+      border-radius: 0.25rem;
+    }
+
+    .fixed-table {
+      table-layout: fixed;
+      /* Set minimum width to ensure horizontal scrolling */
+      min-width: 1070px;
+      /* Sum of all column widths */
+    }
+
+    thead.sticky-top {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      box-shadow: 0 1px 0 rgba(0, 0, 0, .1);
+    }
+
+    td,
+    th {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    td.text-truncate {
+      max-width: 100%;
+    }
+  </style>
+
+  <div id="page-nav-container">
+    <%- include('../../components/page-nav') %>
+  </div>
+
+  <div class="modal fade" id="thesisDetailsModal" tabindex="-1"
+      aria-labelledby="thesisDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <article class="modal-content">
+        <header class="modal-header">
+          <h4 class="modal-title">
+            Λεπτομέρειες Διπλωματικής Εργασίας
+          </h4>
+          <button type="button" class="btn btn-close" aria-label="Κλείσιμο"
+              data-bs-dismiss="modal">
+          </button>
+        </header>
+
+        <section class="modal-body">
+          <ul class="nav nav-tabs mb-3" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active" id="details-tab"
+                  data-bs-toggle="tab" data-bs-target="#details-content"
+                  type="button" role="tab" aria-controls="details-content"
+                  aria-selected="true">
+                Πληροφορίες
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="actions-tab" data-bs-toggle="tab"
+                  data-bs-target="#actions-content" type="button" role="tab"
+                  aria-controls="actions-content" aria-selected="false">
+                Ενέργειες
+              </button>
+            </li>
+          </ul>
+
+          <div class="tab-content">
+            <div class="tab-pane show active" id="details-content"
+                role="tabpanel" aria-labelledby="details-tab">
+              <%- include('../../components/thesis-details') %>
+            </div>
+
+            <div class="tab-pane" id="actions-content" role="tabpanel"
+                aria-labelledby="actions-tab">
+              <%- include('../../components/thesis-actions') %>
+            </div>
+          </div>
+        </section>
+
+        <footer class="modal-footer">
+          <button type="button" class="btn btn-secondary"
+              data-bs-dismiss="modal">
+            Κλείσιμο
+          </button>
+        </footer>
+      </article>
     </div>
   </div>
-</form>
-
-<div class="row g-2 mb-4">
-  <div class="col-12 col-xxl-6">
-    <p class="text-muted mb-4">
-      Επιλέξτε μια διπλωματική για περισσότερες λεπτομέρειες.
-    </p>
-  </div>
-
-  <div class="col-12 col-md-6 col-xxl-3">
-    <button type="button" class="btn btn-dark w-100" id="export-json-btn"
-        title="Εξαγωγή σε JSON">
-      <i class="bi bi-file-earmark-arrow-down-fill me-1"></i>
-      Εξαγωγή σε JSON
-    </button>
-  </div>
-
-  <div class="col-12 col-md-6 col-xxl-3">
-    <button type="button" class="btn btn-dark w-100" id="export-csv-btn"
-        title="Εξαγωγή σε CSV">
-      <i class="bi bi-file-earmark-spreadsheet-fill me-1"></i>
-      Εξαγωγή σε CSV
-    </button>
-  </div>
 </div>
 
-
-<select class="form-select form-select-sm w-auto mb-4" id="page-size-select">
-  <option value="10">10 ανά σελίδα</option>
-  <option value="25">25 ανά σελίδα</option>
-  <option value="50">50 ανά σελίδα</option>
-  <option value="100">100 ανά σελίδα</option>
-</select>
-
-<div class="table-container mb-4">
-  <div class="table-responsive">
-    <table class="table table-hover fixed-table align-middle">
-      <thead class="sticky-top bg-white">
-        <tr>
-          <th scope="col" style="width: 400px;">Θέμα</th>
-          <th scope="col" style="width: 150px;">Φοιτητής</th>
-          <th scope="col" style="width: 150px;">Επιβλέπων</th>
-          <th scope="col" style="width: 120px;">Κατάσταση</th>
-          <th scope="col" style="width: 150px;">Ημερομηνία Ανάθεσης</th>
-          <th scope="col" style="width: 100px;">Ενέργειες</th>
-        </tr>
-      </thead>
-      <tbody id="theses-table-body">
-      </tbody>
-    </table>
-  </div>
-</div>
-
-<style>
-  .table-container {
-    position: relative;
-    width: 100%;
-  }
-
-  .table-responsive {
-    height: 500px;
-    overflow-y: auto;
-    overflow-x: auto;
-    border: 1px solid rgba(0, 0, 0, .125);
-    border-radius: 0.25rem;
-  }
-
-  .fixed-table {
-    table-layout: fixed;
-    /* Set minimum width to ensure horizontal scrolling */
-    min-width: 1070px;
-    /* Sum of all column widths */
-  }
-
-  thead.sticky-top {
-    position: sticky;
-    top: 0;
-    z-index: 1;
-    box-shadow: 0 1px 0 rgba(0, 0, 0, .1);
-  }
-
-  td,
-  th {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  td.text-truncate {
-    max-width: 100%;
-  }
-</style>
-
-<div
-    class="row g-4 align-items-center justify-content-center justify-content-lg-between mb-3">
-  <div class="col-12 col-lg-auto text-muted">
-    <span id="item-count"></span> αποτελέσματα
-  </div>
-  <div class="col-12 col-lg-auto">
-    <nav aria-label="Περιήγηση σελίδων">
-      <ul class="pagination mb-0 justify-content-center">
-        <li class="page-item">
-          <button class="page-link" id="first-page-btn" type="button"
-              aria-label="Πρώτη σελίδα">
-            <i class="bi bi-chevron-double-left"></i>
-          </button>
-        </li>
-        <li class="page-item">
-          <button class="page-link" id="prev-page-btn" type="button"
-              aria-label="Previous">
-            <i class="bi bi-chevron-left"></i>
-          </button>
-        </li>
-        <li class="page-item disabled">
-          <span class="page-link">
-            <span id="current-page" class="d-inline-block text-end"
-                style="width: 20px;"></span>
-            από
-            <span id="page-count" class="d-inline-block text-start"
-                style="width: 20px;">
-            </span></span>
-        </li>
-        <li class="page-item">
-          <button class="page-link" id="next-page-btn" type="button"
-              aria-label="Επόμενη σελίδα">
-            <i class="bi bi-chevron-right"></i>
-          </button>
-        </li>
-        <li class="page-item">
-          <button class="page-link" id="last-page-btn" type="button"
-              aria-label="Τελευταία σελίδα">
-            <i class="bi bi-chevron-double-right"></i>
-          </button>
-        </li>
-      </ul>
-    </nav>
-  </div>
-</div>
-
-<div class="modal fade" id="thesisDetailsModal" tabindex="-1"
-    aria-labelledby="thesisDetailsModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <article class="modal-content">
-      <header class="modal-header">
-        <h4 class="modal-title">
-          Λεπτομέρειες Διπλωματικής Εργασίας
-        </h4>
-        <button type="button" class="btn btn-close" aria-label="Κλείσιμο"
-            data-bs-dismiss="modal">
-        </button>
-      </header>
-
-      <section class="modal-body">
-        <ul class="nav nav-tabs mb-3" role="tablist">
-          <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="details-tab"
-                data-bs-toggle="tab" data-bs-target="#details-content"
-                type="button" role="tab" aria-controls="details-content"
-                aria-selected="true">
-              Πληροφορίες
-            </button>
-          </li>
-          <li class="nav-item" role="presentation">
-            <button class="nav-link" id="actions-tab" data-bs-toggle="tab"
-                data-bs-target="#actions-content" type="button" role="tab"
-                aria-controls="actions-content" aria-selected="false">
-              Ενέργειες
-            </button>
-          </li>
-        </ul>
-
-        <div class="tab-content">
-          <div class="tab-pane show active" id="details-content" role="tabpanel"
-              aria-labelledby="details-tab">
-            <%- include('../../components/thesis-details') %>
-          </div>
-
-          <div class="tab-pane" id="actions-content" role="tabpanel"
-              aria-labelledby="actions-tab">
-            <%- include('../../components/thesis-actions') %>
-          </div>
-        </div>
-      </section>
-
-      <footer class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-          Κλείσιμο
-        </button>
-      </footer>
-    </article>
-  </div>
-</div>
-
+<script src="/js/components/page-nav.js"></script>
 <script src="/js/pages/secretary/thesis-list.js"></script>
 <script src="/js/pages/secretary/thesis-details.js"></script>
 <script src="/js/pages/secretary/thesis-actions.js"></script>

@@ -226,6 +226,7 @@ export default async function seedDatabase() {
       }
     }
 
+    // TODO
     //   // Randomly create a presentation (50% chance)
     //   if (Math.random() < 0.5) {
     //     const presentation = await ThesisService.createPresentation(

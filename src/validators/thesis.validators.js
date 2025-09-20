@@ -66,6 +66,19 @@ export default {
       content: Joi.string().min(1).max(300).required(),
     }).unknown(false),
   },
+  getAnnouncement: {
+    params: Joi.object({
+      id: Joi.number().integer().min(1).required(),
+    }).unknown(false),
+  },
+  announce: {
+    params: Joi.object({
+      id: Joi.number().integer().min(1).required(),
+    }).unknown(false),
+    body: Joi.object({
+      content: Joi.string().min(1).max(300).required(),
+    }).unknown(false),
+  },
   getInvitations: {
     params: Joi.object({
       id: Joi.number().integer().min(1).required(),

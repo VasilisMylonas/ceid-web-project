@@ -601,6 +601,7 @@ ${offset ? `OFFSET ${offset}` : ""}
   static async getInvitations(id, user) {
     const thesis = await ThesisService._assertUserHasThesisRoles(id, user, [
       ThesisRole.SUPERVISOR,
+      ThesisRole.COMMITTEE_MEMBER,
       ThesisRole.STUDENT,
     ]);
 
@@ -625,6 +626,52 @@ ${offset ? `OFFSET ${offset}` : ""}
         },
       ],
     });
+  }
+
+  static async announce(id, user) {
+    const thesis = await ThesisService._assertUserHasThesisRoles(id, user, [
+      ThesisRole.SUPERVISOR,
+    ]);
+
+    if (thesis.status !== ThesisStatus.UNDER_EXAMINATION) {
+      throw new ConflictError("Thesis is not under examination.");
+    }
+
+    const presentations = await thesis.getPresentations();
+
+    if (presentations.length === 0) {
+      throw new ConflictError("Thesis has no presentations.");
+    }
+
+    // TODO: check if announcement already exists for this presentation?
+
+    const announcement = await presentations[0].createAnnouncement({
+      content: "ΑΝΑΚΟΙΝΩΣΗ",
+      // TODO
+    });
+
+    return announcement;
+  }
+
+  static async getAnnouncement(id, user) {
+    const thesis = await ThesisService._assertUserHasThesisRoles(id, user, [
+      ThesisRole.SUPERVISOR,
+      ThesisRole.STUDENT,
+      ThesisRole.COMMITTEE_MEMBER,
+    ]);
+
+    // TODO
+    const presentations = await thesis.getPresentations({
+      include: db.Announcement,
+      order: [["date", "ASC"]],
+    });
+
+    if (presentations.length === 0) {
+      throw new NotFoundError("No presentations found for this thesis.");
+    }
+
+    // TODO
+    return "ANNOUNCEMENT TEXT";
   }
 
   static async createInvitation(id, user, professorId) {

@@ -13,6 +13,7 @@ import presentationRoutes from "./routes/presentation.routes.js";
 import invitationRoutes from "./routes/invitation.routes.js";
 import studentRoutes from "./routes/student.routes.js";
 import myRoutes from "./routes/my.routes.js";
+import announcementRoutes from "./routes/announcements.routes.js";
 
 const api = express();
 
@@ -30,6 +31,7 @@ api.use("/v1/notes", noteRoutes);
 api.use("/v1/resources", resourceRoutes);
 api.use("/v1/students", studentRoutes);
 api.use("/v1/presentations", presentationRoutes);
+api.use("/v1/announcements", announcementRoutes);
 api.use(errorHandler); // Use error handler middleware
 
 export default api;

@@ -11,6 +11,11 @@ export const ThesisGradingStatus = Object.freeze({
   DISABLED: "disabled",
 });
 
+export const AnnouncementFeedFormat = Object.freeze({
+  JSON: "json",
+  XML: "xml",
+});
+
 export const UserRole = Object.freeze({
   STUDENT: "student",
   PROFESSOR: "professor",

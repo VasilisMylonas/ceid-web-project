@@ -97,7 +97,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
       }
       }
-      
+
 
       if (operations.length === 0 && presentationSaveAttempted) return;
       if (operations.length === 0) {
@@ -166,16 +166,21 @@ function setupModalEventListeners(modalElement, inviteModal, getThesis, onInvita
   modalElement.addEventListener("show.bs.modal", async () => {
     const thesis = getThesis();
     if (!thesis) return;
+
     const professorListContainer = document.getElementById("professor-list-container");
     professorListContainer.innerHTML = "<p>Φόρτωση λίστας διδάσκοντων...</p>";
 
     try {
+      // Get professors and invitations in parallel
       const [professorsResponse, invitationsResponse] = await Promise.all([
         getProfessors(),
         getThesisInvitations(thesis.id)
       ]);
+
+
       const invitations = invitationsResponse.data || [];
       const committeeMemberIds = new Set(thesis.committeeMembers.map(member => member.professorId));
+
       console.log("Committee member IDs:", committeeMemberIds);
       const alreadyInvitedIds = new Set(invitations.map(inv => inv.professorId));
 
@@ -185,14 +190,16 @@ function setupModalEventListeners(modalElement, inviteModal, getThesis, onInvita
           !committeeMemberIds.has(professor.professorId) &&
           !alreadyInvitedIds.has(professor.professorId)
       );
+
       console.log("Available professors for invitation:", availableProfessors);
+
       if (availableProfessors.length === 0) {
         professorListContainer.innerHTML = '<p class="text-muted">Δεν υπάρχουν διαθέσιμοι διδάσκοντες για πρόσκληση.</p>';
       } else {
         professorListContainer.innerHTML = availableProfessors.map(professor => `
           <div class="form-check">
-            <input class="form-check-input" type="checkbox" value="${professor.id}" id="prof-${professor.id}">
-            <label class="form-check-label" for="prof-${professor.id}">
+            <input class="form-check-input" type="checkbox" value="${professor.professorId}" id="prof-${professor.professorId}">
+            <label class="form-check-label" for="prof-${professor.professorId}">
               ${professor.name}
             </label>
           </div>
@@ -204,9 +211,15 @@ function setupModalEventListeners(modalElement, inviteModal, getThesis, onInvita
     }
   });
 
+
+  // This happens when submit is clicked
   document.getElementById("submit-invitations-btn").onclick = async () => {
     const currentThesis = getThesis();
+
+    // Get all selected professor IDs
     const selectedProfessorIds = Array.from(document.querySelectorAll("#professor-list-container .form-check-input:checked")).map(cb => parseInt(cb.value));
+
+    console.log("Selected professor IDs for invitation:", selectedProfessorIds);
 
     if (selectedProfessorIds.length === 0) {
       alert("Παρακαλώ επιλέξτε τουλάχιστον έναν διδάσκοντα.");
@@ -214,9 +227,10 @@ function setupModalEventListeners(modalElement, inviteModal, getThesis, onInvita
     }
 
     try {
-      const invitationPromises = selectedProfessorIds.map(id => sendThesisInvitation(currentThesis.id, id));
-      await Promise.all(invitationPromises);
+      // Send invitations in parallel for all selected professors
+      await Promise.all(selectedProfessorIds.map(id => sendThesisInvitation(currentThesis.id, id)));
       alert("Οι προσκλήσεις στάλθηκαν με επιτυχία.");
+
       inviteModal.hide();
       await onInvitationsSent();
     } catch (error) {
@@ -229,7 +243,7 @@ function setupModalEventListeners(modalElement, inviteModal, getThesis, onInvita
 async function populateCompletedState(thesis) {
   // Fill thesis details
   document.getElementById("thesis-title").textContent = thesis.topic || "-";
- 
+
   document.getElementById("thesis-description").textContent = thesis.topicSummary || "-";
   const fileLink = document.getElementById("thesis-description-file");
   if (fileLink) {
@@ -243,7 +257,7 @@ async function populateCompletedState(thesis) {
   }
 
   await addPraktikoButton(thesis);
-  await populateTimeline(thesis.id); 
+  await populateTimeline(thesis.id);
 }
 
 async function populateInvitationsList(invitations, activeStateCard) {
@@ -389,7 +403,7 @@ async function addPraktikoButton(thesis) {
     try {
       const presentationsResponse = await getThesisPresentation(thesisId);
        if (presentationsResponse?.data)
-      
+
       hasPresentation = !!presentationsResponse?.data;
     } catch (error) {
       console.error("Failed to fetch presentations:", error);
@@ -597,4 +611,3 @@ async function showActiveState(currentThesis, stateAssignment, stateExamination,
     }
   }
 }
-

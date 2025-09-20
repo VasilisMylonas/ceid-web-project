@@ -114,7 +114,6 @@ pages.get(
       req.user
     );
 
-
     res.render("pages/praktiko", {
       studentName: data.student,
       hall: presentation.hall,
@@ -210,6 +209,7 @@ pages.get("/student/:page", requirePageAuth, async (req, res) => {
     title: studentLinks.find((link) => link.href === req.path)?.title,
     links: studentLinks,
     layout: "layouts/basic",
+    user: req.user,
   });
 });
 

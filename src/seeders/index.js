@@ -199,61 +199,61 @@ export default async function seedDatabase() {
 
   const { students, professors, secretaries } = await seedUsers();
 
-  const topics = await seedTopics(professors);
+  // const topics = await seedTopics(professors);
 
-  const freeTopics = [...topics];
-  const theses = await seedTheses(students, freeTopics);
+  // const freeTopics = [...topics];
+  // const theses = await seedTheses(students, freeTopics);
 
-  for (const thesis of theses) {
-    await seedInvitations(thesis, professors);
+  // for (const thesis of theses) {
+  //   await seedInvitations(thesis, professors);
 
-    const secretary = secretaries[0];
+  //   const secretary = secretaries[0];
 
-    if (
-      thesis.status === ThesisStatus.ACTIVE &&
-      Math.random() < THESIS_APPROVAL_PROB
-    ) {
-      await ThesisService.approve(thesis.id, secretary, {
-        assemblyNumber: `2023-${Math.floor(Math.random() * 100)}`,
-        protocolNumber: `${Math.floor(Math.random() * 10000)}`,
-      });
+  //   if (
+  //     thesis.status === ThesisStatus.ACTIVE &&
+  //     Math.random() < THESIS_APPROVAL_PROB
+  //   ) {
+  //     await ThesisService.approve(thesis.id, secretary, {
+  //       assemblyNumber: `2023-${Math.floor(Math.random() * 100)}`,
+  //       protocolNumber: `${Math.floor(Math.random() * 10000)}`,
+  //     });
 
-      await thesis.reload();
+  //     await thesis.reload();
 
-      const supervisor = await thesis
-        .getTopic()
-        .then((t) => t.getProfessor())
-        .then((p) => p.getUser());
+  //     const supervisor = await thesis
+  //       .getTopic()
+  //       .then((t) => t.getProfessor())
+  //       .then((p) => p.getUser());
 
-      const student = await thesis.getStudent().then((s) => s.getUser());
+  //     const student = await thesis.getStudent().then((s) => s.getUser());
 
-      if (Math.random() < THESIS_EXAMINATION_PROB) {
-        await ThesisService.examine(thesis.id, supervisor);
-        await thesis.reload();
+  //     if (Math.random() < THESIS_EXAMINATION_PROB) {
+  //       await ThesisService.examine(thesis.id, supervisor);
+  //       await thesis.reload();
 
-        if (Math.random() < THESIS_PRESENTATION_PROB) {
-          await ThesisService.setPresentation(thesis.id, student, {
-            date: faker.date.future({ years: 1 }),
-            hall: `Hall ${Math.floor(Math.random() * 5) + 1}`,
-            kind:
-              Math.random() < 0.5
-                ? PresentationKind.IN_PERSON
-                : PresentationKind.ONLINE,
-            link:
-              Math.random() < 0.5
-                ? "https://example.com/presentation-link"
-                : null,
-          });
-        }
-      }
-    }
-  }
+  //       if (Math.random() < THESIS_PRESENTATION_PROB) {
+  //         await ThesisService.setPresentation(thesis.id, student, {
+  //           date: faker.date.future({ years: 1 }),
+  //           hall: `Hall ${Math.floor(Math.random() * 5) + 1}`,
+  //           kind:
+  //             Math.random() < 0.5
+  //               ? PresentationKind.IN_PERSON
+  //               : PresentationKind.ONLINE,
+  //           link:
+  //             Math.random() < 0.5
+  //               ? "https://example.com/presentation-link"
+  //               : null,
+  //         });
+  //       }
+  //     }
+  //   }
+  // }
 
   console.log("Seeding completed.");
   console.log(`Created ${students.length} students.`);
   console.log(`Created ${professors.length} professors.`);
   console.log(`Created ${secretaries.length} secretaries.`);
-  console.log(`Created ${topics.length} topics.`);
-  console.log(`Assigned ${topics.length - freeTopics.length} topics.`);
-  console.log(`Created ${theses.length} theses.`);
+  // console.log(`Created ${topics.length} topics.`);
+  // console.log(`Assigned ${topics.length - freeTopics.length} topics.`);
+  // console.log(`Created ${theses.length} theses.`);
 }

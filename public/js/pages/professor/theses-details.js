@@ -77,7 +77,7 @@ function onDetailsButtonClick(event) {
       const btnCancel = document.createElement("button");
       btnCancel.className = "btn btn-danger mt-2";
       btnCancel.textContent = "Ακύρωση Ανάθεσης";
-      
+
       if (!isSupervisor) {
         btnCancel.disabled = true;
         btnCancel.title = "Μόνο ο επιβλέπων μπορεί να ακυρώσει την ανάθεση.";
@@ -207,7 +207,7 @@ if (status === "active") {
     const btnCancelThesis = document.createElement("button");
     btnCancelThesis.className = "btn btn-outline-danger";
     btnCancelThesis.textContent = "Ακύρωση Διπλωματικής";
-    btnCancelThesis.disabled = true; 
+    btnCancelThesis.disabled = true;
 
     assemblyInput.addEventListener("input", () => {
       btnCancelThesis.disabled = !assemblyInput.value.trim();
@@ -250,8 +250,17 @@ if (status === "active") {
     const btnView = document.createElement("button");
     btnView.className = "btn btn-outline-secondary";
     btnView.textContent = "Προβολή Κειμένου Διπλωματικής";
-    btnView.addEventListener("click", () => {
-        window.open(`${BASE_URL}/v1/theses/${thesis.id}/draft`, "_blank");
+    btnView.addEventListener("click", async () => {
+        try {
+          const res = await fetch(`${BASE_URL}/v1/theses/${thesis.id}/draft`, { method: "HEAD" });
+          if (res.ok) {
+            window.open(`${BASE_URL}/v1/theses/${thesis.id}/draft`, "_blank");
+          } else {
+            alert("Δεν υπάρχει κείμενο διπλωματικής.");
+          }
+        } catch (err) {
+          alert("Σφάλμα κατά τον έλεγχο του αρχείου.");
+        }
     });
 
     const btnEnableGrading = document.createElement("button");
@@ -268,8 +277,8 @@ if (status === "active") {
 
         try {
             const res = await enableGrading(thesis.id, "enabled")
-            await loadDetails(); 
-            
+            await loadDetails();
+
         } catch (err) {
             console.error(err);
             alert("Για την ενεργοποιήση της βαθμολόγησης απαιτείται η καταχύρωση ανακοίνωσης.");
@@ -312,8 +321,8 @@ if (status === "active") {
     try {
         const res = await announceThesis(thesis.id, text);
         alert("Η ανακοίνωση αποθηκεύτηκε.");
-        await loadDetails(); 
-        
+        await loadDetails();
+
     } catch (err) {
         alert("Η επιλογή αυτή είναι ενεργή μόνο εφόσον ο φοιτητής έχει συμπληρώσει τις σχετικές λεπτομέρειες της παρουσίασης");
         btnSaveAnn.disabled = false;
@@ -325,7 +334,7 @@ if (status === "active") {
         container.append(h6Ann, annWrap);
         annWrap.append(annTextarea, btnSaveAnn);
     }
-    
+
     if (thesis.grading === "disabled") return;
 
     // --- Φόρμα βαθμολόγησης (όλοι μπορούν να υποβάλουν όταν είναι enabled) ---
@@ -373,7 +382,7 @@ if (status === "active") {
     gradesTitle.textContent = "Βαθμολογίες Όλων των Καθηγητών";
 
     const gradesWrap = document.createElement("div");
-    const result = await getGrades(thesis.id); 
+    const result = await getGrades(thesis.id);
     const grades = result?.data || [];
 
     if (!grades.length) {
@@ -464,6 +473,7 @@ if (status === "active") {
       renderBasicInfo(thesis.data);
       renderTimeline(timelineResponse.data);
       renderActions(thesis.data);
+      setState(state);
     } catch (e) {
       console.error(e);
         resetToEmpty();

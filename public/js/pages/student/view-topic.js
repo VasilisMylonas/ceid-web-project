@@ -88,14 +88,19 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Days since assignment (using 'startDate' from the response)
     const daysElement = document.getElementById("thesis-days");
-    if (daysElement && thesis.startDate) {
-        const assignedDate = new Date(thesis.startDate);
-        const now = new Date();
-        const diffTime = Math.abs(now - assignedDate);
-        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-        daysElement.textContent = diffDays;
-    } else if(daysElement) {
-        daysElement.textContent = "-";
+    const startDateElement = document.getElementById("thesis-start-date");
+    if (daysElement && startDateElement) {
+        if (thesis.startDate) {
+            const assignedDate = new Date(thesis.startDate);
+            const now = new Date();
+            const diffTime = Math.abs(now - assignedDate);
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            daysElement.textContent = diffDays;
+            startDateElement.textContent = assignedDate.toLocaleDateString('el-GR');
+        } else {
+            daysElement.textContent = "Η διπλωματική δεν έχει ξεκινήσει";
+            startDateElement.textContent = "Η διπλωματική δεν έχει ξεκινήσει";
+        }
     }
 
     // Committee members (using 'supervisor' from the response)
@@ -115,9 +120,4 @@ document.addEventListener('DOMContentLoaded', async () => {
             committeeList.appendChild(li);
         }
     }
-
-    document.getElementById("thesis-start-date").textContent =
-  thesis.startDate ? new Date(thesis.startDate).toLocaleDateString('el-GR') : "undefined";
-document.getElementById("thesis-end-date").textContent =
-  thesis.endDate ? new Date(thesis.endDate).toLocaleDateString('el-GR') : "undefined";
 });

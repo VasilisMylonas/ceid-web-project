@@ -17,33 +17,59 @@ export default class TopicService {
     };
 
     if (status) {
-      query.include = [
-        {
-          model: db.Thesis,
-          attributes: [],
-          required: false,
-        },
-      ];
-
-      query.where[Op.or] = [
-        Sequelize.where(Sequelize.col("Theses.status"), {
-          [status === "assigned" ? Op.in : Op.notIn]: [
-            ThesisStatus.UNDER_ASSIGNMENT,
-            ThesisStatus.ACTIVE,
-            ThesisStatus.COMPLETED,
-            ThesisStatus.UNDER_EXAMINATION,
-          ],
-        }),
-      ];
-
-      if (status === "unassigned") {
-        query.where[Op.or].push(
-          Sequelize.where(Sequelize.col("Theses.status"), {
-            [Op.is]: null,
-          })
-        );
+      if (status === "assigned") {
+        // All topics which have a thesis which is not cancelled
+        query.include = [
+          {
+            model: db.Thesis,
+            attributes: [],
+            required: true,
+            where: {
+              status: {
+                [Op.not]: ThesisStatus.CANCELLED,
+              },
+            },
+          },
+        ];
+      } else {
+        // All topics which DON'T have a thesis which is not cancelled
+        query.include = [
+          {
+            model: db.Thesis,
+            attributes: [],
+            required: false,
+            where: {
+              status: {
+                [Op.not]: ThesisStatus.CANCELLED,
+              },
+            },
+          },
+        ];
+        query.where["$Theses.id$"] = { [Op.is]: null };
       }
     }
+
+    // if (status) {
+
+    //   query.where[Op.or] = [
+    //     Sequelize.where(Sequelize.col("Theses.status"), {
+    //       [status === "assigned" ? Op.in : Op.notIn]: [
+    //         ThesisStatus.UNDER_ASSIGNMENT,
+    //         ThesisStatus.ACTIVE,
+    //         ThesisStatus.COMPLETED,
+    //         ThesisStatus.UNDER_EXAMINATION,
+    //       ],
+    //     }),
+    //   ];
+
+    //   if (status === "unassigned") {
+    //     query.where[Op.or].push(
+    //       Sequelize.where(Sequelize.col("Theses.status"), {
+    //         [Op.is]: null,
+    //       })
+    //     );
+    //   }
+    // }
 
     return db.Topic.findAndCountAll(query);
   }

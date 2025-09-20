@@ -292,7 +292,7 @@ async function unassignTopic(thesisId) {
   return await request("DELETE", `${BASE_URL}/v1/theses/${thesisId}`);
 }
 
-async function getMyAssignedTopic() {
+async function getMyAssignedTheses() {
   return await request(
     "GET",
     `${BASE_URL}/v1/my/theses?status=under_assignment&role=supervisor`
@@ -311,14 +311,14 @@ async function getUnassignedStudents() {
 //  return await request("GET", `${BASE_URL}/v1/theses/${thesisId}`);
 //}
 
-//thesis details  
+//thesis details
 
 async function getThesisTimeline(thesisId) {
   return await request("GET", `${BASE_URL}/v1/theses/${thesisId}/timeline`);
 }
 
 //completed
-//getThesisDetails numertes link + final grade 
+//getThesisDetails numertes link + final grade
 
 
 

@@ -1,4 +1,4 @@
-(function () {
+document.addEventListener("DOMContentLoaded", () => {
   const $list = document.getElementById("list");
   const $tpl = document.getElementById("invitation-item");
   const $status = document.getElementById("status");
@@ -7,20 +7,20 @@
 
   let isLoading = false;
 
-  const setLoading = (on, text = "Φόρτωση προσκλήσεων…") => {
+  function setLoading(on, text = "Φόρτωση προσκλήσεων…") {
     $status.textContent = on ? text : "";
     $status.hidden = !on;
-  };
+  }
 
-  const showError = (msg = "Παρουσιάστηκε σφάλμα. Δοκιμάστε ξανά.") => {
+  function showError(msg = "Παρουσιάστηκε σφάλμα. Δοκιμάστε ξανά.") {
     $error.textContent = msg;
     $error.hidden = false;
-  };
+  }
 
-  const hideBanners = () => {
+  function hideBanners() {
     $error.hidden = true;
     $empty.hidden = true;
-  };
+  }
 
   async function fetchThesis(thesisId) {
     try {
@@ -37,11 +37,17 @@
     const node = $tpl.content.firstElementChild.cloneNode(true);
     node.dataset.id = invite.id;
 
-    node.querySelector('[data-field="student"]').textContent = thesis?.student ?? "—";
-    node.querySelector('[data-field="topic"]').textContent = thesis?.topic ?? "—";
-    node.querySelector('[data-field="supervisor"]').textContent = thesis?.supervisor ?? "—";
-    node.querySelector('[data-field="createdAt"]').textContent = fmtDateTime(invite.createdAt);
-    node.querySelector('[data-field="topicSummary"]').textContent = thesis?.topicSummary ?? "—";
+    node.querySelector('[data-field="student"]').textContent =
+      thesis?.student ?? "—";
+    node.querySelector('[data-field="topic"]').textContent =
+      thesis?.topic ?? "—";
+    node.querySelector('[data-field="supervisor"]').textContent =
+      thesis?.supervisor ?? "—";
+    node.querySelector('[data-field="createdAt"]').textContent = fmtDateTime(
+      invite.createdAt
+    );
+    node.querySelector('[data-field="topicSummary"]').textContent =
+      thesis?.topicSummary ?? "—";
 
     const pill = node.querySelector('[data-field="state"]');
     pill.classList.remove("ok", "err");
@@ -118,7 +124,7 @@
       );
 
       const frag = document.createDocumentFragment();
-      nodes.forEach(n => frag.appendChild(n));
+      nodes.forEach((n) => frag.appendChild(n));
       $list.appendChild(frag);
 
       $list.hidden = false;
@@ -133,4 +139,4 @@
   }
 
   loadInvitations();
-})();
+});

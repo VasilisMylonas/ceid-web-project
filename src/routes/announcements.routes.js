@@ -1,15 +1,26 @@
 import express from "express";
 import db from "../models/index.js";
-import { Op } from "sequelize";
+import { Op, Sequelize } from "sequelize";
 import { AnnouncementFeedFormat } from "../constants.js";
+import js2xmlparser from "js2xmlparser";
+import Joi from "joi";
+import { validate } from "../middleware/validation.js";
 
 const router = express.Router();
 // No auth middleware, this is a public endpoint
 
-const announcementsValidators = {};
+const announcementsValidators = {
+  get: {
+    query: Joi.object({
+      from: Joi.date().iso(),
+      to: Joi.date().iso(),
+      format: Joi.string().valid(...Object.values(AnnouncementFeedFormat)),
+    }).unknown(false),
+  },
+};
 
 // Public endpoint for presentation announcements feed
-router.get("/", async (req, res) => {
+router.get("/feed", validate(announcementsValidators.get), async (req, res) => {
   const { from, to, format } = req.query;
 
   const where = {};
@@ -26,20 +37,34 @@ router.get("/", async (req, res) => {
     }
   }
 
+  // TODO: announcement text
   const presentations = await db.Presentation.findAll({
     where,
+    attributes: [
+      [Sequelize.col("Thesis.Topic.title"), "title"],
+      "date",
+      "kind",
+      "hall",
+      "link",
+      [Sequelize.col("Thesis.Student.User.name"), "studentName"],
+      [Sequelize.col("Thesis.Student.am"), "studentAm"],
+    ],
     include: [
       {
         model: db.Thesis,
-        attributes: ["id"],
+        attributes: [],
         include: [
           {
+            model: db.Topic,
+            attributes: [],
+          },
+          {
             model: db.Student,
-            attributes: ["id", "am"],
+            attributes: [],
             include: [
               {
                 model: db.User,
-                attributes: ["id", "name", "email"],
+                attributes: [],
               },
             ],
           },
@@ -49,35 +74,17 @@ router.get("/", async (req, res) => {
     order: [["date", "ASC"]],
   });
 
-  if (format === "xml") {
+  if (format === AnnouncementFeedFormat.XML) {
+    const xmlData = js2xmlparser.parse(
+      "announcements",
+      presentations.map((p) => p.get({ plain: true }))
+    );
     res.set("Content-Type", "application/xml");
-    const xml = [
-      '<?xml version="1.0" encoding="UTF-8"?>',
-      "<feed>",
-      ...presentations.map((p) => {
-        const thesis = p.Thesis || {};
-        return `
-<presentation>
-  <id>${p.id}</id>
-  <date>${p.date ? new Date(p.date).toISOString() : ""}</date>
-  <kind>${p.kind || ""}</kind>
-  <hall>${p.hall || ""}</hall>
-  <link>${p.link || ""}</link>
-  <thesis>
-    <id>${thesis.id || ""}</id>
-    <title>${thesis.title || ""}</title>
-  </thesis>
-</presentation>
-        `;
-      }),
-      "</feed>",
-    ].join("\n");
-
-    return res.send(xml);
+    res.send(xmlData);
+  } else {
+    // Default: JSON
+    res.json(presentations);
   }
-
-  // Default: JSON
-  res.json(presentations);
 });
 
 export default router;

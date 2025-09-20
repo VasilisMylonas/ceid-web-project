@@ -1,3 +1,5 @@
+const { link } = require("joi");
+
 function onDetailsButtonClick(event) {
   const thesisId = event.target.getAttribute("data-thesis-id");
 
@@ -13,22 +15,21 @@ function onDetailsButtonClick(event) {
     list.innerHTML = "";
     thesis.committeeMembers.forEach(member => {
       const li = document.createElement("li");
-      li.textContent = `${member.name} (${member.role})`;
+      li.textContent = `${member.name} (${Name.ofMemberRole(member.role)})`;
       list.appendChild(li);
     });
   }
 
-  // Expects an array (timelineResponse.data)
-  function renderTimeline(items) {
+  function renderTimeline(changes) {
     const ul = document.getElementById("timeline-list");
     ul.innerHTML = "";
-    items.forEach(item => {
+    changes.forEach(change => {
       const li = document.createElement("li");
       li.className = "list-group-item";
-      const oldL = Name.ofThesisStatus(item.oldStatus);
-      const newL = Name.ofThesisStatus(item.newStatus);
-      const when = fmtDateTime(item.changedAt);
-      li.textContent = `Αλλαγή κατάστασης: ${oldL} → ${newL} (${when})`;
+      const oldStatus = Name.ofThesisStatus(change.oldStatus);
+      const newStatus = Name.ofThesisStatus(change.newStatus);
+      const date = fmtDateTime(change.changedAt);
+      li.textContent = `Αλλαγή κατάστασης: ${oldStatus} → ${newStatus} (${date})`;
       ul.appendChild(li);
     });
   }
@@ -53,19 +54,13 @@ function onDetailsButtonClick(event) {
         const li = document.createElement("li");
         li.className = "list-group-item";
 
-        const statusRaw = String(invite.response || "pending").toLowerCase();
-        const statusText = statusRaw === "accepted" ? "Αποδέχτηκε"
-                        : statusRaw === "declined" ? "Απέρριψε"
-                        : "Εκκρεμεί";
-        const statusClass = statusRaw === "accepted" ? "text-success"
-                          : statusRaw === "declined" ? "text-danger"
-                          : "text-warning";
-
         li.innerHTML = `
           <div class="d-flex flex-column">
             <div>
-              <strong>${invite.professorName || "—"}</strong>
-              — <span class="${statusClass}">Κατάσταση πρόσκλησης: ${statusText}</span>
+                <strong>${invite.professorName || "—"}</strong>
+                — <span class="badge ${getInviteResponseBootstrapBgClass(invite.response)}">
+                    Κατάσταση πρόσκλησης: ${Name.ofInvitationResponse(invite.response)}
+                </span>
             </div>
             <small class="text-muted">
               Ημ/νία Πρόσκλησης: ${fmtDateTime(invite.createdAt)}
@@ -88,28 +83,21 @@ function onDetailsButtonClick(event) {
         // TODO: reload view/state after unassign
       });
 
-      container.appendChild(h6);
-      container.appendChild(ul);
-      container.appendChild(hr);
-      container.appendChild(btnCancel);
+      container.append(h6,ul,hr,btnCancel);
       return;
     }
 
     if (status === "active") {
-        // ------- Header: Ιστορικό Σημειώσεων -------
         const h6History = document.createElement("h6");
         h6History.textContent = "Παλαιότερες Σημειώσεις";
 
-        // container της λίστας
         const notesList = document.createElement("ul");
         notesList.className = "list-group mb-3";
 
-        // προσωρινό "loading"
         const notesLoading = document.createElement("div");
         notesLoading.className = "text-muted mb-2";
         notesLoading.textContent = "Φόρτωση σημειώσεων...";
 
-        // helper για render
         function renderNotesList(listEl, notes) {
             listEl.innerHTML = "";
             if (!notes || !notes.length) {
@@ -220,7 +208,7 @@ function onDetailsButtonClick(event) {
             const res = await examineThesis(thesis.id);
             btnMove.disabled = false;
             btnMove.textContent = 'Αλλαγή σε "Υπό Εξέταση"';
-            if (res?.ok) {
+            if (res?.success) {
             thesis.status = "under_examination";
             const badge = document.getElementById("status-badge");
             badge.className = "badge " + getThesisStatusBootstrapBgClass(thesis.status);
@@ -230,13 +218,8 @@ function onDetailsButtonClick(event) {
             }
         });
 
-        // append τα υπόλοιπα controls κάτω από τη λίστα
-        container.appendChild(h6note);
-        container.appendChild(textarea);
-        container.appendChild(btnSave);
-        container.appendChild(hr);
-        container.appendChild(h6act);
-        container.appendChild(btnMove);
+        container.append(h6note, textarea, btnSave, hr, h6act, btnMove);
+
         return;
     }
 
@@ -369,9 +352,7 @@ if (status === "under_examination") {
       linkForm.textContent = "Link Φόρμας Βαθμολόγησης";
       linkForm.href = `/praktiko?thesisId=${thesis.id}`;
 
-      container.appendChild(p);
-      container.appendChild(linkRepo);
-      container.appendChild(linkForm);
+      container.append(linkRepo,linkForm);
       return;
     }else if (status === "cancelled") {
         container.innerHTML = `<div class="text-muted">Η διπλωματική είναι ακυρωμένη ,δεν υπάρχουν διαθέσιμες ενέργειες.</div>`;
@@ -387,7 +368,7 @@ if (status === "under_examination") {
         getThesisDetails(thesisId),
         getThesisTimeline(thesisId),
       ]);
-
+      console.log(thesisId);
       renderBasicInfo(thesis.data);
       renderTimeline(timelineResponse.data);
       renderActions(thesis.data);

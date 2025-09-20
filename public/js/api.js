@@ -293,7 +293,7 @@ async function unassignTopic(thesisId) {
 async function getMyAssignedTopic() {
   return await request(
     "GET",
-    `${BASE_URL}/v1/my/theses?status=under_assignment`
+    `${BASE_URL}/v1/my/theses?status=under_assignment&role=supervisor`
   );
 }
 

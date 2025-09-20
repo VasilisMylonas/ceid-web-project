@@ -86,6 +86,17 @@ function getThesisStatusBootstrapBgClass(status) {
   }
 }
 
+function getInviteResponseBootstrapBgClass(status) {
+  switch (status) {
+    case "accepted":
+      return "bg-success";
+    case "declined":
+      return "bg-danger";
+    case "pending":
+      return "bg-warning";
+  }
+}
+
 function makeDaysSinceString(date) {
   const now = new Date();
   const diffTime = Math.abs(now - date);

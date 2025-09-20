@@ -242,133 +242,149 @@ if (status === "active") {
 }
 
 
-    if (status === "under_examination") {
-      const btnView = document.createElement("a");
-      btnView.className = "btn btn-secondary mb-2";
-      btnView.textContent = "Προβολή Κειμένου Διπλωματικής";
-      btnView.addEventListener("click", () => {
-        const url = `${BASE_URL}/v1/theses/${thesis.id}/draft`;
-        window.open(url, "_blank");
+if (status === "under_examination") {
+  // --- Top action bar (3 similar buttons) ---
+  const btnBar = document.createElement("div");
+  btnBar.className = "d-flex gap-2 flex-wrap mb-3";
+
+  // View draft (everyone)
+  const btnView = document.createElement("button");
+  btnView.className = "btn btn-outline-secondary";
+  btnView.textContent = "Προβολή Κειμένου Διπλωματικής";
+  btnView.addEventListener("click", () => {
+    window.open(`${BASE_URL}/v1/theses/${thesis.id}/draft`, "_blank");
+  });
+
+  // Create announcement (supervisor only)
+  const btnAnnounce = document.createElement("button");
+  btnAnnounce.className = "btn btn-outline-info";
+  btnAnnounce.textContent = "Δημιουργία Ανακοίνωσης Παρουσίασης";
+  if (!isSupervisor) {
+    btnAnnounce.disabled = true;
+    btnAnnounce.title = "Μόνο ο επιβλέπων μπορεί να δημιουργήσει ανακοίνωση.";
+  }
+  btnAnnounce.addEventListener("click", async () => {
+    btnAnnounce.disabled = true; btnAnnounce.textContent = "Δημιουργία...";
+    const res = await createDefenseAnnouncement(thesis.id);
+    if (res?.success) { alert("Η ανακοίνωση δημιουργήθηκε."); await loadDetails(); }
+    else { alert("Σφάλμα δημιουργίας."); btnAnnounce.disabled = false; btnAnnounce.textContent = "Δημιουργία Ανακοίνωσης Παρουσίασης"; }
+  });
+
+  // Enable grading (supervisor only)
+  const btnEnableGrading = document.createElement("button");
+  btnEnableGrading.className = "btn btn-outline-warning";
+  btnEnableGrading.textContent = "Ενεργοποίηση Βαθμολόγησης";
+  if (!isSupervisor) {
+    btnEnableGrading.disabled = true;
+    btnEnableGrading.title = "Μόνο ο επιβλέπων μπορεί να ενεργοποιήσει τη βαθμολόγηση.";
+  }
+  btnEnableGrading.addEventListener("click", async () => {
+    btnEnableGrading.disabled = true; btnEnableGrading.textContent = "Ενεργοποίηση...";
+    const res = await enableGrading(thesis.id, "enabled");
+    if (res?.success) { alert("Η βαθμολόγηση της επιτροπής ενεργοποιήθηκε."); await loadDetails(); }
+    else { alert("Σφάλμα ενεργοποίησης."); btnEnableGrading.disabled = false; btnEnableGrading.textContent = "Ενεργοποίηση Βαθμολόγησης"; }
+  });
+
+  btnBar.append(btnView, btnAnnounce, btnEnableGrading);
+
+  // If grading is disabled, only show the 3 buttons
+  if (thesis.grading === "disabled") {
+    container.append(btnBar);
+    return;
+  }
+
+  // --- Grading form (everyone can submit when enabled) ---
+  const hr = document.createElement("hr");
+  const h6grade = document.createElement("h6");
+  h6grade.textContent = "Βαθμολόγηση";
+  const p = document.createElement("p");
+  p.textContent = "Εισάγετε τις βαθμολογίες σας (0–10).";
+
+  const form = document.createElement("form");
+  form.className = "row g-2 mb-3";
+
+  const mkNum = (id, label) => {
+    const col = document.createElement("div");
+    col.className = "col-12 col-md-6 col-lg-3";
+    col.innerHTML = `
+      <label class="form-label mb-1" for="${id}">${label}</label>
+      <input id="${id}" type="number" class="form-control" min="0" max="10" step="0.1" required />
+    `;
+    form.appendChild(col);
+    return () => Number(String(document.getElementById(id).value).replace(",", "."));
+  };
+
+  const getObjectives   = mkNum("grade_objectives",   "Στόχοι");
+  const getDuration     = mkNum("grade_duration",     "Διάρκεια");
+  const getDeliverable  = mkNum("grade_deliverable",  "Ποιότητα Παραδοτέου");
+  const getPresentation = mkNum("grade_presentation", "Ποιότητα Παρουσίασης");
+
+  const btnGrade = document.createElement("button");
+  btnGrade.className = "btn btn-success";
+  btnGrade.textContent = "Εισαγωγή Βαθμολογίας";
+  btnGrade.addEventListener("click", async (e) => {
+    e.preventDefault();
+    const vals = [getObjectives(), getDuration(), getDeliverable(), getPresentation()];
+    const ok = n => typeof n === "number" && !isNaN(n) && n >= 0 && n <= 10;
+    if (!vals.every(ok)) return alert("Όλες οι βαθμολογίες πρέπει να είναι από 0 έως 10.");
+    btnGrade.disabled = true; btnGrade.textContent = "Αποστολή...";
+    const res = await putGrade(thesis.id, ...vals);
+    if (res?.success) { alert("Οι βαθμολογίες καταχωρήθηκαν."); await loadDetails(); }
+    else { alert("Σφάλμα καταχώρησης."); btnGrade.disabled = false; btnGrade.textContent = "Εισαγωγή Βαθμολογίας"; }
+  });
+
+  // --- Other professors' grades: visible ONLY to supervisor ---
+  const extras = [];
+  if (isSupervisor) {
+    const h6Other = document.createElement("h6");
+    h6Other.textContent = "Βαθμολογίες Άλλων Καθηγητών";
+
+    const otherWrap = document.createElement("div");
+    const otherRes = await getOtherProfessorGrades(thesis.id); // dummy API you implement
+    const otherGrades = otherRes?.data || [];
+
+    if (!otherGrades.length) {
+      const empty = document.createElement("div");
+      empty.className = "text-muted";
+      empty.textContent = "Δεν υπάρχουν υποβληθείσες βαθμολογίες από άλλους καθηγητές.";
+      otherWrap.append(empty);
+    } else {
+      const table = document.createElement("table");
+      table.className = "table table-sm align-middle";
+      table.innerHTML = `
+        <thead>
+          <tr>
+            <th>Καθηγητής</th>
+            <th>Στόχοι</th>
+            <th>Διάρκεια</th>
+            <th>Ποιότητα Παραδοτέου</th>
+            <th>Ποιότητα Παρουσίασης</th>
+            <th>Υποβλήθηκε</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      `;
+      const tbody = table.querySelector("tbody");
+      otherGrades.forEach(g => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${g.professorName || "—"}</td>
+          <td>${g.objectives ?? "—"}</td>
+          <td>${g.duration ?? "—"}</td>
+          <td>${g.deliverableQuality ?? "—"}</td>
+          <td>${g.presentationQuality ?? "—"}</td>
+          <td>${fmtDateTime(g.submittedAt)}</td>
+        `;
+        tbody.appendChild(tr);
       });
-
-      const btnAnnounce = document.createElement("button");
-      btnAnnounce.className = "btn btn-info mb-2";
-      btnAnnounce.textContent = "Δημιουργία Ανακοίνωσης Παρουσίασης";
-
-      if (!isSupervisor)  btnAnnounce.disabled = true;
-    
-      btnAnnounce.addEventListener("click", async () => {
-        btnAnnounce.disabled = true;
-        btnAnnounce.textContent = "Δημιουργία...";
-
-        const res = await createDefenseAnnouncement(thesis.id);
-        if (res?.success) {
-            alert("Η ανακοίνωση δημιουργήθηκε.");
-            await loadDetails();
-        } else alert("Σφάλμα δημιουργίας.");
-    
-        btnAnnounce.disabled = false;
-        btnAnnounce.textContent = "Δημιουργία Ανακοίνωσης Παρουσίασης";
-      });
-
-      const btnEnableGrading = document.createElement("button");
-      btnEnableGrading.className = "btn btn-sm btn-outline-warning ms-2";
-      btnEnableGrading.textContent = "Ενεργοποίηση Βαθμολόγησης";
-
-      if (!isSupervisor) {
-        btnEnableGrading.disabled = true;
-        btnEnableGrading.title = "Μόνο ο επιβλέπων μπορεί να ενεργοποιήσει τη βαθμολόγηση.";
-      }
-      btnEnableGrading.addEventListener("click", async () => {
-        btnEnableGrading.disabled = true;
-        btnEnableGrading.textContent = "Ενεργοποίηση...";
-        try {
-          const res = await enableGrading(thesis.id, "enabled");
-          if (res?.success) {
-            alert("Η βαθμολόγηση της επιτροπής ενεργοποιήθηκε.");
-            await loadDetails();
-          } else {
-            alert("Σφάλμα ενεργοποίησης.");
-            btnEnableGrading.disabled = false;
-            btnEnableGrading.textContent = "Ενεργοποίηση Βαθμολόγησης";
-          }
-        } catch {
-          alert("Σφάλμα ενεργοποίησης.");
-          btnEnableGrading.disabled = false;
-          btnEnableGrading.textContent = "Ενεργοποίηση Βαθμολόγησης";
-        }
-      });
-
-      const hr = document.createElement("hr");
-      const h6grade = document.createElement("h6");
-      h6grade.textContent = "Βαθμολόγηση";
-      const p = document.createElement("p");
-      p.textContent = "Εισάγετε ή δείτε τις βαθμολογίες της επιτροπής.";
-
-      const form = document.createElement("form");
-      form.className = "row g-2 mb-3";
-      const makeNum = (id, label) => {
-        const col = document.createElement("div");
-        col.className = "col-12 col-md-6 col-lg-3";
-        const lbl = document.createElement("label");
-        lbl.className = "form-label mb-1";
-        lbl.htmlFor = id;
-        lbl.textContent = label;
-        const input = document.createElement("input");
-        input.type = "number"; input.id = id; input.className = "form-control";
-        input.min = "0"; input.max = "10"; input.step = "0.1"; input.required = true;
-        col.append(lbl, input);
-        form.appendChild(col);
-        return input;
-      };
-      const inpObjectives = makeNum("grade_objectives", "Στόχοι");
-      const inpDuration = makeNum("grade_duration", "Διάρκεια");
-      const inpDeliverable = makeNum("grade_deliverable", "Ποιότητα Παραδοτέου");
-      const inpPresentation = makeNum("grade_presentation", "Ποιότητα Παρουσίασης");
-
-      const btnGrade = document.createElement("button");
-      btnGrade.className = "btn btn-success";
-      btnGrade.textContent = "Εισαγωγή Βαθμολογίας";
-
-      btnGrade.addEventListener("click", async (e) => {
-        e.preventDefault();
-        const toNum = el => Number(String(el.value).replace(",", "."));
-        const ok = n => typeof n === "number" && !isNaN(n) && n >= 0 && n <= 10;
-
-        const objectives = toNum(inpObjectives);
-        const duration = toNum(inpDuration);
-        const deliverableQuality = toNum(inpDeliverable);
-        const presentationQuality = toNum(inpPresentation);
-
-        if (![objectives, duration, deliverableQuality, presentationQuality].every(ok)) {
-          return alert("Όλες οι βαθμολογίες πρέπει να είναι από 0 έως 10.");
-        }
-
-        btnGrade.disabled = true;
-        btnGrade.textContent = "Αποστολή...";
-        try {
-          const res = await putGrade(thesis.id, objectives, duration, deliverableQuality, presentationQuality);
-          if (res?.success) {
-            alert("Οι βαθμολογίες καταχωρήθηκαν.");
-            await loadDetails();
-          } else {
-            alert("Σφάλμα καταχώρησης.");
-          }
-        } catch {
-          alert("Σφάλμα καταχώρησης.");
-        }
-        btnGrade.disabled = false;
-        btnGrade.textContent = "Εισαγωγή Βαθμολογίας";
-      });
-
-      if (thesis.grading === "disabled") {
-        container.append(btnView, btnAnnounce, btnEnableGrading);
-      } else {
-        container.append(btnView, btnAnnounce, hr, h6grade, p, form, btnGrade);
-      }
-      return;
+      otherWrap.append(table);
     }
+    extras.push(h6Other, otherWrap);
+  }
 
+  container.append(btnBar, hr, h6grade, p, form, btnGrade, ...extras);
+  return;
+}
     if (status === "completed") {
       const p = document.createElement("p");
       p.innerHTML = `<strong>Τελική Βαθμολογία:</strong> ${thesis.grade || "—"}`;

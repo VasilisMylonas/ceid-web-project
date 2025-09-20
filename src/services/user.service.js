@@ -71,7 +71,6 @@ export default class UserService {
   static async _create(user, transaction) {
     const created = await db.User.create(user, { transaction });
 
-    // TODO: This used to attach these as properties but it was causing problems
     switch (user.role) {
       case UserRole.PROFESSOR:
         await db.Professor.create(

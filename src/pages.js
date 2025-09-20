@@ -7,7 +7,7 @@ import { setPage } from "./middleware/pages.js";
 import Joi from "joi";
 import { expressJoiValidations } from "express-joi-validations";
 import { validate } from "./middleware/validation.js";
-import { ThesisRole, UserRole } from "./constants.js";
+import { ThesisRole, ThesisStatus, UserRole } from "./constants.js";
 import ThesisService from "./services/thesis.service.js";
 import { requirePageAuth } from "./middleware/pages.js";
 import AuthService from "./services/auth.service.js";
@@ -93,6 +93,11 @@ pages.get(
   async (req, res) => {
     const data = await ThesisService.getExtra(req.query.thesisId, req.user);
 
+    // Not allowed to view if no grade
+    if (data.grade !== null) {
+      return res.redirect("/");
+    }
+
     // TODO: when is this allowed?
     // presentation must exist
 
@@ -109,11 +114,10 @@ pages.get(
       req.user
     );
 
-  
-    res.render("pages/praktiko", {
 
+    res.render("pages/praktiko", {
       studentName: data.student,
-      hall: presentation.hall ? presentation.hall : presentation.link,
+      hall: presentation.hall,
       date: presentation.date.toLocaleDateString("el-GR", {
         day: "2-digit",
         month: "2-digit",
@@ -205,11 +209,9 @@ pages.get("/student/:page", requirePageAuth, async (req, res) => {
   return res.render(`pages/student/${req.params.page}`, {
     title: studentLinks.find((link) => link.href === req.path)?.title,
     links: studentLinks,
-    user: req.user,
     layout: "layouts/basic",
   });
 });
-
 
 pages.get("/professor/:page", requirePageAuth, async (req, res) => {
   if (req.user.role !== UserRole.PROFESSOR) {

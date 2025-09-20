@@ -231,7 +231,6 @@ export default async function seedDatabase() {
         await ThesisService.examine(thesis.id, supervisor);
         await thesis.reload();
 
-        // TODO: 1 year?
         if (Math.random() < THESIS_PRESENTATION_PROB) {
           await ThesisService.setPresentation(thesis.id, student, {
             date: faker.date.future({ years: 1 }),

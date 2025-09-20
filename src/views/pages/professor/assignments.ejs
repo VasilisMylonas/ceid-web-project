@@ -1,116 +1,130 @@
-<div class="container-fluid">
-    <h1 class="h2 mb-4">Ανάθεση σε Φοιτητή</h1>
+<div class="container">
+  <h2 class="mb-4">Ανάθεση σε Φοιτητή</h2>
 
-    <div class="card">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <h5 class="mb-0">Τα Θέματά μου</h5>
+  <div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">Τα Θέματά μου</h5>
+    </div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead>
+            <tr>
+              <th>Τίτλος</th>
+              <th>Κατάσταση</th>
+              <th>Φοιτητής</th>
+              <th class="text-center">Ενέργειες</th>
+            </tr>
+          </thead>
+          <tbody id="my-topics-table-body">
+            <!-- Γεμίζει δυναμικά από assignments.js -->
+          </tbody>
+        </table>
       </div>
-      <div class="card-body">
+    </div>
+  </div>
+</div>
+
+
+<!-- Assign Student Modal -->
+<div class="modal fade" id="assign-student-modal" tabindex="-1"
+    aria-labelledby="assignStudentModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="assignStudentModalLabel">Ανάθεση Θέματος σε
+          Φοιτητή</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"
+            aria-label="Κλείσιμο"></button>
+      </div>
+      <div class="modal-body">
+        <form id="assign-student-form">
+          <input type="hidden" id="assign-topic-id">
+          <p class="mb-2"><strong>Θέμα:</strong> <span
+                id="assign-topic-title"></span></p>
+
+          <div class="mb-2">
+            <label for="studentSearch" class="form-label">Αναζήτηση Φοιτητή
+              (Α.Μ. ή Ονοματεπώνυμο)</label>
+            <input type="text" class="form-control" id="studentSearch"
+                name="studentIdentifier" required
+                placeholder="Πληκτρολόγησε Α.Μ. ή Ονοματεπώνυμο...">
+
+          </div>
+
+          <div class="modal-footer px-0">
+            <button type="button" class="btn btn-secondary"
+                data-bs-dismiss="modal">Ακύρωση</button>
+            <button type="submit" class="btn btn-primary">Ολοκλήρωση
+              Ανάθεσης</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Postpone Modal -->
+<div class="modal fade" id="confirm-unassign-modal" tabindex="-1"
+    aria-labelledby="confirmUnassignModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmUnassignModalLabel">Αναβολή Ανάθεσης
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"
+            aria-label="Κλείσιμο"></button>
+      </div>
+      <div class="modal-body">
+        Θέλεις σίγουρα να αναβάλεις την ανάθεση για το θέμα:
+        <div class="mt-2"><strong id="confirm-unassign-title"></strong></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary"
+            data-bs-dismiss="modal">Κλείσιμο</button>
+        <button type="button" class="btn btn-danger"
+            id="confirm-unassign-btn">Αναβολή</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Committee / Invited Members Modal -->
+<div class="modal fade" id="committee-modal" tabindex="-1"
+    aria-labelledby="committeeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          Προσκεκλημένα Μέλη — <span id="committee-topic-title"></span>
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"
+            aria-label="Κλείσιμο"></button>
+      </div>
+      <div class="modal-body">
         <div class="table-responsive">
-          <table class="table table-hover align-middle">
+          <table class="table table-sm align-middle">
             <thead>
               <tr>
-                <th>Τίτλος</th>
+                <th>Διδάσκων</th>
                 <th>Κατάσταση</th>
-                <th>Φοιτητής</th>
-                <th class="text-center">Ενέργειες</th>
+                <th>Ημ/νία Πρόσκλησης</th>
+                <th>Ημ/νία Απάντησης</th>
               </tr>
             </thead>
-            <tbody id="my-topics-table-body">
-              <!-- Γεμίζει δυναμικά από assignments.js -->
+            <tbody id="committee-table-body">
             </tbody>
           </table>
         </div>
       </div>
-    </div>
-  </div>
-
-
-  <!-- Assign Student Modal -->
-  <div class="modal fade" id="assign-student-modal" tabindex="-1" aria-labelledby="assignStudentModalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="assignStudentModalLabel">Ανάθεση Θέματος σε Φοιτητή</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Κλείσιμο"></button>
-        </div>
-        <div class="modal-body">
-          <form id="assign-student-form">
-            <input type="hidden" id="assign-topic-id">
-            <p class="mb-2"><strong>Θέμα:</strong> <span id="assign-topic-title"></span></p>
-
-            <div class="mb-2">
-              <label for="studentSearch" class="form-label">Αναζήτηση Φοιτητή (Α.Μ. ή Ονοματεπώνυμο)</label>
-              <input type="text" class="form-control" id="studentSearch" name="studentIdentifier" required
-                placeholder="Πληκτρολόγησε Α.Μ. ή Ονοματεπώνυμο...">
-
-            </div>
-
-            <div class="modal-footer px-0">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Ακύρωση</button>
-              <button type="submit" class="btn btn-primary">Ολοκλήρωση Ανάθεσης</button>
-            </div>
-          </form>
-        </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary"
+            data-bs-dismiss="modal">Κλείσιμο</button>
       </div>
     </div>
   </div>
-
-  <!-- Confirm Postpone Modal -->
-  <div class="modal fade" id="confirm-unassign-modal" tabindex="-1" aria-labelledby="confirmUnassignModalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="confirmUnassignModalLabel">Αναβολή Ανάθεσης</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Κλείσιμο"></button>
-        </div>
-        <div class="modal-body">
-          Θέλεις σίγουρα να αναβάλεις την ανάθεση για το θέμα:
-          <div class="mt-2"><strong id="confirm-unassign-title"></strong></div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Κλείσιμο</button>
-          <button type="button" class="btn btn-danger" id="confirm-unassign-btn">Αναβολή</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Committee / Invited Members Modal -->
-  <div class="modal fade" id="committee-modal" tabindex="-1" aria-labelledby="committeeModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">
-            Προσκεκλημένα Μέλη — <span id="committee-topic-title"></span>
-          </h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Κλείσιμο"></button>
-        </div>
-        <div class="modal-body">
-          <div class="table-responsive">
-            <table class="table table-sm align-middle">
-              <thead>
-                <tr>
-                  <th>Διδάσκων</th>
-                  <th>Κατάσταση</th>
-                  <th>Ημ/νία Πρόσκλησης</th>
-                  <th>Ημ/νία Απάντησης</th>
-                </tr>
-              </thead>
-              <tbody id="committee-table-body">
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Κλείσιμο</button>
-        </div>
-      </div>
-    </div>
-  </div>
+</div>
 
 
-  <!-- Η λογική της σελίδας -->
-  <script src="/js/pages/professor/assignments.js"></script>
+<!-- Η λογική της σελίδας -->
+<script src="/js/pages/professor/assignments.js"></script>

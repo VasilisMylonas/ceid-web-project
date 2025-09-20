@@ -30,6 +30,8 @@ class Name {
         return "Ακυρωμένη";
       case "under_assignment":
         return "Υπό Ανάθεση";
+      default:
+        return status;
     }
   }
 
@@ -47,11 +49,9 @@ class Name {
       case "pending":
         return "Εκκρεμεί";
       case "accepted":
-        return "Αποδεκτή";
-      case "rejected":
-        return "Απορριφθείσα";
-      case "cancelled":
-        return "Ακυρωθείσα";
+        return "Αποδέχθηκε";
+      case "declined":
+        return "Απέρριψε";
     }
   }
 }
@@ -83,6 +83,19 @@ function getThesisStatusBootstrapBgClass(status) {
       return "bg-warning";
     case "under_assignment":
       return "bg-info";
+    default:
+      return "bg-secondary";
+  }
+}
+
+function getInviteResponseBootstrapBgClass(status) {
+  switch (status) {
+    case "accepted":
+      return "bg-success";
+    case "declined":
+      return "bg-danger";
+    case "pending":
+      return "bg-warning";
   }
 }
 

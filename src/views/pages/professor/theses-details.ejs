@@ -1,0 +1,43 @@
+<div class="container-fluid">
+  <!-- Placeholder; thesis id can also come from URL params -->
+  <div id="thesis-root" data-thesis-id="1"></div>
+
+  <h1 id="thesis-title" class="h2 mb-4">—</h1>
+
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <!-- Basic Info Card -->
+      <div class="card mb-4">
+        <div class="card-header"><h5 class="mb-0">Βασικές Πληροφορίες</h5></div>
+        <div class="card-body">
+          <p><strong>Φοιτητής:</strong> <span id="student-name">—</span></p>
+          <p>
+            <strong>Κατάσταση:</strong>
+            <span id="status-badge" class="badge bg-secondary">—</span>
+          </p>
+          <p><strong>Τριμελής Επιτροπή:</strong></p>
+          <ul id="committee-list"></ul>
+        </div>
+      </div>
+
+      <!-- Management Actions Card (rendered entirely via JS) -->
+      <div class="card mb-4">
+        <div class="card-header"><h5 class="mb-0">Διαχείριση Διπλωματικής</h5></div>
+        <div id="actions-container" class="card-body">
+          <!-- JS renders content here -->
+          <div class="text-muted">Φορτώνει ενέργειες…</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <!-- Timeline Card -->
+      <div class="card">
+        <div class="card-header"><h5 class="mb-0">Χρονολόγιο</h5></div>
+        <ul id="timeline-list" class="list-group list-group-flush"></ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/js/pages/professor/theses-details.js"></script>

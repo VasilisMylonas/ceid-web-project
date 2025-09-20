@@ -295,7 +295,7 @@ async function unassignTopic(thesisId) {
 async function getMyAssignedTopic() {
   return await request(
     "GET",
-    `${BASE_URL}/v1/my/theses?status=under_assignment`
+    `${BASE_URL}/v1/my/theses?status=under_assignment&role=supervisor`
   );
 }
 
@@ -310,6 +310,66 @@ async function getUnassignedStudents() {
 //async function getThesisDetails(thesisId) {
 //  return await request("GET", `${BASE_URL}/v1/theses/${thesisId}`);
 //}
+
+//thesis details  
+
+async function getThesisTimeline(thesisId) {
+  return await request("GET", `${BASE_URL}/v1/theses/${thesisId}/timeline`);
+}
+
+//completed
+//getThesisDetails numertes link + final grade 
+
+
+
+//active
+async function postThesisNote(thesisId, content) {
+  return await request("POST", `${BASE_URL}/v1/theses/${thesisId}/notes`,{content});
+}
+
+async function getThesisNotes(thesisId) {
+  return await request("GET", `${BASE_URL}/v1/theses/${thesisId}/notes`);
+}
+
+async function cancelThesis(thesisId,assemblyNumber,cancellationReason) {
+  return await request("POST", `${BASE_URL}/v1/theses/${thesisId}/cancel`,{assemblyNumber,cancellationReason});
+}
+
+
+async function examineThesis(thesisId){
+  return await request("POST", `${BASE_URL}/v1/theses/${thesisId}/examine`);
+}
+
+//under examination
+
+// async function getThesisDraft(thesisId) {
+//   const response = await fetch(`${BASE_URL}/v1/theses/${thesisId}/draft`);
+//   if (!response.ok) {
+//     throw new Error(`Failed to download file: ${response.statusText}`);
+//   }
+//   return await response.blob();
+// }
+
+async function enableGrading(thesisId,grading) {
+  return await request("PUT", `${BASE_URL}/v1/theses/${thesisId}/grading`,{grading});
+}
+
+async function putGrade(thesisId,objectives,duration,deliverableQuality,presentationQuality) {
+  return await request("PUT", `${BASE_URL}/v1/theses/${thesisId}/grade`,{objectives,duration,deliverableQuality,presentationQuality});
+}
+
+async function getGrades(thesisId) {
+  return await request("GET", `${BASE_URL}/v1/theses/${thesisId}/grades`);
+}
+
+async function getAnnouncement(thesisId){
+  return await request("GET", `${BASE_URL}/v1/theses/${thesisId}//announcement`);
+}
+
+async function announceThesis(thesisId,content){
+  return await request("POST", `${BASE_URL}/v1/theses/${thesisId}/announce`,{content});
+}
+
 
 //invitations
 async function getMyInvitations() {

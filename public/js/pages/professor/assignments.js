@@ -1,40 +1,24 @@
-// /js/pages/professor/assignments.js (ultra simplified)
-// Requires Bootstrap 5 and API helpers
-
 (() => {
-  // ---------- DOM refs ----------
   const $tbody = document.querySelector("#my-topics-table-body");
 
-  // Assign modal
   const assignModal = new bootstrap.Modal(document.querySelector("#assign-student-modal"));
   const $assignForm = document.querySelector("#assign-student-form");
   const $assignTopicId = document.querySelector("#assign-topic-id");
   const $assignTopicTitle = document.querySelector("#assign-topic-title");
   const $studentSearch = document.querySelector("#studentSearch");
 
-  // Unassign modal
   const confirmUnassignModal = new bootstrap.Modal(document.querySelector("#confirm-unassign-modal"));
   const $confirmUnassignTitle = document.querySelector("#confirm-unassign-title");
   const $confirmUnassignBtn = document.querySelector("#confirm-unassign-btn");
 
-  // Committee modal
   const committeeModal = new bootstrap.Modal(document.querySelector("#committee-modal"));
   const $committeeTopicTitle = document.querySelector("#committee-topic-title");
   const $committeeTableBody = document.querySelector("#committee-table-body");
 
-  // ---------- State ----------
   let selectedStudent = null;
   let currentThesisForUnassign = null;
   let $studentResultsList = null;
 
-  // ---------- Helpers ----------
-  function badge(text, theme = "secondary") {
-    const b = document.createElement("span");
-    b.className = `badge text-bg-${theme}`;
-    b.textContent = text;
-    return b;
-  }
-  // ---------- Table ----------
   async function loadTable() {
     $tbody.innerHTML = "";
 
@@ -50,7 +34,8 @@
             <div class="fw-semibold">${t.title}</div>
             <div class="small text-muted">${t.summary ?? ""}</div>
           </td>
-          <td>${badge("Μη ανατεθειμένο", "secondary").outerHTML}</td>
+           <td><span class="badge ${getThesisStatusBootstrapBgClass("Προς Ανάθεση")}">
+           ${Name.ofThesisStatus("Προς Ανάθεση")}</span></td>
           <td>—</td>
           <td class="text-center">
             <button class="btn btn-sm btn-primary"><i class="bi bi-person-check me-1"></i> Ανάθεση</button>
@@ -66,13 +51,14 @@
             <div class="fw-semibold">${th.topic}</div>
             <div class="small text-muted">ID #${th.topicId}</div>
           </td>
-          <td>${badge("Προσωρινή ανάθεση", "warning").outerHTML}</td>
+           <td><span class="badge ${getThesisStatusBootstrapBgClass(th.status)}">
+           ${Name.ofThesisStatus(th.status)}</span></td>
           <td>
             <div class="fw-semibold">${th.student}</div>
             <div class="small text-muted">ID Φοιτητή: ${th.studentId}</div>
           </td>
           <td class="text-center">
-            <button class="btn btn-sm btn-outline-secondary me-2"><i class="bi bi-people me-1"></i> Προσκεκλημένα</button>
+            <button class="btn btn-sm btn-outline-secondary me-2"><i class="bi bi-people me-1"></i> Προσκλήσεις</button>
             <button class="btn btn-sm btn-danger"><i class="bi bi-arrow-counterclockwise me-1"></i> Αναβολή</button>
           </td>`;
         const [committeeBtn, unassignBtn] = tr.querySelectorAll("button");
@@ -91,7 +77,6 @@
     }
   }
 
-  // ---------- Assign ----------
   function ensureStudentResultsList() {
     if ($studentResultsList && document.body.contains($studentResultsList)) return $studentResultsList;
     $studentResultsList = document.createElement("div");
@@ -176,7 +161,6 @@
     }
   });
 
-  // ---------- Unassign ----------
   function openUnassignModal(thesis) {
     currentThesisForUnassign = thesis;
     $confirmUnassignTitle.textContent = thesis.topic;
@@ -203,7 +187,6 @@
     }
   });
 
-  // ---------- Committee ----------
   async function openCommitteeModal(thesis) {
     $committeeTopicTitle.textContent = thesis.topic;
     $committeeTableBody.innerHTML = "";
@@ -222,12 +205,9 @@
       invitations.forEach(inv => {
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td>#${inv.professorName}</td>
-          <td>${
-            inv.response === "accepted" ? badge("Αποδέχθηκε", "success").outerHTML :
-            inv.response === "declined" ? badge("Απέρριψε", "danger").outerHTML :
-            badge("Εκκρεμεί", "secondary").outerHTML
-          }</td>
+          <td>${inv.professorName}</td>
+           <td><span class="badge ${getInviteResponseBootstrapBgClass(inv.response)}">
+           ${Name.ofInvitationResponse(inv.response)}</span></td>
           <td>${fmtDateTime(inv.createdAt)}</td>
           <td>${fmtDateTime(inv.responseDate)}</td>`;
         $committeeTableBody.append(tr);

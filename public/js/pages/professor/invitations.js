@@ -25,8 +25,8 @@
   async function fetchThesis(thesisId) {
     try {
       const res = await getThesisDetails(thesisId);
-      const payload = res?.success ? res.data : res?.data ?? null;
-      return (payload && payload.data) ? payload.data : payload;
+      const thesis = res?.data;
+      return thesis;
     } catch (err) {
       console.error(err);
       return null;
@@ -102,8 +102,7 @@
     $list.innerHTML = "";
     try {
       const res = await getMyInvitations();
-      const payload = res?.success ? res.data : res?.data ?? [];
-      const pending = Array.isArray(payload?.data) ? payload.data : payload;
+      const pending = res?.data;
 
       if (!pending.length) {
         $empty.hidden = false;

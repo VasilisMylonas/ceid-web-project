@@ -148,16 +148,15 @@ function renderThesesCards(div, theses) {
             </li>
           </ul>
           <div class="mt-auto d-flex gap-2 justify-content-end">
-            <button class="btn btn-sm btn-primary"
-                data-thesis-id="${thesis.id}"
-                data-bs-toggle="modal"
-                data-bs-target="#thesisDetailsModal">
+            <button class="btn btn-sm btn-primary details-btn" data-thesis-id="${thesis.id}">
               <i class="bi bi-eye-fill me-1" aria-hidden="true"></i>Λεπτομέρειες
+            </button>
           </div>
         </div>
       </article>
     `;
     div.appendChild(card);
+    card.querySelector(".details-btn").addEventListener("click", onDetailsButtonClick);
   });
 }
 

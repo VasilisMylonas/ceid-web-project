@@ -20,10 +20,6 @@
   const createModal = window.bootstrap?.Modal.getOrCreateInstance($createModalEl);
   const detailsModal = window.bootstrap?.Modal.getOrCreateInstance($detailsModalEl);
 
-  function badge(content, cls = "bg-secondary") {
-    return `<span class="badge ${cls}">${content}</span>`;
-  }
-
   function setDetailsReadOnly(isReadOnly) {
     $modalTitle.readOnly = isReadOnly;
     $modalDescription.readOnly = isReadOnly;
@@ -39,7 +35,8 @@
           <div class="fw-semibold">${topic.title}</div>
           <div class="text-muted small">${topic.summary || ""}</div>
         </td>
-        <td>${badge("Προς ανάθεση", "bg-info")}</td>
+           <td><span class="badge ${getThesisStatusBootstrapBgClass("Προς Ανάθεση")}">
+           ${Name.ofThesisStatus("Προς Ανάθεση")}</span></td>
         <td class="text-center">
           <div class="btn-group" role="group" aria-label="Ενέργειες">
             <button class="btn btn-sm btn-outline-primary" data-action="view">
@@ -89,9 +86,9 @@
     }
 
     try {
-      const createRes = await createTopic(title, summary);
-      const created = createRes?.data || createRes; // tolerate wrappers
-      const topicId = created?.id || createRes?.id;
+      const res = await createTopic(title, summary);
+      const topic = res?.data ;
+      const topicId = topic?.id;
 
       if (file && topicId) {
         const fd = new FormData();

@@ -311,9 +311,9 @@ async function populateExaminationState(thesis) {
   }
 
   try {
-    const presentationsResponse = await getThesisPresentations(thesis.id);
-    if (presentationsResponse?.data?.length > 0) {
-      const lastPresentation = presentationsResponse.data.at(-1);
+    const presentationsResponse = await getThesisPresentation(thesis.id);
+    if (presentationsResponse?.data) {
+      const lastPresentation = presentationsResponse.data;
       const presentationDate = new Date(lastPresentation.date);
       document.getElementById("examDate").value = presentationDate.toISOString().split("T")[0];
       const hours = String(presentationDate.getUTCHours()).padStart(2, "0");

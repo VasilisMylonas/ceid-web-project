@@ -209,7 +209,6 @@ pages.get("/student/:page", requirePageAuth, async (req, res) => {
   });
 });
 
-
 pages.get("/professor/:page", requirePageAuth, async (req, res) => {
   if (req.user.role !== UserRole.PROFESSOR) {
     return res.redirect("/");
@@ -217,19 +216,24 @@ pages.get("/professor/:page", requirePageAuth, async (req, res) => {
 
   const professorLinks = [
     {
-      href: "/professor/topics-manage",
+      href: "/professor/home",
       icon: "bi-house-door",
       title: "Αρχική",
     },
     {
+      href: "/professor/topics-manage",
+      icon: "bi-book",
+      title: "Θέματα",
+    },
+    {
       href: "/professor/assignments",
       icon: "bi-journal-plus",
-      title: "Θέματα & Ανάθεση",
+      title: "Ανάθεση Θεμάτων",
     },
     {
       href: "/professor/theses-list",
       icon: "bi-collection",
-      title: "Οι Διπλωματικές μου",
+      title: "Διπλωματικές",
     },
     {
       href: "/professor/invitations",

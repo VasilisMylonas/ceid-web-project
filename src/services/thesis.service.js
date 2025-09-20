@@ -1,9 +1,13 @@
 import db from "../models/index.js";
 import { ConflictError, NotFoundError, SecurityError } from "../errors.js";
-import { ThesisGradingStatus, ThesisStatus } from "../constants.js";
+import {
+  PresentationKind,
+  ThesisGradingStatus,
+  ThesisStatus,
+  UserRole,
+  ThesisRole,
+} from "../constants.js";
 import { getFilePath } from "../config/file-storage.js";
-import { UserRole } from "../constants.js";
-import { ThesisRole } from "../constants.js";
 import { Sequelize } from "sequelize";
 
 export default class ThesisService {
@@ -679,6 +683,7 @@ ${offset ? `OFFSET ${offset}` : ""}
     }
   }
 
+  // This gets the announcement TEXT, it doesn't create a new announcement
   static async getAnnouncement(id, user) {
     const thesis = await ThesisService._assertUserHasThesisRoles(id, user, [
       ThesisRole.SUPERVISOR,
@@ -688,25 +693,48 @@ ${offset ? `OFFSET ${offset}` : ""}
       throw new ConflictError("Thesis is not under examination.");
     }
 
-    const announcement = await thesis.getAnnouncement();
-    if (!announcement) {
-      throw new NotFoundError("No announcement found.");
+    const presentation = await thesis.getPresentation();
+    if (!presentation) {
+      throw new ConflictError(
+        "Thesis must have a presentation before generating the announcement."
+      );
     }
 
-    // TODO
     const topic = await thesis.getTopic();
     const student = await thesis.getStudent({ include: db.User });
-
     const supervisor = user.name;
 
-    const announcementText = `
-    Ανακοινώνεται η παρουσίαση της διπλωματικής εργασίας με τίτλο "${topic.title}".
-    Φοιτητής: ${student.User.name}
-    Επιβλέπων: ${supervisor}
-    ${announcement.content}
-    `;
+    let announcementText;
 
-    return { ...announcement.toJSON(), text: announcementText.trim() };
+    if (presentation.kind === PresentationKind.ONLINE) {
+      announcementText = `
+      Ανακοινώνεται η παρουσίαση της διπλωματικής εργασίας του/της φοιτητή/τριας ${
+        student.User.name
+      } με θέμα "${topic.title}".
+      Η παρουσίαση θα γίνει διαδικτυακά στον σύνδεσμο: ${
+        presentation.link
+      } στις ${presentation.date.toLocaleString("el-GR", {
+        dateStyle: "full",
+        timeStyle: "short",
+      })}.
+       Επιβλέπων: ${supervisor}
+      `;
+    } else {
+      announcementText = `
+      Ανακοινώνεται η παρουσίαση της διπλωματικής εργασίας του/της φοιτητή/τριας ${
+        student.User.name
+      } με θέμα "${topic.title}".
+      Η παρουσίαση θα γίνει στην αίθουσα: ${
+        presentation.hall
+      } στις ${presentation.date.toLocaleString("el-GR", {
+        dateStyle: "full",
+        timeStyle: "short",
+      })}. ${presentation.link ? `Σύνδεσμος: ${presentation.link}` : ""}
+      Επιβλέπων: ${supervisor}
+      `;
+    }
+
+    return { content: announcementText };
   }
 
   static async createInvitation(id, user, professorId) {

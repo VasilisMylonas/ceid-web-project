@@ -251,6 +251,7 @@ pages.get("/professor/:page", requirePageAuth, async (req, res) => {
     title: professorLinks.find((link) => link.href === req.path)?.title,
     links: professorLinks,
     layout: "layouts/basic",
+    user: req.user,
   });
 });
 

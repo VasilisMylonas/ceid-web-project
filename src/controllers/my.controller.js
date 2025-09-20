@@ -63,8 +63,6 @@ export default class MyController {
     WHERE prof.id = :professorId AND theses.status = 'completed';
     `;
 
-    // TODO: test this
-
     const [results] = await db.sequelize.query(rawQuery, {
       replacements: { professorId: professor.id },
     });

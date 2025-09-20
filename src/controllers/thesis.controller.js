@@ -176,7 +176,6 @@ export default class ThesisController {
   }
 
   static async putPresentation(req, res) {
-    // TODO: check if not exist
     const presentation = await ThesisService.setPresentation(
       req.params.id,
       req.user,

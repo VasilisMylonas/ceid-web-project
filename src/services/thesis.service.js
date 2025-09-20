@@ -126,13 +126,7 @@ export default class ThesisService {
   }
 
   static async getExtra(id, user) {
-    // TODO: allow everyone to see theses
-    // await ThesisService._assertUserHasThesisRoles(
-    //   id,
-    //   user,
-    //   [ThesisRole.SUPERVISOR, ThesisRole.STUDENT, ThesisRole.COMMITTEE_MEMBER],
-    //   true // Allow Secretary
-    // );
+    // WONTFIX: allow everyone to see theses
 
     const rawQuery = `
   SELECT

@@ -137,8 +137,4 @@ router.post(
   ThesisController.announce
 );
 
-// TODO: resources, notes
-// Also check middleware here and in resources/notes routes
-// Who should be able to post/put/delete resources/notes?
-
 export default router;

@@ -61,6 +61,17 @@ document.addEventListener("DOMContentLoaded", async () => {
   const form = document.getElementById("profile-form");
   if (!form) return;
 
+  // Add these helper functions at the top or before the event listener
+  function isValidEmail(email) {
+    // Simple email regex
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  }
+
+  function isValidPhone(phone) {
+    // Accepts 10-digit Greek numbers, allows spaces/dashes
+    return /^(\+30)?\s?\d{10}$/.test(phone.replace(/[\s\-]/g, ""));
+  }
+
   form.addEventListener("click", async (e) => {
     const button = e.target.closest(".edit-btn");
     if (!button) return;
@@ -72,6 +83,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     const isReadOnly = input.hasAttribute("readonly");
 
     if (isReadOnly) {
+      // Save the old value before editing
+      input.dataset.oldValue = input.value;
       // Switch to edit mode
       input.removeAttribute("readonly");
       input.focus();
@@ -81,21 +94,46 @@ document.addEventListener("DOMContentLoaded", async () => {
       button.classList.remove("btn-outline-secondary");
       button.classList.add("btn-success");
     } else {
-      // Switch to save mode
-      input.setAttribute("readonly", true);
+      // Validate before sending
+      const fieldName = targetInputId;
+      const value = input.value.trim();
 
+      if (fieldName === "email" && value && !isValidEmail(value)) {
+        alert("Παρακαλώ εισάγετε έγκυρο email.");
+        // Restore previous value and exit edit mode
+        input.value = input.dataset.oldValue || "";
+        input.setAttribute("readonly", true);
+        button.innerHTML = '<i class="bi bi-pencil"></i>';
+        button.classList.remove("btn-success");
+        button.classList.add("btn-outline-secondary");
+        return;
+      }
+      if (
+        (fieldName === "phone" || fieldName === "landlinePhone") &&
+        value &&
+        !isValidPhone(value)
+      ) {
+        alert("Παρακαλώ εισάγετε έγκυρο αριθμό τηλεφώνου (10 ψηφία).");
+        // Restore previous value and exit edit mode
+        input.value = input.dataset.oldValue || "";
+        input.setAttribute("readonly", true);
+        button.innerHTML = '<i class="bi bi-pencil"></i>';
+        button.classList.remove("btn-success");
+        button.classList.add("btn-outline-secondary");
+        return;
+      }
+
+      // If valid, switch to read-only and edit mode
+      input.setAttribute("readonly", true);
       button.innerHTML = '<i class="bi bi-pencil"></i>';
       button.classList.remove("btn-success");
       button.classList.add("btn-outline-secondary");
 
-      // Send the data to the server
-      const fieldName = targetInputId;
-
-      const body = { [fieldName]: input.value };
+      const body = { [fieldName]: value };
 
       try {
         await updateProfile(body);
-        console.log(`Saved ${targetInputId}: ${input.value}`);
+        console.log(`Saved ${targetInputId}: ${value}`);
       } catch (error) {
         console.error(`Error saving ${targetInputId}:`, error);
       }

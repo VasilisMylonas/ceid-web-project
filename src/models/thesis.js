@@ -13,6 +13,7 @@ export default (sequelize) => {
       Thesis.hasMany(models.CommitteeMember, { foreignKey: "thesisId" });
       Thesis.hasMany(models.Invitation, { foreignKey: "thesisId" });
       Thesis.hasMany(models.ThesisChange, { foreignKey: "thesisId" });
+      Thesis.hasOne(models.Announcement, { foreignKey: "thesisId" });
     }
   }
 
@@ -67,6 +68,11 @@ export default (sequelize) => {
         type: DataTypes.ENUM(...Object.values(ThesisStatus)),
         allowNull: false,
         defaultValue: ThesisStatus.UNDER_ASSIGNMENT,
+      },
+      isAnnounced: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
       },
       grading: {
         type: DataTypes.ENUM(...Object.values(ThesisGradingStatus)),

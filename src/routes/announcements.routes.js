@@ -37,41 +37,9 @@ router.get("/feed", validate(announcementsValidators.get), async (req, res) => {
     }
   }
 
-  // TODO: announcement text
-  const presentations = await db.Presentation.findAll({
+  const presentations = await db.Announcement.findAll({
     where,
-    attributes: [
-      [Sequelize.col("Thesis.Topic.title"), "title"],
-      "date",
-      "kind",
-      "hall",
-      "link",
-      [Sequelize.col("Thesis.Student.User.name"), "studentName"],
-      [Sequelize.col("Thesis.Student.am"), "studentAm"],
-    ],
-    include: [
-      {
-        model: db.Thesis,
-        attributes: [],
-        include: [
-          {
-            model: db.Topic,
-            attributes: [],
-          },
-          {
-            model: db.Student,
-            attributes: [],
-            include: [
-              {
-                model: db.User,
-                attributes: [],
-              },
-            ],
-          },
-        ],
-      },
-    ],
-    order: [["date", "ASC"]],
+    order: [["createdAt", "ASC"]],
   });
 
   if (format === AnnouncementFeedFormat.XML) {

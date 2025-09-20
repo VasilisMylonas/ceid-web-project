@@ -76,7 +76,7 @@ export default {
       id: Joi.number().integer().min(1).required(),
     }).unknown(false),
     body: Joi.object({
-      content: Joi.string().min(1).max(300).required(),
+      content: Joi.string().min(1).required(),
     }).unknown(false),
   },
   getInvitations: {

@@ -141,6 +141,7 @@ theses.status AS "status",
 theses.start_date AS "startDate",
 theses.grade AS "grade",
 theses.nemertes_link AS "nemertesLink",
+theses.is_announced AS "isAnnounced",
 topics.id AS "topicId",
 topics.title AS "topic",
 student_users.name AS "student",
@@ -302,6 +303,10 @@ ${offset ? `OFFSET ${offset}` : ""}
 
     if (thesis.status !== ThesisStatus.UNDER_EXAMINATION) {
       throw new ConflictError("Thesis is not under examination.");
+    }
+
+    if (!thesis.isAnnounced) {
+      throw new ConflictError("Thesis is not announced.");
     }
 
     // TODO: maybe a presentation and a draft should exist before allowing this
@@ -628,7 +633,7 @@ ${offset ? `OFFSET ${offset}` : ""}
     });
   }
 
-  static async announce(id, user) {
+  static async announce(id, user, content) {
     const thesis = await ThesisService._assertUserHasThesisRoles(id, user, [
       ThesisRole.SUPERVISOR,
     ]);
@@ -637,41 +642,55 @@ ${offset ? `OFFSET ${offset}` : ""}
       throw new ConflictError("Thesis is not under examination.");
     }
 
-    const presentations = await thesis.getPresentations();
-
-    if (presentations.length === 0) {
-      throw new ConflictError("Thesis has no presentations.");
+    if (thesis.isAnnounced) {
+      throw new ConflictError("Thesis is already announced.");
     }
 
-    // TODO: check if announcement already exists for this presentation?
+    // TODO: only if theses has presentation
 
-    const announcement = await presentations[0].createAnnouncement({
-      content: "ΑΝΑΚΟΙΝΩΣΗ",
-      // TODO
-    });
-
-    return announcement;
+    const transaction = await db.sequelize.transaction();
+    try {
+      await thesis.update({ isAnnounced: true }, { transaction });
+      const announcement = await thesis.createAnnouncement(
+        { content },
+        { transaction }
+      );
+      await transaction.commit();
+      return announcement;
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
+    }
   }
 
   static async getAnnouncement(id, user) {
     const thesis = await ThesisService._assertUserHasThesisRoles(id, user, [
       ThesisRole.SUPERVISOR,
-      ThesisRole.STUDENT,
-      ThesisRole.COMMITTEE_MEMBER,
     ]);
 
-    // TODO
-    const presentations = await thesis.getPresentations({
-      include: db.Announcement,
-      order: [["date", "ASC"]],
-    });
+    if (thesis.status !== ThesisStatus.UNDER_EXAMINATION) {
+      throw new ConflictError("Thesis is not under examination.");
+    }
 
-    if (presentations.length === 0) {
-      throw new NotFoundError("No presentations found for this thesis.");
+    const announcement = await thesis.getAnnouncement();
+    if (!announcement) {
+      throw new NotFoundError("No announcement found.");
     }
 
     // TODO
-    return "ANNOUNCEMENT TEXT";
+    const topic = await thesis.getTopic();
+    const student = await thesis.getStudent({ include: db.User });
+
+    const supervisor = user.name;
+
+    const announcementText = `
+    Ανακοινώνεται η παρουσίαση της διπλωματικής εργασίας με τίτλο "${topic.title}".
+    Φοιτητής: ${student.User.name}
+    Επιβλέπων: ${supervisor}
+    ${announcement.content}
+    `;
+
+    return { ...announcement.toJSON(), text: announcementText.trim() };
   }
 
   static async createInvitation(id, user, professorId) {

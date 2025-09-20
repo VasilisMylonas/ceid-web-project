@@ -3,9 +3,7 @@ import { DataTypes, Model } from "sequelize";
 export default (sequelize) => {
   class Announcement extends Model {
     static associate(models) {
-      Announcement.belongsTo(models.Presentation, {
-        foreignKey: "presentationId",
-      });
+      Announcement.belongsTo(models.Thesis, { foreignKey: "thesisId" });
     }
   }
 
@@ -16,12 +14,12 @@ export default (sequelize) => {
         primaryKey: true,
         autoIncrement: true,
       },
-      content: {
-        type: DataTypes.TEXT,
+      thesisId: {
+        type: DataTypes.INTEGER,
         allowNull: false,
       },
-      presentationId: {
-        type: DataTypes.INTEGER,
+      content: {
+        type: DataTypes.TEXT,
         allowNull: false,
       },
     },

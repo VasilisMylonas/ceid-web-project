@@ -29,9 +29,9 @@
 </div>
 
 <div id="thesis-actions-active" class="d-none">
-  <form id="thesis-approval-form">
-    <h5 class="mb-3">Καταχώρηση Απόφασης ΓΣ</h5>
 
+  <form id="thesis-approval-form" class="mb-4">
+    <h5 class="mb-3 text-success">Έγκριση Διπλωματικής</h5>
     <div class="mb-3">
       <label for="assembly-number-input" class="form-label">
         Αριθμός Γενικής Συνέλευσης (π.χ. 2023/1)
@@ -39,49 +39,45 @@
       <input type="text" class="form-control" id="assembly-number-input"
           name="assemblyNumber" required>
     </div>
-
     <div class="mb-3">
-      <div class="btn-group w-100" role="group" aria-label="Απόφαση">
-        <input type="radio" class="btn-check" name="decision"
-            id="accept-checkbox" value="accept" checked>
-        <label class="btn btn-outline-success" for="accept-checkbox">
-          <i class="bi bi-check-circle me-1" aria-hidden="true"></i>
-          Έγκριση
-        </label>
-
-        <input type="radio" class="btn-check" name="decision"
-            id="reject-checkbox" value="reject">
-        <label class="btn btn-outline-danger" for="reject-checkbox">
-          <i class="bi bi-x-circle me-1" aria-hidden="true"></i>
-          Απόρριψη
-        </label>
-      </div>
-    </div>
-
-    <div id="protocol-number-section" class="mb-4">
       <label for="protocol-number-input" class="form-label">
         Αριθμός Πρωτοκόλλου (ΑΠ)
       </label>
       <input type="text" class="form-control" id="protocol-number-input"
-          name="protocolNumber">
+          name="protocolNumber" required>
     </div>
-
-    <div id="reason-section" class="d-none mb-4">
-      <label for="reason-input" class="form-label">
-        Λόγος Απόρριψης
-      </label>
-      <textarea class="form-control" rows="2" id="reason-input" name="reason"
-          placeholder="Κατόπιν αίτησης Φοιτητή/τριας"></textarea>
-    </div>
-
     <div class="d-flex justify-content-end gap-2">
-      <button type="reset" class="btn btn-outline-secondary">
+      <button type="reset" class="btn btn-outline-secondary" name="resetButton">
         Επαναφορά
       </button>
-      <button type="submit" class="btn btn-primary">
-        Καταχώρηση Απόφασης
+      <button type="submit" class="btn btn-success" name="submitButton">
+        Έγκριση
       </button>
     </div>
   </form>
 
+  <form id="thesis-cancel-form" class="mb-4">
+    <h5 class="mb-3 text-danger">Aπόρριψη Διπλωματικής</h5>
+    <div class="mb-3">
+      <div class="mb-3">
+      <label for="cancel-assembly-number-input" class="form-label">
+        Αριθμός Γενικής Συνέλευσης (π.χ. 2023/1)
+      </label>
+      <input type="text" class="form-control" id="cancel-assembly-number-input"
+          name="assemblyNumber" required>
+    </div>
+      <label for="cancel-reason-input" class="form-label">
+        Λόγος Aπόρριψης
+      </label>
+      <textarea class="form-control" rows="2" id="cancel-reason-input" name="reason" required></textarea>
+    </div>
+    <div class="d-flex justify-content-end gap-2">
+      <button type="reset" class="btn btn-outline-secondary" name="resetButton">
+        Επαναφορά
+      </button>
+      <button type="submit" class="btn btn-danger" name="submitButton">
+        Aπόρριψη
+      </button>
+    </div>
+  </form>
 </div>

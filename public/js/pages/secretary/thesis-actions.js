@@ -1,26 +1,25 @@
-let thesisId;
+let thesisGlobal;
 
 async function onThesisApprovalFormSubmit(event) {
   event.preventDefault();
 
-  const assemblyNumber = event.target.assemblyNumber.value;
+  const assemblyNumber = event.target.elements.assemblyNumber.value;
+  const protocolNumber = event.target.elements.protocolNumber.value;
 
   try {
-    if (event.target.decision.value == "accept") {
-      const protocolNumber = event.target.protocolNumber.value;
-      if (protocolNumber == null || protocolNumber.trim() === "") {
-        alert("Παρακαλώ συμπληρώστε τον Αριθμό Πρωτοκόλλου (ΑΠ).");
-        return;
-      }
-      await approveThesis(thesisId, assemblyNumber, protocolNumber);
-    } else {
-      const reason = event.target.reason.value;
-      if (reason == null || reason.trim() === "") {
-        alert("Παρακαλώ συμπληρώστε τον λόγο απόρριψης.");
-        return;
-      }
-      await cancelThesis(thesisId, assemblyNumber, reason);
+    if (protocolNumber == null || protocolNumber.trim() === "") {
+      alert("Παρακαλώ συμπληρώστε τον Αριθμό Πρωτοκόλλου (ΑΠ).");
+      return;
     }
+    await approveThesis(thesisGlobal.id, assemblyNumber, protocolNumber);
+    // } else {
+    // const reason = event.target.reason.value;
+    // if (reason == null || reason.trim() === "") {
+    //   alert("Παρακαλώ συμπληρώστε τον λόγο απόρριψης.");
+    //   return;
+    // }
+    // await cancelThesis(thesisId, assemblyNumber, reason);
+    // }
     window.location.reload();
   } catch (error) {
     console.error(error);
@@ -31,73 +30,53 @@ async function onThesisApprovalFormSubmit(event) {
 async function onThesisApprovalFormReset(event) {
   event.preventDefault();
 
-  const rejectCheckbox = document.getElementById("reject-checkbox");
-  const acceptCheckbox = document.getElementById("accept-checkbox");
-  const assemblyNumberInput = document.getElementById("assembly-number-input");
-  const protocolNumberInput = document.getElementById("protocol-number-input");
-  const reasonInput = document.getElementById("reason-input");
+  if (thesisGlobal.protocolNumber !== null) {
+    event.target.elements.protocolNumber.value = thesisGlobal.protocolNumber;
+    event.target.elements.assemblyNumber.value = thesisGlobal.assemblyNumber;
 
-  protocolNumberInput.value = "";
-  reasonInput.value = "";
-
-  if (!acceptCheckbox.disabled) {
-    acceptCheckbox.checked = true;
-    rejectCheckbox.checked = false;
+    event.target.elements.protocolNumber.disabled = true;
+    event.target.elements.assemblyNumber.disabled = true;
+    event.target.elements.submitButton.disabled = true;
+    event.target.elements.resetButton.disabled = true;
   } else {
-    acceptCheckbox.checked = false;
-    rejectCheckbox.checked = true;
-  }
-
-  assemblyNumberInput.value = "";
-
-  const protocolNumberSection = document.getElementById(
-    "protocol-number-section"
-  );
-  const reasonSection = document.getElementById("reason-section");
-
-  protocolNumberSection.classList.remove("d-none");
-  reasonSection.classList.add("d-none");
-}
-
-async function onRejectCheckboxChange(event) {
-  const protocolNumberSection = document.getElementById(
-    "protocol-number-section"
-  );
-  const reasonSection = document.getElementById("reason-section");
-
-  if (event.target.checked) {
-    protocolNumberSection.classList.add("d-none");
-    reasonSection.classList.remove("d-none");
+    event.target.elements.protocolNumber.value = "";
+    event.target.elements.assemblyNumber.value = "";
   }
 }
 
-async function onAcceptCheckboxChange(event) {
-  const protocolNumberSection = document.getElementById(
-    "protocol-number-section"
-  );
-  const reasonSection = document.getElementById("reason-section");
-
-  if (event.target.checked) {
-    protocolNumberSection.classList.remove("d-none");
-    reasonSection.classList.add("d-none");
-  }
-}
-
-async function onCompleteThesisButtonClick(event) {
+async function onThesisCancelFormSubmit(event) {
   event.preventDefault();
 
+  const assemblyNumber = event.target.elements.assemblyNumber.value;
+  const reason = event.target.elements.reason.value;
+
   try {
-    await completeThesis(thesisId);
+      if (assemblyNumber == null || assemblyNumber.trim() === "") {
+      alert("Παρακαλώ συμπληρώστε τον αριθμό γενικής συνέλευσης.");
+      return;
+    }
+
+    if (reason == null || reason.trim() === "") {
+      alert("Παρακαλώ συμπληρώστε τον λόγο απόρριψης.");
+      return;
+    }
+    await cancelThesis(thesisGlobal.id, assemblyNumber, reason);
     window.location.reload();
   } catch (error) {
     console.error(error);
     alert("Παρουσιάστηκε σφάλμα. Παρακαλώ δοκιμάστε ξανά.");
-    return;
   }
 }
 
+async function onThesisCancelFormReset(event) {
+  event.preventDefault();
+
+  event.target.elements.reason.value = "";
+  event.target.elements.assemblyNumber.value = "";
+}
+
 function renderThesisActions(thesis) {
-  thesisId = thesis.id;
+  thesisGlobal = thesis;
 
   const thesisActionsActive = document.getElementById("thesis-actions-active");
   const thesisActionsNone = document.getElementById("thesis-actions-none");
@@ -122,6 +101,7 @@ function renderThesisActions(thesis) {
       thesisActionsUnderExam.classList.add("d-none");
   }
 
+  // Complete thesis actions
   const completeThesisButton = document.getElementById("complete-thesis-btn");
   const nemertesLink = document.getElementById("nemertes-link");
   const grade = document.getElementById("grade");
@@ -148,20 +128,15 @@ function renderThesisActions(thesis) {
     nemertesLink.href = "#";
   }
 
-  completeThesisButton.addEventListener("click", onCompleteThesisButtonClick);
-
   const thesisApprovalForm = document.getElementById("thesis-approval-form");
-  const rejectCheckbox = document.getElementById("reject-checkbox");
-  const acceptCheckbox = document.getElementById("accept-checkbox");
 
   thesisApprovalForm.addEventListener("submit", onThesisApprovalFormSubmit);
   thesisApprovalForm.addEventListener("reset", onThesisApprovalFormReset);
-  acceptCheckbox.addEventListener("change", onAcceptCheckboxChange);
-  rejectCheckbox.addEventListener("change", onRejectCheckboxChange);
 
-  if (thesis.protocolNumber != null) {
-    acceptCheckbox.disabled = true;
-  }
+  const thesisCancelForm = document.getElementById("thesis-cancel-form");
+  thesisCancelForm.addEventListener("submit", onThesisCancelFormSubmit);
+  thesisCancelForm.addEventListener("reset", onThesisCancelFormReset);
 
   thesisApprovalForm.reset();
+  thesisCancelForm.reset();
 }

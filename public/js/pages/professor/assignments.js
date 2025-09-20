@@ -23,8 +23,6 @@
     $tbody.innerHTML = "";
 
     try {
-      const topicRes = await getMyTopics();
-
       const [topicsRes, thesesRes] = await Promise.all([getMyTopics(), getMyAssignedTheses()]);
       const topics = topicsRes?.data;
       const theses = thesesRes?.data;

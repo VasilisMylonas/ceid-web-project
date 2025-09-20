@@ -14,12 +14,12 @@ import { faker } from "@faker-js/faker";
 // >= 10 students
 // >= 5 professors
 // >= 1 secretary
-const STUDENT_COUNT = 20;
+const STUDENT_COUNT = 30;
 const PROFESSOR_COUNT = 10;
 const SECRETARY_COUNT = 2;
-const TOPICS_PER_PROFESSOR_MAX = 8;
+const TOPICS_PER_PROFESSOR = 10;
 const INVITATIONS_PER_THESIS_MAX = 5;
-const STUDENT_NO_THESIS_PROB = 0.2;
+const STUDENT_NO_THESIS_PROB = 0.1;
 const THESIS_APPROVAL_PROB = 0.7;
 const THESIS_EXAMINATION_PROB = 0.5;
 const THESIS_PRESENTATION_PROB = 0.5;
@@ -87,10 +87,7 @@ async function seedTopics(professors) {
   const topics = [];
 
   for (const professor of professors) {
-    // [0, maxTopicsPerProfessor] random
-    const count = Math.floor(Math.random() * TOPICS_PER_PROFESSOR_MAX);
-
-    for (let i = 0; i < count; i++) {
+    for (let i = 0; i < TOPICS_PER_PROFESSOR; i++) {
       topics.push(
         TopicService.create(professor, {
           title: `Sample Topic ${topics.length}`,
@@ -113,7 +110,13 @@ async function seedTheses(students, freeTopics) {
     }
 
     // Assign a random topic
-    const topic = freeTopics[Math.floor(Math.random() * freeTopics.length)];
+    const topic =
+      freeTopics[
+        Math.min(
+          Math.floor(Math.random() * freeTopics.length),
+          freeTopics.length - 1
+        )
+      ];
     const professor = await topic.getProfessor();
 
     const thesis = await ThesisService.create(await professor.getUser(), {
@@ -171,22 +174,20 @@ async function seedInvitations(thesis, professors) {
       break; // Already have enough committee members
     }
 
-    if (rand < 0.6) {
-      // 60% chance of accepting
+    if (rand < 0.85) {
       acceptedCount++;
       await InvitationService.respond(
         invitation.id,
         professor,
         InvitationResponse.ACCEPTED
       );
-    } else if (rand < 0.9) {
-      // 30% chance of rejecting
+    } else if (rand < 0.95) {
       await InvitationService.respond(
         invitation.id,
         professor,
         InvitationResponse.DECLINED
       );
-    } // 10% chance of no response
+    }
   }
 
   await thesis.reload();

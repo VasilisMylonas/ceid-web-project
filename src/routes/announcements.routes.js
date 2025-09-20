@@ -1,6 +1,6 @@
 import express from "express";
 import db from "../models/index.js";
-import { Op, Sequelize } from "sequelize";
+import { Op } from "sequelize";
 import { AnnouncementFeedFormat } from "../constants.js";
 import js2xmlparser from "js2xmlparser";
 import Joi from "joi";

@@ -510,11 +510,33 @@ ${offset ? `OFFSET ${offset}` : ""}
     ]);
 
     const grades = await db.Grade.findAll({
+      attributes: [
+        "committeeMemberId",
+        "objectives",
+        "duration",
+        "deliverableQuality",
+        "presentationQuality",
+        "createdAt",
+        "updatedAt",
+        [Sequelize.col("Professor.User.name"), "professor"],
+      ],
       include: [
         {
           model: db.CommitteeMember,
           where: { thesisId: thesis.id },
           attributes: [],
+          include: [
+            {
+              model: db.Professor,
+              attributes: [],
+              include: [
+                {
+                  model: db.User,
+                  attributes: ["name"],
+                },
+              ],
+            },
+          ],
         },
       ],
     });

@@ -77,7 +77,7 @@ function onDetailsButtonClick(event) {
       const btnCancel = document.createElement("button");
       btnCancel.className = "btn btn-danger mt-2";
       btnCancel.textContent = "Ακύρωση Ανάθεσης";
-
+      
       if (!isSupervisor) {
         btnCancel.disabled = true;
         btnCancel.title = "Μόνο ο επιβλέπων μπορεί να ακυρώσει την ανάθεση.";
@@ -207,7 +207,7 @@ if (status === "active") {
     const btnCancelThesis = document.createElement("button");
     btnCancelThesis.className = "btn btn-outline-danger";
     btnCancelThesis.textContent = "Ακύρωση Διπλωματικής";
-    btnCancelThesis.disabled = true;
+    btnCancelThesis.disabled = true; 
 
     assemblyInput.addEventListener("input", () => {
       btnCancelThesis.disabled = !assemblyInput.value.trim();
@@ -250,17 +250,8 @@ if (status === "active") {
     const btnView = document.createElement("button");
     btnView.className = "btn btn-outline-secondary";
     btnView.textContent = "Προβολή Κειμένου Διπλωματικής";
-    btnView.addEventListener("click", async () => {
-        try {
-          const res = await fetch(`${BASE_URL}/v1/theses/${thesis.id}/draft`, { method: "HEAD" });
-          if (res.ok) {
-            window.open(`${BASE_URL}/v1/theses/${thesis.id}/draft`, "_blank");
-          } else {
-            alert("Δεν υπάρχει κείμενο διπλωματικής.");
-          }
-        } catch (err) {
-          alert("Σφάλμα κατά τον έλεγχο του αρχείου.");
-        }
+    btnView.addEventListener("click", () => {
+        window.open(`${BASE_URL}/v1/theses/${thesis.id}/draft`, "_blank");
     });
 
     const btnEnableGrading = document.createElement("button");
@@ -277,8 +268,8 @@ if (status === "active") {
 
         try {
             const res = await enableGrading(thesis.id, "enabled")
-            await loadDetails();
-
+            await loadDetails(); 
+            
         } catch (err) {
             console.error(err);
             alert("Για την ενεργοποιήση της βαθμολόγησης απαιτείται η καταχύρωση ανακοίνωσης.");
@@ -291,53 +282,67 @@ if (status === "active") {
     btnBar.append(btnView, btnEnableGrading);
     container.append(btnBar);
 
-    // --- Ανακοίνωση Παρουσίασης (ΜΟΝΟ για επιβλέποντα: ορατή & επεξεργάσιμη) ---
     if (isSupervisor) {
-        const h6Ann = document.createElement("h6");
-        h6Ann.textContent = "Ανακοίνωση Παρουσίασης";
+    const h6Ann = document.createElement("h6");
+    h6Ann.textContent = "Ανακοίνωση Παρουσίασης";
 
     const annWrap = document.createElement("div");
-        annWrap.className = "mb-3";
+    annWrap.className = "mb-3";
 
-        const annTextarea = document.createElement("textarea");
-        annTextarea.className = "form-control mb-2";
-        annTextarea.rows = 4;
-        annTextarea.placeholder = "Κείμενο ανακοίνωσης (ημερομηνία, χώρος, ώρα κ.λπ.)";
+    const annTextarea = document.createElement("textarea");
+    annTextarea.className = "form-control mb-2";
+    annTextarea.rows = 4;
+    annTextarea.placeholder = "Κείμενο ανακοίνωσης (ημερομηνία, χώρος, ώρα κ.λπ.)";
 
-        const btnSaveAnn = document.createElement("button");
-        btnSaveAnn.className = "btn btn-outline-info";
-        btnSaveAnn.textContent = "Αποθήκευση Ανακοίνωσης";
+    const btnSaveAnn = document.createElement("button");
+    btnSaveAnn.className = "btn btn-outline-info";
+    btnSaveAnn.textContent = "Αποθήκευση Ανακοίνωσης";
 
-    const announcementRes = await getAnnouncement(thesis.id);
-        annTextarea.value = announcementRes?.data?.content || "";
+    container.append(h6Ann, annWrap);
+    annWrap.append(annTextarea, btnSaveAnn);
+
+    (async () => {
+        try {
+        const announcementRes = await getAnnouncement(thesis.id);
+
+        if (announcementRes?.success) {
+            annTextarea.value = announcementRes?.data?.content || "";
+        } else if (announcementRes?.status && announcementRes.status !== 404) {
+            console.warn("Announcement load returned non-ok status:", announcementRes.status);
+        }
+        } catch (err) {
+        console.error("Failed to load announcement:", err);
+
+        }
+    })();
 
     btnSaveAnn.addEventListener("click", async () => {
-    const text = (annTextarea.value || "").trim();
-    const originalLabel = "Αποθήκευση Ανακοίνωσης";
+        const text = (annTextarea.value || "").trim();
+        const originalLabel = "Αποθήκευση Ανακοίνωσης";
 
-    btnSaveAnn.disabled = true;
-    btnSaveAnn.textContent = "Αποθήκευση...";
+        btnSaveAnn.disabled = true;
+        btnSaveAnn.textContent = "Αποθήκευση...";
 
-    try {
+        try {
         const res = await announceThesis(thesis.id, text);
-        alert("Η ανακοίνωση αποθηκεύτηκε.");
-        await loadDetails();
-
-    } catch (err) {
+            if (res?.success) {
+                alert("Η ανακοίνωση αποθηκεύτηκε.");
+                await loadDetails(); 
+                return;
+            }
+        } catch (err) {
+        console.error(err);
         alert("Η επιλογή αυτή είναι ενεργή μόνο εφόσον ο φοιτητής έχει συμπληρώσει τις σχετικές λεπτομέρειες της παρουσίασης");
+        }
+
+
         btnSaveAnn.disabled = false;
         btnSaveAnn.textContent = originalLabel;
-        return;
-    }
     });
-
-        container.append(h6Ann, annWrap);
-        annWrap.append(annTextarea, btnSaveAnn);
     }
-
+    
     if (thesis.grading === "disabled") return;
 
-    // --- Φόρμα βαθμολόγησης (όλοι μπορούν να υποβάλουν όταν είναι enabled) ---
     const hr = document.createElement("hr");
     const h6grade = document.createElement("h6");
     h6grade.textContent = "Βαθμολόγηση";
@@ -382,7 +387,7 @@ if (status === "active") {
     gradesTitle.textContent = "Βαθμολογίες Όλων των Καθηγητών";
 
     const gradesWrap = document.createElement("div");
-    const result = await getGrades(thesis.id);
+    const result = await getGrades(thesis.id); 
     const grades = result?.data || [];
 
     if (!grades.length) {
@@ -473,7 +478,6 @@ if (status === "active") {
       renderBasicInfo(thesis.data);
       renderTimeline(timelineResponse.data);
       renderActions(thesis.data);
-      setState(state);
     } catch (e) {
       console.error(e);
         resetToEmpty();

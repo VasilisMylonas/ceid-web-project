@@ -518,7 +518,7 @@ ${offset ? `OFFSET ${offset}` : ""}
         "presentationQuality",
         "createdAt",
         "updatedAt",
-        [Sequelize.col("Professor.User.name"), "professor"],
+        [Sequelize.col("CommitteeMember.Professor.User.name"), "professor"],
       ],
       include: [
         {

@@ -104,12 +104,12 @@ pages.get(
       }
     });
 
-    const presentations = await ThesisService.getPresentations(
+    const presentation = await ThesisService.getPresentation(
       req.query.thesisId,
       req.user
     );
 
-    const presentation = presentations.at(-1);
+  
     res.render("pages/praktiko", {
 
       studentName: data.student,

@@ -1,7 +1,6 @@
 import db from "../models/index.js";
 import {
   PresentationKind,
-  ThesisGradingStatus,
   InvitationResponse,
   UserRole,
   ThesisStatus,
@@ -12,10 +11,23 @@ import ThesisService from "../services/thesis.service.js";
 import InvitationService from "../services/invitation.service.js";
 import { faker } from "@faker-js/faker";
 
-async function seedUsers(studentCount, professorCount, secretaryCount) {
+// >= 10 students
+// >= 5 professors
+// >= 1 secretary
+const STUDENT_COUNT = 20;
+const PROFESSOR_COUNT = 10;
+const SECRETARY_COUNT = 2;
+const TOPICS_PER_PROFESSOR_MAX = 8;
+const INVITATIONS_PER_THESIS_MAX = 5;
+const STUDENT_NO_THESIS_PROB = 0.2;
+const THESIS_APPROVAL_PROB = 0.7;
+const THESIS_EXAMINATION_PROB = 0.5;
+const THESIS_PRESENTATION_PROB = 0.5;
+
+async function seedUsers() {
   let students = [];
 
-  for (let i = 0; i < studentCount; i++) {
+  for (let i = 0; i < STUDENT_COUNT; i++) {
     students.push(
       UserService.create({
         username: `student${i}`,
@@ -32,7 +44,7 @@ async function seedUsers(studentCount, professorCount, secretaryCount) {
 
   let professors = [];
 
-  for (let i = 0; i < professorCount; i++) {
+  for (let i = 0; i < PROFESSOR_COUNT; i++) {
     professors.push(
       UserService.create({
         username: `professor${i}`,
@@ -49,7 +61,7 @@ async function seedUsers(studentCount, professorCount, secretaryCount) {
 
   let secretaries = [];
 
-  for (let i = 0; i < secretaryCount; i++) {
+  for (let i = 0; i < SECRETARY_COUNT; i++) {
     secretaries.push(
       UserService.create({
         username: `secretary${i}`,
@@ -71,12 +83,12 @@ async function seedUsers(studentCount, professorCount, secretaryCount) {
   return { students, professors, secretaries };
 }
 
-async function seedTopics(professors, maxTopicsPerProfessor) {
+async function seedTopics(professors) {
   const topics = [];
 
   for (const professor of professors) {
     // [0, maxTopicsPerProfessor] random
-    const count = Math.floor(Math.random() * maxTopicsPerProfessor) + 1;
+    const count = Math.floor(Math.random() * TOPICS_PER_PROFESSOR_MAX);
 
     for (let i = 0; i < count; i++) {
       topics.push(
@@ -96,8 +108,7 @@ async function seedTheses(students, freeTopics) {
   const theses = [];
 
   for (const student of students) {
-    // Each student has a 25% chance of not having a thesis
-    if (Math.random() < 0.25) {
+    if (Math.random() < STUDENT_NO_THESIS_PROB) {
       continue;
     }
 
@@ -133,8 +144,9 @@ async function seedInvitations(thesis, professors) {
   // Get professors excluding the supervisor
   const freeProfessors = professors.filter((p) => p.id != supervisor.id);
 
-  // Send 2-4 invitations
-  const invitationCount = Math.floor(Math.random() * 3) + 2;
+  const invitationCount = Math.floor(
+    Math.random() * INVITATIONS_PER_THESIS_MAX
+  );
   const invitations = [];
 
   for (let i = 0; i < invitationCount && i < freeProfessors.length; i++) {
@@ -156,8 +168,7 @@ async function seedInvitations(thesis, professors) {
     const professor = await invitation.getProfessor().then((p) => p.getUser());
 
     if (acceptedCount >= 2) {
-      // Skip if already 2 accepted
-      break;
+      break; // Already have enough committee members
     }
 
     if (rand < 0.6) {
@@ -177,27 +188,17 @@ async function seedInvitations(thesis, professors) {
       );
     } // 10% chance of no response
   }
+
+  await thesis.reload();
 }
 
 export default async function seedDatabase() {
   // Initialize DB
   await db.sequelize.sync({ force: true });
 
-  // >= 10 students
-  // >= 5 professors
-  // >= 1 secretary
-  const STUDENT_COUNT = 20;
-  const PROFESSOR_COUNT = 10;
-  const SECRETARY_COUNT = 2;
-  const TOPICS_PER_PROFESSOR_MAX = 5;
+  const { students, professors, secretaries } = await seedUsers();
 
-  const { students, professors, secretaries } = await seedUsers(
-    STUDENT_COUNT,
-    PROFESSOR_COUNT,
-    SECRETARY_COUNT
-  );
-
-  const topics = await seedTopics(professors, TOPICS_PER_PROFESSOR_MAX);
+  const topics = await seedTopics(professors);
 
   const freeTopics = [...topics];
   const theses = await seedTheses(students, freeTopics);
@@ -207,55 +208,45 @@ export default async function seedDatabase() {
 
     const secretary = secretaries[0];
 
-    const invitations = await thesis.getInvitations({
-      where: { response: InvitationResponse.ACCEPTED },
-    });
+    if (
+      thesis.status === ThesisStatus.ACTIVE &&
+      Math.random() < THESIS_APPROVAL_PROB
+    ) {
+      await ThesisService.approve(thesis.id, secretary, {
+        assemblyNumber: `2023-${Math.floor(Math.random() * 100)}`,
+        protocolNumber: `${Math.floor(Math.random() * 10000)}`,
+      });
 
-    if (thesis.status === ThesisStatus.ACTIVE) {
-      // 80% chance of being approved if active
-      if (Math.random() < 0.8) {
-        await ThesisService.approve(thesis.id, secretary, {
-          assemblyNumber: `2023-${Math.floor(Math.random() * 100)}`,
-          protocolNumber: `${Math.floor(Math.random() * 10000)}`,
-        });
-      }
+      await thesis.reload();
 
-      // Randomly examine the thesis (75% chance)
-      if (Math.random() < 0.75) {
-        await ThesisService.examine(thesis.id, professors[0]);
+      const supervisor = await thesis
+        .getTopic()
+        .then((t) => t.getProfessor())
+        .then((p) => p.getUser());
+
+      const student = await thesis.getStudent().then((s) => s.getUser());
+
+      if (Math.random() < THESIS_EXAMINATION_PROB) {
+        await ThesisService.examine(thesis.id, supervisor);
+        await thesis.reload();
+
+        // TODO: 1 year?
+        if (Math.random() < THESIS_PRESENTATION_PROB) {
+          await ThesisService.createPresentation(thesis.id, student, {
+            date: faker.date.future({ years: 1 }),
+            hall: `Hall ${Math.floor(Math.random() * 5) + 1}`,
+            kind:
+              Math.random() < 0.5
+                ? PresentationKind.IN_PERSON
+                : PresentationKind.ONLINE,
+            link:
+              Math.random() < 0.5
+                ? "https://example.com/presentation-link"
+                : null,
+          });
+        }
       }
     }
-
-    // TODO
-    //   // Randomly create a presentation (50% chance)
-    //   if (Math.random() < 0.5) {
-    //     const presentation = await ThesisService.createPresentation(
-    //       thesis.id,
-    //       student,
-    //       {
-    //         date: faker.date.future({ years: 1 }),
-    //         hall: `Hall ${Math.floor(Math.random() * 5) + 1}`,
-    //         kind:
-    //           Math.random() < 0.5
-    //             ? PresentationKind.IN_PERSON
-    //             : PresentationKind.ONLINE,
-    //         link:
-    //           Math.random() < 0.5
-    //             ? "https://example.com/presentation-link"
-    //             : null,
-    //       }
-    //     );
-
-    //     // Randomly complete the thesis (75% chance)
-    //     if (Math.random() < 0.75) {
-    //       await ThesisService.complete(thesis.id, secretary, {
-    //         grade: Math.floor(Math.random() * 5) + 6, // Grade between 6 and 10
-    //         gradingStatus: ThesisGradingStatus.PASSED,
-    //         remarks: "Well done.",
-    //       });
-    //     }
-    //   }
-    // }
   }
 
   console.log("Seeding completed.");

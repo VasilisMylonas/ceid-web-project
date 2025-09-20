@@ -128,17 +128,7 @@ router.put(
 );
 
 // TODO: resources, presentations, resources
-// Also check middleware here and in presentations/resources routes
-// Who should be able to post/put/delete resources/presentations?
-
-// TODO: announcement
-// Bathmos, epi merous kritiria
-// router.get(
-//   "/:id/announcement",
-//   validate(thesisValidator.getAnnouncement),
-//   model(db.Thesis, "thesis"),
-//   requireThesisRole(ThesisRole.SUPERVISOR),
-//   ThesisController.getAnnouncement
-// );
+// Also check middleware here and in resources/notes routes
+// Who should be able to post/put/delete resources/notes?
 
 export default router;

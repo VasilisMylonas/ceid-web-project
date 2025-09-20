@@ -6,16 +6,24 @@ import { AnnouncementFeedFormat } from "../constants.js";
 const router = express.Router();
 // No auth middleware, this is a public endpoint
 
+const announcementsValidators = {};
+
 // Public endpoint for presentation announcements feed
-router.get("/feed", async (req, res) => {
+router.get("/", async (req, res) => {
   const { from, to, format } = req.query;
 
   const where = {};
 
+  // Date filtering
   if (from || to) {
     where.date = {};
-    if (from) where.date[Op.gte] = from;
-    if (to) where.date[Op.lte] = to;
+    if (from) {
+      where.date[Op.gte] = from;
+    }
+
+    if (to) {
+      where.date[Op.lte] = to;
+    }
   }
 
   const presentations = await db.Presentation.findAll({
@@ -23,7 +31,19 @@ router.get("/feed", async (req, res) => {
     include: [
       {
         model: db.Thesis,
-        attributes: ["id", "title"],
+        attributes: ["id"],
+        include: [
+          {
+            model: db.Student,
+            attributes: ["id", "am"],
+            include: [
+              {
+                model: db.User,
+                attributes: ["id", "name", "email"],
+              },
+            ],
+          },
+        ],
       },
     ],
     order: [["date", "ASC"]],
@@ -31,35 +51,33 @@ router.get("/feed", async (req, res) => {
 
   if (format === "xml") {
     res.set("Content-Type", "application/xml");
-    const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<feed>\n${presentations
-      .map(
-        (p) =>
-          `  <presentation>\n    <id>${p.id}</id>\n    <date>${format(
-            p.date,
-            "yyyy-MM-dd'T'HH:mm:ssXXX"
-          )}</date>\n    <kind>${p.kind}</kind>\n    <hall>${
-            p.hall || ""
-          }</hall>\n    <link>${p.link || ""}</link>\n    <thesis>\n      <id>${
-            p.Thesis?.id || ""
-          }</id>\n      <title>${
-            p.Thesis?.title || ""
-          }</title>\n    </thesis>\n  </presentation>`
-      )
-      .join("\n")}\n</feed>`;
+    const xml = [
+      '<?xml version="1.0" encoding="UTF-8"?>',
+      "<feed>",
+      ...presentations.map((p) => {
+        const thesis = p.Thesis || {};
+        return `
+<presentation>
+  <id>${p.id}</id>
+  <date>${p.date ? new Date(p.date).toISOString() : ""}</date>
+  <kind>${p.kind || ""}</kind>
+  <hall>${p.hall || ""}</hall>
+  <link>${p.link || ""}</link>
+  <thesis>
+    <id>${thesis.id || ""}</id>
+    <title>${thesis.title || ""}</title>
+  </thesis>
+</presentation>
+        `;
+      }),
+      "</feed>",
+    ].join("\n");
+
     return res.send(xml);
   }
 
   // Default: JSON
-  res.json(
-    presentations.map((p) => ({
-      id: p.id,
-      date: p.date,
-      kind: p.kind,
-      hall: p.hall,
-      link: p.link,
-      thesis: p.Thesis ? { id: p.Thesis.id, title: p.Thesis.title } : null,
-    }))
-  );
+  res.json(presentations);
 });
 
 export default router;

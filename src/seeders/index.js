@@ -86,39 +86,51 @@ export default async function seedDatabase() {
 
   const assignedStudents = students.slice(0, 4);
 
-  for (let i = 0; i < assignedStudents.length; i++) {
-    const thesis = await ThesisService.create(professors[0], {
-      topicId: topics[i].id,
-      studentId: assignedStudents[i].id,
-    });
-    theses.push(thesis);
+  const thesis = await ThesisService.create(professors[0], {
+    topicId: topics[0].id,
+    studentId: assignedStudents[0].id,
+  });
 
-    const inv1 = await ThesisService.createInvitation(
-      thesis.id,
-      assignedStudents[i],
-      (
-        await professors[i + 1].getProfessor()
-      ).id
-    );
+  const inv1 = await ThesisService.createInvitation(
+    thesis.id,
+    students[0],
+    (
+      await professors[1].getProfessor()
+    ).id
+  );
 
-    const inv2 = await ThesisService.createInvitation(
-      thesis.id,
-      assignedStudents[i],
-      (
-        await professors[i + 2].getProfessor()
-      ).id
-    );
-  }
+  const inv2 = await ThesisService.createInvitation(
+    thesis.id,
+    students[0],
+    (
+      await professors[2].getProfessor()
+    ).id
+  );
 
-  // await ThesisService.createPresentation(thesis.id, student, {
-  //   date: new Date("2025-09-18T12:00:00"),
-  //   hall: "Αίθουσα 1",
-  //   kind: PresentationKind.IN_PERSON,
-  // });
+  await InvitationService.respond(
+    inv1.id,
+    professors[1],
+    InvitationResponse.ACCEPTED
+  );
+
+  await InvitationService.respond(
+    inv2.id,
+    professors[2],
+    InvitationResponse.ACCEPTED
+  );
+
+  await ThesisService.approve(thesis.id, secretary, {
+    assemblyNumber: "2023-01",
+    protocolNumber: "12345",
+  });
+
+  await ThesisService.examine(thesis.id, professors[0]);
+
+  await ThesisService.createPresentation(thesis.id, students[0], {
+    date: new Date("2025-09-18T12:00:00"),
+    hall: "Αίθουσα 1",
+    kind: PresentationKind.IN_PERSON,
+  });
 
   // await ThesisService.complete(thesis.id, secretary);
-
-  // await seedTopics(400);
-  // await seedTheses(300);
-  // await seedCommitteeMembers();
 }

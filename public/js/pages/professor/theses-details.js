@@ -401,7 +401,7 @@ if (status === "active") {
         grades.forEach(g => {
         const tr = document.createElement("tr");
         tr.innerHTML = `
-            <td>${g.professorName || "—"}</td>
+            <td>${g.professor || "—"}</td>
             <td>${g.objectives ?? "—"}</td>
             <td>${g.duration ?? "—"}</td>
             <td>${g.deliverableQuality ?? "—"}</td>
@@ -429,7 +429,7 @@ if (status === "active") {
 
       const linkForm = document.createElement("a");
       linkForm.className = "btn btn-link";
-      linkForm.textContent = "Link Φόρμας Βαθμολόγησης";
+      linkForm.textContent = "Πρακτίκο Βαθμολόγησης";
       linkForm.href = `/praktiko?thesisId=${thesis.id}`;
 
       container.append(p, linkRepo, linkForm);

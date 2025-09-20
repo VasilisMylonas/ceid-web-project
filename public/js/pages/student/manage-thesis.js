@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const preliminaryStatuses = {
         pending: "Η αίτησή σας για τη διπλωματική εργασία εκκρεμεί για έγκριση από την γραμματεία.",
         rejected: "Η αίτησή σας για τη διπλωματική εργασία απορρίφθηκε. Παρακαλώ επικοινωνήστε με την γραμματεία για περισσότερες πληροφορίες.",
-        active: "Η διπλωματική σας εργασία έχει εγκριθεί και είναι σε κατάσταση ενεργή."      };
+        active: "Η διπλωματική σας εργασία είναι σε κατάσταση ενεργή."      };
 
       if (Object.keys(preliminaryStatuses).includes(currentThesis.status)) {
         container.innerHTML = `

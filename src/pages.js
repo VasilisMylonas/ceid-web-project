@@ -94,7 +94,7 @@ pages.get(
     const data = await ThesisService.getExtra(req.query.thesisId, req.user);
 
     // Not allowed to view if no grade
-    if (data.grade !== null) {
+    if (data.grade === null) {
       return res.redirect("/");
     }
 

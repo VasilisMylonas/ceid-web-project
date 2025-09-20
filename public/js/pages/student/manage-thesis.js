@@ -8,11 +8,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   let currentThesis;
   let initialThesisId;
 
-  const hideAllStates = () => {
-    [stateAssignment, stateExamination, stateCompleted].forEach(state => {
-      if (state) state.style.display = "none";
-    });
-  };
 
   const refreshPageData = async () => {
     if (!initialThesisId) return;
@@ -35,30 +30,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
       }
 
-      // Determine active state
-      let activeStateCard;
-      switch (currentThesis.status) {
-        case "under_assignment": activeStateCard = stateAssignment; break;
-        case "under_examination": activeStateCard = stateExamination; break;
-        case "completed": activeStateCard = stateCompleted; break;
-        default: activeStateCard = stateAssignment;
-      }
-
-      hideAllStates();
-      if (activeStateCard) {
-        activeStateCard.style.display = "block";
-        populateCommitteeList(currentThesis, activeStateCard);
-
-        if (currentThesis.status === "under_assignment") {
-          const invitationsResponse = await getThesisInvitations(currentThesis.id);
-          populateInvitationsList(invitationsResponse.data || [], activeStateCard);
-        } else if (currentThesis.status === "under_examination") {
-          await populateExaminationState(currentThesis);
-
-        } else if (currentThesis.status === "completed") {
-          populateCompletedState(currentThesis);
-        }
-      }
+      await showActiveState(currentThesis, stateAssignment, stateExamination, stateCompleted);
     } catch (error) {
       console.error("Failed to refresh page data:", error);
       container.innerHTML = '<div class="alert alert-danger">Σφάλμα ανανέωσης δεδομένων σελίδας.</div>';
@@ -530,7 +502,7 @@ async function populateTimeline(thesisId) {
   }
 }
 
-// Add this at the top of your JS file or near the Name object
+
 const statusBadgeClass = {
   under_assignment: "bg-secondary",
   active: "bg-primary",
@@ -558,6 +530,41 @@ function handlePresentationSave({ isValid, validationMessage, date, time, kind, 
     );
   } else {
     alert(validationMessage);
+  }
+}
+
+async function showActiveState(currentThesis, stateAssignment, stateExamination, stateCompleted) {
+  // Determine active state card
+  let activeStateCard;
+  switch (currentThesis.status) {
+    case "under_assignment":
+      activeStateCard = stateAssignment;
+      break;
+    case "under_examination":
+      activeStateCard = stateExamination;
+      break;
+    case "completed":
+      activeStateCard = stateCompleted;
+      break;
+    default:
+      activeStateCard = stateAssignment;
+  }
+
+ [stateAssignment, stateExamination, stateCompleted].forEach(state => {
+      if (state) state.style.display = "none";
+    });
+  if (activeStateCard) {
+    activeStateCard.style.display = "block";
+    populateCommitteeList(currentThesis, activeStateCard);
+
+    if (currentThesis.status === "under_assignment") {
+      const invitationsResponse = await getThesisInvitations(currentThesis.id);
+      populateInvitationsList(invitationsResponse.data || [], activeStateCard);
+    } else if (currentThesis.status === "under_examination") {
+      await populateExaminationState(currentThesis);
+    } else if (currentThesis.status === "completed") {
+      populateCompletedState(currentThesis);
+    }
   }
 }
 

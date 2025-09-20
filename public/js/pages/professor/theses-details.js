@@ -243,11 +243,9 @@ if (status === "active") {
 
 
 if (status === "under_examination") {
-  // --- Top action bar (3 similar buttons) ---
   const btnBar = document.createElement("div");
   btnBar.className = "d-flex gap-2 flex-wrap mb-3";
 
-  // View draft (everyone)
   const btnView = document.createElement("button");
   btnView.className = "btn btn-outline-secondary";
   btnView.textContent = "Προβολή Κειμένου Διπλωματικής";
@@ -267,22 +265,27 @@ if (status === "under_examination") {
     btnAnnounce.disabled = true; btnAnnounce.textContent = "Δημιουργία...";
     const res = await createDefenseAnnouncement(thesis.id);
     if (res?.success) { alert("Η ανακοίνωση δημιουργήθηκε."); await loadDetails(); }
-    else { alert("Σφάλμα δημιουργίας."); btnAnnounce.disabled = false; btnAnnounce.textContent = "Δημιουργία Ανακοίνωσης Παρουσίασης"; }
+    else { alert("Σφάλμα δημιουργίας.");
+    btnAnnounce.disabled = false; 
+    btnAnnounce.textContent = "Δημιουργία Ανακοίνωσης Παρουσίασης"; }
   });
 
-  // Enable grading (supervisor only)
   const btnEnableGrading = document.createElement("button");
   btnEnableGrading.className = "btn btn-outline-warning";
   btnEnableGrading.textContent = "Ενεργοποίηση Βαθμολόγησης";
+
   if (!isSupervisor) {
     btnEnableGrading.disabled = true;
     btnEnableGrading.title = "Μόνο ο επιβλέπων μπορεί να ενεργοποιήσει τη βαθμολόγηση.";
   }
+
   btnEnableGrading.addEventListener("click", async () => {
     btnEnableGrading.disabled = true; btnEnableGrading.textContent = "Ενεργοποίηση...";
     const res = await enableGrading(thesis.id, "enabled");
     if (res?.success) { alert("Η βαθμολόγηση της επιτροπής ενεργοποιήθηκε."); await loadDetails(); }
-    else { alert("Σφάλμα ενεργοποίησης."); btnEnableGrading.disabled = false; btnEnableGrading.textContent = "Ενεργοποίηση Βαθμολόγησης"; }
+    else { alert("Σφάλμα ενεργοποίησης."); 
+    btnEnableGrading.disabled = false; 
+    btnEnableGrading.textContent = "Ενεργοποίηση Βαθμολόγησης"; }
   });
 
   btnBar.append(btnView, btnAnnounce, btnEnableGrading);
@@ -293,7 +296,6 @@ if (status === "under_examination") {
     return;
   }
 
-  // --- Grading form (everyone can submit when enabled) ---
   const hr = document.createElement("hr");
   const h6grade = document.createElement("h6");
   h6grade.textContent = "Βαθμολόγηση";
@@ -322,32 +324,32 @@ if (status === "under_examination") {
   const btnGrade = document.createElement("button");
   btnGrade.className = "btn btn-success";
   btnGrade.textContent = "Εισαγωγή Βαθμολογίας";
+
   btnGrade.addEventListener("click", async (e) => {
     e.preventDefault();
     const vals = [getObjectives(), getDuration(), getDeliverable(), getPresentation()];
-    const ok = n => typeof n === "number" && !isNaN(n) && n >= 0 && n <= 10;
-    if (!vals.every(ok)) return alert("Όλες οι βαθμολογίες πρέπει να είναι από 0 έως 10.");
+
     btnGrade.disabled = true; btnGrade.textContent = "Αποστολή...";
     const res = await putGrade(thesis.id, ...vals);
     if (res?.success) { alert("Οι βαθμολογίες καταχωρήθηκαν."); await loadDetails(); }
     else { alert("Σφάλμα καταχώρησης."); btnGrade.disabled = false; btnGrade.textContent = "Εισαγωγή Βαθμολογίας"; }
   });
 
-  // --- Other professors' grades: visible ONLY to supervisor ---
+
   const extras = [];
-  if (isSupervisor) {
-    const h6Other = document.createElement("h6");
-    h6Other.textContent = "Βαθμολογίες Άλλων Καθηγητών";
+    const gradesTitle = document.createElement("h6");
+    gradesTitle.textContent = "Βαθμολογίες Άλλων Καθηγητών";
 
-    const otherWrap = document.createElement("div");
-    const otherRes = await getOtherProfessorGrades(thesis.id); // dummy API you implement
-    const otherGrades = otherRes?.data || [];
+    const getGradesWrap = document.createElement("div");
 
-    if (!otherGrades.length) {
+    const result = await getGrades(thesis.id);
+    const grades = result?.data || [];
+
+    if (!grades.length) {
       const empty = document.createElement("div");
       empty.className = "text-muted";
       empty.textContent = "Δεν υπάρχουν υποβληθείσες βαθμολογίες από άλλους καθηγητές.";
-      otherWrap.append(empty);
+      getGradesWrap.append(empty);
     } else {
       const table = document.createElement("table");
       table.className = "table table-sm align-middle";
@@ -365,21 +367,20 @@ if (status === "under_examination") {
         <tbody></tbody>
       `;
       const tbody = table.querySelector("tbody");
-      otherGrades.forEach(g => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${g.professorName || "—"}</td>
-          <td>${g.objectives ?? "—"}</td>
-          <td>${g.duration ?? "—"}</td>
-          <td>${g.deliverableQuality ?? "—"}</td>
-          <td>${g.presentationQuality ?? "—"}</td>
-          <td>${fmtDateTime(g.submittedAt)}</td>
+      grades.forEach(grade => {
+        const gradeData = document.createElement("tr");
+        gradeData.innerHTML = `
+          <td>${grade.professorName || "—"}</td>
+          <td>${grade.objectives ?? "—"}</td>
+          <td>${grade.duration ?? "—"}</td>
+          <td>${grade.deliverableQuality ?? "—"}</td>
+          <td>${grade.presentationQuality ?? "—"}</td>
+          <td>${fmtDateTime(grade.updatedAt)}</td>
         `;
-        tbody.appendChild(tr);
+        tbody.appendChild(gradeData);
       });
-      otherWrap.append(table);
-    }
-    extras.push(h6Other, otherWrap);
+      getGradesWrap.append(table);
+    extras.push(gradesTitle, getGradesWrap);
   }
 
   container.append(btnBar, hr, h6grade, p, form, btnGrade, ...extras);

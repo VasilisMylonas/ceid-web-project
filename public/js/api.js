@@ -360,8 +360,13 @@ async function getGrades(thesisId) {
   return await request("GET", `${BASE_URL}/v1/theses/${thesisId}/grades`);
 }
 
+async function getAnnouncement(thesisId){
+  return await request("GET", `${BASE_URL}/v1/theses/${thesisId}//announcement`);
+}
 
-
+async function announceThesis(thesisId,content){
+  return await request("POST", `${BASE_URL}/v1/theses/${thesisId}/announce`,{content});
+}
 
 
 //invitations

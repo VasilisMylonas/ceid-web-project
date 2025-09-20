@@ -100,16 +100,16 @@ async function getTopicDescription(topicId) {
 
 async function createThesisPresentation(thesisId, presentationData) {
   return await request(
-    "POST",
-    `${BASE_URL}/v1/theses/${thesisId}/presentations`,
+    "PUT",
+    `${BASE_URL}/v1/theses/${thesisId}/presentation`,
     presentationData
   );
 }
 
-async function getThesisPresentations(thesisId) {
+async function getThesisPresentation(thesisId) {
   return await request(
     "GET",
-    `${BASE_URL}/v1/theses/${thesisId}/presentations`
+    `${BASE_URL}/v1/theses/${thesisId}/presentation`
   );
 }
 

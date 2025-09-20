@@ -167,7 +167,7 @@ function setupModalEventListeners(modalElement, inviteModal, getThesis, onInvita
     const thesis = getThesis();
     if (!thesis) return;
     const professorListContainer = document.getElementById("professor-list-container");
-    professorListContainer.innerHTML = "<p>Φόρτωση λίστας διδασκόντων...</p>";
+    professorListContainer.innerHTML = "<p>Φόρτωση λίστας διδάσκοντων...</p>";
 
     try {
       const [professorsResponse, invitationsResponse] = await Promise.all([
@@ -294,6 +294,34 @@ function populateCommitteeList(thesis, activeStateCard) {
 }
 
 async function populateExaminationState(thesis) {
+  // Show message and disable card if thesis has already been announced
+  const presentationCard = document.getElementById("presentation-card");
+  const cardParent = presentationCard?.parentElement;
+
+  // Remove any previous message
+  const oldMsg = document.getElementById("announced-msg");
+  if (oldMsg) oldMsg.remove();
+
+  if (thesis.isAnnounced === true && presentationCard) {
+    console.log("Thesis is announced, disabling presentation card.");
+    // Disable all inputs and buttons inside the card
+    presentationCard.querySelectorAll("input, textarea, select, button").forEach(el => {
+      el.disabled = true;
+    });
+
+    // Add message above the card
+    const msg = document.createElement("div");
+    msg.id = "announced-msg";
+    msg.className = "alert alert-warning text-center mb-2";
+    msg.innerHTML = "Η διπλωματική εργασία έχει ήδη ανακοινωθεί. Δεν μπορείτε να επεξεργαστείτε τα στοιχεία εξέτασης.";
+    cardParent.insertBefore(msg, presentationCard);
+  } else if (presentationCard) {
+    // Enable all inputs and buttons if not announced
+    presentationCard.querySelectorAll("input, textarea, select, button").forEach(el => {
+      el.disabled = false;
+    });
+  }
+
   await addDownloadButton(thesis);
 
   const linksList = document.getElementById("existing-links-list");
@@ -311,9 +339,9 @@ async function populateExaminationState(thesis) {
   }
 
   try {
-    const presentationsResponse = await getThesisPresentations(thesis.id);
-    if (presentationsResponse?.data?.length > 0) {
-      const lastPresentation = presentationsResponse.data.at(-1);
+    const presentationsResponse = await getThesisPresentation(thesis.id);
+    if (presentationsResponse?.data) {
+      const lastPresentation = presentationsResponse.data;
       const presentationDate = new Date(lastPresentation.date);
       document.getElementById("examDate").value = presentationDate.toISOString().split("T")[0];
       const hours = String(presentationDate.getUTCHours()).padStart(2, "0");
@@ -359,8 +387,10 @@ async function addPraktikoButton(thesis) {
 
     let hasPresentation = false;
     try {
-      const presentationsResponse = await getThesisPresentations(thesisId);
-      hasPresentation = presentationsResponse?.data?.length > 0;
+      const presentationsResponse = await getThesisPresentation(thesisId);
+       if (presentationsResponse?.data)
+      
+      hasPresentation = !!presentationsResponse?.data;
     } catch (error) {
       console.error("Failed to fetch presentations:", error);
       viewPraktikoBtn.disabled = true;

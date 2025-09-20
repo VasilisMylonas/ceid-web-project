@@ -100,115 +100,147 @@ function onDetailsButtonClick(event) {
       return;
     }
 
-    if (status === "active") {
-      const h6History = document.createElement("h6");
-      h6History.textContent = "Παλαιότερες Σημειώσεις";
+if (status === "active") {
+  const h6History = document.createElement("h6");
+  h6History.textContent = "Παλαιότερες Σημειώσεις";
 
-      const notesList = document.createElement("ul");
-      notesList.className = "list-group mb-3";
+  const notesList = document.createElement("ul");
+  notesList.className = "list-group mb-3";
 
-      const notesLoading = document.createElement("div");
-      notesLoading.className = "text-muted mb-2";
-      notesLoading.textContent = "Φόρτωση σημειώσεων...";
+  const notesLoading = document.createElement("div");
+  notesLoading.className = "text-muted mb-2";
+  notesLoading.textContent = "Φόρτωση σημειώσεων...";
 
-      function renderNotesList(listEl, notes) {
-        listEl.innerHTML = "";
-        if (!notes || !notes.length) {
-          const li = document.createElement("li");
-          li.className = "list-group-item text-muted";
-          li.textContent = "Δεν υπάρχουν σημειώσεις.";
-          listEl.appendChild(li);
-          return;
-        }
-        notes.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-        notes.forEach(n => {
-          const li = document.createElement("li");
-          li.className = "list-group-item";
-          const top = document.createElement("div");
-          top.className = "d-flex justify-content-between align-items-center";
-          const who = document.createElement("span");
-          who.className = "fw-semibold";
-          who.textContent = n.authorName || "Σημείωση";
-          const when = document.createElement("small");
-          when.className = "text-muted";
-          when.textContent = fmtDateTime(n.createdAt);
-          top.append(who, when);
-          const body = document.createElement("p");
-          body.className = "mb-0 mt-1";
-          body.textContent = n.content || "";
-          li.append(top, body);
-          listEl.appendChild(li);
-        });
+  container.append(h6History, notesLoading, notesList);
+
+  const notesRes = await getThesisNotes(thesis.id);
+  const notes = notesRes?.data ;
+  notesLoading.remove();
+
+  if (!notes.length) {
+    const li = document.createElement("li");
+    li.className = "list-group-item text-muted";
+    li.textContent = "Δεν υπάρχουν σημειώσεις.";
+    notesList.append(li);
+  } else {
+    notes.forEach(n => {
+      const li = document.createElement("li");
+      li.className = "list-group-item";
+      li.innerHTML = `
+        <div class="d-flex justify-content-between align-items-center">
+          <span class="fw-semibold">${n.authorName || "Σημείωση"}</span>
+          <small class="text-muted">${fmtDateTime(n.createdAt)}</small>
+        </div>
+        <p class="mb-0 mt-1">${n.content || ""}</p>
+      `;
+      notesList.append(li);
+    });
+  }
+
+  const h6note = document.createElement("h6");
+  h6note.textContent = "Προσθήκη Σημείωσης (Ορατή μόνο σε εσάς)";
+
+  const textarea = document.createElement("textarea");
+  textarea.className = "form-control mb-2";
+  textarea.rows = 3;
+  textarea.placeholder = "Γράψτε μια σημείωση... (max 300 χαρακτήρες)";
+
+  const btnSave = document.createElement("button");
+  btnSave.className = "btn btn-outline-primary mb-3";
+  btnSave.textContent = "Αποθήκευση Σημείωσης";
+  btnSave.addEventListener("click", async () => {
+    const content = (textarea.value || "").slice(0, 300).trim();
+    if (!content) return alert("Παρακαλώ εισάγετε κείμενο σημείωσης.");
+
+    btnSave.disabled = true;
+    btnSave.textContent = "Αποθήκευση...";
+
+    const res = await postThesisNote(thesis.id, content);
+    if (res?.success) await loadDetails();
+    else alert("Αποτυχία αποθήκευσης.");
+
+    btnSave.disabled = false;
+    btnSave.textContent = "Αποθήκευση Σημείωσης";
+  });
+
+  const hr = document.createElement("hr");
+  const h6act = document.createElement("h6");
+  h6act.textContent = "Ενέργειες Επιβλέποντα";
+
+  const btnExamine = document.createElement("button");
+  btnExamine.className = "btn btn-primary";
+  btnExamine.textContent = 'Αλλαγή σε "Υπό Εξέταση"';
+  btnExamine.disabled = !isSupervisor || thesis.protocolNumber == null;
+
+  btnExamine.addEventListener("click", async () => {
+    btnExamine.disabled = true;
+    btnExamine.textContent = "Ενημέρωση...";
+    const res = await examineThesis(thesis.id);
+    if (res?.success) await loadDetails();
+    else alert("Αποτυχία αλλαγής κατάστασης.");
+    btnExamine.disabled = false;
+    btnExamine.textContent = 'Αλλαγή σε "Υπό Εξέταση"';
+  });
+
+  const twoYearsPassed = thesis.startDate
+    ? (new Date() >= new Date(new Date(thesis.startDate).setFullYear(new Date(thesis.startDate).getFullYear() + 2)))
+    : false;
+
+  const actionRow = document.createElement("div");
+  actionRow.className = "d-flex gap-2 flex-wrap align-items-start";
+
+  actionRow.append(btnExamine);
+
+  if (isSupervisor && twoYearsPassed) {
+    const formGroup = document.createElement("div");
+    formGroup.className = "input-group";
+
+    const lbl = document.createElement("span");
+    lbl.className = "input-group-text";
+    lbl.textContent = "Αριθμός Πρακτικού";
+
+    const assemblyInput = document.createElement("input");
+    assemblyInput.type = "text";
+    assemblyInput.className = "form-control";
+    assemblyInput.placeholder = "π.χ. 123/2025";
+
+    const btnCancelThesis = document.createElement("button");
+    btnCancelThesis.className = "btn btn-outline-danger";
+    btnCancelThesis.textContent = "Ακύρωση Διπλωματικής";
+    btnCancelThesis.disabled = true; 
+
+    assemblyInput.addEventListener("input", () => {
+      btnCancelThesis.disabled = !assemblyInput.value.trim();
+    });
+
+    btnCancelThesis.addEventListener("click", async () => {
+      const assemblyNumber = assemblyInput.value.trim();
+      if (!assemblyNumber) return alert("Συμπληρώστε τον αριθμό και το έτος της Γενικής Συνέλευσης.");
+      if (!confirm("Σίγουρα θέλετε να ακυρώσετε τη διπλωματική;")) return;
+
+      btnCancelThesis.disabled = true;
+      btnCancelThesis.textContent = "Ακύρωση...";
+      const res = await cancelThesis(
+        thesis.id,
+        assemblyNumber,
+        "Διπλωματική ακυρώθηκε μετά από 2 έτη χωρίς ολοκλήρωση"
+      );
+      if (res?.success) await loadDetails();
+      else {
+        alert("Αποτυχία ακύρωσης.");
+        btnCancelThesis.disabled = false;
+        btnCancelThesis.textContent = "Ακύρωση Διπλωματικής";
       }
+    });
 
-      container.append(h6History, notesLoading, notesList);
+    formGroup.append(lbl, assemblyInput, btnCancelThesis);
+    actionRow.append(formGroup);
+  }
 
-      try {
-        const notesRes = await getThesisNotes(thesis.id);
-        const notes = notesRes?.data;
-        notesLoading.remove();
-        renderNotesList(notesList, notes);
-      } catch {
-        notesLoading.textContent = "Αποτυχία φόρτωσης σημειώσεων.";
-      }
+  container.append(h6note, textarea, btnSave, hr, h6act, actionRow);
+  return;
+}
 
-      const h6note = document.createElement("h6");
-      h6note.textContent = "Προσθήκη Σημείωσης (Ορατή μόνο σε εσάς)";
-
-      const textarea = document.createElement("textarea");
-      textarea.className = "form-control mb-2";
-      textarea.rows = 3;
-      textarea.placeholder = "Γράψτε μια σημείωση... (max 300 χαρακτήρες)";
-
-      const btnSave = document.createElement("button");
-      btnSave.className = "btn btn-outline-primary mb-3";
-      btnSave.textContent = "Αποθήκευση Σημείωσης";
-      btnSave.addEventListener("click", async () => {
-        const content = (textarea.value || "").slice(0, 300).trim();
-        if (!content) return alert("Παρακαλώ εισάγετε κείμενο σημείωσης.");
-
-        btnSave.disabled = true;
-        btnSave.textContent = "Αποθήκευση...";
-        try {
-          const res = await postThesisNote(thesis.id, content);
-          if (res?.success) await loadDetails();
-          else alert("Αποτυχία αποθήκευσης.");
-        } catch {
-          alert("Σφάλμα αποθήκευσης.");
-        }
-        btnSave.disabled = false;
-        btnSave.textContent = "Αποθήκευση Σημείωσης";
-      });
-
-      const hr = document.createElement("hr");
-
-      const h6act = document.createElement("h6");
-      h6act.textContent = "Ενέργειες Επιβλέποντα";
-
-      const btnExamine = document.createElement("button");
-      btnExamine.className = "btn btn-primary";
-      btnExamine.textContent = 'Αλλαγή σε "Υπό Εξέταση"';
-
-      if (!isSupervisor || thesis.protocolNumber === null) {
-        btnExamine.disabled = true;
-      }
-      btnExamine.addEventListener("click", async () => {
-        btnExamine.disabled = true;
-        btnExamine.textContent = "Ενημέρωση...";
-        try {
-          const res = await examineThesis(thesis.id);
-          if (res?.success) await loadDetails();
-          else alert("Αποτυχία αλλαγής κατάστασης.");
-        } catch {
-          alert("Σφάλμα αλλαγής κατάστασης.");
-        }
-        btnExamine.disabled = false;
-        btnExamine.textContent = 'Αλλαγή σε "Υπό Εξέταση"';
-      });
-
-      container.append(h6note, textarea, btnSave, hr, h6act, btnExamine);
-      return;
-    }
 
     if (status === "under_examination") {
       const btnView = document.createElement("a");
@@ -222,25 +254,19 @@ function onDetailsButtonClick(event) {
       const btnAnnounce = document.createElement("button");
       btnAnnounce.className = "btn btn-info mb-2";
       btnAnnounce.textContent = "Δημιουργία Ανακοίνωσης Παρουσίασης";
-      // Disable if not supervisor
-      if (!isSupervisor) {
-        btnAnnounce.disabled = true;
-        btnAnnounce.title = "Μόνο ο επιβλέπων μπορεί να δημιουργήσει ανακοίνωση.";
-      }
+
+      if (!isSupervisor)  btnAnnounce.disabled = true;
+    
       btnAnnounce.addEventListener("click", async () => {
         btnAnnounce.disabled = true;
         btnAnnounce.textContent = "Δημιουργία...";
-        try {
-          const res = await createDefenseAnnouncement(thesis.id);
-          if (res?.success) {
+
+        const res = await createDefenseAnnouncement(thesis.id);
+        if (res?.success) {
             alert("Η ανακοίνωση δημιουργήθηκε.");
             await loadDetails();
-          } else {
-            alert("Σφάλμα δημιουργίας.");
-          }
-        } catch {
-          alert("Σφάλμα δημιουργίας.");
-        }
+        } else alert("Σφάλμα δημιουργίας.");
+    
         btnAnnounce.disabled = false;
         btnAnnounce.textContent = "Δημιουργία Ανακοίνωσης Παρουσίασης";
       });

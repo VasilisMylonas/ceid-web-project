@@ -169,12 +169,22 @@ pages.get("/secretary/:page", requirePageAuth, async (req, res) => {
     },
   ];
 
-  return res.render(`pages/secretary/${req.params.page}`, {
-    title: secretaryLinks.find((link) => link.href === req.path)?.title,
-    user: req.user,
-    links: secretaryLinks,
-    layout: "layouts/basic",
-  });
+  res.render(
+    `pages/secretary/${req.params.page}`,
+    {
+      title: secretaryLinks.find((link) => link.href === req.path)?.title,
+      user: req.user,
+      links: secretaryLinks,
+      layout: "layouts/basic",
+    },
+    (err, html) => {
+      if (err) {
+        console.error(err);
+        return res.redirect("/");
+      }
+      res.send(html);
+    }
+  );
 });
 
 pages.get("/student/:page", requirePageAuth, async (req, res) => {
@@ -205,12 +215,22 @@ pages.get("/student/:page", requirePageAuth, async (req, res) => {
     },
   ];
 
-  return res.render(`pages/student/${req.params.page}`, {
-    title: studentLinks.find((link) => link.href === req.path)?.title,
-    links: studentLinks,
-    layout: "layouts/basic",
-    user: req.user,
-  });
+  res.render(
+    `pages/student/${req.params.page}`,
+    {
+      title: studentLinks.find((link) => link.href === req.path)?.title,
+      links: studentLinks,
+      layout: "layouts/basic",
+      user: req.user,
+    },
+    (err, html) => {
+      if (err) {
+        console.error(err);
+        return res.redirect("/");
+      }
+      res.send(html);
+    }
+  );
 });
 
 pages.get("/professor/:page", requirePageAuth, async (req, res) => {
@@ -251,12 +271,26 @@ pages.get("/professor/:page", requirePageAuth, async (req, res) => {
     },
   ];
 
-  return res.render(`pages/professor/${req.params.page}`, {
-    title: professorLinks.find((link) => link.href === req.path)?.title,
-    links: professorLinks,
-    layout: "layouts/basic",
-    user: req.user,
-  });
+  res.render(
+    `pages/professor/${req.params.page}`,
+    {
+      title: professorLinks.find((link) => link.href === req.path)?.title,
+      links: professorLinks,
+      layout: "layouts/basic",
+      user: req.user,
+    },
+    (err, html) => {
+      if (err) {
+        console.error(err);
+        return res.redirect("/");
+      }
+      res.send(html);
+    }
+  );
+});
+
+pages.use((req, res) => {
+  res.redirect("/");
 });
 
 export default pages;

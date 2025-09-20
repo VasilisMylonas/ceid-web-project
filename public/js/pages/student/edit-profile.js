@@ -69,7 +69,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function isValidPhone(phone) {
     // Accepts 10-digit Greek numbers, allows spaces/dashes
-    return /^(\+30)?\s?\d{10}$/.test(phone.replace(/[\s\-]/g, ""));
+    return /^\d{10}$/.test(phone);
   }
 
   form.addEventListener("click", async (e) => {

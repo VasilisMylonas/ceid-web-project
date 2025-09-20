@@ -141,6 +141,7 @@ theses.status AS "status",
 theses.start_date AS "startDate",
 theses.grade AS "grade",
 theses.nemertes_link AS "nemertesLink",
+theses.is_announced AS "isAnnounced",
 topics.id AS "topicId",
 topics.title AS "topic",
 student_users.name AS "student",
@@ -302,6 +303,10 @@ ${offset ? `OFFSET ${offset}` : ""}
 
     if (thesis.status !== ThesisStatus.UNDER_EXAMINATION) {
       throw new ConflictError("Thesis is not under examination.");
+    }
+
+    if (!thesis.isAnnounced) {
+      throw new ConflictError("Thesis is not announced.");
     }
 
     // TODO: maybe a presentation and a draft should exist before allowing this
@@ -602,6 +607,7 @@ ${offset ? `OFFSET ${offset}` : ""}
   static async getInvitations(id, user) {
     const thesis = await ThesisService._assertUserHasThesisRoles(id, user, [
       ThesisRole.SUPERVISOR,
+      ThesisRole.COMMITTEE_MEMBER,
       ThesisRole.STUDENT,
     ]);
 
@@ -626,6 +632,66 @@ ${offset ? `OFFSET ${offset}` : ""}
         },
       ],
     });
+  }
+
+  static async announce(id, user, content) {
+    const thesis = await ThesisService._assertUserHasThesisRoles(id, user, [
+      ThesisRole.SUPERVISOR,
+    ]);
+
+    if (thesis.status !== ThesisStatus.UNDER_EXAMINATION) {
+      throw new ConflictError("Thesis is not under examination.");
+    }
+
+    if (thesis.isAnnounced) {
+      throw new ConflictError("Thesis is already announced.");
+    }
+
+    // TODO: only if theses has presentation
+
+    const transaction = await db.sequelize.transaction();
+    try {
+      await thesis.update({ isAnnounced: true }, { transaction });
+      const announcement = await thesis.createAnnouncement(
+        { content },
+        { transaction }
+      );
+      await transaction.commit();
+      return announcement;
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
+    }
+  }
+
+  static async getAnnouncement(id, user) {
+    const thesis = await ThesisService._assertUserHasThesisRoles(id, user, [
+      ThesisRole.SUPERVISOR,
+    ]);
+
+    if (thesis.status !== ThesisStatus.UNDER_EXAMINATION) {
+      throw new ConflictError("Thesis is not under examination.");
+    }
+
+    const announcement = await thesis.getAnnouncement();
+    if (!announcement) {
+      throw new NotFoundError("No announcement found.");
+    }
+
+    // TODO
+    const topic = await thesis.getTopic();
+    const student = await thesis.getStudent({ include: db.User });
+
+    const supervisor = user.name;
+
+    const announcementText = `
+    Ανακοινώνεται η παρουσίαση της διπλωματικής εργασίας με τίτλο "${topic.title}".
+    Φοιτητής: ${student.User.name}
+    Επιβλέπων: ${supervisor}
+    ${announcement.content}
+    `;
+
+    return { ...announcement.toJSON(), text: announcementText.trim() };
   }
 
   static async createInvitation(id, user, professorId) {

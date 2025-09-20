@@ -123,6 +123,19 @@ export default class ThesisController {
     res.success(note, {}, StatusCodes.CREATED);
   }
 
+  static async announce(req, res) {
+    await ThesisService.announce(req.params.id, req.user, req.body.content);
+    res.success();
+  }
+
+  static async getAnnouncement(req, res) {
+    const announcement = await ThesisService.getAnnouncement(
+      req.params.id,
+      req.user
+    );
+    res.success(announcement);
+  }
+
   static async getInvitations(req, res) {
     const invitations = await ThesisService.getInvitations(
       req.params.id,

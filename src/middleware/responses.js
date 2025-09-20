@@ -37,7 +37,6 @@ export function wrapResponse() {
         error: { message },
         meta: {
           path: req.context.path,
-          ...req.context,
         },
       });
     };

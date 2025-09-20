@@ -2,64 +2,57 @@ import express from "express";
 import db from "../models/index.js";
 import { Op } from "sequelize";
 import { AnnouncementFeedFormat } from "../constants.js";
+import js2xmlparser from "js2xmlparser";
+import Joi from "joi";
+import { validate } from "../middleware/validation.js";
 
 const router = express.Router();
 // No auth middleware, this is a public endpoint
 
+const announcementsValidators = {
+  get: {
+    query: Joi.object({
+      from: Joi.date().iso(),
+      to: Joi.date().iso(),
+      format: Joi.string().valid(...Object.values(AnnouncementFeedFormat)),
+    }).unknown(false),
+  },
+};
+
 // Public endpoint for presentation announcements feed
-router.get("/feed", async (req, res) => {
+router.get("/feed", validate(announcementsValidators.get), async (req, res) => {
   const { from, to, format } = req.query;
 
   const where = {};
 
+  // Date filtering
   if (from || to) {
     where.date = {};
-    if (from) where.date[Op.gte] = from;
-    if (to) where.date[Op.lte] = to;
+    if (from) {
+      where.date[Op.gte] = from;
+    }
+
+    if (to) {
+      where.date[Op.lte] = to;
+    }
   }
 
-  const presentations = await db.Presentation.findAll({
+  const presentations = await db.Announcement.findAll({
     where,
-    include: [
-      {
-        model: db.Thesis,
-        attributes: ["id", "title"],
-      },
-    ],
-    order: [["date", "ASC"]],
+    order: [["createdAt", "ASC"]],
   });
 
-  if (format === "xml") {
+  if (format === AnnouncementFeedFormat.XML) {
+    const xmlData = js2xmlparser.parse(
+      "announcements",
+      presentations.map((p) => p.get({ plain: true }))
+    );
     res.set("Content-Type", "application/xml");
-    const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<feed>\n${presentations
-      .map(
-        (p) =>
-          `  <presentation>\n    <id>${p.id}</id>\n    <date>${format(
-            p.date,
-            "yyyy-MM-dd'T'HH:mm:ssXXX"
-          )}</date>\n    <kind>${p.kind}</kind>\n    <hall>${
-            p.hall || ""
-          }</hall>\n    <link>${p.link || ""}</link>\n    <thesis>\n      <id>${
-            p.Thesis?.id || ""
-          }</id>\n      <title>${
-            p.Thesis?.title || ""
-          }</title>\n    </thesis>\n  </presentation>`
-      )
-      .join("\n")}\n</feed>`;
-    return res.send(xml);
+    res.send(xmlData);
+  } else {
+    // Default: JSON
+    res.json(presentations);
   }
-
-  // Default: JSON
-  res.json(
-    presentations.map((p) => ({
-      id: p.id,
-      date: p.date,
-      kind: p.kind,
-      hall: p.hall,
-      link: p.link,
-      thesis: p.Thesis ? { id: p.Thesis.id, title: p.Thesis.title } : null,
-    }))
-  );
 });
 
 export default router;

@@ -110,7 +110,7 @@ async function onStateUpdate(newState) {
     pageNavDiv,
     newState.pageCount,
     newState.page,
-    theses.meta.count
+    theses.meta.total
   );
 }
 

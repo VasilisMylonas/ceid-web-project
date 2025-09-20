@@ -126,19 +126,19 @@ router.put(
   validate(thesisValidator.putGrade),
   ThesisController.putGrade
 );
+router.get(
+  "/:id/announcement",
+  validate(thesisValidator.getAnnouncement),
+  ThesisController.getAnnouncement
+);
+router.post(
+  "/:id/announce",
+  validate(thesisValidator.announce),
+  ThesisController.announce
+);
 
-// TODO: resources, presentations, resources
-// Also check middleware here and in presentations/resources routes
-// Who should be able to post/put/delete resources/presentations?
-
-// TODO: announcement
-// Bathmos, epi merous kritiria
-// router.get(
-//   "/:id/announcement",
-//   validate(thesisValidator.getAnnouncement),
-//   model(db.Thesis, "thesis"),
-//   requireThesisRole(ThesisRole.SUPERVISOR),
-//   ThesisController.getAnnouncement
-// );
+// TODO: resources, presentations, notes
+// Also check middleware here and in resources/notes routes
+// Who should be able to post/put/delete resources/notes?
 
 export default router;

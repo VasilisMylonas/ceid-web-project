@@ -1,6 +1,10 @@
 import Joi from "joi";
-import { ThesisGradingStatus, ThesisRole, ThesisStatus } from "../constants.js";
-import presentationValidators from "./presentation.validators.js";
+import {
+  ThesisGradingStatus,
+  ThesisRole,
+  ThesisStatus,
+  PresentationKind,
+} from "../constants.js";
 import resourceValidators from "./resource.validators.js";
 
 export default {
@@ -147,16 +151,31 @@ export default {
       id: Joi.number().integer().min(1).required(),
     }).unknown(false),
   },
-  getPresentations: {
+  getPresentation: {
     params: Joi.object({
       id: Joi.number().integer().min(1).required(),
     }).unknown(false),
   },
-  postPresentation: {
+  putPresentation: {
     params: Joi.object({
       id: Joi.number().integer().min(1).required(),
     }).unknown(false),
-    body: presentationValidators.put.body,
+    body: Joi.object({
+      date: Joi.date().min("now").required(),
+      kind: Joi.string()
+        .valid(...Object.values(PresentationKind))
+        .required(),
+      link: Joi.string().uri().when("kind", {
+        is: PresentationKind.ONLINE,
+        then: Joi.required(),
+        otherwise: Joi.optional(),
+      }),
+      hall: Joi.string().min(1).when("kind", {
+        is: PresentationKind.IN_PERSON,
+        then: Joi.required(),
+        otherwise: Joi.forbidden(),
+      }),
+    }).unknown(false),
   },
   postResource: {
     params: Joi.object({

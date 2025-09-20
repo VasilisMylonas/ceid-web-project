@@ -233,7 +233,7 @@ export default async function seedDatabase() {
 
         // TODO: 1 year?
         if (Math.random() < THESIS_PRESENTATION_PROB) {
-          await ThesisService.createPresentation(thesis.id, student, {
+          await ThesisService.setPresentation(thesis.id, student, {
             date: faker.date.future({ years: 1 }),
             hall: `Hall ${Math.floor(Math.random() * 5) + 1}`,
             kind:

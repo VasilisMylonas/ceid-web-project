@@ -8,11 +8,11 @@ export default (sequelize) => {
       Thesis.belongsTo(models.Topic, { foreignKey: "topicId" });
       Thesis.belongsTo(models.Student, { foreignKey: "studentId" });
       Thesis.hasMany(models.Note, { foreignKey: "thesisId" });
-      Thesis.hasMany(models.Presentation, { foreignKey: "thesisId" });
       Thesis.hasMany(models.Resource, { foreignKey: "thesisId" });
       Thesis.hasMany(models.CommitteeMember, { foreignKey: "thesisId" });
       Thesis.hasMany(models.Invitation, { foreignKey: "thesisId" });
       Thesis.hasMany(models.ThesisChange, { foreignKey: "thesisId" });
+      Thesis.hasOne(models.Presentation, { foreignKey: "thesisId" });
       Thesis.hasOne(models.Announcement, { foreignKey: "thesisId" });
     }
   }

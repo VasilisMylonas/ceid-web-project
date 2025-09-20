@@ -164,8 +164,8 @@ export default class ThesisController {
     });
   }
 
-  static async getPresentations(req, res) {
-    const presentations = await ThesisService.getPresentations(
+  static async getPresentation(req, res) {
+    const presentations = await ThesisService.getPresentation(
       req.params.id,
       req.user
     );
@@ -173,6 +173,21 @@ export default class ThesisController {
       count: presentations.length,
       total: presentations.length,
     });
+  }
+
+  static async putPresentation(req, res) {
+    // TODO: check if not exist
+    const presentation = await ThesisService.setPresentation(
+      req.params.id,
+      req.user,
+      {
+        date: req.body.date,
+        kind: req.body.kind,
+        hall: req.body.hall,
+        link: req.body.link,
+      }
+    );
+    res.success(presentation);
   }
 
   static async postResource(req, res) {
@@ -185,20 +200,6 @@ export default class ThesisController {
       }
     );
     res.success(resource, {}, StatusCodes.CREATED);
-  }
-
-  static async postPresentation(req, res) {
-    const presentation = await ThesisService.createPresentation(
-      req.params.id,
-      req.user,
-      {
-        date: req.body.date,
-        kind: req.body.kind,
-        hall: req.body.hall,
-        link: req.body.link,
-      }
-    );
-    res.success(presentation);
   }
 
   static async getTimeline(req, res) {

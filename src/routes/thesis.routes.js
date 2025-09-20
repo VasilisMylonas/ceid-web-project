@@ -102,14 +102,14 @@ router.post(
   ThesisController.postResource
 );
 router.get(
-  "/:id/presentations",
-  validate(thesisValidator.getPresentations),
-  ThesisController.getPresentations
+  "/:id/presentation",
+  validate(thesisValidator.getPresentation),
+  ThesisController.getPresentation
 );
-router.post(
-  "/:id/presentations",
-  validate(thesisValidator.postPresentation),
-  ThesisController.postPresentation
+router.put(
+  "/:id/presentation",
+  validate(thesisValidator.putPresentation),
+  ThesisController.putPresentation
 );
 router.get(
   "/:id/timeline",
@@ -137,7 +137,7 @@ router.post(
   ThesisController.announce
 );
 
-// TODO: resources, presentations, notes
+// TODO: resources, notes
 // Also check middleware here and in resources/notes routes
 // Who should be able to post/put/delete resources/notes?
 

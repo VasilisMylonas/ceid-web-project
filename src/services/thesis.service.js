@@ -309,8 +309,6 @@ ${offset ? `OFFSET ${offset}` : ""}
       throw new ConflictError("Thesis is not announced.");
     }
 
-    // TODO: maybe a presentation and a draft should exist before allowing this
-
     await thesis.update({ grading });
     return thesis.grading;
   }
@@ -475,17 +473,23 @@ ${offset ? `OFFSET ${offset}` : ""}
     });
   }
 
-  static async getPresentations(id, user) {
+  static async getPresentation(id, user) {
     const thesis = await ThesisService._assertUserHasThesisRoles(id, user, [
       ThesisRole.SUPERVISOR,
       ThesisRole.STUDENT,
       ThesisRole.COMMITTEE_MEMBER,
     ]);
 
-    return await thesis.getPresentations({ order: [["id", "ASC"]] });
+    const presentation = await thesis.getPresentation();
+
+    if (!presentation) {
+      throw new NotFoundError("No presentation found.");
+    }
+
+    return presentation;
   }
 
-  static async createPresentation(id, user, { date, kind, hall, link }) {
+  static async setPresentation(id, user, { date, kind, hall, link }) {
     const thesis = await ThesisService._assertUserHasThesisRoles(id, user, [
       ThesisRole.STUDENT,
     ]);
@@ -494,7 +498,18 @@ ${offset ? `OFFSET ${offset}` : ""}
       throw new ConflictError("Thesis is not under examination.");
     }
 
-    // TODO: maybe check for overlapping presentations?
+    if (thesis.isAnnounced) {
+      throw new ConflictError("Thesis is already announced.");
+    }
+
+    // Create or update
+    const existingPresentation = await thesis.getPresentation();
+
+    if (existingPresentation) {
+      await existingPresentation.update({ date, kind, hall, link });
+      return existingPresentation;
+    }
+
     return await thesis.createPresentation({
       date,
       kind,
@@ -647,7 +662,13 @@ ${offset ? `OFFSET ${offset}` : ""}
       throw new ConflictError("Thesis is already announced.");
     }
 
-    // TODO: only if theses has presentation
+    const presentation = await thesis.getPresentation();
+
+    if (!presentation || thesis.documentFile === null) {
+      throw new ConflictError(
+        "Thesis must have a presentation and a draft to be announced."
+      );
+    }
 
     const transaction = await db.sequelize.transaction();
     try {

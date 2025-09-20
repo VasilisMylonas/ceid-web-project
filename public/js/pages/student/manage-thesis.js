@@ -204,21 +204,28 @@ function setupModalEventListeners(modalElement, inviteModal, getThesis, onInvita
       ]);
       const invitations = invitationsResponse.data || [];
       const committeeMemberIds = new Set(thesis.committeeMembers.map(member => member.professorId));
+      console.log("Committee member IDs:", committeeMemberIds);
       const alreadyInvitedIds = new Set(invitations.map(inv => inv.professorId));
 
-      professorListContainer.innerHTML = "";
-      professorsResponse.data.forEach(professor => {
-        if (committeeMemberIds.has(professor.id)) return;
-        const isAlreadyInvited = alreadyInvitedIds.has(professor.id);
-        const div = document.createElement("div");
-        div.className = "form-check";
-        div.innerHTML = `
-          <input class="form-check-input" type="checkbox" value="${professor.id}" id="prof-${professor.id}" ${isAlreadyInvited ? "disabled" : ""}>
-          <label class="form-check-label ${isAlreadyInvited ? "text-muted" : ""}" for="prof-${professor.id}">
-            ${professor.name} ${isAlreadyInvited ? "(Έχει ήδη προσκληθεί)" : ""}
-          </label>`;
-        professorListContainer.appendChild(div);
-      });
+      // Filter out committee members and already invited professors
+      const availableProfessors = professorsResponse.data.filter(
+        professor =>
+          !committeeMemberIds.has(professor.professorId) &&
+          !alreadyInvitedIds.has(professor.professorId)
+      );
+      console.log("Available professors for invitation:", availableProfessors);
+      if (availableProfessors.length === 0) {
+        professorListContainer.innerHTML = '<p class="text-muted">Δεν υπάρχουν διαθέσιμοι διδάσκοντες για πρόσκληση.</p>';
+      } else {
+        professorListContainer.innerHTML = availableProfessors.map(professor => `
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" value="${professor.id}" id="prof-${professor.id}">
+            <label class="form-check-label" for="prof-${professor.id}">
+              ${professor.name}
+            </label>
+          </div>
+        `).join('');
+      }
     } catch (error) {
       console.error("Error fetching data for modal:", error);
       professorListContainer.innerHTML = '<p class="text-danger">Σφάλμα φόρτωσης διδασκόντων.</p>';
@@ -279,7 +286,7 @@ async function populateInvitationsList(invitations, activeStateCard) {
 
   try {
     const professorsResponse = await getProfessors();
-    const professorMap = new Map(professorsResponse.data.map(p => [p.id, p.name]));
+    const professorMap = new Map(professorsResponse.data.map(p => [p.professorId, p.name]));
     invitationList.innerHTML = relevantInvitations.map(inv => {
       const professorName = professorMap.get(inv.professorId) || `ID: ${inv.professorId}`;
       const badge = `<span class="badge bg-${inv.response === 'pending' ? 'warning' : 'danger'} rounded-pill">${inv.response === 'pending' ? 'Εκκρεμεί' : 'Απορρίφθηκε'}</span>`;

@@ -1,0 +1,45 @@
+<style>
+  .card-body canvas {
+    height: 300px !important;
+  }
+</style>
+
+<div class="container">
+  <h2 class="mb-4">Στατιστικά Διπλωματικών</h2>
+
+  <section class="row row-cols-1 row-cols-lg-2 row-cols-xxl-3 g-4 mb-4"
+      aria-label="Γραφήματα στατιστικών">
+    <div class="col">
+      <article class="card">
+        <div class="card-header">Μέσος Χρόνος Ολοκλήρωσης</div>
+        <div class="card-body">
+          <canvas id="completionTimeChart"></canvas>
+        </div>
+      </article>
+    </div>
+
+    <div class="col">
+      <article class="card">
+        <div class="card-header">Μέση Βαθμολογία</div>
+        <div class="card-body">
+          <canvas id="averageGradeChart"></canvas>
+        </div>
+      </article>
+    </div>
+
+    <div class="col">
+      <article class="card">
+        <div class="card-header">Συνολικό Πλήθος Διπλωματικών</div>
+        <div class="card-body">
+          <canvas id="totalThesesChart"></canvas>
+        </div>
+      </article>
+    </div>
+  </section>
+</div>
+
+<noscript>Απαιτείται JavaScript για την εμφάνιση των γραφημάτων.</noscript>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.min.js">
+</script>
+<script src="/js/pages/professor/statistics.js"></script>

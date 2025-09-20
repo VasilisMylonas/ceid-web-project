@@ -3,6 +3,7 @@ import { omit } from "../util.js";
 import UserService from "../services/user.service.js";
 import db from "../models/index.js";
 import { UserRole } from "../constants.js";
+import Sequelize from "sequelize";
 
 export default class UserController {
   static async query(req, res) {
@@ -15,8 +16,18 @@ export default class UserController {
       where: {
         role: UserRole.PROFESSOR,
       },
-      attributes: ["id", "name"], // Return only ID and name
+      attributes: [
+        "id",
+        "name",
+        [Sequelize.col("Professor.id"), "professorId"],
+      ], // Return only ID and name
       order: [["name", "ASC"]], // Order alphabetically by name
+      include: [
+        {
+          model: db.Professor,
+          attributes: [],
+        },
+      ],
     });
 
     res.success(professors);

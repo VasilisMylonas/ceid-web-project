@@ -4,6 +4,7 @@ import { ThesisGradingStatus, ThesisStatus } from "../constants.js";
 import { getFilePath } from "../config/file-storage.js";
 import { UserRole } from "../constants.js";
 import { ThesisRole } from "../constants.js";
+import { Sequelize } from "sequelize";
 
 export default class ThesisService {
   static async _assertUserHasThesisRoles(
@@ -59,7 +60,7 @@ export default class ThesisService {
     return thesis;
   }
 
-  static async create({ topicId, studentId }) {
+  static async create(user, { topicId, studentId }) {
     const topic = await db.Topic.findByPk(topicId);
     const student = await db.Student.findByPk(studentId);
 
@@ -69,6 +70,13 @@ export default class ThesisService {
 
     if (!student) {
       throw new NotFoundError("No such student.");
+    }
+
+    const professor = await user.getProfessor();
+    if (!professor || topic.professorId !== professor.id) {
+      throw new SecurityError(
+        "Only the topic owner can create a thesis for this topic."
+      );
     }
 
     if (await topic.isAssigned()) {
@@ -118,12 +126,13 @@ export default class ThesisService {
   }
 
   static async getExtra(id, user) {
-    await ThesisService._assertUserHasThesisRoles(
-      id,
-      user,
-      [ThesisRole.SUPERVISOR, ThesisRole.STUDENT, ThesisRole.COMMITTEE_MEMBER],
-      true // Allow Secretary
-    );
+    // TODO: allow everyone to see theses
+    // await ThesisService._assertUserHasThesisRoles(
+    //   id,
+    //   user,
+    //   [ThesisRole.SUPERVISOR, ThesisRole.STUDENT, ThesisRole.COMMITTEE_MEMBER],
+    //   true // Allow Secretary
+    // );
 
     const rawQuery = `
   SELECT
@@ -596,7 +605,27 @@ ${offset ? `OFFSET ${offset}` : ""}
       ThesisRole.STUDENT,
     ]);
 
-    return await thesis.getInvitations({ order: [["id", "ASC"]] });
+    return await thesis.getInvitations({
+      order: [["id", "ASC"]],
+      attributes: {
+        include: [
+          [Sequelize.col("Professor.User.name"), "professorName"],
+          [Sequelize.col("Professor.User.email"), "professorEmail"],
+        ],
+      },
+      include: [
+        {
+          model: db.Professor,
+          attributes: [],
+          include: [
+            {
+              model: db.User,
+              attributes: ["name", "email"],
+            },
+          ],
+        },
+      ],
+    });
   }
 
   static async createInvitation(id, user, professorId) {

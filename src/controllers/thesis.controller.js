@@ -3,7 +3,7 @@ import ThesisService from "../services/thesis.service.js";
 
 export default class ThesisController {
   static async post(req, res) {
-    const thesis = await ThesisService.create({
+    const thesis = await ThesisService.create(req.user, {
       topicId: req.body.topicId,
       studentId: req.body.studentId,
     });

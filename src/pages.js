@@ -210,4 +210,45 @@ pages.get("/student/:page", requirePageAuth, async (req, res) => {
   });
 });
 
+
+pages.get("/professor/:page", requirePageAuth, async (req, res) => {
+  if (req.user.role !== UserRole.PROFESSOR) {
+    return res.redirect("/");
+  }
+
+  const professorLinks = [
+    {
+      href: "/professor/topics-manage",
+      icon: "bi-house-door",
+      title: "Αρχική",
+    },
+    {
+      href: "/professor/assignments",
+      icon: "bi-journal-plus",
+      title: "Θέματα & Ανάθεση",
+    },
+    {
+      href: "/professor/theses-list",
+      icon: "bi-collection",
+      title: "Οι Διπλωματικές μου",
+    },
+    {
+      href: "/professor/invitations",
+      icon: "bi-envelope",
+      title: "Προσκλήσεις",
+    },
+    {
+      href: "/professor/statistics",
+      icon: "bi-graph-up",
+      title: "Στατιστικά",
+    },
+  ];
+
+  return res.render(`pages/professor/${req.params.page}`, {
+    title: professorLinks.find((link) => link.href === req.path)?.title,
+    links: professorLinks,
+    layout: "layouts/basic",
+  });
+});
+
 export default pages;

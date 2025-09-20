@@ -1,80 +1,13 @@
-function renderThesisTableSpinner() {
-  const tableBody = document.getElementById("theses-table-body");
-  tableBody.innerHTML = `
-  <tr>
-    <td colspan="6" class="text-center" style="height: 300px;">
-      <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Loading...</span>
-      </div>
-    </td>
-  </tr>
-  `;
-}
-
-function renderThesisTable(tableBody, theses) {
-  tableBody.innerHTML = ""; // Clear existing rows
-
-  for (const thesis of theses) {
-    const row = document.createElement("tr");
-    row.style.cursor = "pointer";
-    row.setAttribute("data-thesis-id", thesis.id);
-    row.innerHTML = `
-    <td>${thesis.topic}</td>
-    <td>${thesis.student}</td>
-    <td>${thesis.supervisor}</td>
-    <td>
-      <span class="badge rounded-pill ${getThesisStatusBootstrapBgClass(
-        thesis.status
-      )}">
-      ${Name.ofThesisStatus(thesis.status)}
-      </span>
-    </td>
-    <td>${
-      thesis.startDate == null
-        ? "-"
-        : new Date(thesis.startDate).toLocaleDateString("el-GR")
-    }</td>
-    <td>
-      <button class="btn btn-sm btn-primary" aria-label="Προβολή λεπτομερειών διπλωματικής">
-        <i class="bi bi-eye-fill"></i>
-      </button>
-    </td>
-    `;
-    tableBody.appendChild(row);
-  }
-
-  tableBody.addEventListener("click", onShowDetailsClick);
-  tableBody
-    .querySelector(".btn")
-    ?.addEventListener("click", onShowDetailsClick);
-}
-
-// We need this here cause of bootstrap modal bug
-let thesisModal = null;
-document.addEventListener("DOMContentLoaded", () => {
-  thesisModal = new bootstrap.Modal(
-    document.getElementById("thesisDetailsModal")
-  );
-});
-
-async function onShowDetailsClick(event) {
-  const row = event.target.closest("tr");
-  const res = await getThesisDetails(row.dataset.thesisId);
-  renderThesisDetails(res.data);
-  renderThesisActions(res.data);
-  thesisModal.show();
-}
-
 const state = {
   page: 1,
   pageSize: 10,
   pageCount: 0,
   statusFilter: "all",
-  supervisorFilter: -1,
+  roleFilter: "all",
   searchQuery: "",
 };
 
-const STATE_KEY = "thesesListStateSecretary";
+const STATE_KEY = "thesesListStateProfessor";
 
 async function setState(newState) {
   newState = { ...state, ...newState }; // Merge with existing state
@@ -98,7 +31,7 @@ async function onFiltersSubmit(event) {
   await setState({
     searchQuery: event.target.elements.search.value,
     statusFilter: event.target.elements.status.value,
-    supervisorFilter: parseInt(event.target.elements.supervisor.value),
+    roleFilter: event.target.elements.role.value,
     page: 1,
   });
 }
@@ -107,7 +40,7 @@ async function onFiltersReset(event) {
   await setState({
     searchQuery: "",
     statusFilter: "all",
-    supervisorFilter: -1,
+    roleFilter: "all",
     page: 1,
   });
 }
@@ -115,12 +48,12 @@ async function onFiltersReset(event) {
 async function onExportJsonClick(event) {
   event.preventDefault();
 
-  const theses = await getThesesSecretary(
+  const theses = await getMyTheses(
     state.page,
     state.pageSize,
-    state.supervisorFilter === -1 ? null : state.supervisorFilter,
     state.statusFilter === "all" ? null : state.statusFilter,
-    state.searchQuery || null
+    state.searchQuery || null,
+    state.roleFilter === "all" ? null : state.roleFilter
   );
 
   exportThesesToJSON(theses.data);
@@ -129,12 +62,12 @@ async function onExportJsonClick(event) {
 async function onExportCsvClick(event) {
   event.preventDefault();
 
-  const theses = await getThesesSecretary(
+  const theses = await getMyTheses(
     state.page,
     state.pageSize,
-    state.supervisorFilter === -1 ? null : state.supervisorFilter,
     state.statusFilter === "all" ? null : state.statusFilter,
-    state.searchQuery || null
+    state.searchQuery || null,
+    state.roleFilter === "all" ? null : state.roleFilter
   );
 
   exportThesesCSV(theses.data);
@@ -152,15 +85,15 @@ async function onPageSizeChange(event) {
 
 // Called whenever state is updated
 async function onStateUpdate(newState) {
-  const theses = await getThesesSecretary(
+  const theses = await getMyTheses(
     newState.page,
     newState.pageSize,
-    newState.supervisorFilter === -1 ? null : newState.supervisorFilter,
     newState.statusFilter === "all" ? null : newState.statusFilter,
-    newState.searchQuery || null
+    newState.searchQuery || null,
+    newState.roleFilter === "all" ? null : newState.roleFilter
   );
 
-  const thesesTableBody = document.getElementById("theses-table-body");
+  const cardListDiv = document.getElementById("theses-card-list");
   const pageNavDiv = document.getElementById("page-nav-container");
 
   newState.pageCount = Math.max(
@@ -168,21 +101,64 @@ async function onStateUpdate(newState) {
     Math.ceil(theses.meta.total / newState.pageSize)
   );
 
-  const professors = await getProfessors();
-
-  renderThesisTableSpinner();
-
   // Re render UI
   renderPageSizeSelect(newState.pageSize);
   renderStatusFilter(newState.statusFilter);
-  renderSupervisorFilter(professors.data, newState.supervisorFilter);
-  renderThesisTable(thesesTableBody, theses.data);
+  renderRoleFilter(newState.roleFilter);
+  renderThesesCards(cardListDiv, theses.data);
   renderPageNav(
     pageNavDiv,
     newState.pageCount,
     newState.page,
     theses.meta.count
   );
+}
+
+function renderThesesCards(div, theses) {
+  div.innerHTML = "";
+  theses.forEach((thesis) => {
+    const card = document.createElement("div");
+    card.className = "col";
+    card.innerHTML = `
+      <article class="card h-100">
+        <h5 class="card-header fw-semibold text-primary">${thesis.topic}</h5>
+        <div class="card-body d-flex flex-column">
+          <ul class="list-unstyled mb-4 small">
+            <li class="mb-1">
+                <i class="bi bi-person-fill me-1 text-secondary"></i>
+                <strong>Φοιτητής:</strong> <span>${thesis.student}</span>
+            </li>
+            <li class="mb-1">
+                <i class="bi bi-person-badge-fill me-1 text-secondary"></i>
+                <strong>Επιβλέπων:</strong> <span>${thesis.supervisor}</span>
+            </li>
+            <li class="mb-1">
+                <i class="bi bi-info-circle-fill me-1 text-secondary"></i>
+                <strong>Κατάσταση:</strong> <span class="rounded-pill border-0 badge ${getThesisStatusBootstrapBgClass(
+                  thesis.status
+                )} border">${Name.ofThesisStatus(thesis.status)}</span>
+            </li>
+            <li>
+                <i class="bi bi-calendar-event-fill me-1 text-secondary"></i>
+                <strong>Ημ. Ανάθεσης:</strong> <span>${
+                  thesis.startDate
+                    ? new Date(thesis.startDate).toLocaleDateString("el-GR")
+                    : "Αναμένεται"
+                }</span>
+            </li>
+          </ul>
+          <div class="mt-auto d-flex gap-2 justify-content-end">
+            <button class="btn btn-sm btn-primary"
+                data-thesis-id="${thesis.id}"
+                data-bs-toggle="modal"
+                data-bs-target="#thesisDetailsModal">
+              <i class="bi bi-eye-fill me-1" aria-hidden="true"></i>Λεπτομέρειες
+          </div>
+        </div>
+      </article>
+    `;
+    div.appendChild(card);
+  });
 }
 
 function renderStatusFilter(value) {
@@ -207,18 +183,20 @@ function renderStatusFilter(value) {
   statusSelect.value = value;
 }
 
-function renderSupervisorFilter(professors, supervisorId) {
-  const supervisorSelect = document.getElementById("supervisor-select");
-  supervisorSelect.innerHTML = `<option value="-1">Όλοι</option>`;
+function renderRoleFilter(value) {
+  const roleSelect = document.getElementById("role-select");
+  roleSelect.innerHTML = `<option value="all">Όλοι οι ρόλοι</option>`;
 
-  for (const professor of professors) {
+  const roles = ["supervisor", "committee_member"];
+
+  for (const role of roles) {
     const option = document.createElement("option");
-    option.value = professor.professorId;
-    option.textContent = professor.name;
-    supervisorSelect.appendChild(option);
+    option.value = role;
+    option.textContent = Name.ofMemberRole(role);
+    roleSelect.appendChild(option);
   }
 
-  supervisorSelect.value = supervisorId;
+  roleSelect.value = value;
 }
 
 function renderPageSizeSelect(value) {

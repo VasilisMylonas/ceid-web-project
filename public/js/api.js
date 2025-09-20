@@ -174,39 +174,35 @@ async function getTopic(id) {
   return await request("GET", `${BASE_URL}/v1/topics/${id}`);
 }
 
-async function getThesesSecretary(
+//
+// Professor
+//
+
+async function getMyTheses(
   page,
   pageSize,
-  supervisorId = null,
   status = null,
-  query = null
+  query = null,
+  role = null
 ) {
-  let offset;
-  let limit;
-
-  if (page == null || pageSize == null) {
-    offset = 0;
-    limit = null;
-  } else {
-    page = parseInt(page, 10);
-    pageSize = parseInt(pageSize, 10);
-    offset = (page - 1) * pageSize;
-    limit = pageSize;
-  }
-
+  const { offset, limit } = pageToLimitOffset(page, pageSize);
   return await request(
     "GET",
-    `${BASE_URL}/v1/theses?&offset=${offset}${limit ? `&limit=${limit}` : ""}${
-      supervisorId ? `&professorId=${supervisorId}&role=supervisor` : ""
+    `${BASE_URL}/v1/my/theses?&offset=${offset}${
+      limit ? `&limit=${limit}` : ""
     }${status ? `&status=${status}` : ""}${
       query ? `&q=${encodeURIComponent(query)}` : ""
-    }`
+    }${role ? `&role=${role}` : ""}`
   );
 }
 
 async function getThesisDetails(thesisId) {
   return await request("GET", `${BASE_URL}/v1/theses/${thesisId}`);
 }
+
+//
+// Secretary
+//
 
 async function importUsers(users) {
   return await request("POST", `${BASE_URL}/v1/users/batch`, users);
@@ -230,37 +226,108 @@ async function completeThesis(thesisId) {
   return await request("POST", `${BASE_URL}/v1/theses/${thesisId}/complete`);
 }
 
-class Name {
-  static ofThesisStatus(status) {
-    switch (status) {
-      case "active":
-        return "Ενεργή";
-      case "under_examination":
-        return "Υπό Εξέταση";
-      case "completed":
-        return "Ολοκληρωμένη";
-      case "cancelled":
-        return "Ακυρωμένη";
-      case "under_assignment":
-        return "Υπό Ανάθεση";
-    }
-  }
+async function getThesesSecretary(
+  page,
+  pageSize,
+  supervisorId = null,
+  status = null,
+  query = null
+) {
+  const { offset, limit } = pageToLimitOffset(page, pageSize);
 
-  static ofMemberRole(role) {
-    switch (role) {
-      case "supervisor":
-        return "Επιβλέπων";
-      case "committee_member":
-        return "Μέλος";
-    }
-  }
+  return await request(
+    "GET",
+    `${BASE_URL}/v1/theses?&offset=${offset}${limit ? `&limit=${limit}` : ""}${
+      supervisorId ? `&professorId=${supervisorId}&role=supervisor` : ""
+    }${status ? `&status=${status}` : ""}${
+      query ? `&q=${encodeURIComponent(query)}` : ""
+    }`
+  );
+}
+//Professors API s
+
+//topics
+async function getMyTopics() {
+  return await request("GET", `${BASE_URL}/v1/my/topics?status=unassigned`);
 }
 
-function getMemberRoleBootstrapBgClass(role) {
-  switch (role) {
-    case "supervisor":
-      return "bg-primary";
-    case "committee_member":
-      return "bg-secondary";
-  }
+async function createTopic(title, summary) {
+  return await request("POST", `${BASE_URL}/v1/topics`, { title, summary });
+}
+
+async function updateTopic(topicId, title, summary) {
+  return await request("PUT", `${BASE_URL}/v1/topics/${topicId}`, {
+    title,
+    summary,
+  });
+}
+
+async function putDescriptionFile(topicId, formData) {
+  return await requestWithFile(
+    "PUT",
+    `${BASE_URL}/v1/topics/${topicId}/description`,
+    formData
+  );
+}
+
+// async function getTopicDescription(topicId) {
+//   const response = await fetch(`${BASE_URL}/v1/topics/${topicId}/description`);
+//   if (!response.ok) {
+//     throw new Error(`Failed to download file: ${response.statusText}`);
+//   }
+//   return await response.blob();
+// }
+
+//assignments
+
+// async function getMyTopics() {
+//   return await request("GET", `${BASE_URL}/v1/my/topics?status=unassigned`);
+// }
+
+async function assignTopic(studentId, topicId) {
+  return await request("POST", `${BASE_URL}/v1/theses`, { studentId, topicId });
+}
+
+async function unassignTopic(thesisId) {
+  return await request("DELETE", `${BASE_URL}/v1/theses/${thesisId}`);
+}
+
+async function getMyAssignedTopic() {
+  return await request(
+    "GET",
+    `${BASE_URL}/v1/my/theses?status=under_assignment`
+  );
+}
+
+async function getUnassignedStudents() {
+  return await request("GET", `${BASE_URL}/v1/students?assigned=false`);
+}
+
+// async function getThesisInvitations(thesisId) {
+//   return await request("GET", `${BASE_URL}/v1/theses/${thesisId}/invitations`);
+// }
+
+//async function getThesisDetails(thesisId) {
+//  return await request("GET", `${BASE_URL}/v1/theses/${thesisId}`);
+//}
+
+//invitations
+async function getMyInvitations() {
+  return await request("GET", `${BASE_URL}/v1/my/invitations`);
+}
+
+async function respondToInvitation(invitationId, response) {
+  return await request(
+    "PUT",
+    `${BASE_URL}/v1/invitations/${invitationId}/response`,
+    { response }
+  );
+}
+
+//async function getThesisDetails(thesisId) {
+//  return await request("GET", `${BASE_URL}/v1/theses/${thesisId}`);
+//}
+
+async function getStatistics() {
+  return await request("GET", `${BASE_URL}/v1/my/stats`);
 }

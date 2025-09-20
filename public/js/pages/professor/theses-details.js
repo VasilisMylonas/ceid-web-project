@@ -242,150 +242,182 @@ if (status === "active") {
 }
 
 
-if (status === "under_examination") {
-  const btnBar = document.createElement("div");
-  btnBar.className = "d-flex gap-2 flex-wrap mb-3";
+    if (status === "under_examination") {
+    // --- Top action bar ---
+    const btnBar = document.createElement("div");
+    btnBar.className = "d-flex gap-2 flex-wrap mb-3";
 
-  const btnView = document.createElement("button");
-  btnView.className = "btn btn-outline-secondary";
-  btnView.textContent = "Προβολή Κειμένου Διπλωματικής";
-  btnView.addEventListener("click", () => {
-    window.open(`${BASE_URL}/v1/theses/${thesis.id}/draft`, "_blank");
-  });
+    const btnView = document.createElement("button");
+    btnView.className = "btn btn-outline-secondary";
+    btnView.textContent = "Προβολή Κειμένου Διπλωματικής";
+    btnView.addEventListener("click", () => {
+        window.open(`${BASE_URL}/v1/theses/${thesis.id}/draft`, "_blank");
+    });
 
-  // Create announcement (supervisor only)
-  const btnAnnounce = document.createElement("button");
-  btnAnnounce.className = "btn btn-outline-info";
-  btnAnnounce.textContent = "Δημιουργία Ανακοίνωσης Παρουσίασης";
-  if (!isSupervisor) {
-    btnAnnounce.disabled = true;
-    btnAnnounce.title = "Μόνο ο επιβλέπων μπορεί να δημιουργήσει ανακοίνωση.";
-  }
-  btnAnnounce.addEventListener("click", async () => {
-    btnAnnounce.disabled = true; btnAnnounce.textContent = "Δημιουργία...";
-    const res = await createDefenseAnnouncement(thesis.id);
-    if (res?.success) { alert("Η ανακοίνωση δημιουργήθηκε."); await loadDetails(); }
-    else { alert("Σφάλμα δημιουργίας.");
-    btnAnnounce.disabled = false; 
-    btnAnnounce.textContent = "Δημιουργία Ανακοίνωσης Παρουσίασης"; }
-  });
+    const btnEnableGrading = document.createElement("button");
+    btnEnableGrading.className = "btn btn-outline-warning";
+    btnEnableGrading.textContent = "Ενεργοποίηση Βαθμολόγησης";
+    if (!isSupervisor) {
+        btnEnableGrading.disabled = true;
+        btnEnableGrading.title = "Μόνο ο επιβλέπων μπορεί να ενεργοποιήσει τη βαθμολόγηση.";
+    }
+    btnEnableGrading.addEventListener("click", async () => {
+        const originalLabel = "Ενεργοποίηση Βαθμολόγησης";
+        btnEnableGrading.disabled = true;
+        btnEnableGrading.textContent = "Ενεργοποίηση...";
 
-  const btnEnableGrading = document.createElement("button");
-  btnEnableGrading.className = "btn btn-outline-warning";
-  btnEnableGrading.textContent = "Ενεργοποίηση Βαθμολόγησης";
+        try {
+            const res = await enableGrading(thesis.id, "enabled")
+            await loadDetails(); 
+            
+        } catch (err) {
+            console.error(err);
+            alert("Για την ενεργοποιήση της βαθμολόγησης απαιτείται η καταχύρωση ανακοίνωσης.");
+        }
+        btnEnableGrading.disabled = false;
+        btnEnableGrading.textContent = originalLabel;
+    });
 
-  if (!isSupervisor) {
-    btnEnableGrading.disabled = true;
-    btnEnableGrading.title = "Μόνο ο επιβλέπων μπορεί να ενεργοποιήσει τη βαθμολόγηση.";
-  }
 
-  btnEnableGrading.addEventListener("click", async () => {
-    btnEnableGrading.disabled = true; btnEnableGrading.textContent = "Ενεργοποίηση...";
-    const res = await enableGrading(thesis.id, "enabled");
-    if (res?.success) { alert("Η βαθμολόγηση της επιτροπής ενεργοποιήθηκε."); await loadDetails(); }
-    else { alert("Σφάλμα ενεργοποίησης."); 
-    btnEnableGrading.disabled = false; 
-    btnEnableGrading.textContent = "Ενεργοποίηση Βαθμολόγησης"; }
-  });
-
-  btnBar.append(btnView, btnAnnounce, btnEnableGrading);
-
-  // If grading is disabled, only show the 3 buttons
-  if (thesis.grading === "disabled") {
+    btnBar.append(btnView, btnEnableGrading);
     container.append(btnBar);
-    return;
-  }
 
-  const hr = document.createElement("hr");
-  const h6grade = document.createElement("h6");
-  h6grade.textContent = "Βαθμολόγηση";
-  const p = document.createElement("p");
-  p.textContent = "Εισάγετε τις βαθμολογίες σας (0–10).";
+    // --- Ανακοίνωση Παρουσίασης (ΜΟΝΟ για επιβλέποντα: ορατή & επεξεργάσιμη) ---
+    if (isSupervisor) {
+        const h6Ann = document.createElement("h6");
+        h6Ann.textContent = "Ανακοίνωση Παρουσίασης";
 
-  const form = document.createElement("form");
-  form.className = "row g-2 mb-3";
+    const annWrap = document.createElement("div");
+        annWrap.className = "mb-3";
 
-  const mkNum = (id, label) => {
-    const col = document.createElement("div");
-    col.className = "col-12 col-md-6 col-lg-3";
-    col.innerHTML = `
-      <label class="form-label mb-1" for="${id}">${label}</label>
-      <input id="${id}" type="number" class="form-control" min="0" max="10" step="0.1" required />
-    `;
-    form.appendChild(col);
-    return () => Number(String(document.getElementById(id).value).replace(",", "."));
-  };
+        const annTextarea = document.createElement("textarea");
+        annTextarea.className = "form-control mb-2";
+        annTextarea.rows = 4;
+        annTextarea.placeholder = "Κείμενο ανακοίνωσης (ημερομηνία, χώρος, ώρα κ.λπ.)";
 
-  const getObjectives   = mkNum("grade_objectives",   "Στόχοι");
-  const getDuration     = mkNum("grade_duration",     "Διάρκεια");
-  const getDeliverable  = mkNum("grade_deliverable",  "Ποιότητα Παραδοτέου");
-  const getPresentation = mkNum("grade_presentation", "Ποιότητα Παρουσίασης");
+        const btnSaveAnn = document.createElement("button");
+        btnSaveAnn.className = "btn btn-outline-info";
+        btnSaveAnn.textContent = "Αποθήκευση Ανακοίνωσης";
 
-  const btnGrade = document.createElement("button");
-  btnGrade.className = "btn btn-success";
-  btnGrade.textContent = "Εισαγωγή Βαθμολογίας";
+    const announcementRes = await getAnnouncement(thesis.id);
+        annTextarea.value = announcementRes?.data?.content || "";
 
-  btnGrade.addEventListener("click", async (e) => {
-    e.preventDefault();
-    const vals = [getObjectives(), getDuration(), getDeliverable(), getPresentation()];
+    btnSaveAnn.addEventListener("click", async () => {
+    const text = (annTextarea.value || "").trim();
+    const originalLabel = "Αποθήκευση Ανακοίνωσης";
 
-    btnGrade.disabled = true; btnGrade.textContent = "Αποστολή...";
-    const res = await putGrade(thesis.id, ...vals);
-    if (res?.success) { alert("Οι βαθμολογίες καταχωρήθηκαν."); await loadDetails(); }
-    else { alert("Σφάλμα καταχώρησης."); btnGrade.disabled = false; btnGrade.textContent = "Εισαγωγή Βαθμολογίας"; }
-  });
+    btnSaveAnn.disabled = true;
+    btnSaveAnn.textContent = "Αποθήκευση...";
 
+    try {
+        const res = await announceThesis(thesis.id, text);
+        alert("Η ανακοίνωση αποθηκεύτηκε.");
+        await loadDetails(); 
+        
+    } catch (err) {
+        alert("Η επιλογή αυτή είναι ενεργή μόνο εφόσον ο φοιτητής έχει συμπληρώσει τις σχετικές λεπτομέρειες της παρουσίασης");
+        btnSaveAnn.disabled = false;
+        btnSaveAnn.textContent = originalLabel;
+        return;
+    }
+    });
 
-  const extras = [];
+        container.append(h6Ann, annWrap);
+        annWrap.append(annTextarea, btnSaveAnn);
+    }
+    
+    if (thesis.grading === "disabled") return;
+
+    // --- Φόρμα βαθμολόγησης (όλοι μπορούν να υποβάλουν όταν είναι enabled) ---
+    const hr = document.createElement("hr");
+    const h6grade = document.createElement("h6");
+    h6grade.textContent = "Βαθμολόγηση";
+    const p = document.createElement("p");
+    p.textContent = "Εισάγετε τις βαθμολογίες σας (0–10).";
+
+    const form = document.createElement("form");
+    form.className = "row g-2 mb-3";
+
+    const mkNum = (id, label) => {
+        const col = document.createElement("div");
+        col.className = "col-12 col-md-6 col-lg-3";
+        col.innerHTML = `
+        <label class="form-label mb-1" for="${id}">${label}</label>
+        <input id="${id}" type="number" class="form-control" min="0" max="10" step="0.1" required />
+        `;
+        form.appendChild(col);
+        return () => Number(String(document.getElementById(id).value).replace(",", "."));
+    };
+
+    const getObjectives   = mkNum("grade_objectives",   "Στόχοι");
+    const getDuration     = mkNum("grade_duration",     "Διάρκεια");
+    const getDeliverable  = mkNum("grade_deliverable",  "Ποιότητα Παραδοτέου");
+    const getPresentation = mkNum("grade_presentation", "Ποιότητα Παρουσίασης");
+
+    const btnGrade = document.createElement("button");
+    btnGrade.className = "btn btn-success";
+    btnGrade.textContent = "Εισαγωγή Βαθμολογίας";
+    btnGrade.addEventListener("click", async (e) => {
+        e.preventDefault();
+        const vals = [getObjectives(), getDuration(), getDeliverable(), getPresentation()];
+        btnGrade.disabled = true; btnGrade.textContent = "Αποστολή...";
+        const res = await putGrade(thesis.id, ...vals);
+        if (res?.success) { alert("Οι βαθμολογίες καταχωρήθηκαν."); await loadDetails(); }
+        else { alert("Σφάλμα καταχώρησης."); btnGrade.disabled = false; btnGrade.textContent = "Εισαγωγή Βαθμολογίας"; }
+    });
+
+    container.append(hr, h6grade, p, form, btnGrade);
+
+    // --- Πίνακας βαθμολογιών όλων (ορατός σε όλους) ---
     const gradesTitle = document.createElement("h6");
-    gradesTitle.textContent = "Βαθμολογίες Άλλων Καθηγητών";
+    gradesTitle.textContent = "Βαθμολογίες Όλων των Καθηγητών";
 
-    const getGradesWrap = document.createElement("div");
-
-    const result = await getGrades(thesis.id);
+    const gradesWrap = document.createElement("div");
+    const result = await getGrades(thesis.id); 
     const grades = result?.data || [];
 
     if (!grades.length) {
-      const empty = document.createElement("div");
-      empty.className = "text-muted";
-      empty.textContent = "Δεν υπάρχουν υποβληθείσες βαθμολογίες από άλλους καθηγητές.";
-      getGradesWrap.append(empty);
+        const empty = document.createElement("div");
+        empty.className = "text-muted";
+        empty.textContent = "Δεν υπάρχουν υποβληθείσες βαθμολογίες.";
+        gradesWrap.append(empty);
     } else {
-      const table = document.createElement("table");
-      table.className = "table table-sm align-middle";
-      table.innerHTML = `
+        const table = document.createElement("table");
+        table.className = "table table-sm align-middle";
+        table.innerHTML = `
         <thead>
-          <tr>
+            <tr>
             <th>Καθηγητής</th>
             <th>Στόχοι</th>
             <th>Διάρκεια</th>
             <th>Ποιότητα Παραδοτέου</th>
             <th>Ποιότητα Παρουσίασης</th>
             <th>Υποβλήθηκε</th>
-          </tr>
+            </tr>
         </thead>
         <tbody></tbody>
-      `;
-      const tbody = table.querySelector("tbody");
-      grades.forEach(grade => {
-        const gradeData = document.createElement("tr");
-        gradeData.innerHTML = `
-          <td>${grade.professorName || "—"}</td>
-          <td>${grade.objectives ?? "—"}</td>
-          <td>${grade.duration ?? "—"}</td>
-          <td>${grade.deliverableQuality ?? "—"}</td>
-          <td>${grade.presentationQuality ?? "—"}</td>
-          <td>${fmtDateTime(grade.updatedAt)}</td>
         `;
-        tbody.appendChild(gradeData);
-      });
-      getGradesWrap.append(table);
-    extras.push(gradesTitle, getGradesWrap);
-  }
+        const tbody = table.querySelector("tbody");
+        grades.forEach(g => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td>${g.professorName || "—"}</td>
+            <td>${g.objectives ?? "—"}</td>
+            <td>${g.duration ?? "—"}</td>
+            <td>${g.deliverableQuality ?? "—"}</td>
+            <td>${g.presentationQuality ?? "—"}</td>
+            <td>${fmtDateTime(g.updatedAt)}</td>
+        `;
+        tbody.appendChild(tr);
+        });
+        gradesWrap.append(table);
+    }
 
-  container.append(btnBar, hr, h6grade, p, form, btnGrade, ...extras);
-  return;
-}
+    container.append(gradesTitle, gradesWrap);
+    return;
+    }
+
+
     if (status === "completed") {
       const p = document.createElement("p");
       p.innerHTML = `<strong>Τελική Βαθμολογία:</strong> ${thesis.grade || "—"}`;

@@ -363,7 +363,7 @@ async function getGrades(thesisId) {
 }
 
 async function getAnnouncement(thesisId){
-  return await request("GET", `${BASE_URL}/v1/theses/${thesisId}//announcement`);
+  return await request("GET", `${BASE_URL}/v1/theses/${thesisId}/announcement`);
 }
 
 async function announceThesis(thesisId,content){

@@ -289,8 +289,4 @@ pages.get("/professor/:page", requirePageAuth, async (req, res) => {
   );
 });
 
-pages.use((req, res) => {
-  res.redirect("/");
-});
-
 export default pages;

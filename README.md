@@ -13,6 +13,8 @@ Theseus is a web-based platform designed to streamline the management of theses 
 - **Statistics and Insights**: Visualize data such as average completion times, grades, and thesis distributions.
 - **Role-Based Access Control**: Secure access for students, faculty, and administrators.
 
+![Screenshot](screenshot.png)
+
 ---
 
 ## Getting Started

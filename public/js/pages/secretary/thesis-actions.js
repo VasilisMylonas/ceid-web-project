@@ -51,7 +51,7 @@ async function onThesisCancelFormSubmit(event) {
   const reason = event.target.elements.reason.value;
 
   try {
-      if (assemblyNumber == null || assemblyNumber.trim() === "") {
+    if (assemblyNumber == null || assemblyNumber.trim() === "") {
       alert("Παρακαλώ συμπληρώστε τον αριθμό γενικής συνέλευσης.");
       return;
     }
@@ -139,4 +139,12 @@ function renderThesisActions(thesis) {
 
   thesisApprovalForm.reset();
   thesisCancelForm.reset();
+
+  completeThesisButton.addEventListener("click", completeThesisHandler);
+}
+
+async function completeThesisHandler() {
+  console.log("Complete Thesis");
+  await completeThesis(thesisGlobal.id);
+  window.location.reload();
 }

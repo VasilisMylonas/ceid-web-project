@@ -1,12 +1,22 @@
 [
     {
-        "username": "imported_1_username",
-        "password": "imported_1_password",
-        "name": "imported_1_name",
-        "email": "imported_1_email@email.com",
+        "username": "imported_3_username",
+        "password": "imported_3_password",
+        "name": "imported_3_name",
+        "email": "imported_3_email@email.com",
         "phone": "0000000000",
-        "address": "imported_1_address",
+        "address": "imported_3_address",
         "role": "professor",
-        "division": "imported_1_division"
+        "division": "imported_3_division"
+    },
+    {
+        "username": "imported_2_username",
+        "password": "imported_2_password",
+        "name": "imported_2_name",
+        "email": "imported_2_email@email.com",
+        "phone": "0000000000",
+        "address": "imported_2_address",
+        "role": "student",
+        "am": "0101010"
     }
 ]
